@@ -1,0 +1,305 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   GLOBAL RESET & BASE STYLES
+   ============================================================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.5;
+  color: #111827;
+  background-color: #f3f4f6;
+}
+
+/* ============================================================================
+   REMOVE ALL TRANSPARENCY - FORCE SOLID BACKGROUNDS
+   ============================================================================ */
+.bg-white,
+[class*="bg-white"] {
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
+/* Ensure all cards, modals, dialogs have solid backgrounds */
+[role="dialog"],
+[role="alertdialog"],
+.modal,
+.dialog {
+  background-color: #ffffff !important;
+}
+
+/* ============================================================================
+   TYPOGRAPHY
+   ============================================================================ */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  line-height: 1.25;
+  color: #111827;
+}
+
+a {
+  color: #1E3A5F;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================================================
+   FORM STYLES - PROFESSIONAL INPUTS
+   ============================================================================ */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="search"],
+input[type="url"],
+textarea,
+select {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  font-size: 14px;
+  color: #111827;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #1E3A5F;
+  box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af;
+}
+
+input:disabled,
+textarea:disabled,
+select:disabled {
+  background-color: #f9fafb;
+  cursor: not-allowed;
+}
+
+textarea {
+  height: auto;
+  min-height: 100px;
+  padding: 12px 14px;
+  resize: vertical;
+}
+
+/* Labels */
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* ============================================================================
+   BUTTON STYLES - PROFESSIONAL
+   ============================================================================ */
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Primary Button */
+.btn-primary,
+button[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #1E3A5F;
+  border: none;
+  border-radius: 8px;
+  transition: background-color 0.15s ease;
+}
+
+.btn-primary:hover,
+button[type="submit"]:hover {
+  background-color: #152a45;
+}
+
+.btn-primary:disabled,
+button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+   CARD STYLES
+   ============================================================================ */
+.card {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================================================
+   TABLE STYLES
+   ============================================================================ */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  background-color: #f9fafb;
+}
+
+tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+/* ============================================================================
+   BADGE STYLES
+   ============================================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+.badge-success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badge-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-danger {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-secondary {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+/* ============================================================================
+   MODAL / DIALOG STYLES - SOLID BACKGROUNDS
+   ============================================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal-content {
+  background-color: #ffffff !important;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  border-radius: 0 0 16px 16px;
+}
+
+/* ============================================================================
+   SCROLLBAR
+   ============================================================================ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* ============================================================================
+   UTILITY OVERRIDES
+   ============================================================================ */
+/* Force solid white on anything that might be transparent */
+.bg-white\/10,
+.bg-white\/20,
+[class*="bg-white/"] {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Ensure proper focus styles */
+*:focus-visible {
+  outline: 2px solid #1E3A5F;
+  outline-offset: 2px;
+}

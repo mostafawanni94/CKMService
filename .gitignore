@@ -1,0 +1,82 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python / Django
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+.npm
+*.tsbuildinfo
+
+# Flutter build artifacts (these are large and should not be in git)
+FlutterProTotaalService/build/
+FlutterProTotaalService/.dart_tool/
+FlutterProTotaalService/.flutter-plugins
+FlutterProTotaalService/.flutter-plugins-dependencies
+FlutterProTotaalService/.packages
+FlutterProTotaalService/*.iml
+FlutterProTotaalService/.metadata
+FlutterProTotaalService/android/.gradle/
+FlutterProTotaalService/android/app/debug/
+FlutterProTotaalService/android/app/profile/
+FlutterProTotaalService/android/app/release/
+FlutterProTotaalService/ios/Pods/
+FlutterProTotaalService/ios/.symlinks/
+*.apk
+*.aab
+*.dill
+*.so
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Database
+*.sqlite3
+*.db
+
+# Media uploads (if large)
+media/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
