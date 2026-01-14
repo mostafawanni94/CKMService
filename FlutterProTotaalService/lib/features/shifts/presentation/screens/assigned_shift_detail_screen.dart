@@ -167,8 +167,8 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
                                     // Status card
                                     _buildStatusCard(),
                                     const SizedBox(height: 24),
-                                    // Action button
-                                    if (widget.shift.isToday && !widget.shift.hasWorkLog)
+                                    // Action button - show if can still edit (no worklog, or worklog is pending/draft)
+                                    if (_canShowActionButton())
                                       _buildActionButton(),
                                     const SizedBox(height: 40),
                                   ],
@@ -998,10 +998,23 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
           statusDescription = 'Your work log has been approved';
           break;
         case 'submitted':
+        case 'pending':
           statusColor = const Color(0xFFF59E0B);
           statusIcon = Icons.hourglass_top_rounded;
           statusText = 'Pending';
           statusDescription = 'Waiting for approval';
+          break;
+        case 'in_progress':
+          statusColor = const Color(0xFF3B82F6);
+          statusIcon = Icons.edit_note_rounded;
+          statusText = 'In Progress';
+          statusDescription = 'You can still edit your work log';
+          break;
+        case 'draft':
+          statusColor = const Color(0xFF6366F1);
+          statusIcon = Icons.drafts_rounded;
+          statusText = 'Draft';
+          statusDescription = 'Complete and submit your work log';
           break;
         case 'rejected':
           statusColor = const Color(0xFFEF4444);
@@ -1085,6 +1098,25 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
         ],
       ),
     );
+  }
+
+  /// Check if action button should be shown (allows editing within 7 days)
+  bool _canShowActionButton() {
+    final shift = widget.shift;
+    final now = DateTime.now();
+    final daysDiff = now.difference(shift.date).inDays;
+    
+    // Allow up to 7 days after shift date
+    if (daysDiff > 7) return false;
+    
+    // Hide button only for approved and rejected statuses
+    final status = shift.latestWorkLogStatus ?? shift.status;
+    if (status == 'approved' || status == 'rejected') {
+      return false;
+    }
+    
+    // Show button for all other statuses (pending, planned, etc.)
+    return true;
   }
 
   Widget _buildActionButton() {

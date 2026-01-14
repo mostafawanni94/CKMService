@@ -174,9 +174,13 @@ class ShiftService {
   /// 
   /// Returns only today + future, hides submitted/completed shifts.
   /// Supports pagination with page and pageSize params.
+  /// 
+  /// NEW: Uses unified /worklogs/entries/my/ endpoint instead of legacy
+  /// /projects/shift-assignments/my/
   Future<AssignedShiftsResponse> getMyAssignments({
     String? startDate,
     String? endDate,
+    bool includePast = false,
     int page = 1,
     int pageSize = 20,
   }) async {
@@ -186,10 +190,12 @@ class ShiftService {
     };
     if (startDate != null) params['start_date'] = startDate;
     if (endDate != null) params['end_date'] = endDate;
+    if (includePast) params['include_past'] = 'true';
     
     final queryString = '?${params.entries.map((e) => '${e.key}=${e.value}').join('&')}';
     
-    final response = await _apiClient.get('/projects/shift-assignments/my/$queryString');
+    // Use new unified endpoint
+    final response = await _apiClient.get('/worklogs/entries/my/$queryString');
     
     if (response is Map<String, dynamic>) {
       return AssignedShiftsResponse.fromJson(response);
@@ -248,7 +254,7 @@ class AssignedShiftsResponse {
   }
 }
 
-/// Assigned shift from planning system
+/// Assigned shift from planning system (unified WorkEntry)
 class AssignedShift {
   final String id;
   final String status;
@@ -272,6 +278,12 @@ class AssignedShift {
   final bool isPast;
   final bool canEdit;
   final List<AssignedShiftWorkLog> workLogs;
+  
+  // New fields from unified WorkEntry
+  final String? displayTimeRange;
+  final double? calculatedHours;
+  final String? actualStartDatetime;
+  final String? actualEndDatetime;
 
   AssignedShift({
     required this.id,
@@ -296,22 +308,54 @@ class AssignedShift {
     required this.isPast,
     required this.canEdit,
     required this.workLogs,
+    this.displayTimeRange,
+    this.calculatedHours,
+    this.actualStartDatetime,
+    this.actualEndDatetime,
   });
 
   factory AssignedShift.fromJson(Map<String, dynamic> json) {
+    // Handle both new WorkEntry format and legacy ShiftAssignment format
+    
+    // Work date - new format uses 'work_date', legacy uses 'date'
+    final dateStr = json['work_date'] ?? json['date'];
+    
+    // Times - new format uses planned_start_time/planned_end_time
+    final startTime = json['planned_start_time'] ?? json['start_time'] ?? '';
+    final endTime = json['planned_end_time'] ?? json['end_time'] ?? '';
+    
+    // Shift template info
+    final shiftName = json['shift_name'] ?? 
+        (startTime.isNotEmpty ? '${startTime.toString().substring(0, 5)} - ${endTime.toString().substring(0, 5)}' : 'Shift');
+    final shiftColor = json['shift_color'] ?? '#10B981';
+    
+    // Project info - new format uses project_id, legacy uses project
+    final projectId = (json['project_id'] ?? json['project'])?.toString() ?? '';
+    
+    // Location - new format uses 'location' and 'full_address'
+    final location = json['location'] ?? json['project_location'] ?? '';
+    final fullAddress = json['full_address'] ?? json['project_address'] ?? '';
+    
+    // Work logs - only in legacy format, new format IS the work entry
     final workLogsJson = json['work_logs'] as List? ?? [];
+    
+    // Calculated hours from new format
+    final calculatedHours = json['calculated_hours'] != null 
+        ? double.tryParse(json['calculated_hours'].toString()) 
+        : null;
+    
     return AssignedShift(
-      id: json['id'] ?? '',
+      id: json['id']?.toString() ?? '',
       status: json['status'] ?? 'planned',
-      date: DateTime.parse(json['date']),
-      shiftName: json['shift_name'] ?? '',
-      shiftColor: json['shift_color'] ?? '#10B981',
-      startTime: json['start_time'] ?? '',
-      endTime: json['end_time'] ?? '',
-      projectId: json['project_id'] ?? '',
+      date: DateTime.parse(dateStr),
+      shiftName: shiftName,
+      shiftColor: shiftColor,
+      startTime: startTime.toString(),
+      endTime: endTime.toString(),
+      projectId: projectId,
       projectName: json['project_name'] ?? '',
-      projectLocation: json['project_location'] ?? '',
-      projectAddress: json['project_address'] ?? '',
+      projectLocation: location,
+      projectAddress: fullAddress,
       projectCity: json['project_city'] ?? '',
       projectDescription: json['project_description'] ?? '',
       customerName: json['customer_name'] ?? '',
@@ -321,8 +365,12 @@ class AssignedShift {
       notes: json['notes'] ?? '',
       isToday: json['is_today'] ?? false,
       isPast: json['is_past'] ?? false,
-      canEdit: json['can_edit'] ?? false,
+      canEdit: json['can_fill_data'] ?? json['can_edit'] ?? false,
       workLogs: workLogsJson.map((wl) => AssignedShiftWorkLog.fromJson(wl)).toList(),
+      displayTimeRange: json['display_time_range'],
+      calculatedHours: calculatedHours,
+      actualStartDatetime: json['actual_start_datetime'],
+      actualEndDatetime: json['actual_end_datetime'],
     );
   }
   
@@ -334,11 +382,18 @@ class AssignedShift {
     return parts.join(', ');
   }
   
-  /// Check if this shift has a submitted/approved work log
-  bool get hasWorkLog => workLogs.isNotEmpty;
+  /// Check if this shift has actual work times filled
+  bool get hasWorkLog => actualStartDatetime != null && actualEndDatetime != null || workLogs.isNotEmpty;
   
-  /// Get the latest work log status
-  String? get latestWorkLogStatus => workLogs.isNotEmpty ? workLogs.first.status : null;
+  /// Get the latest work log status - for unified entries, use own status
+  String? get latestWorkLogStatus {
+    // For unified WorkEntry, the status IS the work log status
+    if (['draft', 'pending', 'submitted', 'approved', 'rejected'].contains(status)) {
+      return status;
+    }
+    // Fallback to legacy work_logs array
+    return workLogs.isNotEmpty ? workLogs.first.status : null;
+  }
 }
 
 /// Work log attached to an assigned shift
@@ -357,9 +412,9 @@ class AssignedShiftWorkLog {
 
   factory AssignedShiftWorkLog.fromJson(Map<String, dynamic> json) {
     return AssignedShiftWorkLog(
-      id: json['id'] ?? '',
+      id: json['id']?.toString() ?? '',
       status: json['status'] ?? '',
-      calculatedHours: json['calculated_hours'] ?? '0.00',
+      calculatedHours: json['calculated_hours']?.toString() ?? '0.00',
       workDate: json['work_date'],
     );
   }

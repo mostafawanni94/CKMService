@@ -27,6 +27,7 @@ import {
     HelpCircle,
     Award,
     Gift,
+    Briefcase,
 } from 'lucide-react';
 
 /* ============================================================================
@@ -47,6 +48,7 @@ function Sidebar({
     const router = useRouter();
     const { t, isRTL } = useLanguage();
     const navRef = useRef<HTMLElement>(null);
+    const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
 
     // Restore sidebar scroll position on mount
     useEffect(() => {
@@ -71,13 +73,26 @@ function Sidebar({
         { name: t('projects'), href: '/dashboard/projects', icon: FolderKanban },
         { name: 'Services', href: '/dashboard/services', icon: CreditCard },
         { name: t('worklogs'), href: '/dashboard/worklogs', icon: Clock },
-        { name: t('invoices'), href: '/dashboard/invoices', icon: FileText },
         { name: 'Certificates', href: '/dashboard/certificates', icon: Award },
         { name: 'Allowances', href: '/dashboard/allowances', icon: Gift },
         { name: 'Contract Types', href: '/dashboard/contract-types', icon: FileText },
         { name: 'Agencies', href: '/dashboard/agencies', icon: Building2 },
         { name: 'Day Payment Types', href: '/dashboard/surcharge-types', icon: Clock },
     ];
+
+    // Backoffice submenu items
+    const invoiceItems = [
+        { name: 'Outgoing Invoices', href: '/dashboard/invoices', icon: FileText },
+        { name: 'Incoming Invoices', href: '/dashboard/incoming-invoices', icon: FileText },
+    ];
+
+    const toggleSubmenu = (menuName: string) => {
+        setExpandedMenus(prev =>
+            prev.includes(menuName)
+                ? prev.filter(m => m !== menuName)
+                : [...prev, menuName]
+        );
+    };
 
     // Settings section items
     const settingsNavItems = [
@@ -253,6 +268,93 @@ function Sidebar({
                             {mainNavItems.map((item) => (
                                 <NavItem key={item.href} item={item} />
                             ))}
+
+                            {/* Backoffice Expandable Menu */}
+                            <div>
+                                <button
+                                    onClick={() => toggleSubmenu('backoffice')}
+                                    title={isCollapsed ? t('invoices') : undefined}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: isCollapsed ? '0' : '16px',
+                                        padding: isCollapsed ? '14px' : '14px 20px',
+                                        borderRadius: '14px',
+                                        transition: 'all 0.15s ease',
+                                        backgroundColor: expandedMenus.includes('backoffice') || pathname.startsWith('/dashboard/invoices') || pathname.startsWith('/dashboard/hr') ? '#F3F4F6' : 'transparent',
+                                        color: expandedMenus.includes('backoffice') || pathname.startsWith('/dashboard/invoices') || pathname.startsWith('/dashboard/hr') ? '#1F2937' : '#6B7280',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        justifyContent: isCollapsed ? 'center' : 'flex-start',
+                                        width: isCollapsed ? '56px' : '100%',
+                                        margin: isCollapsed ? '0 auto' : '0',
+                                    }}
+                                    className="hover:bg-gray-100"
+                                >
+                                    <FileText size={24} strokeWidth={1.5} style={{ flexShrink: 0 }} />
+                                    {!isCollapsed && (
+                                        <>
+                                            <span style={{
+                                                fontSize: '15px',
+                                                fontWeight: expandedMenus.includes('backoffice') ? 600 : 500,
+                                                letterSpacing: '-0.01em',
+                                                flex: 1,
+                                                textAlign: 'left',
+                                            }}>
+                                                {t('invoices')}
+                                            </span>
+                                            <ChevronDown
+                                                size={16}
+                                                style={{
+                                                    transition: 'transform 0.2s ease',
+                                                    transform: expandedMenus.includes('backoffice') ? 'rotate(180deg)' : 'rotate(0)',
+                                                }}
+                                            />
+                                        </>
+                                    )}
+                                </button>
+
+                                {/* Submenu Items */}
+                                {!isCollapsed && expandedMenus.includes('backoffice') && (
+                                    <div style={{
+                                        marginLeft: '20px',
+                                        marginTop: '4px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '2px',
+                                    }}>
+                                        {/* Invoice Items */}
+                                        {invoiceItems.map((subItem) => {
+                                            const isSubActive = pathname === subItem.href || pathname.startsWith(subItem.href);
+                                            return (
+                                                <Link
+                                                    key={subItem.href}
+                                                    href={subItem.href}
+                                                    onClick={handleNavClick}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '12px',
+                                                        padding: '8px 16px',
+                                                        borderRadius: '10px',
+                                                        transition: 'all 0.15s ease',
+                                                        backgroundColor: isSubActive ? '#E5E7EB' : 'transparent',
+                                                        color: isSubActive ? '#1F2937' : '#6B7280',
+                                                        textDecoration: 'none',
+                                                        fontSize: '13px',
+                                                        fontWeight: isSubActive ? 600 : 500,
+                                                    }}
+                                                    className="hover:bg-gray-100"
+                                                >
+                                                    <subItem.icon size={16} strokeWidth={1.5} />
+                                                    {subItem.name}
+                                                </Link>
+                                            );
+                                        })}
+
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* SETTINGS Section */}

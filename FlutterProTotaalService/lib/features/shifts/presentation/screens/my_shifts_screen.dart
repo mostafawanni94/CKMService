@@ -22,6 +22,7 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
   bool _hasMore = false;
   int _currentPage = 1;
   String? _error;
+  String _filter = 'all'; // 'all', 'upcoming', 'past'
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -51,7 +52,25 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
     });
 
     try {
-      final response = await _shiftService.getMyAssignments(page: 1, pageSize: 10);
+      final today = DateTime.now().toIso8601String().split('T')[0];
+      String? startDate;
+      String? endDate;
+      
+      if (_filter == 'upcoming') {
+        startDate = today;
+      } else if (_filter == 'past') {
+        endDate = today;
+      }
+      // 'all' = include past shifts
+      final includePast = _filter == 'all';
+      
+      final response = await _shiftService.getMyAssignments(
+        page: 1, 
+        pageSize: 15,
+        startDate: startDate,
+        endDate: endDate,
+        includePast: includePast,
+      );
       setState(() {
         _shifts = response.results;
         _hasMore = response.hasMore;
@@ -74,7 +93,25 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
     });
 
     try {
-      final response = await _shiftService.getMyAssignments(page: _currentPage, pageSize: 10);
+      final today = DateTime.now().toIso8601String().split('T')[0];
+      String? startDate;
+      String? endDate;
+      
+      if (_filter == 'upcoming') {
+        startDate = today;
+      } else if (_filter == 'past') {
+        endDate = today;
+      }
+      // 'all' = include past shifts
+      final includePast = _filter == 'all';
+      
+      final response = await _shiftService.getMyAssignments(
+        page: _currentPage, 
+        pageSize: 15,
+        startDate: startDate,
+        endDate: endDate,
+        includePast: includePast,
+      );
       setState(() {
         _shifts.addAll(response.results);
         _hasMore = response.hasMore;
@@ -86,6 +123,14 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
         _loadingMore = false;
       });
     }
+  }
+
+  void _setFilter(String filter) {
+    if (_filter == filter) return;
+    setState(() {
+      _filter = filter;
+    });
+    _loadShifts();
   }
 
   @override
@@ -112,7 +157,7 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
               ),
             ),
             Text(
-              '${_shifts.length} upcoming shifts',
+              '${_shifts.length} shifts',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -127,8 +172,46 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
             icon: Icon(Icons.refresh_rounded, color: Colors.grey[600]),
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(50),
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                _buildFilterChip('All', 'all'),
+                const SizedBox(width: 8),
+                _buildFilterChip('Upcoming', 'upcoming'),
+                const SizedBox(width: 8),
+                _buildFilterChip('Past', 'past'),
+              ],
+            ),
+          ),
+        ),
       ),
       body: _buildBody(),
+    );
+  }
+
+  Widget _buildFilterChip(String label, String value) {
+    final isSelected = _filter == value;
+    return GestureDetector(
+      onTap: () => _setFilter(value),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF1E3A5F) : Colors.grey[100],
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : Colors.grey[600],
+          ),
+        ),
+      ),
     );
   }
 
@@ -533,7 +616,10 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
   Color _getWorkLogStatusColor(String? status) {
     switch (status) {
       case 'approved': return const Color(0xFF10B981);
-      case 'submitted': return const Color(0xFFF59E0B);
+      case 'submitted': 
+      case 'pending': return const Color(0xFFF59E0B);
+      case 'in_progress': return const Color(0xFF3B82F6);
+      case 'draft': return const Color(0xFF6366F1);
       case 'rejected': return const Color(0xFFEF4444);
       default: return const Color(0xFF6B7280);
     }
@@ -542,7 +628,10 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
   IconData _getWorkLogStatusIcon(String? status) {
     switch (status) {
       case 'approved': return Icons.check_circle_rounded;
-      case 'submitted': return Icons.hourglass_empty_rounded;
+      case 'submitted': 
+      case 'pending': return Icons.hourglass_empty_rounded;
+      case 'in_progress': return Icons.edit_note_rounded;
+      case 'draft': return Icons.drafts_rounded;
       case 'rejected': return Icons.cancel_rounded;
       default: return Icons.info_outline_rounded;
     }
@@ -551,7 +640,10 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
   String _getWorkLogStatusText(String? status) {
     switch (status) {
       case 'approved': return 'Work log approved';
-      case 'submitted': return 'Work log pending approval';
+      case 'submitted': 
+      case 'pending': return 'Work log pending approval';
+      case 'in_progress': return 'In progress - tap to edit';
+      case 'draft': return 'Draft - complete and submit';
       case 'rejected': return 'Work log needs revision';
       default: return 'Work log status unknown';
     }

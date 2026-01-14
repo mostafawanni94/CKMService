@@ -355,6 +355,53 @@ class ProjectShiftTemplate(BaseModel):
     
     def __str__(self):
         return f"{self.project.name} - {self.name} ({self.start_time.strftime('%H:%M')}-{self.end_time.strftime('%H:%M')})"
+    
+    def save(self, *args, **kwargs):
+        """Override save to sync time changes to linked WorkLogs."""
+        # Check if this is an update (not a new record)
+        is_update = self.pk is not None
+        
+        # Get old times before save
+        old_start_time = None
+        old_end_time = None
+        if is_update:
+            try:
+                old = ProjectShiftTemplate.objects.get(pk=self.pk)
+                old_start_time = old.start_time
+                old_end_time = old.end_time
+            except ProjectShiftTemplate.DoesNotExist:
+                pass
+        
+        # Call parent save
+        super().save(*args, **kwargs)
+        
+        # If times changed, sync to linked WorkLogs
+        if is_update and (old_start_time != self.start_time or old_end_time != self.end_time):
+            self._sync_times_to_worklogs()
+    
+    def _sync_times_to_worklogs(self):
+        """Sync template times to all linked WorkEntries."""
+        from apps.worklogs.models import WorkEntry
+        from datetime import datetime, timedelta
+        
+        # Get all WorkEntries that use this shift template
+        work_entries = WorkEntry.objects.filter(shift_template=self)
+        for entry in work_entries:
+            # Update scheduled times
+            entry.scheduled_start_time = self.start_time
+            entry.scheduled_end_time = self.end_time
+            
+            # Update datetime fields if work_date exists
+            if entry.work_date:
+                entry.scheduled_start_datetime = datetime.combine(entry.work_date, self.start_time)
+                
+                # Calculate end_datetime (handle overnight shifts)
+                end_date = entry.work_date
+                if self.end_time < self.start_time:
+                    end_date = entry.work_date + timedelta(days=1)
+                entry.scheduled_end_datetime = datetime.combine(end_date, self.end_time)
+            
+            entry.save()
 
 
 # =============================================================================
@@ -421,96 +468,6 @@ class ProjectPlannedDay(BaseModel):
         return self.assigned_count >= self.required_workers
 
 
-# =============================================================================
-# SHIFT ASSIGNMENT
-# =============================================================================
+# ShiftAssignment model has been removed - data migrated to WorkEntry
+# See apps.worklogs.models.WorkEntry
 
-class ShiftAssignment(BaseModel):
-    """
-    Assigns an employee to a planned day.
-    
-    Supports both internal employees and agency workers.
-    Tracks assignment status and history.
-    """
-    
-    class Status(models.TextChoices):
-        PLANNED = 'planned', 'Planned'
-        CONFIRMED = 'confirmed', 'Confirmed'
-        CANCELLED = 'cancelled', 'Cancelled'
-        NO_SHOW = 'no_show', 'No Show'
-        COMPLETED = 'completed', 'Completed'
-    
-    planned_day = models.ForeignKey(
-        ProjectPlannedDay,
-        on_delete=models.CASCADE,
-        related_name='assignments',
-        verbose_name="Planned Day"
-    )
-    employee = models.ForeignKey(
-        'employees.EmployeeProfile',
-        on_delete=models.CASCADE,
-        related_name='shift_assignments',
-        verbose_name="Employee"
-    )
-    agency = models.ForeignKey(
-        'employees.Agency',
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        related_name='shift_assignments',
-        verbose_name="Agency",
-        help_text="If employee is from an external agency"
-    )
-    status = models.CharField(
-        max_length=20,
-        choices=Status.choices,
-        default=Status.PLANNED,
-        db_index=True,
-        verbose_name="Status"
-    )
-    notes = models.TextField(
-        blank=True,
-        default='',
-        verbose_name="Notes"
-    )
-    
-    # Tracking
-    confirmed_at = models.DateTimeField(
-        blank=True,
-        null=True,
-        verbose_name="Confirmed At"
-    )
-    cancelled_at = models.DateTimeField(
-        blank=True,
-        null=True,
-        verbose_name="Cancelled At"
-    )
-    cancellation_reason = models.TextField(
-        blank=True,
-        default='',
-        verbose_name="Cancellation Reason"
-    )
-    
-    class Meta:
-        verbose_name = 'Shift Assignment'
-        verbose_name_plural = 'Shift Assignments'
-        ordering = ['planned_day__date']
-        unique_together = ['planned_day', 'employee']
-    
-    def __str__(self):
-        return f"{self.employee} - {self.planned_day}"
-    
-    def confirm(self):
-        """Mark assignment as confirmed."""
-        from django.utils import timezone
-        self.status = self.Status.CONFIRMED
-        self.confirmed_at = timezone.now()
-        self.save()
-    
-    def cancel(self, reason=''):
-        """Cancel the assignment."""
-        from django.utils import timezone
-        self.status = self.Status.CANCELLED
-        self.cancelled_at = timezone.now()
-        self.cancellation_reason = reason
-        self.save()

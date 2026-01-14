@@ -12,7 +12,8 @@ import {
     Sun,
     Moon,
     Star,
-    Calendar
+    Calendar,
+    Hourglass
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/dashboard';
@@ -27,6 +28,7 @@ interface SurchargeType {
     time_to: string | null;
     days_of_week: number[];
     specific_dates: string[];
+    min_hours_threshold: number | null;
     is_active: boolean;
     sort_order: number;
 }
@@ -36,6 +38,7 @@ const CATEGORIES = [
     { value: 'weekend', label: 'Weekend', icon: Sun, color: '#F59E0B' },
     { value: 'night_shift', label: 'Night Shift', icon: Moon, color: '#3B82F6' },
     { value: 'holiday', label: 'Public Holiday', icon: Star, color: '#10B981' },
+    { value: 'overtime', label: 'Overtime (Overwerk)', icon: Hourglass, color: '#EF4444' },
     { value: 'custom', label: 'Custom', icon: Calendar, color: '#8B5CF6' },
 ];
 
@@ -78,6 +81,7 @@ export default function SurchargeTypesPage() {
         time_to: '',
         days_of_week: [] as number[],
         specific_dates: [] as string[],
+        min_hours_threshold: '' as string | number,
         is_active: true,
         sort_order: 0,
     });
@@ -144,6 +148,7 @@ export default function SurchargeTypesPage() {
                 time_to: type.time_to || '',
                 days_of_week: type.days_of_week || [],
                 specific_dates: type.specific_dates || [],
+                min_hours_threshold: type.min_hours_threshold || '',
                 is_active: type.is_active,
                 sort_order: type.sort_order,
             });
@@ -157,6 +162,7 @@ export default function SurchargeTypesPage() {
                 time_to: '',
                 days_of_week: [],
                 specific_dates: [],
+                min_hours_threshold: '',
                 is_active: true,
                 sort_order: typesList.length + 1,
             });
@@ -176,6 +182,7 @@ export default function SurchargeTypesPage() {
                 ...formData,
                 time_from: formData.time_from || null,
                 time_to: formData.time_to || null,
+                min_hours_threshold: formData.min_hours_threshold ? parseFloat(String(formData.min_hours_threshold)) : null,
             };
 
             console.log('Saving surcharge type:', { url, method, payload });
@@ -680,6 +687,35 @@ export default function SurchargeTypesPage() {
                                         style={{ ...inputStyle, resize: 'vertical' }}
                                     />
                                 </div>
+
+                                {/* Min Hours Threshold (for Overtime) */}
+                                {(formData.category === 'overtime' || formData.category === 'custom') && (
+                                    <div style={{ marginBottom: '20px' }}>
+                                        <label style={labelStyle}>
+                                            Minimum Hours Threshold (Overwerk)
+                                            <span style={{ color: '#6B7280', fontWeight: 400, marginLeft: '6px' }}>
+                                                Surcharge applies only to hours above this threshold
+                                            </span>
+                                        </label>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <input
+                                                type="number"
+                                                step="0.5"
+                                                min="0"
+                                                value={formData.min_hours_threshold}
+                                                onChange={(e) => setFormData({ ...formData, min_hours_threshold: e.target.value })}
+                                                placeholder="e.g. 9"
+                                                style={{ ...inputStyle, width: '120px' }}
+                                            />
+                                            <span style={{ color: '#6B7280', fontSize: '13px' }}>
+                                                hours per day
+                                            </span>
+                                        </div>
+                                        <p style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '6px' }}>
+                                            Example: If set to 9, an employee working 10 hours gets 1 hour of overtime surcharge.
+                                        </p>
+                                    </div>
+                                )}
 
                                 {/* Days of Week */}
                                 <div style={{ marginBottom: '20px' }}>

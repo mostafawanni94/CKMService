@@ -8,13 +8,14 @@ from rest_framework.response import Response
 
 from apps.employees.views import IsAdmin
 from apps.employees.models import EmployeeProfile
-from .models import Project, ProjectAssignment, ProjectShiftTemplate, ProjectPlannedDay, ShiftAssignment
+from .models import Project, ProjectAssignment, ProjectShiftTemplate, ProjectPlannedDay
 from .serializers import (
     ProjectListSerializer, ProjectDetailSerializer,
     ProjectAssignmentSerializer, ProjectShiftTemplateSerializer,
-    ProjectPlannedDaySerializer, ShiftAssignmentSerializer,
+    ProjectPlannedDaySerializer, ProjectPlannedDayListSerializer,
     ProjectPlannedDayBulkCreateSerializer, BulkPlanSerializer,
 )
+
 
 
 
@@ -181,12 +182,23 @@ class ProjectViewSet(viewsets.ModelViewSet):
         if shift_template_id:
             days_to_delete = days_to_delete.filter(shift_template_id=shift_template_id)
         
+        # Cascade delete associated work entries
+        from apps.worklogs.models import WorkEntry
+        work_entries_deleted = 0
+        for day in days_to_delete:
+            count, _ = WorkEntry.objects.filter(
+                shift_template=day.shift_template,
+                work_date=day.date
+            ).delete()
+            work_entries_deleted += count
+        
         count = days_to_delete.count()
         days_to_delete.delete()
         
         return Response({
             'deleted_count': count,
-            'message': f"Deleted {count} planned days"
+            'work_entries_deleted': work_entries_deleted,
+            'message': f"Deleted {count} planned days and {work_entries_deleted} work entries"
         })
 
 
@@ -245,10 +257,16 @@ class ProjectPlannedDayViewSet(viewsets.ModelViewSet):
     
     queryset = ProjectPlannedDay.objects.select_related(
         'shift_template', 'supervisor'
-    ).prefetch_related('assignments__employee').order_by('date')
+    ).order_by('date')  # Removed assignments - now using WorkEntry
     serializer_class = ProjectPlannedDaySerializer
     permission_classes = [IsAdmin]
     pagination_class = None  # Disable pagination - calendar needs all days
+    
+    def get_serializer_class(self):
+        """Use lightweight list serializer for list, detailed for single item."""
+        if self.action == 'list':
+            return ProjectPlannedDayListSerializer
+        return ProjectPlannedDaySerializer
     
     def get_queryset(self):
         qs = super().get_queryset()
@@ -273,6 +291,19 @@ class ProjectPlannedDayViewSet(viewsets.ModelViewSet):
             qs = qs.filter(date__lte=end_date)
         return qs
     
+    def destroy(self, request, *args, **kwargs):
+        """Override destroy to cascade delete associated WorkEntry records."""
+        from apps.worklogs.models import WorkEntry
+        
+        instance = self.get_object()
+        # Delete associated work entries
+        WorkEntry.objects.filter(
+            shift_template=instance.shift_template,
+            work_date=instance.date
+        ).delete()
+        # Then delete the planned day
+        return super().destroy(request, *args, **kwargs)
+    
     @action(detail=False, methods=['post'])
     def bulk_create(self, request):
         """Create multiple planned days at once."""
@@ -286,12 +317,28 @@ class ProjectPlannedDayViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['delete'])
     def bulk_delete(self, request):
-        """Delete multiple planned days."""
+        """Delete multiple planned days and their associated work entries."""
+        from apps.worklogs.models import WorkEntry
+        
         ids = request.data.get('ids', [])
         if not ids:
             return Response({'error': 'No IDs provided'}, status=status.HTTP_400_BAD_REQUEST)
-        deleted_count, _ = ProjectPlannedDay.objects.filter(id__in=ids).delete()
-        return Response({'deleted_count': deleted_count})
+        
+        # Delete associated work entries for each planned day
+        days_to_delete = ProjectPlannedDay.objects.filter(id__in=ids)
+        work_entries_deleted = 0
+        for day in days_to_delete:
+            count, _ = WorkEntry.objects.filter(
+                shift_template=day.shift_template,
+                work_date=day.date
+            ).delete()
+            work_entries_deleted += count
+        
+        deleted_count, _ = days_to_delete.delete()
+        return Response({
+            'deleted_count': deleted_count,
+            'work_entries_deleted': work_entries_deleted
+        })
     
     @action(detail=False, methods=['get'])
     def calendar(self, request):
@@ -325,9 +372,8 @@ class ProjectPlannedDayViewSet(viewsets.ModelViewSet):
             shift_template__project_id=project_id
         ).select_related('shift_template').only(
             'date', 'shift_template__color', 'required_workers'
-        ).annotate(
-            assigned_count_val=models.Count('assignments')
         )
+        # Note: assigned_count now calculated per day using WorkEntry
         
         # Filter by year
         if year:
@@ -339,13 +385,20 @@ class ProjectPlannedDayViewSet(viewsets.ModelViewSet):
         if month:
             qs = qs.filter(date__month=int(month))
         
-        # Build lightweight response
+        # Build lightweight response - using WorkEntry for counts
+        from django.db.models import Q
+        from apps.worklogs.models import WorkEntry
         days = {}
         total_with_staff = 0
         
         for day in qs:
             date_str = day.date.isoformat()
-            is_staffed = day.assigned_count_val >= day.required_workers
+            # Count work entries for this day - include shift_template matches and manual entries
+            query = Q(shift_template=day.shift_template, work_date=day.date)
+            if day.shift_template and day.shift_template.project_id:
+                query |= Q(project_id=day.shift_template.project_id, work_date=day.date, shift_template__isnull=True)
+            assigned_count = WorkEntry.objects.filter(query).count()
+            is_staffed = assigned_count >= day.required_workers
             
             if date_str in days:
                 days[date_str]['count'] += 1
@@ -364,181 +417,65 @@ class ProjectPlannedDayViewSet(viewsets.ModelViewSet):
             'total_days': len(days),
             'total_with_staff': total_with_staff,
         })
-
-
-class ShiftAssignmentViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing shift assignments."""
     
-    queryset = ShiftAssignment.objects.select_related(
-        'planned_day', 'employee', 'agency'
-    ).order_by('planned_day__date')
-    serializer_class = ShiftAssignmentSerializer
-    permission_classes = [IsAdmin]
-    
-    def get_queryset(self):
-        qs = super().get_queryset()
-        # Filter by project via planned_day
-        project_id = self.request.query_params.get('project')
-        if project_id:
-            qs = qs.filter(planned_day__shift_template__project_id=project_id)
-        # Filter by employee
-        employee_id = self.request.query_params.get('employee')
-        if employee_id:
-            qs = qs.filter(employee_id=employee_id)
-        # Filter by status
-        status_filter = self.request.query_params.get('status')
-        if status_filter:
-            qs = qs.filter(status=status_filter)
-        return qs
-    
-    @action(detail=True, methods=['post'])
-    def confirm(self, request, pk=None):
-        """Confirm a shift assignment."""
-        assignment = self.get_object()
-        assignment.confirm()
-        return Response(ShiftAssignmentSerializer(assignment).data)
-    
-    @action(detail=True, methods=['post'])
-    def cancel(self, request, pk=None):
-        """Cancel a shift assignment."""
-        assignment = self.get_object()
-        reason = request.data.get('reason', '')
-        assignment.cancel(reason)
-        return Response(ShiftAssignmentSerializer(assignment).data)
-    
-    def _get_supervisor_phone(self, supervisor):
-        """Get supervisor's phone number from contacts."""
-        if not supervisor:
-            return None
-        for contact in supervisor.contacts.all():
-            if contact.contact_type in ['phone', 'mobile']:
-                return contact.value
-        return None
-    
-    def _get_supervisor_email(self, supervisor):
-        """Get supervisor's email from contacts."""
-        if not supervisor:
-            return None
-        for contact in supervisor.contacts.all():
-            if contact.contact_type == 'email':
-                return contact.value
-        return None
-    
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
-    def my(self, request):
-        """Get current employee's shift assignments.
+    @action(detail=False, methods=['get'])
+    def unassigned_shifts(self, request):
+        """Get shifts that have no employees assigned yet.
         
-        OPTIMIZED for mobile:
-        - Hides submitted/completed/cancelled shifts
-        - Only shows today + future by default
-        - Supports pagination
-        - Minimal data transfer
-        
-        Query params:
-            - start_date: filter from date
-            - end_date: filter to date
-            - include_past: if 'true', include past shifts
-            - page: page number (default 1)
-            - page_size: items per page (default 20, max 50)
+        Returns data formatted similarly to WorkEntry for display on Work Logs page.
+        Used to show empty shifts that need employee assignments.
         """
-        from apps.employees.models import EmployeeProfile
-        from datetime import date, timedelta
+        from django.db.models import Q
+        from apps.worklogs.models import WorkEntry
         
-        try:
-            profile = EmployeeProfile.objects.get(user=request.user)
-        except EmployeeProfile.DoesNotExist:
-            return Response({'results': [], 'count': 0, 'has_more': False})
+        # Get all planned days
+        qs = self.get_queryset()
         
-        # Base query - exclude hidden statuses
-        HIDDEN_STATUSES = ['submitted', 'completed', 'cancelled']
-        qs = ShiftAssignment.objects.filter(
-            employee=profile
-        ).exclude(
-            status__in=HIDDEN_STATUSES
-        ).select_related(
-            'planned_day__shift_template__project',
-            'planned_day__supervisor'
-        ).order_by('planned_day__date')
+        # Apply project filter if provided
+        project_id = request.query_params.get('project')
+        if project_id:
+            qs = qs.filter(shift_template__project_id=project_id)
         
-        # Date filtering
-        start_date_param = request.query_params.get('start_date')
-        end_date_param = request.query_params.get('end_date')
-        include_past = request.query_params.get('include_past', 'false').lower() == 'true'
+        # Apply date filters
+        start_date = request.query_params.get('start_date')
+        end_date = request.query_params.get('end_date')
+        if start_date:
+            qs = qs.filter(date__gte=start_date)
+        if end_date:
+            qs = qs.filter(date__lte=end_date)
         
-        if start_date_param:
-            qs = qs.filter(planned_day__date__gte=start_date_param)
-        elif not include_past:
-            # Default: show from today onwards
-            qs = qs.filter(planned_day__date__gte=date.today())
-        
-        if end_date_param:
-            qs = qs.filter(planned_day__date__lte=end_date_param)
-        else:
-            # Default limit: next 30 days for performance
-            max_date = date.today() + timedelta(days=30)
-            qs = qs.filter(planned_day__date__lte=max_date)
-        
-        # Pagination
-        page = int(request.query_params.get('page', 1))
-        page_size = min(int(request.query_params.get('page_size', 20)), 50)
-        start_idx = (page - 1) * page_size
-        end_idx = start_idx + page_size
-        
-        total_count = qs.count()
-        assignments = qs[start_idx:end_idx]
-        
-        # Build response with minimal but complete data
-        today = date.today()
-        data = []
-        
-        for assignment in assignments:
-            day = assignment.planned_day
-            template = day.shift_template
-            project = template.project
+        # Filter to only those with no work entries
+        unassigned = []
+        for day in qs:
+            query = Q(shift_template=day.shift_template, work_date=day.date)
+            if day.shift_template and day.shift_template.project_id:
+                query |= Q(project_id=day.shift_template.project_id, work_date=day.date, shift_template__isnull=True)
             
-            is_today = day.date == today
-            is_past = day.date < today
-            
-            # Get linked work logs (if any)
-            work_logs = []
-            for log in assignment.work_logs.all().order_by('-created_at')[:2]:
-                work_logs.append({
-                    'id': str(log.id),
-                    'status': log.status,
-                    'calculated_hours': str(log.calculated_hours),
-                    'work_date': log.work_date.isoformat() if log.work_date else None,
+            if not WorkEntry.objects.filter(query).exists():
+                unassigned.append({
+                    'id': str(day.id),
+                    'type': 'unassigned_shift',  # Marker to distinguish from work entries
+                    'work_date': day.date.isoformat(),
+                    'project': str(day.shift_template.project_id) if day.shift_template else None,
+                    'project_name': day.shift_template.project.name if day.shift_template and day.shift_template.project else None,
+                    'customer_name': day.shift_template.project.customer.name if day.shift_template and day.shift_template.project and day.shift_template.project.customer else None,
+                    'shift_template': str(day.shift_template_id) if day.shift_template else None,
+                    'shift_name': day.shift_template.name if day.shift_template else 'Shift',
+                    'shift_color': day.shift_template.color if day.shift_template else '#6B7280',
+                    'start_time': day.shift_template.start_time.strftime('%H:%M') if day.shift_template and day.shift_template.start_time else None,
+                    'end_time': day.shift_template.end_time.strftime('%H:%M') if day.shift_template and day.shift_template.end_time else None,
+                    'status': 'unassigned',
+                    'employee': None,
+                    'employee_name': 'No employee assigned',
+                    'required_workers': day.required_workers,
                 })
-            
-            data.append({
-                'id': str(assignment.id),
-                'status': assignment.status,
-                'date': day.date.isoformat(),
-                'shift_name': template.name,
-                'shift_color': template.color,
-                'start_time': template.start_time.strftime('%H:%M'),
-                'end_time': template.end_time.strftime('%H:%M'),
-                'project_id': str(project.id),
-                'project_name': project.name,
-                'project_location': project.location or '',
-                'project_address': project.location_address or '',
-                'project_city': project.location_city or '',
-                'project_description': project.description or '',
-                'customer_name': project.customer.company_name if project.customer else '',
-                'supervisor_name': day.supervisor.full_name if day.supervisor else None,
-                'supervisor_phone': self._get_supervisor_phone(day.supervisor) if day.supervisor else None,
-                'supervisor_email': self._get_supervisor_email(day.supervisor) if day.supervisor else None,
-                'notes': day.notes or '',
-                'is_today': is_today,
-                'is_past': is_past,
-                'can_edit': is_today and assignment.status == 'planned',
-                'work_logs': work_logs,
-            })
         
         return Response({
-            'results': data,
-            'count': total_count,
-            'page': page,
-            'page_size': page_size,
-            'has_more': end_idx < total_count,
+            'results': unassigned,
+            'count': len(unassigned)
         })
+
+
+# ShiftAssignmentViewSet has been removed - use WorkEntryViewSet instead
+# See apps.worklogs.views.WorkEntryViewSet
 

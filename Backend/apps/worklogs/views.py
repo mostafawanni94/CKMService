@@ -1,218 +1,25 @@
-"""WorkLog API Views."""
+"""WorkEntry API Views - Unified Work Entry System."""
 
+from datetime import date, timedelta
 from rest_framework import viewsets, status, permissions, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.db.models import Q
+from django.db import models
 
 from apps.employees.views import IsAdmin, IsAdminOrSelf
 from apps.employees.models import EmployeeProfile
-from .models import WorkLog, WorkLogPhoto
+from .models import Shift, WorkEntry
 from .serializers import (
-    WorkLogSerializer, WorkLogCreateSerializer,
-    WorkLogApprovalSerializer, WorkLogRejectionSerializer, WorkLogPhotoSerializer,
+    ShiftSerializer, ShiftCreateSerializer, ShiftFillDataSerializer, ShiftRejectionSerializer,
+    WorkEntryListSerializer, WorkEntryDetailSerializer, WorkEntryCreateSerializer,
+    WorkEntryFillDataSerializer, WorkEntryApprovalSerializer, WorkEntryRejectionSerializer,
 )
 
 
-class WorkLogViewSet(viewsets.ModelViewSet):
-    """ViewSet for work log management."""
-    
-    queryset = WorkLog.objects.select_related(
-        'employee', 'project', 'approved_by'
-    ).prefetch_related('photos').order_by('-work_date', '-start_time')
-    
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_admin:
-            return self.queryset
-        return self.queryset.filter(employee__user=user)
-    
-    def get_serializer_class(self):
-        if self.action in ['create', 'update', 'partial_update']:
-            return WorkLogCreateSerializer
-        if self.action == 'approve':
-            return WorkLogApprovalSerializer
-        if self.action == 'reject':
-            return WorkLogRejectionSerializer
-        return WorkLogSerializer
-    
-    def perform_create(self, serializer):
-        user = self.request.user
-        
-        # If admin provides an employee ID, use that employee
-        if user.is_admin and 'employee' in self.request.data:
-            employee_id = self.request.data.get('employee')
-            try:
-                employee = EmployeeProfile.objects.get(id=employee_id)
-            except EmployeeProfile.DoesNotExist:
-                raise serializers.ValidationError({'employee': 'Employee profile not found.'})
-        else:
-            # For non-admins, use their own profile
-            try:
-                employee = EmployeeProfile.objects.get(user=user)
-            except EmployeeProfile.DoesNotExist:
-                raise serializers.ValidationError({'employee': 'Employee profile not found.'})
-        
-        serializer.save(employee=employee, created_by=user)
-    
-    @action(detail=True, methods=['post'])
-    def submit(self, request, pk=None):
-        """Submit work log for approval."""
-        worklog = self.get_object()
-        if worklog.status != WorkLog.Status.DRAFT:
-            return Response({'error': 'Already submitted'}, status=status.HTTP_400_BAD_REQUEST)
-        worklog.submit()
-        
-        # Create notification for admins
-        self._notify_admins_worklog_submitted(worklog)
-        
-        return Response({'status': 'success', 'message': 'Work log submitted'})
-    
-    def _notify_admins_worklog_submitted(self, worklog):
-        """Notify all admin users about new worklog submission."""
-        try:
-            from apps.notifications.models import Notification
-            from apps.employees.models import User
-            
-            # Get all admin users
-            admin_users = User.objects.filter(is_staff=True, is_active=True)
-            
-            for admin in admin_users:
-                Notification.objects.create(
-                    recipient=admin,
-                    notification_type=Notification.Type.WORKLOG_SUBMITTED,
-                    priority=Notification.Priority.NORMAL,
-                    title=f"New Work Log from {worklog.employee.full_name}",
-                    message=f"{worklog.employee.full_name} submitted a work log for {worklog.work_date} ({worklog.billable_hours}h). Please review and approve.",
-                    reference_type='worklog',
-                    reference_id=worklog.id,
-                    action_url=f"/dashboard/worklogs?id={worklog.id}"
-                )
-        except Exception as e:
-            # Don't fail the submission if notification fails
-            print(f"Failed to create admin notification: {e}")
-    
-    @action(detail=True, methods=['post'], permission_classes=[IsAdmin])
-    def approve(self, request, pk=None):
-        """Admin approves work log."""
-        worklog = self.get_object()
-        # Accept both 'submitted' and 'pending' status (they are functionally equivalent)
-        if worklog.status not in [WorkLog.Status.SUBMITTED, WorkLog.Status.PENDING]:
-            return Response({'error': 'Not pending approval'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        serializer = WorkLogApprovalSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        
-        worklog.approve(
-            request.user,
-            adjusted_hours=serializer.validated_data.get('adjusted_hours'),
-            admin_notes=serializer.validated_data.get('admin_notes', '')
-        )
-        
-        # Create wallet earning transaction
-        from apps.wallet.models import Wallet, WalletTransaction
-        from apps.invoices.models import ProjectRate
-        
-        wallet, _ = Wallet.objects.get_or_create(employee=worklog.employee)
-        
-        # Get rate (simplified, would need proper rate lookup)
-        hourly_rate = 15.00  # Default rate
-        earnings = worklog.billable_hours * hourly_rate
-        
-        WalletTransaction.objects.create(
-            wallet=wallet,
-            transaction_type=WalletTransaction.Type.EARNING,
-            amount=earnings,
-            description=f"Work: {worklog.project.name} ({worklog.work_date})",
-            reference_type='worklog',
-            reference_id=worklog.id,
-            created_by=request.user
-        )
-        
-        # Notify employee
-        self._notify_employee(worklog, 'approved', f"Your work log for {worklog.work_date} has been approved! Earnings: €{earnings:.2f}")
-        
-        return Response({
-            'status': 'success',
-            'worklog': WorkLogSerializer(worklog).data
-        })
-    
-    @action(detail=True, methods=['post'], permission_classes=[IsAdmin])
-    def reject(self, request, pk=None):
-        """Admin rejects work log."""
-        worklog = self.get_object()
-        # Accept both 'submitted' and 'pending' status (they are functionally equivalent)
-        if worklog.status not in [WorkLog.Status.SUBMITTED, WorkLog.Status.PENDING]:
-            return Response({'error': 'Not pending approval'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        serializer = WorkLogRejectionSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        reason = serializer.validated_data['reason']
-        worklog.reject(reason)
-        
-        # Notify employee
-        self._notify_employee(worklog, 'rejected', f"Your work log for {worklog.work_date} needs revision. Reason: {reason}")
-        
-        return Response({'status': 'success', 'message': 'Work log rejected'})
-    
-    def _notify_employee(self, worklog, status_type, message):
-        """Notify employee about worklog status change."""
-        try:
-            from apps.notifications.models import Notification
-            
-            notification_type = (
-                Notification.Type.WORKLOG_APPROVED if status_type == 'approved' 
-                else Notification.Type.WORKLOG_REJECTED
-            )
-            priority = (
-                Notification.Priority.NORMAL if status_type == 'approved'
-                else Notification.Priority.HIGH
-            )
-            title = f"Work Log {status_type.title()}"
-            
-            Notification.objects.create(
-                recipient=worklog.employee.user,
-                notification_type=notification_type,
-                priority=priority,
-                title=title,
-                message=message,
-                reference_type='worklog',
-                reference_id=worklog.id,
-                action_url=f"/app/worklogs/{worklog.id}"
-            )
-        except Exception as e:
-            print(f"Failed to create employee notification: {e}")
-    
-    @action(detail=True, methods=['post'])
-    def add_photo(self, request, pk=None):
-        """Add photo to work log."""
-        worklog = self.get_object()
-        # Allow adding photos for draft and pending worklogs
-        if worklog.status not in [WorkLog.Status.DRAFT, WorkLog.Status.PENDING, 'pending']:
-            return Response({'error': 'Cannot add photo after approval'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        serializer = WorkLogPhotoSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(work_log=worklog)
-        return Response(serializer.data)
-    
-    @action(detail=False, methods=['get'], permission_classes=[IsAdmin])
-    def pending(self, request):
-        """Get all pending work logs."""
-        pending = self.queryset.filter(status='pending')
-        serializer = WorkLogSerializer(pending, many=True)
-        return Response(serializer.data)
-
-
 # =============================================================================
-# SHIFT VIEWSET
+# SHIFT VIEWSET (Legacy - kept for backward compatibility)
 # =============================================================================
-
-from .models import Shift
-from .serializers import (
-    ShiftSerializer, ShiftCreateSerializer, 
-    ShiftFillDataSerializer, ShiftRejectionSerializer
-)
-
 
 class ShiftViewSet(viewsets.ModelViewSet):
     """ViewSet for shift scheduling and management."""
@@ -225,7 +32,6 @@ class ShiftViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if user.is_admin:
             return self.queryset
-        # Employees see only their own shifts
         return self.queryset.filter(employee__user=user)
     
     def get_serializer_class(self):
@@ -244,11 +50,10 @@ class ShiftViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def my_shifts(self, request):
-        """Get employee's upcoming shifts (for mobile app)."""
+        """Get employee's upcoming shifts."""
         from django.utils import timezone
         today = timezone.localdate()
         
-        # Get shifts from today onwards, not approved/rejected/cancelled
         shifts = self.queryset.filter(
             employee__user=request.user,
             scheduled_date__gte=today,
@@ -261,85 +66,50 @@ class ShiftViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def acknowledge(self, request, pk=None):
-        """Mark shift as acknowledged (seen by employee)."""
+        """Mark shift as acknowledged."""
         shift = self.get_object()
-        
-        # Verify ownership
         if shift.employee.user != request.user and not request.user.is_admin:
             return Response({'error': 'Not your shift'}, status=status.HTTP_403_FORBIDDEN)
-        
         shift.acknowledge()
         return Response(ShiftSerializer(shift).data)
     
     @action(detail=True, methods=['post'])
     def fill_data(self, request, pk=None):
-        """Employee fills actual work data (only on scheduled day)."""
+        """Employee fills actual work data."""
         shift = self.get_object()
-        
-        # Verify ownership
         if shift.employee.user != request.user and not request.user.is_admin:
             return Response({'error': 'Not your shift'}, status=status.HTTP_403_FORBIDDEN)
-        
-        # Check if can fill
         if not shift.can_fill_data:
             return Response(
-                {'error': 'Cannot fill data - only allowed on the scheduled day and before submission'},
+                {'error': 'Cannot fill data - only allowed on the scheduled day'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
         serializer = ShiftFillDataSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
         shift.fill_data(serializer.validated_data)
         return Response(ShiftSerializer(shift).data)
     
     @action(detail=True, methods=['post'])
     def submit(self, request, pk=None):
-        """Submit shift for approval (only on scheduled day)."""
+        """Submit shift for approval."""
         shift = self.get_object()
-        
-        # Verify ownership
         if shift.employee.user != request.user and not request.user.is_admin:
             return Response({'error': 'Not your shift'}, status=status.HTTP_403_FORBIDDEN)
-        
         try:
             shift.submit()
-            # Create notification for admin
-            from apps.notifications.models import Notification
-            from apps.employees.models import User
-            for admin in User.objects.filter(role='admin'):
-                Notification.objects.create(
-                    recipient=admin,
-                    notification_type='shift_submitted',
-                    title='Shift Submitted',
-                    message=f'{shift.employee.full_name} submitted their shift for {shift.scheduled_date}',
-                    reference_type='shift',
-                    reference_id=shift.id,
-                )
             return Response(ShiftSerializer(shift).data)
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
     @action(detail=True, methods=['post'], permission_classes=[IsAdmin])
     def approve(self, request, pk=None):
-        """Approve shift and create WorkLog."""
+        """Approve shift."""
         shift = self.get_object()
-        
         try:
             work_log = shift.approve(request.user)
-            # Create notification for employee
-            from apps.notifications.models import Notification
-            Notification.objects.create(
-                recipient=shift.employee.user,
-                notification_type='shift_approved',
-                title='Shift Approved',
-                message=f'Your shift for {shift.scheduled_date} has been approved',
-                reference_type='shift',
-                reference_id=shift.id,
-            )
             return Response({
                 'shift': ShiftSerializer(shift).data,
-                'work_log_id': str(work_log.id)
+                'work_log_id': str(work_log.id) if work_log else None
             })
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -348,29 +118,453 @@ class ShiftViewSet(viewsets.ModelViewSet):
     def reject(self, request, pk=None):
         """Reject shift with reason."""
         shift = self.get_object()
-        
         serializer = ShiftRejectionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
         try:
             shift.reject(serializer.validated_data['reason'])
-            # Create notification for employee
-            from apps.notifications.models import Notification
-            Notification.objects.create(
-                recipient=shift.employee.user,
-                notification_type='shift_rejected',
-                title='Shift Rejected',
-                message=f'Your shift for {shift.scheduled_date} was rejected: {shift.rejection_reason}',
-                reference_type='shift',
-                reference_id=shift.id,
-            )
             return Response(ShiftSerializer(shift).data)
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
     @action(detail=False, methods=['get'], permission_classes=[IsAdmin])
     def pending(self, request):
-        """Get all pending shifts waiting approval."""
+        """Get pending shifts."""
         pending = self.queryset.filter(status=Shift.Status.SUBMITTED)
         serializer = ShiftSerializer(pending, many=True)
         return Response(serializer.data)
+
+
+# =============================================================================
+# UNIFIED WORK ENTRY VIEWSET
+# =============================================================================
+
+class WorkEntryViewSet(viewsets.ModelViewSet):
+    """
+    Unified Work Entry ViewSet.
+    
+    Replaces separate ShiftAssignment and WorkLog views.
+    Single source of truth for all work entries.
+    """
+    
+    queryset = WorkEntry.objects.select_related(
+        'employee', 'project', 'project__customer',
+        'shift_template', 'planned_supervisor', 'agency',
+        'service', 'approved_by'
+    ).order_by('-work_date', '-actual_start_datetime')
+    
+    def get_queryset(self):
+        user = self.request.user
+        
+        # Admin sees all, employees see their own
+        if user.is_admin:
+            queryset = self.queryset
+        else:
+            queryset = self.queryset.filter(employee__user=user)
+        
+        # Apply filters from query params
+        params = self.request.query_params
+        
+        # Status filter
+        status_filter = params.get('status')
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+        
+        # Status exclusion
+        exclude_status = params.getlist('exclude_status')
+        if exclude_status:
+            queryset = queryset.exclude(status__in=exclude_status)
+        
+        # Date filters
+        start_date = params.get('start_date')
+        end_date = params.get('end_date')
+        if start_date:
+            queryset = queryset.filter(work_date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(work_date__lte=end_date)
+        
+        # Include past entries (default: only today onwards for list views)
+        # For detail actions (retrieve, update, destroy, approve, reject), always include past entries
+        is_detail_action = self.action in ['retrieve', 'update', 'partial_update', 'destroy', 'approve', 'reject']
+        include_past = params.get('include_past', 'false').lower() == 'true'
+        if not is_detail_action and not include_past and not start_date and not end_date:
+            queryset = queryset.filter(work_date__gte=date.today())
+        
+        # Customer filter
+        customer = params.get('customer')
+        if customer:
+            queryset = queryset.filter(project__customer_id=customer)
+        
+        # Project filter
+        project = params.get('project')
+        if project:
+            queryset = queryset.filter(project_id=project)
+        
+        # Employee filter (for admin)
+        employee_ids = params.getlist('employee')
+        if employee_ids:
+            queryset = queryset.filter(employee__user_id__in=employee_ids)
+        
+        # Supervisor (Outfolder/Rayon) filter
+        supervisor = params.get('supervisor')
+        if supervisor:
+            queryset = queryset.filter(planned_supervisor_id=supervisor)
+        
+        # Week range filters - use work_date's ISO week for robust filtering
+        # (billing_week fields might be NULL for newly created entries)
+        week_year = params.get('week_year')
+        week_number = params.get('week_number')
+        
+        # New cross-year range parameters
+        week_start_year = params.get('week_start_year')
+        week_start_number = params.get('week_start_number')
+        week_end_year = params.get('week_end_year')
+        week_end_number = params.get('week_end_number')
+        
+        # Legacy single-year range parameters (for backward compatibility)
+        week_number_min = params.get('week_number_min')
+        week_number_max = params.get('week_number_max')
+        
+        try:
+            if week_start_year and week_start_number:
+                # Cross-year range filter using date calculation
+                from datetime import datetime, timedelta
+                
+                start_year = int(week_start_year)
+                start_week = int(week_start_number)
+                
+                if week_end_year and week_end_number:
+                    end_year = int(week_end_year)
+                    end_week = int(week_end_number)
+                else:
+                    end_year = start_year
+                    end_week = 53
+                
+                # Calculate start date (Monday of start week)
+                # ISO week 1 is the week containing Jan 4
+                start_date = datetime.strptime(f'{start_year}-W{start_week:02d}-1', '%G-W%V-%u').date()
+                # Calculate end date (Sunday of end week)
+                end_date = datetime.strptime(f'{end_year}-W{end_week:02d}-7', '%G-W%V-%u').date()
+                
+                # Filter by work_date within the calculated range
+                queryset = queryset.filter(work_date__gte=start_date, work_date__lte=end_date)
+                
+            elif week_year and week_number:
+                # Exact week match using date calculation
+                from datetime import datetime
+                year = int(week_year)
+                wk = int(week_number)
+                start_date = datetime.strptime(f'{year}-W{wk:02d}-1', '%G-W%V-%u').date()
+                end_date = datetime.strptime(f'{year}-W{wk:02d}-7', '%G-W%V-%u').date()
+                queryset = queryset.filter(work_date__gte=start_date, work_date__lte=end_date)
+                
+            elif week_year:
+                # Legacy single-year range
+                from datetime import datetime
+                year = int(week_year)
+                min_wk = int(week_number_min) if week_number_min else 1
+                max_wk = int(week_number_max) if week_number_max else 53
+                start_date = datetime.strptime(f'{year}-W{min_wk:02d}-1', '%G-W%V-%u').date()
+                end_date = datetime.strptime(f'{year}-W{max_wk:02d}-7', '%G-W%V-%u').date()
+                queryset = queryset.filter(work_date__gte=start_date, work_date__lte=end_date)
+        except (ValueError, TypeError):
+            pass
+        
+        return queryset
+    
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return WorkEntryDetailSerializer
+        if self.action in ['create', 'update', 'partial_update']:
+            return WorkEntryCreateSerializer
+        if self.action == 'fill_data':
+            return WorkEntryFillDataSerializer
+        if self.action == 'approve':
+            return WorkEntryApprovalSerializer
+        if self.action == 'reject':
+            return WorkEntryRejectionSerializer
+        return WorkEntryListSerializer
+    
+    def get_permissions(self):
+        if self.action in ['approve', 'reject', 'pending']:
+            return [IsAdmin()]
+        return [permissions.IsAuthenticated()]
+    
+    def create(self, request, *args, **kwargs):
+        """Create a work entry."""
+        return super().create(request, *args, **kwargs)
+    
+    def destroy(self, request, *args, **kwargs):
+        """
+        Delete a work entry and its associated planned day if no other entries remain.
+        
+        When deleting the last work entry for a shift/date combination,
+        also delete the ProjectPlannedDay to keep the calendar clean.
+        """
+        from apps.projects.models import ProjectPlannedDay
+        
+        instance = self.get_object()
+        shift_template = instance.shift_template
+        work_date = instance.work_date
+        
+        # First delete the work entry
+        response = super().destroy(request, *args, **kwargs)
+        
+        # Then check if there are any other work entries for this shift+date
+        if shift_template and work_date:
+            remaining = WorkEntry.objects.filter(
+                shift_template=shift_template,
+                work_date=work_date
+            ).exists()
+            
+            # If no more entries, delete the planned day too
+            if not remaining:
+                ProjectPlannedDay.objects.filter(
+                    shift_template=shift_template,
+                    date=work_date
+                ).delete()
+        
+        return response
+    
+    # =========================================================================
+    # LIST ACTIONS
+    # =========================================================================
+    
+    @action(detail=False, methods=['get'])
+    def my(self, request):
+        """Get current user's work entries (for mobile app)."""
+        user = request.user
+        
+        try:
+            employee = EmployeeProfile.objects.get(user=user)
+        except EmployeeProfile.DoesNotExist:
+            return Response({'results': [], 'count': 0})
+        
+        queryset = self.queryset.filter(employee=employee)
+        
+        # Apply date filters
+        params = request.query_params
+        start_date = params.get('start_date')
+        end_date = params.get('end_date')
+        include_past = params.get('include_past', 'false').lower() == 'true'
+        
+        # Exclude cancelled
+        queryset = queryset.exclude(status='cancelled')
+        
+        if start_date:
+            queryset = queryset.filter(work_date__gte=start_date)
+        elif not include_past:
+            queryset = queryset.filter(work_date__gte=date.today())
+        
+        if end_date:
+            queryset = queryset.filter(work_date__lte=end_date)
+        elif not include_past and not start_date:
+            max_date = date.today() + timedelta(days=365)
+            queryset = queryset.filter(work_date__lte=max_date)
+        
+        # Order by date
+        queryset = queryset.order_by('work_date', 'planned_start_time')
+        
+        # Simple pagination
+        page = int(params.get('page', 1))
+        page_size = int(params.get('page_size', 20))
+        total = queryset.count()
+        start_idx = (page - 1) * page_size
+        end_idx = start_idx + page_size
+        
+        entries = queryset[start_idx:end_idx]
+        serializer = WorkEntryListSerializer(entries, many=True)
+        
+        return Response({
+            'count': total,
+            'page': page,
+            'page_size': page_size,
+            'has_more': end_idx < total,
+            'results': serializer.data
+        })
+    
+    @action(detail=False, methods=['get'], permission_classes=[IsAdmin])
+    def pending(self, request):
+        """Get all entries pending approval (admin only)."""
+        pending_statuses = ['submitted', 'pending']
+        queryset = self.queryset.filter(status__in=pending_statuses)
+        serializer = WorkEntryListSerializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    # =========================================================================
+    # EMPLOYEE ACTIONS
+    # =========================================================================
+    
+    @action(detail=True, methods=['post'])
+    def confirm(self, request, pk=None):
+        """Employee confirms/acknowledges planned entry."""
+        entry = self.get_object()
+        
+        if entry.employee.user != request.user and not request.user.is_admin:
+            return Response({'error': 'Not your entry'}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            entry.confirm()
+            return Response(WorkEntryDetailSerializer(entry).data)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['post'])
+    def fill_data(self, request, pk=None):
+        """Employee fills actual work times."""
+        entry = self.get_object()
+        
+        if entry.employee.user != request.user and not request.user.is_admin:
+            return Response({'error': 'Not your entry'}, status=status.HTTP_403_FORBIDDEN)
+        
+        if not entry.can_fill_data:
+            return Response(
+                {'error': 'Cannot fill data - only allowed within 7 days and before approval'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        serializer = WorkEntryFillDataSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        
+        entry.actual_start_datetime = data['actual_start_datetime']
+        entry.actual_end_datetime = data['actual_end_datetime']
+        entry.breaks = data.get('breaks', [])
+        entry.break_duration_minutes = data.get('break_duration_minutes', 0)
+        entry.notes = data.get('notes', entry.notes)
+        entry.status = WorkEntry.Status.DRAFT
+        entry.save()
+        
+        return Response(WorkEntryDetailSerializer(entry).data)
+    
+    @action(detail=True, methods=['post'])
+    def submit(self, request, pk=None):
+        """Employee submits entry for approval."""
+        entry = self.get_object()
+        
+        if entry.employee.user != request.user and not request.user.is_admin:
+            return Response({'error': 'Not your entry'}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            entry.submit()
+            self._notify_admins_entry_submitted(entry)
+            return Response(WorkEntryDetailSerializer(entry).data)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # =========================================================================
+    # ADMIN ACTIONS
+    # =========================================================================
+    
+    @action(detail=True, methods=['post'], permission_classes=[IsAdmin])
+    def approve(self, request, pk=None):
+        """Admin approves entry (can approve from any status)."""
+        entry = self.get_object()
+        
+        # Skip if already approved
+        if entry.status == 'approved':
+            return Response({'error': 'Already approved'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = WorkEntryApprovalSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        if serializer.validated_data.get('adjusted_hours'):
+            entry.admin_adjusted_hours = serializer.validated_data['adjusted_hours']
+        if serializer.validated_data.get('admin_notes'):
+            entry.admin_notes = serializer.validated_data['admin_notes']
+        
+        entry.approve(request.user)
+        self._create_wallet_earning(entry)
+        self._notify_employee(entry, 'approved', 
+            f"Your work entry for {entry.work_date} has been approved!")
+        
+        return Response(WorkEntryDetailSerializer(entry).data)
+    
+    @action(detail=True, methods=['post'], permission_classes=[IsAdmin])
+    def reject(self, request, pk=None):
+        """Admin rejects entry with reason (can reject from any status)."""
+        entry = self.get_object()
+        
+        if entry.status == 'rejected':
+            return Response({'error': 'Already rejected'}, status=status.HTTP_400_BAD_REQUEST)
+        if entry.status == 'cancelled':
+            return Response({'error': 'Cannot reject cancelled entries'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = WorkEntryRejectionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        reason = serializer.validated_data['reason']
+        
+        entry.reject(reason)
+        self._notify_employee(entry, 'rejected',
+            f"Your work entry for {entry.work_date} needs revision. Reason: {reason}")
+        
+        return Response(WorkEntryDetailSerializer(entry).data)
+    
+    # =========================================================================
+    # HELPER METHODS
+    # =========================================================================
+    
+    def _notify_admins_entry_submitted(self, entry):
+        """Notify admins about new submission."""
+        try:
+            from apps.notifications.models import Notification
+            from apps.employees.models import User
+            
+            for admin in User.objects.filter(is_staff=True, is_active=True):
+                Notification.objects.create(
+                    recipient=admin,
+                    notification_type=Notification.Type.WORKLOG_SUBMITTED,
+                    priority=Notification.Priority.NORMAL,
+                    title=f"New Work Entry from {entry.employee.full_name}",
+                    message=f"{entry.employee.full_name} submitted work entry for {entry.work_date} ({entry.calculated_hours}h).",
+                    reference_type='workentry',
+                    reference_id=entry.id,
+                    action_url=f"/dashboard/worklogs?id={entry.id}"
+                )
+        except Exception as e:
+            print(f"Failed to notify admins: {e}")
+    
+    def _notify_employee(self, entry, status_type, message):
+        """Notify employee about entry status change."""
+        try:
+            from apps.notifications.models import Notification
+            
+            notification_type = (
+                Notification.Type.WORKLOG_APPROVED if status_type == 'approved'
+                else Notification.Type.WORKLOG_REJECTED
+            )
+            
+            Notification.objects.create(
+                recipient=entry.employee.user,
+                notification_type=notification_type,
+                priority=Notification.Priority.NORMAL if status_type == 'approved' else Notification.Priority.HIGH,
+                title=f"Work Entry {status_type.title()}",
+                message=message,
+                reference_type='workentry',
+                reference_id=entry.id,
+                action_url=f"/app/entries/{entry.id}"
+            )
+        except Exception as e:
+            print(f"Failed to notify employee: {e}")
+    
+    def _create_wallet_earning(self, entry):
+        """Create wallet earning transaction for approved entry."""
+        try:
+            from apps.wallet.models import Wallet, WalletTransaction
+            
+            wallet, _ = Wallet.objects.get_or_create(employee=entry.employee)
+            
+            # Calculate earnings
+            hourly_rate = 15.00  # Default rate
+            earnings = float(entry.calculated_hours) * hourly_rate
+            
+            WalletTransaction.objects.create(
+                wallet=wallet,
+                transaction_type=WalletTransaction.Type.EARNING,
+                amount=earnings,
+                description=f"Work: {entry.project.name} ({entry.work_date})",
+                reference_type='workentry',
+                reference_id=entry.id,
+                created_by=entry.approved_by
+            )
+        except Exception as e:
+            print(f"Failed to create wallet earning: {e}")

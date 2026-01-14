@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { Card, Button } from '@/components/ui';
-import { api, WorkLog } from '@/lib/api';
+import { api, WorkEntry } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n';
 import { Clock, CheckCircle, XCircle, AlertCircle, Search, Eye, Check, X, Plus, Gift, Trash2, Edit2 } from 'lucide-react';
 
@@ -59,11 +59,11 @@ function getWeekEndDate(weekStr: string): string {
 export default function WorkLogsPage() {
     const { t } = useLanguage();
     const router = useRouter();
-    const [workLogs, setWorkLogs] = useState<WorkLog[]>([]);
-    const [pendingLogs, setPendingLogs] = useState<WorkLog[]>([]);
+    const [workLogs, setWorkLogs] = useState<WorkEntry[]>([]);
+    const [pendingLogs, setPendingLogs] = useState<WorkEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [filter, setFilter] = useState('pending');
+    const [filter, setFilter] = useState('all');
     const [search, setSearch] = useState('');
 
     // Advanced filters
@@ -79,6 +79,11 @@ export default function WorkLogsPage() {
     const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
     const [employeeSearchFilter, setEmployeeSearchFilter] = useState('');
     const [filterStatuses, setFilterStatuses] = useState<string[]>([]); // Multi-select: empty = all
+    // Customer and Supervisor search states
+    const [customerSearchFilter, setCustomerSearchFilter] = useState('');
+    const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
+    const [supervisorSearchFilter, setSupervisorSearchFilter] = useState('');
+    const [showSupervisorDropdown, setShowSupervisorDropdown] = useState(false);
 
     // Load filter supervisors (outfolders) when customer changes
     async function loadFilterSupervisors(customerId: string) {
@@ -230,11 +235,29 @@ export default function WorkLogsPage() {
         setLoading(true);
         setError(null);
         try {
-            const [allResponse, pending] = await Promise.all([
-                api.getWorkLogs(),
-                api.getPendingWorkLogs(),
+            const token = localStorage.getItem('access_token');
+            const headers = { 'Authorization': `Bearer ${token}` };
+
+            const [allResponse, pending, unassignedRes] = await Promise.all([
+                api.getWorkEntries({ include_past: true }),
+                api.getPendingWorkEntries(),
+                fetch(`${API_URL}/projects/planned-days/unassigned_shifts/`, { headers }).then(r => r.ok ? r.json() : { results: [] })
             ]);
-            setWorkLogs(allResponse.results || []);
+
+            // Merge work entries with unassigned shifts
+            const workEntries = allResponse.results || [];
+            const unassignedShifts = (unassignedRes.results || []).map((shift: { id: string; work_date: string; project: string; project_name: string; customer_name: string; shift_name: string; shift_color: string; start_time: string; end_time: string; status: string; employee_name: string; required_workers: number }) => ({
+                ...shift,
+                // Add fields expected by the UI
+                id: `unassigned-${shift.id}`,  // Prefix to avoid ID collision
+                employee: null,
+                actual_start_datetime: shift.start_time ? `${shift.work_date}T${shift.start_time}:00` : null,
+                actual_end_datetime: shift.end_time ? `${shift.work_date}T${shift.end_time}:00` : null,
+                calculated_hours: '0.00',
+                break_duration: '0:00',
+            }));
+
+            setWorkLogs([...workEntries, ...unassignedShifts]);
             setPendingLogs(pending || []);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load work logs');
@@ -287,7 +310,7 @@ export default function WorkLogsPage() {
 
     async function handleApprove(id: string) {
         try {
-            await api.approveWorkLog(id);
+            await api.approveWorkEntry(id);
             await loadWorkLogs();
         } catch (err) {
             alert(err instanceof Error ? err.message : 'Failed to approve');
@@ -298,7 +321,7 @@ export default function WorkLogsPage() {
         const reason = prompt('Enter rejection reason:');
         if (!reason) return;
         try {
-            await api.rejectWorkLog(id, reason);
+            await api.rejectWorkEntry(id, reason);
             await loadWorkLogs();
         } catch (err) {
             alert(err instanceof Error ? err.message : 'Failed to reject');
@@ -310,7 +333,7 @@ export default function WorkLogsPage() {
             return;
         }
         try {
-            await api.deleteWorkLog(id);
+            await api.deleteWorkEntry(id);
             await loadWorkLogs();
         } catch (err) {
             alert(err instanceof Error ? err.message : 'Failed to delete');
@@ -345,7 +368,7 @@ export default function WorkLogsPage() {
         }
         try {
             for (const id of selectedIds) {
-                await api.deleteWorkLog(id);
+                await api.deleteWorkEntry(id);
             }
             setSelectedIds(new Set());
             await loadWorkLogs();
@@ -356,15 +379,52 @@ export default function WorkLogsPage() {
 
     async function handleBulkApprove() {
         if (selectedIds.size === 0) return;
-        if (!confirm(`Are you sure you want to approve ${selectedIds.size} work log(s)?`)) {
+
+        // Filter out already approved/cancelled entries
+        const approvableIds = Array.from(selectedIds).filter(id => {
+            const log = workLogs.find((w: WorkEntry) => w.id === id);
+            return log && log.status !== 'approved' && log.status !== 'cancelled';
+        });
+
+        if (approvableIds.length === 0) {
+            alert('No work logs can be approved. All selected entries are already approved or cancelled.');
             return;
         }
+
+        // Check if any are not in pending/submitted status (need warning)
+        const nonPendingCount = approvableIds.filter(id => {
+            const log = workLogs.find((w: WorkEntry) => w.id === id);
+            return log && !['pending', 'submitted'].includes(log.status);
+        }).length;
+
+        let confirmMsg = `Are you sure you want to approve ${approvableIds.length} work log(s)?`;
+        if (nonPendingCount > 0) {
+            confirmMsg = `⚠️ WARNING: ${nonPendingCount} work log(s) are not in pending status and will be force-approved.\n\nApprove ${approvableIds.length} work log(s)?`;
+        }
+
+        if (!confirm(confirmMsg)) {
+            return;
+        }
+
         try {
-            for (const id of selectedIds) {
-                await api.approveWorkLog(id);
+            let approvedCount = 0;
+            const errors: string[] = [];
+
+            for (const id of approvableIds) {
+                try {
+                    await api.approveWorkEntry(id);
+                    approvedCount++;
+                } catch (err) {
+                    errors.push(err instanceof Error ? err.message : 'Unknown error');
+                }
             }
+
             setSelectedIds(new Set());
             await loadWorkLogs();
+
+            if (errors.length > 0) {
+                alert(`Approved ${approvedCount} work log(s). ${errors.length} failed.`);
+            }
         } catch (err) {
             alert(err instanceof Error ? err.message : 'Failed to approve some work logs');
         }
@@ -395,7 +455,7 @@ export default function WorkLogsPage() {
         setShowModal(true);
     }
 
-    async function openEditModal(log: WorkLog) {
+    async function openEditModal(log: WorkEntry) {
         // Populate form with existing worklog data
         const employeeObj = employees.find(e => e.id === (log as any).employee);
 
@@ -410,11 +470,11 @@ export default function WorkLogsPage() {
             project: projectId,
             supervisor: (log as any).supervisor || '',
             service: (log as any).service || '',
-            location_override: (log as any).location_override || '',
-            start_datetime: (log as any).start_datetime?.slice(0, 16) ||
-                ((log as any).work_date && log.start_time ? `${(log as any).work_date}T${log.start_time.substring(0, 5)}` : new Date().toISOString().slice(0, 16)),
-            end_datetime: (log as any).end_datetime?.slice(0, 16) ||
-                ((log as any).work_date && log.end_time ? `${(log as any).work_date}T${log.end_time.substring(0, 5)}` : new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 16)),
+            location_override: log.location || '',
+            start_datetime: log.actual_start_datetime?.slice(0, 16) ||
+                (log.work_date && log.planned_start_time ? `${log.work_date}T${log.planned_start_time.substring(0, 5)}` : new Date().toISOString().slice(0, 16)),
+            end_datetime: log.actual_end_datetime?.slice(0, 16) ||
+                (log.work_date && log.planned_end_time ? `${log.work_date}T${log.planned_end_time.substring(0, 5)}` : new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 16)),
             break_start_time: (log as any).break_start_time?.substring(0, 5) || '12:00',
             break_end_time: (log as any).break_end_time?.substring(0, 5) || '12:30',
             notes: (log as any).notes || '',
@@ -490,9 +550,13 @@ export default function WorkLogsPage() {
 
         setSaving(true);
         try {
+            // Extract work_date from start datetime (YYYY-MM-DD)
+            const workDate = formData.start_datetime?.split('T')[0] || '';
+
             const payload: any = {
                 project: formData.project,
                 employee: formData.employee,
+                work_date: workDate,  // Required field
                 start_datetime: formData.start_datetime,
                 end_datetime: formData.end_datetime,
                 break_start_time: formData.break_start_time,
@@ -834,61 +898,190 @@ export default function WorkLogsPage() {
                                 gap: '20px',
                                 alignItems: 'start',
                             }}>
-                                {/* Customer Filter */}
-                                <div>
+                                {/* Customer Filter - Searchable */}
+                                <div style={{ position: 'relative' }}>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>Customer</label>
-                                    <select
-                                        value={filterCustomer}
-                                        onChange={(e) => {
-                                            setFilterCustomer(e.target.value);
-                                            loadFilterSupervisors(e.target.value);
-                                        }}
-                                        style={{
-                                            width: '100%',
-                                            padding: '12px 14px',
-                                            fontSize: '14px',
+                                    {filterCustomer ? (
+                                        <div style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            padding: '10px 14px',
+                                            backgroundColor: '#EFF6FF',
+                                            border: '1px solid #BFDBFE',
                                             borderRadius: '10px',
-                                            border: '1px solid #D1D5DB',
-                                            backgroundColor: '#FAFAFA',
-                                            outline: 'none',
-                                            cursor: 'pointer',
-                                            transition: 'border-color 0.2s',
-                                        }}
-                                    >
-                                        <option value="">All Customers</option>
-                                        {customers.map(c => (
-                                            <option key={c.id} value={c.id}>{c.company_name}</option>
-                                        ))}
-                                    </select>
+                                        }}>
+                                            <span style={{ flex: 1, fontSize: '14px', color: '#1E40AF', fontWeight: 500 }}>
+                                                {customers.find(c => c.id === filterCustomer)?.company_name}
+                                            </span>
+                                            <button
+                                                onClick={() => { setFilterCustomer(''); setFilterSupervisors([]); setFilterSupervisor(''); }}
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3B82F6', fontSize: '16px' }}
+                                            >✕</button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <input
+                                                type="text"
+                                                placeholder="Search customers..."
+                                                value={customerSearchFilter}
+                                                onChange={(e) => setCustomerSearchFilter(e.target.value)}
+                                                onFocus={() => setShowCustomerDropdown(true)}
+                                                style={{
+                                                    width: '100%',
+                                                    padding: '12px 14px',
+                                                    fontSize: '14px',
+                                                    borderRadius: '10px',
+                                                    border: '1px solid #D1D5DB',
+                                                    backgroundColor: '#FAFAFA',
+                                                    outline: 'none',
+                                                }}
+                                            />
+                                            {showCustomerDropdown && (
+                                                <div
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: '100%',
+                                                        left: 0,
+                                                        right: 0,
+                                                        marginTop: '4px',
+                                                        backgroundColor: 'white',
+                                                        border: '1px solid #E5E7EB',
+                                                        borderRadius: '12px',
+                                                        boxShadow: '0 10px 25px rgba(0,0,0,0.12)',
+                                                        zIndex: 50,
+                                                        maxHeight: '200px',
+                                                        overflowY: 'auto',
+                                                    }}
+                                                    onMouseDown={(e) => e.preventDefault()}
+                                                >
+                                                    {customers
+                                                        .filter(c => c.company_name.toLowerCase().includes(customerSearchFilter.toLowerCase()))
+                                                        .slice(0, 10)
+                                                        .map(c => (
+                                                            <div
+                                                                key={c.id}
+                                                                onClick={() => {
+                                                                    setFilterCustomer(c.id);
+                                                                    setCustomerSearchFilter('');
+                                                                    setShowCustomerDropdown(false);
+                                                                    loadFilterSupervisors(c.id);
+                                                                }}
+                                                                style={{
+                                                                    padding: '10px 14px',
+                                                                    cursor: 'pointer',
+                                                                    borderBottom: '1px solid #F3F4F6',
+                                                                    fontSize: '14px',
+                                                                }}
+                                                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#F3F4F6'}
+                                                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                                                            >
+                                                                {c.company_name}
+                                                            </div>
+                                                        ))
+                                                    }
+                                                    {customers.filter(c => c.company_name.toLowerCase().includes(customerSearchFilter.toLowerCase())).length === 0 && (
+                                                        <div style={{ padding: '10px 14px', color: '#9CA3AF', fontSize: '14px' }}>No customers found</div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
                                 </div>
 
-                                {/* Supervisor Filter - depends on customer */}
-                                <div>
+                                {/* Supervisor Filter - Searchable */}
+                                <div style={{ position: 'relative' }}>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>
                                         Supervisor {filterCustomer && <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 400 }}>(for selected customer)</span>}
                                     </label>
-                                    <select
-                                        value={filterSupervisor}
-                                        onChange={(e) => setFilterSupervisor(e.target.value)}
-                                        disabled={!filterCustomer}
-                                        style={{
-                                            width: '100%',
-                                            padding: '12px 14px',
-                                            fontSize: '14px',
+                                    {filterSupervisor ? (
+                                        <div style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            padding: '10px 14px',
+                                            backgroundColor: '#D1FAE5',
+                                            border: '1px solid #6EE7B7',
                                             borderRadius: '10px',
-                                            border: '1px solid #D1D5DB',
-                                            backgroundColor: filterCustomer ? '#FAFAFA' : '#F3F4F6',
-                                            outline: 'none',
-                                            cursor: filterCustomer ? 'pointer' : 'not-allowed',
-                                            opacity: filterCustomer ? 1 : 0.6,
-                                            transition: 'all 0.2s',
-                                        }}
-                                    >
-                                        <option value="">All Supervisors</option>
-                                        {filterSupervisors.map(s => (
-                                            <option key={s.id} value={s.id}>{s.full_name}</option>
-                                        ))}
-                                    </select>
+                                        }}>
+                                            <span style={{ flex: 1, fontSize: '14px', color: '#065F46', fontWeight: 500 }}>
+                                                {filterSupervisors.find(s => s.id === filterSupervisor)?.full_name}
+                                            </span>
+                                            <button
+                                                onClick={() => setFilterSupervisor('')}
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#059669', fontSize: '16px' }}
+                                            >✕</button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <input
+                                                type="text"
+                                                placeholder={filterCustomer ? "Search supervisors..." : "Select customer first"}
+                                                value={supervisorSearchFilter}
+                                                onChange={(e) => setSupervisorSearchFilter(e.target.value)}
+                                                onFocus={() => filterCustomer && setShowSupervisorDropdown(true)}
+                                                disabled={!filterCustomer}
+                                                style={{
+                                                    width: '100%',
+                                                    padding: '12px 14px',
+                                                    fontSize: '14px',
+                                                    borderRadius: '10px',
+                                                    border: '1px solid #D1D5DB',
+                                                    backgroundColor: filterCustomer ? '#FAFAFA' : '#F3F4F6',
+                                                    outline: 'none',
+                                                    opacity: filterCustomer ? 1 : 0.6,
+                                                    cursor: filterCustomer ? 'text' : 'not-allowed',
+                                                }}
+                                            />
+                                            {showSupervisorDropdown && filterCustomer && (
+                                                <div
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: '100%',
+                                                        left: 0,
+                                                        right: 0,
+                                                        marginTop: '4px',
+                                                        backgroundColor: 'white',
+                                                        border: '1px solid #E5E7EB',
+                                                        borderRadius: '12px',
+                                                        boxShadow: '0 10px 25px rgba(0,0,0,0.12)',
+                                                        zIndex: 50,
+                                                        maxHeight: '200px',
+                                                        overflowY: 'auto',
+                                                    }}
+                                                    onMouseDown={(e) => e.preventDefault()}
+                                                >
+                                                    {filterSupervisors
+                                                        .filter(s => s.full_name.toLowerCase().includes(supervisorSearchFilter.toLowerCase()))
+                                                        .slice(0, 10)
+                                                        .map(s => (
+                                                            <div
+                                                                key={s.id}
+                                                                onClick={() => {
+                                                                    setFilterSupervisor(s.id);
+                                                                    setSupervisorSearchFilter('');
+                                                                    setShowSupervisorDropdown(false);
+                                                                }}
+                                                                style={{
+                                                                    padding: '10px 14px',
+                                                                    cursor: 'pointer',
+                                                                    borderBottom: '1px solid #F3F4F6',
+                                                                    fontSize: '14px',
+                                                                }}
+                                                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#F3F4F6'}
+                                                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                                                            >
+                                                                {s.full_name}
+                                                            </div>
+                                                        ))
+                                                    }
+                                                    {filterSupervisors.filter(s => s.full_name.toLowerCase().includes(supervisorSearchFilter.toLowerCase())).length === 0 && (
+                                                        <div style={{ padding: '10px 14px', color: '#9CA3AF', fontSize: '14px' }}>No supervisors found</div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
                                 </div>
 
                                 {/* Week Range - From */}
@@ -1314,162 +1507,326 @@ export default function WorkLogsPage() {
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1E3A5F]"></div>
                         </div>
                     ) : (
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                <thead style={{ backgroundColor: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
-                                    <tr>
-                                        <th style={{ padding: '16px 12px', width: '50px' }}>
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedIds.size > 0 && selectedIds.size === displayedLogs.length}
-                                                onChange={toggleSelectAll}
-                                                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                                            />
-                                        </th>
-                                        <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Employee</th>
-                                        <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Project</th>
-                                        <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Date</th>
-                                        <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Time</th>
-                                        <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Hours</th>
-                                        <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Allowances</th>
-                                        <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Status</th>
-                                        <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredLogs.length === 0 ? (
+                        <>
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                    <thead style={{ backgroundColor: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
                                         <tr>
-                                            <td colSpan={9} style={{ padding: '48px 24px', textAlign: 'center', color: '#6B7280' }}>
-                                                <Clock style={{ width: '48px', height: '48px', color: '#D1D5DB', margin: '0 auto 16px' }} />
-                                                <p style={{ fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>
-                                                    {filter === 'pending' ? 'No pending work logs' : 'No work logs found'}
-                                                </p>
-                                                <p style={{ fontSize: '14px', color: '#9CA3AF' }}>
-                                                    {filter === 'pending' ? 'All work logs have been reviewed.' : 'Work logs will appear here when employees submit them.'}
-                                                </p>
-                                            </td>
+                                            <th style={{ padding: '16px 12px', width: '50px' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedIds.size > 0 && selectedIds.size === displayedLogs.length}
+                                                    onChange={toggleSelectAll}
+                                                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                                                />
+                                            </th>
+                                            <th style={{ padding: '16px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Employee</th>
+                                            <th style={{ padding: '16px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Customer</th>
+                                            <th style={{ padding: '16px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Project</th>
+                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Date</th>
+                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Time</th>
+                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Pause</th>
+                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Hours</th>
+                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Allowances</th>
+                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Price</th>
+                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Status</th>
+                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Actions</th>
                                         </tr>
-                                    ) : (
-                                        filteredLogs.map((log) => (
-                                            <tr key={log.id} style={{ borderBottom: '1px solid #F3F4F6' }}>
-                                                <td style={{ padding: '16px 12px', width: '50px' }}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selectedIds.has(log.id)}
-                                                        onChange={() => toggleSelectOne(log.id)}
-                                                        style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                                                    />
+                                    </thead>
+                                    <tbody>
+                                        {filteredLogs.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={12} style={{ padding: '48px 24px', textAlign: 'center', color: '#6B7280' }}>
+                                                    <Clock style={{ width: '48px', height: '48px', color: '#D1D5DB', margin: '0 auto 16px' }} />
+                                                    <p style={{ fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>
+                                                        {filter === 'pending' ? 'No pending work logs' : 'No work logs found'}
+                                                    </p>
+                                                    <p style={{ fontSize: '14px', color: '#9CA3AF' }}>
+                                                        {filter === 'pending' ? 'All work logs have been reviewed.' : 'Work logs will appear here when employees submit them.'}
+                                                    </p>
                                                 </td>
-                                                <td style={{ padding: '16px 24px' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                        <div style={{
-                                                            width: '40px',
-                                                            height: '40px',
-                                                            borderRadius: '10px',
-                                                            background: 'linear-gradient(135deg, #1E3A5F, #3E5A8F)',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                            color: 'white',
-                                                            fontSize: '14px',
-                                                            fontWeight: 600,
-                                                        }}>
-                                                            {log.employee_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || 'EE'}
-                                                        </div>
-                                                        <span style={{ fontWeight: 600, color: '#111827' }}>{log.employee_name}</span>
-                                                    </div>
-                                                </td>
-                                                <td style={{ padding: '16px 24px', color: '#6B7280' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                        <span>{log.project_name}</span>
-                                                        {log.shift_assignment_info && (
-                                                            <span style={{
-                                                                display: 'inline-flex',
+                                            </tr>
+                                        ) : (
+                                            filteredLogs.map((log) => (
+                                                <tr key={log.id} style={{ borderBottom: '1px solid #F3F4F6' }}>
+                                                    <td style={{ padding: '16px 12px', width: '50px' }}>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedIds.has(log.id)}
+                                                            onChange={() => toggleSelectOne(log.id)}
+                                                            style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                                                        />
+                                                    </td>
+                                                    <td style={{ padding: '16px 16px' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                            <div style={{
+                                                                width: '36px',
+                                                                height: '36px',
+                                                                borderRadius: '8px',
+                                                                background: 'linear-gradient(135deg, #1E3A5F, #3E5A8F)',
+                                                                display: 'flex',
                                                                 alignItems: 'center',
-                                                                gap: '4px',
-                                                                padding: '3px 8px',
-                                                                backgroundColor: log.shift_assignment_info.shift_color || '#3B82F6',
+                                                                justifyContent: 'center',
                                                                 color: 'white',
-                                                                borderRadius: '4px',
-                                                                fontSize: '10px',
+                                                                fontSize: '12px',
                                                                 fontWeight: 600,
+                                                                flexShrink: 0,
                                                             }}>
-                                                                📅 {log.shift_assignment_info.shift_name}
+                                                                {log.employee_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || 'EE'}
+                                                            </div>
+                                                            <span style={{ fontWeight: 600, color: '#111827', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={log.employee_name}>
+                                                                {log.employee_name && log.employee_name.length > 24 ? log.employee_name.substring(0, 24) + '...' : log.employee_name}
                                                             </span>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                                <td style={{ padding: '16px 24px', color: '#6B7280' }}>{log.work_date}</td>
-                                                <td style={{ padding: '16px 24px', color: '#6B7280' }}>{log.start_time} - {log.end_time}</td>
-                                                <td style={{ padding: '16px 24px', fontWeight: 600, color: '#111827' }}>{log.calculated_hours}h</td>
-                                                <td style={{ padding: '16px 24px' }}>
-                                                    {(log as any).allowances?.length > 0 ? (
-                                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                                                            {(log as any).allowances.slice(0, 2).map((a: any, i: number) => (
-                                                                <span key={i} style={{
+                                                        </div>
+                                                    </td>
+                                                    <td style={{ padding: '16px 16px', color: '#374151' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', maxWidth: '160px' }}>
+                                                            <div style={{
+                                                                width: '6px',
+                                                                height: '6px',
+                                                                borderRadius: '50%',
+                                                                backgroundColor: '#3B82F6',
+                                                                flexShrink: 0,
+                                                            }} />
+                                                            <span style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={log.customer_name || '-'}>
+                                                                {log.customer_name && log.customer_name.length > 20 ? log.customer_name.substring(0, 20) + '...' : (log.customer_name || '-')}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td style={{ padding: '16px 16px', color: '#6B7280' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', maxWidth: '200px' }}>
+                                                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '140px' }} title={log.project_name}>
+                                                                {log.project_name && log.project_name.length > 20 ? log.project_name.substring(0, 20) + '...' : log.project_name}
+                                                            </span>
+                                                            {log.shift_name && (
+                                                                <span style={{
                                                                     display: 'inline-flex',
                                                                     alignItems: 'center',
-                                                                    gap: '4px',
-                                                                    padding: '4px 8px',
-                                                                    backgroundColor: '#EEF2FF',
-                                                                    color: '#4F46E5',
-                                                                    borderRadius: '6px',
-                                                                    fontSize: '11px',
-                                                                    fontWeight: 500,
+                                                                    gap: '3px',
+                                                                    padding: '2px 6px',
+                                                                    backgroundColor: log.shift_color || '#3B82F6',
+                                                                    color: 'white',
+                                                                    borderRadius: '4px',
+                                                                    fontSize: '9px',
+                                                                    fontWeight: 600,
                                                                 }}>
-                                                                    <Gift size={10} />
-                                                                    {a.allowance_name || a.custom_allowance_name}
-                                                                </span>
-                                                            ))}
-                                                            {(log as any).allowances.length > 2 && (
-                                                                <span style={{
-                                                                    padding: '4px 8px',
-                                                                    backgroundColor: '#F3F4F6',
-                                                                    color: '#6B7280',
-                                                                    borderRadius: '6px',
-                                                                    fontSize: '11px',
-                                                                }}>
-                                                                    +{(log as any).allowances.length - 2}
+                                                                    📅 {log.shift_name}
                                                                 </span>
                                                             )}
                                                         </div>
-                                                    ) : (
-                                                        <span style={{ color: '#9CA3AF', fontSize: '13px' }}>-</span>
-                                                    )}
-                                                </td>
-                                                <td style={{ padding: '16px 24px' }}>
-                                                    <span
-                                                        style={{
-                                                            display: 'inline-flex',
-                                                            alignItems: 'center',
-                                                            gap: '6px',
-                                                            padding: '6px 12px',
-                                                            borderRadius: '9999px',
-                                                            fontSize: '12px',
-                                                            fontWeight: 600,
-                                                            backgroundColor: log.status === 'approved' ? '#DCFCE7' :
-                                                                log.status === 'pending' ? '#FEF3C7' :
-                                                                    log.status === 'rejected' ? '#FEE2E2' : '#F3F4F6',
-                                                            color: log.status === 'approved' ? '#16A34A' :
-                                                                log.status === 'pending' ? '#CA8A04' :
-                                                                    log.status === 'rejected' ? '#DC2626' : '#6B7280',
-                                                        }}
-                                                    >
-                                                        <span style={{
-                                                            width: '6px',
-                                                            height: '6px',
-                                                            borderRadius: '3px',
-                                                            backgroundColor: log.status === 'approved' ? '#16A34A' :
-                                                                log.status === 'pending' ? '#CA8A04' :
-                                                                    log.status === 'rejected' ? '#DC2626' : '#6B7280',
-                                                        }} />
-                                                        {log.status.charAt(0).toUpperCase() + log.status.slice(1)}
-                                                    </span>
-                                                </td>
-                                                <td style={{ padding: '16px 24px' }}>
-                                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                                        {/* Edit button for draft/pending status */}
-                                                        {(log.status === 'draft' || log.status === 'pending') && (
+                                                    </td>
+                                                    <td style={{ padding: '16px 12px', color: '#6B7280', whiteSpace: 'nowrap', fontSize: '13px' }}>{log.work_date}</td>
+                                                    <td style={{ padding: '16px 12px', color: '#6B7280', whiteSpace: 'nowrap', fontSize: '13px' }}>{log.display_time_range || `${log.planned_start_time || ''} - ${log.planned_end_time || ''}`}</td>
+                                                    <td style={{ padding: '16px 12px', color: '#6B7280', whiteSpace: 'nowrap', fontSize: '13px' }}>{(log as any).break_duration || '-'}</td>
+                                                    <td style={{ padding: '16px 24px', whiteSpace: 'nowrap' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                            <span style={{ fontWeight: 600, color: '#111827' }}>{log.calculated_hours}h</span>
+                                                            {(log as any).hours_breakdown?.night_hours > 0 && (
+                                                                <span style={{
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '4px',
+                                                                    padding: '2px 6px',
+                                                                    backgroundColor: '#1E1B4B',
+                                                                    color: '#A5B4FC',
+                                                                    borderRadius: '4px',
+                                                                    fontSize: '10px',
+                                                                    fontWeight: 500,
+                                                                }}>
+                                                                    🌙 {(log as any).hours_breakdown.night_hours}h night
+                                                                </span>
+                                                            )}
+                                                            {(log as any).hours_breakdown?.saturday_hours > 0 && (
+                                                                <span style={{
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '4px',
+                                                                    padding: '2px 6px',
+                                                                    backgroundColor: '#FEF3C7',
+                                                                    color: '#92400E',
+                                                                    borderRadius: '4px',
+                                                                    fontSize: '10px',
+                                                                    fontWeight: 500,
+                                                                }}>
+                                                                    📅 {(log as any).hours_breakdown.saturday_hours}h Sat
+                                                                </span>
+                                                            )}
+                                                            {(log as any).hours_breakdown?.sunday_hours > 0 && (
+                                                                <span style={{
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '4px',
+                                                                    padding: '2px 6px',
+                                                                    backgroundColor: '#FFEDD5',
+                                                                    color: '#C2410C',
+                                                                    borderRadius: '4px',
+                                                                    fontSize: '10px',
+                                                                    fontWeight: 500,
+                                                                }}>
+                                                                    🔶 {(log as any).hours_breakdown.sunday_hours}h Sun
+                                                                </span>
+                                                            )}
+                                                            {(log as any).hours_breakdown?.holiday_hours > 0 && (
+                                                                <span style={{
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '4px',
+                                                                    padding: '2px 6px',
+                                                                    backgroundColor: '#FEE2E2',
+                                                                    color: '#991B1B',
+                                                                    borderRadius: '4px',
+                                                                    fontSize: '10px',
+                                                                    fontWeight: 500,
+                                                                }}>
+                                                                    🎉 {(log as any).hours_breakdown.holiday_hours}h Holiday
+                                                                </span>
+                                                            )}
+                                                            {/* Overtime hours badge - from surcharges_breakdown */}
+                                                            {(() => {
+                                                                const overtime = (log as any).surcharges_breakdown?.breakdown?.find((s: any) => s.category === 'overtime');
+                                                                if (overtime && overtime.hours > 0) {
+                                                                    return (
+                                                                        <span style={{
+                                                                            display: 'inline-flex',
+                                                                            alignItems: 'center',
+                                                                            gap: '4px',
+                                                                            padding: '2px 6px',
+                                                                            backgroundColor: '#FEE2E2',
+                                                                            color: '#DC2626',
+                                                                            borderRadius: '4px',
+                                                                            fontSize: '10px',
+                                                                            fontWeight: 500,
+                                                                        }}>
+                                                                            ⏰ {overtime.hours}h Overwerk
+                                                                        </span>
+                                                                    );
+                                                                }
+                                                                return null;
+                                                            })()}
+                                                        </div>
+                                                    </td>
+                                                    <td style={{ padding: '16px 24px' }}>
+                                                        {/* Show surcharges first, then allowances */}
+                                                        {((log as any).surcharges_applied?.length > 0 || (log as any).allowances?.length > 0) ? (
+                                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                                                {/* Surcharges (Night Shift, Weekend, etc.) */}
+                                                                {(log as any).surcharges_applied?.map((s: any, i: number) => (
+                                                                    <span key={`s-${i}`} style={{
+                                                                        display: 'inline-flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '4px',
+                                                                        padding: '4px 8px',
+                                                                        backgroundColor: '#1E1B4B',
+                                                                        color: '#A5B4FC',
+                                                                        borderRadius: '6px',
+                                                                        fontSize: '11px',
+                                                                        fontWeight: 500,
+                                                                    }}>
+                                                                        🌙 {s.name} +{s.percentage}%
+                                                                    </span>
+                                                                ))}
+                                                                {/* Allowances */}
+                                                                {(log as any).allowances?.slice(0, 2).map((a: any, i: number) => (
+                                                                    <span key={`a-${i}`} style={{
+                                                                        display: 'inline-flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '4px',
+                                                                        padding: '4px 8px',
+                                                                        backgroundColor: '#EEF2FF',
+                                                                        color: '#4F46E5',
+                                                                        borderRadius: '6px',
+                                                                        fontSize: '11px',
+                                                                        fontWeight: 500,
+                                                                    }}>
+                                                                        <Gift size={10} />
+                                                                        {a.allowance_name || a.custom_allowance_name}
+                                                                    </span>
+                                                                ))}
+                                                                {(log as any).allowances?.length > 2 && (
+                                                                    <span style={{
+                                                                        padding: '4px 8px',
+                                                                        backgroundColor: '#F3F4F6',
+                                                                        color: '#6B7280',
+                                                                        borderRadius: '6px',
+                                                                        fontSize: '11px',
+                                                                    }}>
+                                                                        +{(log as any).allowances.length - 2}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <span style={{ color: '#9CA3AF', fontSize: '13px' }}>-</span>
+                                                        )}
+                                                    </td>
+
+                                                    {/* Price column */}
+                                                    <td style={{ padding: '16px 12px' }}>
+                                                        {(log as any).calculated_price && parseFloat((log as any).calculated_price) > 0 ? (
+                                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                                <span style={{
+                                                                    fontSize: '13px',
+                                                                    fontWeight: 700,
+                                                                    color: 'white',
+                                                                    backgroundColor: '#059669',
+                                                                    padding: '6px 12px',
+                                                                    borderRadius: '8px',
+                                                                    display: 'inline-block',
+                                                                }}>
+                                                                    €{parseFloat((log as any).calculated_price).toFixed(2)}
+                                                                </span>
+                                                                {(log as any).surcharges_applied?.length > 0 && (
+                                                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2px' }}>
+                                                                        {(log as any).surcharges_applied.map((s: any, i: number) => (
+                                                                            <span key={i} style={{
+                                                                                fontSize: '9px',
+                                                                                fontWeight: 500,
+                                                                                color: '#7C3AED',
+                                                                                backgroundColor: '#EDE9FE',
+                                                                                padding: '2px 6px',
+                                                                                borderRadius: '4px',
+                                                                            }}>
+                                                                                {s.name} +{s.percentage}%
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <span style={{ color: '#9CA3AF', fontSize: '13px' }}>-</span>
+                                                        )}
+                                                    </td>
+                                                    <td style={{ padding: '16px 24px' }}>
+                                                        <span
+                                                            style={{
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                                gap: '6px',
+                                                                padding: '6px 12px',
+                                                                borderRadius: '9999px',
+                                                                fontSize: '12px',
+                                                                fontWeight: 600,
+                                                                backgroundColor: log.status === 'approved' ? '#DCFCE7' :
+                                                                    log.status === 'pending' ? '#FEF3C7' :
+                                                                        log.status === 'rejected' ? '#FEE2E2' : '#F3F4F6',
+                                                                color: log.status === 'approved' ? '#16A34A' :
+                                                                    log.status === 'pending' ? '#CA8A04' :
+                                                                        log.status === 'rejected' ? '#DC2626' : '#6B7280',
+                                                            }}
+                                                        >
+                                                            <span style={{
+                                                                width: '6px',
+                                                                height: '6px',
+                                                                borderRadius: '3px',
+                                                                backgroundColor: log.status === 'approved' ? '#16A34A' :
+                                                                    log.status === 'pending' ? '#CA8A04' :
+                                                                        log.status === 'rejected' ? '#DC2626' : '#6B7280',
+                                                            }} />
+                                                            {log.status.charAt(0).toUpperCase() + log.status.slice(1)}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ padding: '16px 24px' }}>
+                                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                                            {/* Edit button - always visible */}
                                                             <button
                                                                 onClick={() => router.push(`/dashboard/worklogs/${log.id}`)}
                                                                 style={{
@@ -1489,11 +1846,10 @@ export default function WorkLogsPage() {
                                                                 <Edit2 style={{ width: '14px', height: '14px' }} />
                                                                 Edit
                                                             </button>
-                                                        )}
-                                                        {/* View button for approved/rejected status */}
-                                                        {(log.status === 'approved' || log.status === 'rejected') && (
+
+                                                            {/* Delete button for all statuses */}
                                                             <button
-                                                                onClick={() => router.push(`/dashboard/worklogs/${log.id}`)}
+                                                                onClick={() => handleDelete(log.id)}
                                                                 style={{
                                                                     display: 'flex',
                                                                     alignItems: 'center',
@@ -1501,46 +1857,174 @@ export default function WorkLogsPage() {
                                                                     padding: '8px 14px',
                                                                     fontSize: '13px',
                                                                     fontWeight: 500,
-                                                                    color: '#1E3A5F',
+                                                                    color: '#DC2626',
                                                                     backgroundColor: 'white',
-                                                                    border: '1px solid #E5E7EB',
+                                                                    border: '1px solid #FECACA',
                                                                     borderRadius: '8px',
                                                                     cursor: 'pointer',
                                                                 }}
                                                             >
-                                                                <Eye style={{ width: '14px', height: '14px' }} />
-                                                                View
+                                                                <Trash2 style={{ width: '14px', height: '14px' }} />
+                                                                Delete
                                                             </button>
-                                                        )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
 
-                                                        {/* Delete button for all statuses */}
-                                                        <button
-                                                            onClick={() => handleDelete(log.id)}
-                                                            style={{
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                gap: '6px',
-                                                                padding: '8px 14px',
-                                                                fontSize: '13px',
-                                                                fontWeight: 500,
-                                                                color: '#DC2626',
-                                                                backgroundColor: 'white',
-                                                                border: '1px solid #FECACA',
-                                                                borderRadius: '8px',
-                                                                cursor: 'pointer',
-                                                            }}
-                                                        >
-                                                            <Trash2 style={{ width: '14px', height: '14px' }} />
-                                                            Delete
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
+                            {/* Summary Card - Below Table */}
+                            {filteredLogs.length > 0 && (
+                                <div style={{
+                                    marginTop: '16px',
+                                    padding: '20px 24px',
+                                    background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)',
+                                    borderRadius: '12px',
+                                    border: '1px solid #BAE6FD',
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+                                        {/* Left Section - TOTALS badge and hours info */}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                                            <span style={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                padding: '6px 14px',
+                                                backgroundColor: '#1E3A5F',
+                                                color: 'white',
+                                                borderRadius: '8px',
+                                                fontSize: '12px',
+                                                fontWeight: 700,
+                                                letterSpacing: '0.5px',
+                                            }}>
+                                                TOTALS
+                                            </span>
+
+                                            {/* Total Hours */}
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span style={{ fontSize: '13px', color: '#6B7280' }}>Hours:</span>
+                                                <span style={{
+                                                    fontSize: '18px',
+                                                    fontWeight: 700,
+                                                    color: '#1E3A5F',
+                                                    backgroundColor: 'white',
+                                                    padding: '6px 14px',
+                                                    borderRadius: '8px',
+                                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                                }}>
+                                                    {filteredLogs.reduce((sum, log) => sum + (parseFloat(String(log.calculated_hours)) || 0), 0).toFixed(2)}h
+                                                </span>
+                                            </div>
+
+                                            {/* Night hours badge */}
+                                            {(() => {
+                                                const totalNightHours = filteredLogs.reduce((sum, log) => {
+                                                    return sum + (parseFloat(String((log as any).hours_breakdown?.night_hours || 0)));
+                                                }, 0);
+                                                if (totalNightHours > 0) {
+                                                    return (
+                                                        <span style={{
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '4px',
+                                                            padding: '6px 12px',
+                                                            backgroundColor: '#1E1B4B',
+                                                            color: '#FDE68A',
+                                                            borderRadius: '8px',
+                                                            fontSize: '12px',
+                                                            fontWeight: 600,
+                                                        }}>
+                                                            🌙 {totalNightHours.toFixed(0)}h night
+                                                        </span>
+                                                    );
+                                                }
+                                                return null;
+                                            })()}
+                                        </div>
+
+                                        {/* Right Section - Surcharges info */}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                                            {/* Surcharge badges by name */}
+                                            {(() => {
+                                                const surchargesByName: { [name: string]: { hours: number, category: string } } = {};
+                                                filteredLogs.forEach(log => {
+                                                    const breakdown = (log as any).surcharges_breakdown?.breakdown || [];
+                                                    breakdown.forEach((s: any) => {
+                                                        const name = s.name || 'Unknown';
+                                                        const hours = parseFloat(s.hours) || 0;
+                                                        if (!surchargesByName[name]) {
+                                                            surchargesByName[name] = { hours: 0, category: s.category };
+                                                        }
+                                                        surchargesByName[name].hours += hours;
+                                                    });
+                                                });
+                                                return Object.entries(surchargesByName).map(([name, data]) => (
+                                                    <span key={name} style={{
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        padding: '6px 12px',
+                                                        backgroundColor: data.category === 'night_shift' ? '#1E1B4B' :
+                                                            data.category === 'saturday' ? '#FEF3C7' :
+                                                                data.category === 'sunday' ? '#FFEDD5' :
+                                                                    data.category === 'overtime' ? '#FEE2E2' : '#FEE2E2',
+                                                        color: data.category === 'night_shift' ? '#A5B4FC' :
+                                                            data.category === 'saturday' ? '#92400E' :
+                                                                data.category === 'sunday' ? '#C2410C' :
+                                                                    data.category === 'overtime' ? '#DC2626' : '#991B1B',
+                                                        borderRadius: '8px',
+                                                        fontSize: '12px',
+                                                        fontWeight: 600,
+                                                    }}>
+                                                        {name} {data.hours}h
+                                                    </span>
+                                                ));
+                                            })()}
+
+                                            {/* Surcharge amount */}
+                                            <span style={{ fontSize: '14px', fontWeight: 700, color: '#10B981' }}>
+                                                +€{filteredLogs.reduce((sum, log) => {
+                                                    const surcharges = (log as any).surcharges_breakdown;
+                                                    return sum + (surcharges?.total_surcharge_amount ? parseFloat(surcharges.total_surcharge_amount) : 0);
+                                                }, 0).toFixed(2)}
+                                            </span>
+
+                                            <span style={{ color: '#D1D5DB', fontSize: '18px' }}>|</span>
+
+                                            {/* Base amount */}
+                                            <span style={{ fontSize: '14px', fontWeight: 600, color: '#1E3A5F' }}>
+                                                €{filteredLogs.reduce((sum, log) => {
+                                                    const surcharges = (log as any).surcharges_breakdown;
+                                                    const hours = parseFloat(String(log.calculated_hours)) || 0;
+                                                    return sum + (hours * (surcharges?.base_rate || 0));
+                                                }, 0).toFixed(2)}
+                                            </span>
+
+                                            <span style={{ color: '#D1D5DB', fontSize: '18px' }}>|</span>
+
+                                            {/* Total revenue */}
+                                            <span style={{
+                                                fontSize: '16px',
+                                                fontWeight: 700,
+                                                color: 'white',
+                                                backgroundColor: '#059669',
+                                                padding: '8px 16px',
+                                                borderRadius: '8px',
+                                            }}>
+                                                €{filteredLogs.reduce((sum, log) => {
+                                                    const surcharges = (log as any).surcharges_breakdown;
+                                                    const hours = parseFloat(String(log.calculated_hours)) || 0;
+                                                    const base = hours * (surcharges?.base_rate || 0);
+                                                    const surchargeAmount = surcharges?.total_surcharge_amount ? parseFloat(surcharges.total_surcharge_amount) : 0;
+                                                    return sum + base + surchargeAmount;
+                                                }, 0).toFixed(2)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </>
                     )}
                 </div >
             </div >

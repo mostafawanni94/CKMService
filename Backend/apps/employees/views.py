@@ -694,6 +694,59 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
                 'notify_approvals': profile.notify_approvals,
             }
         })
+    
+    @action(detail=True, methods=['get'])
+    def available_documents(self, request, pk=None):
+        """
+        Get list of available documents for an employee.
+        Used by the Extract modal to show checkboxes.
+        
+        GET /api/employees/profiles/{id}/available_documents/
+        
+        Returns:
+        [
+            {"key": "id_document_front", "label": "ID Document (Front)", "available": true},
+            {"key": "drivers_license_front", "label": "Driver's License (Front)", "available": false},
+            ...
+        ]
+        """
+        profile = self.get_object()
+        from .pdf_generator import get_available_documents
+        documents = get_available_documents(profile)
+        return Response(documents)
+    
+    @action(detail=True, methods=['post'])
+    def export_documents(self, request, pk=None):
+        """
+        Export employee documents as PDF.
+        First page is always Werkgeversverklaring, followed by selected documents.
+        
+        POST /api/employees/profiles/{id}/export_documents/
+        {
+            "document_types": ["id_document_front", "id_document_back", "certificate_123"]
+        }
+        
+        Returns: PDF file download
+        """
+        from django.http import HttpResponse
+        from .pdf_generator import generate_employee_document_pdf
+        
+        profile = self.get_object()
+        document_types = request.data.get('document_types', [])
+        
+        try:
+            pdf_buffer = generate_employee_document_pdf(profile, document_types)
+            
+            # Create response with PDF
+            response = HttpResponse(pdf_buffer.read(), content_type='application/pdf')
+            filename = f"werkgeversverklaring_{profile.full_name.replace(' ', '_')}_{timezone.now().strftime('%Y%m%d')}.pdf"
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+        except Exception as e:
+            return Response(
+                {'error': f'Failed to generate PDF: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 # =============================================================================

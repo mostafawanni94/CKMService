@@ -4,7 +4,7 @@ from rest_framework import serializers
 from apps.employees.models import EmployeeProfile
 from .models import (
     Project, ProjectAssignment, ProjectRequiredCertificate,
-    ProjectShiftTemplate, ProjectPlannedDay, ShiftAssignment
+    ProjectShiftTemplate, ProjectPlannedDay
 )
 
 
@@ -54,8 +54,8 @@ class ProjectListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = [
-            'id', 'name', 'location', 'customer', 'customer_name',
-            'status', 'start_date', 'assignments_count', 'created_at'
+            'id', 'name', 'location', 'location_address', 'location_postcode', 'location_city',
+            'customer', 'customer_name', 'status', 'start_date', 'assignments_count', 'created_at'
         ]
 
 
@@ -103,68 +103,16 @@ class ProjectShiftTemplateSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
 
-class ShiftAssignmentSerializer(serializers.ModelSerializer):
-    """Serializer for shift assignments.
+# ShiftAssignment model has been removed - use WorkEntry instead
+# See apps.worklogs.serializers.WorkEntryListSerializer
+
+
+class ProjectPlannedDayListSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for listing planned days.
     
-    Accepts either:
-    - employee: EmployeeProfile UUID directly
-    - user_id: User ID (integer) which gets converted to EmployeeProfile
+    Returns only counts, not full work_entries, for better performance.
+    Used in list actions where we only need to show summary info.
     """
-    employee_name = serializers.CharField(source='employee.full_name', read_only=True)
-    agency_name = serializers.CharField(source='agency.name', read_only=True, default='')
-    status_display = serializers.CharField(source='get_status_display', read_only=True)
-    # Accept user_id for creating assignments (frontend sends User IDs)
-    user_id = serializers.IntegerField(write_only=True, required=False)
-    # Work logs linked to this assignment
-    work_logs = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = ShiftAssignment
-        fields = [
-            'id', 'planned_day', 'employee', 'employee_name', 'agency', 'agency_name',
-            'status', 'status_display', 'notes', 'confirmed_at', 'cancelled_at',
-            'cancellation_reason', 'created_at', 'user_id', 'work_logs'
-        ]
-        read_only_fields = ['id', 'confirmed_at', 'cancelled_at', 'created_at']
-        extra_kwargs = {
-            'employee': {'required': False, 'allow_null': True}
-        }
-    
-    def get_work_logs(self, obj):
-        """Return linked WorkLogs for this assignment."""
-        logs = obj.work_logs.all().order_by('-created_at')[:3]  # Limit to 3 most recent
-        return [{
-            'id': str(log.id),
-            'status': log.status,
-            'calculated_hours': str(log.calculated_hours),
-            'work_date': log.work_date.isoformat() if log.work_date else None,
-        } for log in logs]
-    
-    def to_internal_value(self, data):
-        """Convert user_id to employee BEFORE field validation runs."""
-        # Make a mutable copy
-        data = data.copy() if hasattr(data, 'copy') else dict(data)
-        
-        # If user_id is provided, convert it to employee UUID
-        user_id = data.pop('user_id', None)
-        if user_id and not data.get('employee'):
-            try:
-                profile = EmployeeProfile.objects.get(user_id=user_id)
-                data['employee'] = str(profile.id)  # Set the UUID as string
-            except EmployeeProfile.DoesNotExist:
-                raise serializers.ValidationError({'user_id': f'Employee with user ID {user_id} not found'})
-        
-        return super().to_internal_value(data)
-    
-    def validate(self, data):
-        """Ensure employee is provided."""
-        if not data.get('employee'):
-            raise serializers.ValidationError({'employee': 'Either employee or user_id must be provided'})
-        return data
-
-
-class ProjectPlannedDaySerializer(serializers.ModelSerializer):
-    """Serializer for planned days."""
     shift_name = serializers.CharField(source='shift_template.name', read_only=True)
     shift_color = serializers.CharField(source='shift_template.color', read_only=True)
     shift_start_time = serializers.TimeField(source='shift_template.start_time', read_only=True)
@@ -172,19 +120,113 @@ class ProjectPlannedDaySerializer(serializers.ModelSerializer):
     supervisor_name = serializers.CharField(source='supervisor.full_name', read_only=True, default='')
     project_id = serializers.UUIDField(source='shift_template.project.id', read_only=True)
     project_name = serializers.CharField(source='shift_template.project.name', read_only=True)
-    assignments = ShiftAssignmentSerializer(many=True, read_only=True)
-    assigned_count = serializers.IntegerField(read_only=True)
-    is_fully_staffed = serializers.BooleanField(read_only=True)
+    # Only counts, no full work_entries array - much lighter payload
+    assigned_count = serializers.SerializerMethodField()
+    is_fully_staffed = serializers.SerializerMethodField()
     
     class Meta:
         model = ProjectPlannedDay
         fields = [
             'id', 'shift_template', 'shift_name', 'shift_color', 'shift_start_time',
             'shift_end_time', 'date', 'supervisor', 'supervisor_name', 'required_workers',
-            'notes', 'project_id', 'project_name', 'assignments', 'assigned_count',
+            'notes', 'project_id', 'project_name', 'assigned_count',
             'is_fully_staffed', 'created_at'
         ]
         read_only_fields = ['id', 'created_at']
+    
+    def get_assigned_count(self, obj):
+        """Count work entries for this planned day."""
+        from django.db.models import Q
+        from apps.worklogs.models import WorkEntry
+        
+        project_id = obj.shift_template.project_id if obj.shift_template else None
+        
+        query = Q(shift_template=obj.shift_template, work_date=obj.date)
+        if project_id:
+            query |= Q(project_id=project_id, work_date=obj.date, shift_template__isnull=True)
+        
+        return WorkEntry.objects.filter(query).count()
+    
+    def get_is_fully_staffed(self, obj):
+        """Check if we have enough workers assigned."""
+        assigned = self.get_assigned_count(obj)
+        return assigned >= obj.required_workers
+
+
+class ProjectPlannedDaySerializer(serializers.ModelSerializer):
+    """Detailed serializer for a single planned day.
+    
+    Includes full work_entries array with employee details.
+    Used for retrieve actions when viewing a single shift.
+    """
+    shift_name = serializers.CharField(source='shift_template.name', read_only=True)
+    shift_color = serializers.CharField(source='shift_template.color', read_only=True)
+    shift_start_time = serializers.TimeField(source='shift_template.start_time', read_only=True)
+    shift_end_time = serializers.TimeField(source='shift_template.end_time', read_only=True)
+    supervisor_name = serializers.CharField(source='supervisor.full_name', read_only=True, default='')
+    project_id = serializers.UUIDField(source='shift_template.project.id', read_only=True)
+    project_name = serializers.CharField(source='shift_template.project.name', read_only=True)
+    # Work entries for this planned day (replaces old assignments)
+    work_entries = serializers.SerializerMethodField()
+    assigned_count = serializers.SerializerMethodField()
+    is_fully_staffed = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = ProjectPlannedDay
+        fields = [
+            'id', 'shift_template', 'shift_name', 'shift_color', 'shift_start_time',
+            'shift_end_time', 'date', 'supervisor', 'supervisor_name', 'required_workers',
+            'notes', 'project_id', 'project_name', 'work_entries', 'assigned_count',
+            'is_fully_staffed', 'created_at'
+        ]
+        read_only_fields = ['id', 'created_at']
+    
+    def get_work_entries(self, obj):
+        """Get work entries for this planned day from WorkEntry model.
+        
+        Matches entries by shift_template+date OR project+date for manual entries.
+        """
+        from django.db.models import Q
+        from apps.worklogs.models import WorkEntry
+        
+        # Get project ID from shift template
+        project_id = obj.shift_template.project_id if obj.shift_template else None
+        
+        # Query by shift_template OR by project+date (for manual entries)
+        query = Q(shift_template=obj.shift_template, work_date=obj.date)
+        if project_id:
+            query |= Q(project_id=project_id, work_date=obj.date, shift_template__isnull=True)
+        
+        entries = WorkEntry.objects.filter(query).select_related('employee')[:10]
+        return [{
+            'id': str(e.id),
+            'employee_id': str(e.employee.id),
+            'employee_name': e.employee.full_name,
+            'status': e.status,
+            'calculated_hours': str(e.calculated_hours) if e.calculated_hours else '0',
+        } for e in entries]
+    
+    def get_assigned_count(self, obj):
+        """Count work entries for this planned day.
+        
+        Includes both scheduled entries and manual entries for the same project+date.
+        """
+        from django.db.models import Q
+        from apps.worklogs.models import WorkEntry
+        
+        project_id = obj.shift_template.project_id if obj.shift_template else None
+        
+        query = Q(shift_template=obj.shift_template, work_date=obj.date)
+        if project_id:
+            query |= Q(project_id=project_id, work_date=obj.date, shift_template__isnull=True)
+        
+        return WorkEntry.objects.filter(query).count()
+    
+    def get_is_fully_staffed(self, obj):
+        """Check if we have enough workers assigned."""
+        assigned = self.get_assigned_count(obj)
+        return assigned >= obj.required_workers
+
 
 
 class ProjectPlannedDayBulkCreateSerializer(serializers.Serializer):
@@ -198,12 +240,14 @@ class ProjectPlannedDayBulkCreateSerializer(serializers.Serializer):
     shift_template = serializers.PrimaryKeyRelatedField(queryset=ProjectShiftTemplate.objects.all())
     dates = serializers.ListField(child=serializers.DateField())
     employee_ids = serializers.ListField(
-        child=serializers.IntegerField(),  # User IDs are integers, not UUIDs
+        child=serializers.UUIDField(),  # EmployeeProfile UUIDs
         required=False,
         default=[],
-        help_text="Optional: User IDs to assign to all created days"
+        help_text="Optional: EmployeeProfile UUIDs to assign to all created days"
     )
     supervisor = serializers.UUIDField(required=False, allow_null=True)
+    service = serializers.IntegerField(required=False, allow_null=True, help_text="Service ID for pricing")
+    location_override = serializers.CharField(required=False, allow_blank=True, max_length=500)
     required_workers = serializers.IntegerField(default=1, min_value=1)
     
     def validate_supervisor(self, value):
@@ -214,32 +258,55 @@ class ProjectPlannedDayBulkCreateSerializer(serializers.Serializer):
         return value
     
     def validate_employee_ids(self, value):
-        """Validate that employee_ids are valid User IDs that have EmployeeProfiles."""
+        """Validate that employee_ids are valid EmployeeProfile UUIDs."""
         if value:
             from apps.employees.models import EmployeeProfile
-            # The frontend sends User IDs, so we need to check if these users have profiles
-            profiles = EmployeeProfile.objects.filter(user_id__in=value)
-            found_user_ids = {str(p.user_id) for p in profiles}
-            for user_id in value:
-                if str(user_id) not in found_user_ids:
-                    raise serializers.ValidationError(f"Employee with user ID {user_id} not found")
+            profiles = EmployeeProfile.objects.filter(id__in=value)
+            found_ids = {str(p.id) for p in profiles}
+            for emp_id in value:
+                if str(emp_id) not in found_ids:
+                    raise serializers.ValidationError(f"Employee with ID {emp_id} not found")
         return value
     
     def create(self, validated_data):
         from apps.employees.models import EmployeeProfile
+        from apps.worklogs.models import WorkEntry
         
         dates = validated_data.pop('dates')
         shift_template = validated_data['shift_template']
-        user_ids = validated_data.get('employee_ids', [])  # These are User IDs
+        employee_ids = validated_data.get('employee_ids', [])  # These are EmployeeProfile UUIDs
         created_days = []
-        all_assignments = []
+        all_work_entries = []
         skipped_conflicts = []
         
-        # Lookup EmployeeProfiles by user_id
-        profiles_by_user_id = {}
-        if user_ids:
-            profiles = EmployeeProfile.objects.filter(user_id__in=user_ids)
-            profiles_by_user_id = {str(p.user_id): p for p in profiles}
+        # Lookup EmployeeProfiles by their ID (UUID)
+        profiles_by_id = {}
+        if employee_ids:
+            profiles = EmployeeProfile.objects.filter(id__in=employee_ids)
+            profiles_by_id = {str(p.id): p for p in profiles}
+        
+        # Get supervisor if provided
+        supervisor = None
+        supervisor_id = validated_data.get('supervisor')
+        if supervisor_id:
+            from apps.customers.models import Outfolder
+            try:
+                supervisor = Outfolder.objects.get(id=supervisor_id)
+            except Outfolder.DoesNotExist:
+                pass
+        
+        # Get service if provided
+        service = None
+        service_id = validated_data.get('service')
+        if service_id:
+            from apps.customers.models import Service
+            try:
+                service = Service.objects.get(id=service_id)
+            except Service.DoesNotExist:
+                pass
+        
+        # Get location override if provided
+        location_override = validated_data.get('location_override', '')
         
         # Create planned days
         for date in dates:
@@ -247,69 +314,76 @@ class ProjectPlannedDayBulkCreateSerializer(serializers.Serializer):
                 shift_template=shift_template,
                 date=date,
                 defaults={
-                    'supervisor_id': validated_data.get('supervisor'),
-                    'required_workers': max(validated_data.get('required_workers', 1), len(user_ids))
+                    'supervisor_id': supervisor_id,
+                    'required_workers': max(validated_data.get('required_workers', 1), len(employee_ids))
                 }
             )
             if created:
                 created_days.append(day)
             
-            # Create assignments for this day using EmployeeProfile
-            for user_id in user_ids:
-                profile = profiles_by_user_id.get(str(user_id))
+            # Create assignments and WorkEntry for this day
+            for emp_id in employee_ids:
+                profile = profiles_by_id.get(str(emp_id))
                 if profile:
                     # Check if employee is already assigned to ANY shift on this date (same project)
-                    existing_assignment = ShiftAssignment.objects.filter(
+                    existing_entry = WorkEntry.objects.filter(
                         employee=profile,
-                        planned_day__date=date,
-                        planned_day__shift_template__project=shift_template.project
+                        work_date=date,
+                        project=shift_template.project
                     ).first()
                     
-                    if existing_assignment:
-                        # Skip - employee already has a shift on this date for this project
+                    if existing_entry:
+                        # Skip - employee already has a work entry on this date for this project
                         skipped_conflicts.append({
                             'employee': profile.full_name,
                             'date': str(date),
-                            'existing_shift': existing_assignment.planned_day.shift_template.name
+                            'existing_shift': existing_entry.shift_template.name if existing_entry.shift_template else 'Manual Entry'
                         })
                         continue
                     
-                    assignment, assignment_created = ShiftAssignment.objects.get_or_create(
-                        planned_day=day,
+                    # Create WorkEntry (unified table - single source of truth)
+                    defaults = {
+                        'project': shift_template.project,
+                        'status': 'planned',
+                        'planned_start_time': shift_template.start_time,
+                        'planned_end_time': shift_template.end_time,
+                        'planned_supervisor': supervisor,
+                    }
+                    # Add optional fields if provided
+                    if service:
+                        defaults['service'] = service
+                    if location_override:
+                        defaults['location_override'] = location_override
+                    
+                    work_entry, entry_created = WorkEntry.objects.get_or_create(
                         employee=profile,
-                        defaults={'status': 'planned'}
+                        work_date=date,
+                        shift_template=shift_template,
+                        defaults=defaults
                     )
-                    if assignment_created:
-                        all_assignments.append(assignment)
+                    if entry_created:
+                        all_work_entries.append(work_entry)
         
         # Send notifications if 3 or fewer assignments created
-        if len(all_assignments) > 0 and len(all_assignments) <= 3:
-            self._send_assignment_notifications(all_assignments)
-        
-        # Log skipped conflicts for debugging (optional - could be returned to frontend)
-        if skipped_conflicts:
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.info(f"Skipped {len(skipped_conflicts)} conflicting assignments: {skipped_conflicts}")
+        if len(all_work_entries) > 0 and len(all_work_entries) <= 3:
+            self._send_assignment_notifications(all_work_entries)
         
         return created_days
     
-    def _send_assignment_notifications(self, assignments):
-        """Send push notifications for newly created shift assignments."""
+    def _send_assignment_notifications(self, work_entries):
+        """Send push notifications for newly created work entries."""
         try:
             from apps.notifications.models import Notification
             
-            for assignment in assignments:
-                day = assignment.planned_day
-                template = day.shift_template
-                project = template.project
-                
+            for entry in work_entries:
                 Notification.objects.create(
-                    recipient=assignment.employee.user,
+                    recipient=entry.employee.user,
                     title="New Shift Assignment",
-                    message=f"You have been assigned to {template.name} on {day.date.strftime('%A, %B %d, %Y')} at {project.name}.",
+                    message=f"You have been assigned to {entry.shift_template.name if entry.shift_template else 'a shift'} on {entry.work_date.strftime('%A, %B %d, %Y')} at {entry.project.name}.",
                     notification_type='shift_assignment',
                     priority='normal',
+                    reference_type='workentry',
+                    reference_id=entry.id,
                 )
         except Exception as e:
             # Don't fail the whole operation if notifications fail

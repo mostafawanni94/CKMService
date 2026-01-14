@@ -85,6 +85,24 @@ export default function WorkLogEditPage() {
     const [loadingSupervisors, setLoadingSupervisors] = useState(false);
     const [loadingServices, setLoadingServices] = useState(false);
 
+    // Search states for searchable dropdowns
+    const [customerSearch, setCustomerSearch] = useState('');
+    const [projectSearch, setProjectSearch] = useState('');
+    const [supervisorSearch, setSupervisorSearch] = useState('');
+    const [serviceSearch, setServiceSearch] = useState('');
+    const [employeeSearch, setEmployeeSearch] = useState('');
+
+    // Dropdown visibility states
+    const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
+    const [showProjectDropdown, setShowProjectDropdown] = useState(false);
+    const [showSupervisorDropdown, setShowSupervisorDropdown] = useState(false);
+    const [showServiceDropdown, setShowServiceDropdown] = useState(false);
+    const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
+
+    // Employee state
+    const [employee, setEmployee] = useState('');
+    const [employees, setEmployees] = useState<{ id: string; full_name: string }[]>([]);
+
     // Photos
     const [photos, setPhotos] = useState<Array<{ id: string; photo: string; caption: string }>>([]);
     const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -125,11 +143,12 @@ export default function WorkLogEditPage() {
     async function loadAllData() {
         setLoading(true);
         try {
-            // First load projects, customers, and allowance types
-            const [projRes, custRes, allowRes] = await Promise.all([
+            // First load projects, customers, employees, and allowance types
+            const [projRes, custRes, allowRes, empRes] = await Promise.all([
                 fetch(`${API_URL}/projects/projects/`, { headers }),
                 fetch(`${API_URL}/customers/customers/`, { headers }),
                 fetch(`${API_URL}/employees/allowance-types/`, { headers }),
+                fetch(`${API_URL}/employees/profiles/`, { headers }),
             ]);
 
             let projectsList: any[] = [];
@@ -139,14 +158,26 @@ export default function WorkLogEditPage() {
                 setProjects(projectsList);
             }
 
+            let customersList: { id: string, company_name: string }[] = [];
             if (custRes.ok) {
                 const data = await custRes.json();
-                setCustomers(Array.isArray(data) ? data : (data.results || []));
+                customersList = Array.isArray(data) ? data : (data.results || []);
+                setCustomers(customersList);
             }
 
             if (allowRes.ok) {
                 const data = await allowRes.json();
                 setAllowanceTypes(Array.isArray(data) ? data : (data.results || []));
+            }
+
+            let employeesList: { id: string; full_name: string }[] = [];
+            if (empRes.ok) {
+                const data = await empRes.json();
+                employeesList = (Array.isArray(data) ? data : (data.results || [])).map((e: any) => ({
+                    id: e.id,
+                    full_name: e.full_name || `${e.first_name || ''} ${e.last_name || ''}`.trim()
+                }));
+                setEmployees(employeesList);
             }
 
             // Now load the worklog
@@ -155,20 +186,28 @@ export default function WorkLogEditPage() {
             const data = await response.json();
             setWorklog(data);
 
-            // Parse datetime fields
+            // Parse datetime fields - support both new and legacy formats
             let startDt = '';
             let endDt = '';
-            if (data.work_date && data.start_time) {
+
+            // Try new datetime fields first
+            if (data.start_datetime) {
+                startDt = data.start_datetime.substring(0, 16);  // YYYY-MM-DDTHH:mm
+            } else if (data.work_date && data.start_time) {
                 startDt = `${data.work_date}T${data.start_time.substring(0, 5)}`;
             }
-            if (data.work_date && data.end_time) {
+
+            if (data.end_datetime) {
+                endDt = data.end_datetime.substring(0, 16);
+            } else if (data.work_date && data.end_time) {
                 endDt = `${data.work_date}T${data.end_time.substring(0, 5)}`;
             }
 
-            const projectVal = data.project?.toString() || '';
-            const supervisorVal = data.supervisor?.toString() || '';
+            // API returns project_id, service (as FK id), planned_supervisor
+            const projectVal = data.project_id?.toString() || data.project?.toString() || '';
+            const supervisorVal = data.planned_supervisor?.toString() || data.supervisor?.toString() || '';
             const serviceVal = data.service?.toString() || '';
-            const locationVal = data.location_override || '';
+            const locationVal = data.location_override || data.location || '';
             const notesVal = data.notes || '';
             const statusVal = data.status || 'pending';
 
@@ -218,6 +257,23 @@ export default function WorkLogEditPage() {
             setBreaks(breaksVal);
             setAllowances(allowancesVal);
 
+            // Set employee from worklog
+            const employeeVal = data.employee?.toString() || data.employee_id?.toString() || '';
+            setEmployee(employeeVal);
+
+            // Set search text for searchable dropdowns
+            const selectedCustomer = customersList.find(c => String(c.id) === customerVal);
+            if (selectedCustomer) setCustomerSearch(selectedCustomer.company_name);
+
+            const selectedProj = projectsList.find((p: any) => String(p.id) === projectVal);
+            if (selectedProj) setProjectSearch(selectedProj.name);
+
+            // Set employee search text
+            const selectedEmp = employeesList.find(e => String(e.id) === employeeVal);
+            if (selectedEmp) setEmployeeSearch(selectedEmp.full_name);
+
+            // Supervisor and service search will be set after loadProjectDetails
+
             // Load photos
             if (data.photos && Array.isArray(data.photos)) {
                 setPhotos(data.photos);
@@ -242,7 +298,7 @@ export default function WorkLogEditPage() {
                 const selectedProject = projectsList.find((p: any) => String(p.id) === String(projectVal));
                 if (selectedProject) {
                     const customerId = selectedProject.customer || selectedProject.customer_id;
-                    await loadProjectDetails(projectVal, customerId ? customerId.toString() : '');
+                    await loadProjectDetails(projectVal, customerId ? customerId.toString() : '', supervisorVal, serviceVal);
                 }
             }
         } catch (err) {
@@ -252,7 +308,7 @@ export default function WorkLogEditPage() {
         }
     }
 
-    async function loadProjectDetails(projectId: string, customerId: string) {
+    async function loadProjectDetails(projectId: string, customerId: string, supervisorId?: string, serviceId?: string) {
         if (!projectId) return;
 
         setLoadingSupervisors(true);
@@ -268,6 +324,13 @@ export default function WorkLogEditPage() {
                     full_name: s.company_name || `${s.first_name || ''} ${s.last_name || ''}`.trim() || 'Unknown',
                 }));
                 setSupervisors(sups);
+
+                // Set supervisor search text if already selected
+                const supToCheck = supervisorId || supervisor;
+                if (supToCheck) {
+                    const selectedSup = sups.find((s: any) => String(s.id) === String(supToCheck));
+                    if (selectedSup) setSupervisorSearch(selectedSup.full_name);
+                }
             }
 
             // Load services from customer (from service_rates)
@@ -277,10 +340,18 @@ export default function WorkLogEditPage() {
                     const customerData = await custRes.json();
                     // Customer API returns service_rates with service info
                     if (customerData.service_rates && customerData.service_rates.length > 0) {
-                        setServices(customerData.service_rates.map((sr: any) => ({
+                        const servicesList = customerData.service_rates.map((sr: any) => ({
                             id: sr.service,
                             name: sr.service_name,
-                        })));
+                        }));
+                        setServices(servicesList);
+
+                        // Set service search text if already selected
+                        const servToCheck = serviceId || service;
+                        if (servToCheck) {
+                            const selectedServ = servicesList.find((s: any) => String(s.id) === String(servToCheck));
+                            if (selectedServ) setServiceSearch(selectedServ.name);
+                        }
                     }
                 }
             }
@@ -382,6 +453,7 @@ export default function WorkLogEditPage() {
     }
 
     async function handleSave() {
+        console.log('handleSave called');
         setSaving(true);
         setErrors({});
 
@@ -389,6 +461,9 @@ export default function WorkLogEditPage() {
         const validationErrors: Record<string, string> = {};
         if (!project) {
             validationErrors.project = 'Project is required';
+        }
+        if (!employee) {
+            validationErrors.employee = 'Employee is required';
         }
         if (!startDatetime) {
             validationErrors.start_datetime = 'Start time is required';
@@ -398,14 +473,20 @@ export default function WorkLogEditPage() {
         }
 
         if (Object.keys(validationErrors).length > 0) {
+            console.log('Validation errors:', validationErrors);
             setErrors(validationErrors);
             setSaving(false);
             return;
         }
 
         try {
+            // Extract work_date from start datetime
+            const workDate = startDatetime.split('T')[0];
+
             const payload: any = {
                 project: project,  // UUID - don't parseInt
+                employee: employee,  // EmployeeProfile UUID
+                work_date: workDate,
                 start_datetime: startDatetime,
                 end_datetime: endDatetime,
                 breaks: breaks.filter(b => b.start && b.end).map(b => ({
@@ -438,6 +519,8 @@ export default function WorkLogEditPage() {
                 }));
             }
 
+            console.log('Sending payload:', payload);
+
             const response = await fetch(`${API_URL}/worklogs/${params.id}/`, {
                 method: 'PATCH',
                 headers: {
@@ -447,8 +530,11 @@ export default function WorkLogEditPage() {
                 body: JSON.stringify(payload),
             });
 
+            console.log('Response status:', response.status);
+
             if (!response.ok) {
                 const data = await response.json();
+                console.log('Error response:', data);
                 if (typeof data === 'object') {
                     const fieldErrors: Record<string, string> = {};
                     Object.entries(data).forEach(([key, value]) => {
@@ -459,8 +545,10 @@ export default function WorkLogEditPage() {
                 return;
             }
 
+            console.log('Save successful, redirecting...');
             router.push('/dashboard/worklogs');
         } catch (err) {
+            console.error('Save error:', err);
             setErrors({ general: err instanceof Error ? err.message : 'Failed to save' });
         } finally {
             setSaving(false);
@@ -580,7 +668,7 @@ export default function WorkLogEditPage() {
                                 <ArrowLeft size={14} /> Back
                             </button>
 
-                            {(status === 'pending' || status === 'submitted') && (
+                            {status !== 'approved' && status !== 'cancelled' && (
                                 <div style={{ display: 'flex', gap: '10px' }}>
                                     <button
                                         onClick={handleApprove}
@@ -593,7 +681,7 @@ export default function WorkLogEditPage() {
                                             opacity: saving ? 0.7 : 1,
                                         }}
                                     >
-                                        <CheckCircle size={14} /> Approve
+                                        <CheckCircle size={14} /> {['pending', 'submitted'].includes(status) ? 'Approve' : 'Force Approve'}
                                     </button>
                                     <button
                                         onClick={handleReject}
@@ -665,31 +753,31 @@ export default function WorkLogEditPage() {
                                     }} />
                                     {status.charAt(0).toUpperCase() + status.slice(1)}
                                 </div>
-                                {/* Only show status dropdown for editable statuses */}
-                                {(status === 'draft' || status === 'pending' || status === 'submitted') && (
-                                    <select
-                                        value={status}
-                                        onChange={(e) => setStatus(e.target.value)}
-                                        style={{
-                                            appearance: 'none',
-                                            padding: '6px 12px',
-                                            borderRadius: '6px',
-                                            fontSize: '12px',
-                                            fontWeight: 500,
-                                            cursor: 'pointer',
-                                            backgroundColor: 'rgba(255,255,255,0.15)',
-                                            border: '1px solid rgba(255,255,255,0.2)',
-                                            color: 'white',
-                                            outline: 'none',
-                                            minWidth: '100px',
-                                        }}
-                                        title="Change status"
-                                    >
-                                        <option value="draft" style={{ color: '#333' }}>Draft</option>
-                                        <option value="pending" style={{ color: '#333' }}>Pending</option>
-                                        <option value="submitted" style={{ color: '#333' }}>Submitted</option>
-                                    </select>
-                                )}
+                                {/* Status dropdown - always visible */}
+                                <select
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value)}
+                                    style={{
+                                        appearance: 'none',
+                                        padding: '6px 12px',
+                                        borderRadius: '6px',
+                                        fontSize: '12px',
+                                        fontWeight: 500,
+                                        cursor: 'pointer',
+                                        backgroundColor: 'rgba(255,255,255,0.15)',
+                                        border: '1px solid rgba(255,255,255,0.2)',
+                                        color: 'white',
+                                        outline: 'none',
+                                        minWidth: '120px',
+                                    }}
+                                    title="Change status"
+                                >
+                                    <option value="planned" style={{ color: '#333' }}>Planned</option>
+                                    <option value="pending" style={{ color: '#333' }}>Pending</option>
+                                    <option value="approved" style={{ color: '#333' }}>Approved</option>
+                                    <option value="rejected" style={{ color: '#333' }}>Rejected</option>
+                                </select>
+
                             </div>
                         </div>
                     </div>
@@ -750,90 +838,303 @@ export default function WorkLogEditPage() {
 
                         <div style={{ padding: '24px' }}>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
-                                {/* Customer */}
-                                <div>
+                                {/* Customer - Searchable */}
+                                <div style={{ position: 'relative' }}>
                                     <label style={labelStyle}>Customer <span style={{ color: '#EF4444' }}>*</span></label>
-                                    <select
-                                        value={customer}
+                                    <input
+                                        type="text"
+                                        value={customerSearch}
                                         onChange={(e) => {
-                                            setCustomer(e.target.value);
-                                            setProject('');
-                                            setSupervisor('');
-                                            setService('');
-                                        }}
-                                        style={{
-                                            ...inputStyle,
-                                            borderColor: errors.customer ? '#EF4444' : inputStyle.borderColor,
-                                        }}
-                                    >
-                                        <option value="">Select customer...</option>
-                                        {customers.map(c => (
-                                            <option key={c.id} value={c.id}>{c.company_name}</option>
-                                        ))}
-                                    </select>
-                                    {errors.customer && <p style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px' }}>{errors.customer}</p>}
-                                </div>
-
-                                {/* Project - filtered by customer */}
-                                <div>
-                                    <label style={labelStyle}>Project <span style={{ color: '#EF4444' }}>*</span></label>
-                                    <select
-                                        value={project}
-                                        onChange={(e) => {
-                                            const newProjectId = e.target.value;
-                                            setProject(newProjectId);
-                                            setSupervisor('');
-                                            setService('');
-                                            if (newProjectId) {
-                                                loadProjectDetails(newProjectId, customer);
+                                            setCustomerSearch(e.target.value);
+                                            setShowCustomerDropdown(true);
+                                            if (customer) {
+                                                const selectedCust = customers.find(c => c.id === customer);
+                                                if (selectedCust && !selectedCust.company_name.toLowerCase().includes(e.target.value.toLowerCase())) {
+                                                    setCustomer('');
+                                                    setProject('');
+                                                    setProjectSearch('');
+                                                    setSupervisor('');
+                                                    setSupervisorSearch('');
+                                                    setService('');
+                                                    setServiceSearch('');
+                                                }
                                             }
                                         }}
-                                        style={{
-                                            ...inputStyle,
-                                            borderColor: errors.project ? '#EF4444' : inputStyle.borderColor,
+                                        onFocus={() => setShowCustomerDropdown(true)}
+                                        onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
+                                        placeholder="Search customer..."
+                                        style={{ ...inputStyle, borderColor: errors.customer ? '#EF4444' : '#E5E7EB' }}
+                                    />
+                                    {errors.customer && <p style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px' }}>{errors.customer}</p>}
+                                    {showCustomerDropdown && (
+                                        <div style={dropdownStyle}>
+                                            {customers
+                                                .filter(c => c.company_name.toLowerCase().includes(customerSearch.toLowerCase()))
+                                                .slice(0, 10)
+                                                .map(c => (
+                                                    <div
+                                                        key={c.id}
+                                                        onMouseDown={() => {
+                                                            setCustomer(c.id);
+                                                            setCustomerSearch(c.company_name);
+                                                            setShowCustomerDropdown(false);
+                                                            setProject('');
+                                                            setProjectSearch('');
+                                                            setSupervisor('');
+                                                            setSupervisorSearch('');
+                                                            setService('');
+                                                            setServiceSearch('');
+                                                        }}
+                                                        style={dropdownItemStyle}
+                                                    >
+                                                        {c.company_name}
+                                                    </div>
+                                                ))}
+                                            {customers.filter(c => c.company_name.toLowerCase().includes(customerSearch.toLowerCase())).length === 0 && (
+                                                <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
+                                                    No customers found
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Project - Searchable */}
+                                <div style={{ position: 'relative' }}>
+                                    <label style={labelStyle}>Project <span style={{ color: '#EF4444' }}>*</span></label>
+                                    <input
+                                        type="text"
+                                        value={projectSearch}
+                                        onChange={(e) => {
+                                            setProjectSearch(e.target.value);
+                                            setShowProjectDropdown(true);
+                                            if (project) {
+                                                const selectedProj = projects.find(p => p.id === project);
+                                                if (selectedProj && !selectedProj.name.toLowerCase().includes(e.target.value.toLowerCase())) {
+                                                    setProject('');
+                                                    setSupervisor('');
+                                                    setSupervisorSearch('');
+                                                    setService('');
+                                                    setServiceSearch('');
+                                                }
+                                            }
                                         }}
+                                        onFocus={() => setShowProjectDropdown(true)}
+                                        onBlur={() => setTimeout(() => setShowProjectDropdown(false), 200)}
+                                        placeholder={!customer ? 'Select customer first...' : 'Search project...'}
+                                        style={{ ...inputStyle, borderColor: errors.project ? '#EF4444' : '#E5E7EB' }}
                                         disabled={!customer}
-                                    >
-                                        <option value="">{!customer ? 'Select customer first...' : 'Select project...'}</option>
-                                        {projects
-                                            .filter(p => !customer || String(p.customer || p.customer_id) === customer)
-                                            .map(p => (
-                                                <option key={p.id} value={p.id}>{p.name}</option>
-                                            ))}
-                                    </select>
+                                    />
                                     {errors.project && <p style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px' }}>{errors.project}</p>}
+                                    {showProjectDropdown && customer && (
+                                        <div style={dropdownStyle}>
+                                            {projects
+                                                .filter(p => String(p.customer || p.customer_id) === customer)
+                                                .filter(p => p.name.toLowerCase().includes(projectSearch.toLowerCase()))
+                                                .slice(0, 10)
+                                                .map(p => (
+                                                    <div
+                                                        key={p.id}
+                                                        onMouseDown={() => {
+                                                            setProject(p.id);
+                                                            setProjectSearch(p.name);
+                                                            setShowProjectDropdown(false);
+                                                            setSupervisor('');
+                                                            setSupervisorSearch('');
+                                                            setService('');
+                                                            setServiceSearch('');
+                                                            // Auto-fill location
+                                                            const addressParts = [
+                                                                p.location_address,
+                                                                p.location_postcode,
+                                                                p.location_city
+                                                            ].filter(Boolean);
+                                                            const projectLocation = addressParts.length > 0
+                                                                ? addressParts.join(', ')
+                                                                : (p.location || '');
+                                                            setLocation(projectLocation);
+                                                            loadProjectDetails(p.id, customer);
+                                                        }}
+                                                        style={dropdownItemStyle}
+                                                    >
+                                                        {p.name}
+                                                    </div>
+                                                ))}
+                                            {projects.filter(p => String(p.customer || p.customer_id) === customer).filter(p => p.name.toLowerCase().includes(projectSearch.toLowerCase())).length === 0 && (
+                                                <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
+                                                    No projects found
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
-                                {/* Supervisor */}
-                                <div>
+                                {/* Employee - Searchable with chip display */}
+                                <div style={{ position: 'relative' }}>
+                                    <label style={labelStyle}>Employee <span style={{ color: '#EF4444' }}>*</span></label>
+
+                                    {/* Selected employee chip */}
+                                    {employee && (
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
+                                            <div style={{
+                                                display: 'flex', alignItems: 'center', gap: '6px',
+                                                padding: '6px 12px', background: '#10B981', color: 'white',
+                                                borderRadius: '20px', fontSize: '13px', fontWeight: 500
+                                            }}>
+                                                {employees.find(e => e.id === employee)?.full_name || 'Employee'}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => { setEmployee(''); setEmployeeSearch(''); }}
+                                                    style={{ background: 'rgba(255,255,255,0.3)', border: 'none', color: 'white', cursor: 'pointer', padding: '2px 6px', borderRadius: '50%', fontSize: '12px' }}
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <input
+                                        type="text"
+                                        value={employeeSearch}
+                                        onChange={(e) => {
+                                            setEmployeeSearch(e.target.value);
+                                            setShowEmployeeDropdown(true);
+                                            if (employee) {
+                                                const selectedEmp = employees.find(emp => emp.id === employee);
+                                                if (selectedEmp && !selectedEmp.full_name.toLowerCase().includes(e.target.value.toLowerCase())) {
+                                                    setEmployee('');
+                                                }
+                                            }
+                                        }}
+                                        onFocus={() => setShowEmployeeDropdown(true)}
+                                        onBlur={() => setTimeout(() => setShowEmployeeDropdown(false), 200)}
+                                        placeholder={employee ? 'Change employee...' : 'Search employee...'}
+                                        style={{ ...inputStyle, borderColor: errors.employee ? '#EF4444' : '#E5E7EB' }}
+                                    />
+                                    {errors.employee && <p style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px' }}>{errors.employee}</p>}
+                                    {showEmployeeDropdown && (
+                                        <div style={dropdownStyle}>
+                                            {employees
+                                                .filter(emp => emp.full_name.toLowerCase().includes(employeeSearch.toLowerCase()))
+                                                .slice(0, 10)
+                                                .map(emp => (
+                                                    <div
+                                                        key={emp.id}
+                                                        onMouseDown={() => {
+                                                            setEmployee(emp.id);
+                                                            setEmployeeSearch(emp.full_name);
+                                                            setShowEmployeeDropdown(false);
+                                                        }}
+                                                        style={dropdownItemStyle}
+                                                    >
+                                                        {emp.full_name}
+                                                    </div>
+                                                ))}
+                                            {employees.filter(emp => emp.full_name.toLowerCase().includes(employeeSearch.toLowerCase())).length === 0 && (
+                                                <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
+                                                    No employees found
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Supervisor - Searchable */}
+                                <div style={{ position: 'relative' }}>
                                     <label style={labelStyle}>Supervisor</label>
-                                    <select
-                                        value={supervisor}
-                                        onChange={(e) => setSupervisor(e.target.value)}
+                                    <input
+                                        type="text"
+                                        value={supervisorSearch}
+                                        onChange={(e) => {
+                                            setSupervisorSearch(e.target.value);
+                                            setShowSupervisorDropdown(true);
+                                            if (supervisor) {
+                                                const selectedSup = supervisors.find(s => s.id === supervisor);
+                                                if (selectedSup && !selectedSup.full_name.toLowerCase().includes(e.target.value.toLowerCase())) {
+                                                    setSupervisor('');
+                                                }
+                                            }
+                                        }}
+                                        onFocus={() => setShowSupervisorDropdown(true)}
+                                        onBlur={() => setTimeout(() => setShowSupervisorDropdown(false), 200)}
+                                        placeholder={!project ? 'Select project first...' : loadingSupervisors ? 'Loading...' : 'Search supervisor...'}
                                         style={inputStyle}
-                                        disabled={loadingSupervisors || !project}
-                                    >
-                                        <option value="">{loadingSupervisors ? 'Loading...' : !project ? 'Select project first...' : 'Select supervisor...'}</option>
-                                        {supervisors.map(s => (
-                                            <option key={s.id} value={s.id}>{s.full_name}</option>
-                                        ))}
-                                    </select>
+                                        disabled={!project || loadingSupervisors}
+                                    />
+                                    {showSupervisorDropdown && project && (
+                                        <div style={dropdownStyle}>
+                                            {supervisors
+                                                .filter(s => s.full_name.toLowerCase().includes(supervisorSearch.toLowerCase()))
+                                                .slice(0, 10)
+                                                .map(s => (
+                                                    <div
+                                                        key={s.id}
+                                                        onMouseDown={() => {
+                                                            setSupervisor(s.id);
+                                                            setSupervisorSearch(s.full_name);
+                                                            setShowSupervisorDropdown(false);
+                                                        }}
+                                                        style={dropdownItemStyle}
+                                                    >
+                                                        {s.full_name}
+                                                    </div>
+                                                ))}
+                                            {supervisors.filter(s => s.full_name.toLowerCase().includes(supervisorSearch.toLowerCase())).length === 0 && (
+                                                <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
+                                                    No supervisors found
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
-                                {/* Service */}
-                                <div>
+                                {/* Service - Searchable */}
+                                <div style={{ position: 'relative' }}>
                                     <label style={labelStyle}>Service Type</label>
-                                    <select
-                                        value={service}
-                                        onChange={(e) => setService(e.target.value)}
+                                    <input
+                                        type="text"
+                                        value={serviceSearch}
+                                        onChange={(e) => {
+                                            setServiceSearch(e.target.value);
+                                            setShowServiceDropdown(true);
+                                            if (service) {
+                                                const selectedServ = services.find(s => s.id === service);
+                                                if (selectedServ && !selectedServ.name.toLowerCase().includes(e.target.value.toLowerCase())) {
+                                                    setService('');
+                                                }
+                                            }
+                                        }}
+                                        onFocus={() => setShowServiceDropdown(true)}
+                                        onBlur={() => setTimeout(() => setShowServiceDropdown(false), 200)}
+                                        placeholder={!project ? 'Select project first...' : loadingServices ? 'Loading...' : 'Search service...'}
                                         style={inputStyle}
-                                        disabled={loadingServices || !project}
-                                    >
-                                        <option value="">{loadingServices ? 'Loading...' : !project ? 'Select project first...' : 'Select service...'}</option>
-                                        {services.map(s => (
-                                            <option key={s.id} value={s.id}>{s.name}</option>
-                                        ))}
-                                    </select>
+                                        disabled={!project || loadingServices}
+                                    />
+                                    {showServiceDropdown && project && (
+                                        <div style={dropdownStyle}>
+                                            {services
+                                                .filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase()))
+                                                .slice(0, 10)
+                                                .map(s => (
+                                                    <div
+                                                        key={s.id}
+                                                        onMouseDown={() => {
+                                                            setService(s.id);
+                                                            setServiceSearch(s.name);
+                                                            setShowServiceDropdown(false);
+                                                        }}
+                                                        style={dropdownItemStyle}
+                                                    >
+                                                        {s.name}
+                                                    </div>
+                                                ))}
+                                            {services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase())).length === 0 && (
+                                                <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
+                                                    No services found
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Location */}
@@ -931,40 +1232,64 @@ export default function WorkLogEditPage() {
                                 </div>
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                    {breaks.map((brk, index) => (
-                                        <div key={index} style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
-                                            <div style={{ flex: 1 }}>
-                                                <label style={{ ...labelStyle, fontSize: '12px', color: '#92400E' }}>Start</label>
-                                                <input
-                                                    type="time"
-                                                    value={brk.start}
-                                                    onChange={(e) => updateBreak(index, 'start', e.target.value)}
-                                                    style={{ ...inputStyle, padding: '10px 12px', backgroundColor: 'white' }}
-                                                />
+                                    {breaks.map((brk, index) => {
+                                        // Calculate break duration in minutes
+                                        let durationMins = 0;
+                                        if (brk.start && brk.end) {
+                                            const [sh, sm] = brk.start.split(':').map(Number);
+                                            const [eh, em] = brk.end.split(':').map(Number);
+                                            durationMins = (eh * 60 + em) - (sh * 60 + sm);
+                                            if (durationMins < 0) durationMins += 24 * 60; // Handle overnight
+                                        }
+
+                                        return (
+                                            <div key={index} style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+                                                <div style={{ flex: 1 }}>
+                                                    <label style={{ ...labelStyle, fontSize: '12px', color: '#92400E' }}>Start</label>
+                                                    <input
+                                                        type="time"
+                                                        value={brk.start}
+                                                        onChange={(e) => updateBreak(index, 'start', e.target.value)}
+                                                        style={{ ...inputStyle, padding: '10px 12px', backgroundColor: 'white' }}
+                                                    />
+                                                </div>
+                                                <div style={{ flex: 1 }}>
+                                                    <label style={{ ...labelStyle, fontSize: '12px', color: '#92400E' }}>End</label>
+                                                    <input
+                                                        type="time"
+                                                        value={brk.end}
+                                                        onChange={(e) => updateBreak(index, 'end', e.target.value)}
+                                                        style={{ ...inputStyle, padding: '10px 12px', backgroundColor: 'white' }}
+                                                    />
+                                                </div>
+                                                {/* Duration display */}
+                                                <div style={{
+                                                    padding: '10px 14px',
+                                                    backgroundColor: '#F59E0B',
+                                                    color: 'white',
+                                                    borderRadius: '8px',
+                                                    fontSize: '13px',
+                                                    fontWeight: 600,
+                                                    minWidth: '60px',
+                                                    textAlign: 'center'
+                                                }}>
+                                                    {durationMins > 0 ? `${durationMins} min` : '--'}
+                                                </div>
+                                                {breaks.length > 1 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeBreak(index)}
+                                                        style={{
+                                                            padding: '10px', backgroundColor: '#FEE2E2',
+                                                            border: 'none', borderRadius: '8px', cursor: 'pointer'
+                                                        }}
+                                                    >
+                                                        <Trash2 size={16} style={{ color: '#DC2626' }} />
+                                                    </button>
+                                                )}
                                             </div>
-                                            <div style={{ flex: 1 }}>
-                                                <label style={{ ...labelStyle, fontSize: '12px', color: '#92400E' }}>End</label>
-                                                <input
-                                                    type="time"
-                                                    value={brk.end}
-                                                    onChange={(e) => updateBreak(index, 'end', e.target.value)}
-                                                    style={{ ...inputStyle, padding: '10px 12px', backgroundColor: 'white' }}
-                                                />
-                                            </div>
-                                            {breaks.length > 1 && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeBreak(index)}
-                                                    style={{
-                                                        padding: '10px', backgroundColor: '#FEE2E2',
-                                                        border: 'none', borderRadius: '8px', cursor: 'pointer'
-                                                    }}
-                                                >
-                                                    <Trash2 size={16} style={{ color: '#DC2626' }} />
-                                                </button>
-                                            )}
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </div>
@@ -1326,7 +1651,7 @@ export default function WorkLogEditPage() {
                     </div>
                 </div>
             </div>
-        </DashboardLayout>
+        </DashboardLayout >
     );
 }
 
@@ -1348,4 +1673,27 @@ const inputStyle: React.CSSProperties = {
     outline: 'none',
     backgroundColor: 'white',
     transition: 'border-color 0.2s',
+};
+
+const dropdownStyle: React.CSSProperties = {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    border: '1px solid #E5E7EB',
+    borderRadius: '10px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+    zIndex: 100,
+    maxHeight: '240px',
+    overflowY: 'auto',
+    marginTop: '4px',
+};
+
+const dropdownItemStyle: React.CSSProperties = {
+    padding: '12px 16px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    color: '#374151',
+    transition: 'background-color 0.15s',
 };

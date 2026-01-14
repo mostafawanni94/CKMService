@@ -174,13 +174,14 @@ class ContractTypeSerializer(serializers.ModelSerializer):
 # =============================================================================
 
 class SurchargeTypeSerializer(serializers.ModelSerializer):
-    """Serializer for surcharge types (Weekend, Night Shift, King's Day, etc.)."""
+    """Serializer for surcharge types (Weekend, Night Shift, King's Day, Overtime, etc.)."""
     
     class Meta:
         model = SurchargeType
         fields = [
             'id', 'name', 'category', 'description',
             'time_from', 'time_to', 'days_of_week', 'specific_dates',
+            'min_hours_threshold',
             'is_active', 'sort_order', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']

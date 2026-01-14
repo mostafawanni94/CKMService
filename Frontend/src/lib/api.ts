@@ -128,7 +128,71 @@ class ApiClient {
         return this.request<Project>(`/projects/projects/${id}/`);
     }
 
-    // Work Logs
+    // Work Entries (Unified - replaces WorkLogs and ShiftAssignments)
+    async getWorkEntries(params?: {
+        page?: number;
+        status?: string;
+        customer?: string;
+        employee?: string[];
+        week_year?: number;
+        week_number?: number;
+        include_past?: boolean;
+    }) {
+        const queryParams = new URLSearchParams();
+        if (params?.page) queryParams.append('page', params.page.toString());
+        if (params?.status) queryParams.append('status', params.status);
+        if (params?.customer) queryParams.append('customer', params.customer);
+        if (params?.employee) params.employee.forEach(e => queryParams.append('employee', e));
+        if (params?.week_year) queryParams.append('week_year', params.week_year.toString());
+        if (params?.week_number) queryParams.append('week_number', params.week_number.toString());
+        if (params?.include_past) queryParams.append('include_past', 'true');
+        const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+        return this.request<PaginatedResponse<WorkEntry>>(`/worklogs/entries/${query}`);
+    }
+
+    async getWorkEntry(id: string) {
+        return this.request<WorkEntry>(`/worklogs/entries/${id}/`);
+    }
+
+    async createWorkEntry(data: Partial<WorkEntry>) {
+        return this.request<WorkEntry>('/worklogs/entries/', {
+            method: 'POST',
+            body: data as unknown as Record<string, unknown>,
+        });
+    }
+
+    async updateWorkEntry(id: string, data: Partial<WorkEntry>) {
+        return this.request<WorkEntry>(`/worklogs/entries/${id}/`, {
+            method: 'PATCH',
+            body: data as unknown as Record<string, unknown>,
+        });
+    }
+
+    async getPendingWorkEntries() {
+        return this.request<WorkEntry[]>('/worklogs/entries/pending/');
+    }
+
+    async approveWorkEntry(id: string, data?: { adjusted_hours?: number; admin_notes?: string }) {
+        return this.request<WorkEntry>(`/worklogs/entries/${id}/approve/`, {
+            method: 'POST',
+            body: data as unknown as Record<string, unknown>,
+        });
+    }
+
+    async rejectWorkEntry(id: string, reason: string) {
+        return this.request<WorkEntry>(`/worklogs/entries/${id}/reject/`, {
+            method: 'POST',
+            body: { reason },
+        });
+    }
+
+    async deleteWorkEntry(id: string) {
+        return this.request<void>(`/worklogs/entries/${id}/`, {
+            method: 'DELETE',
+        });
+    }
+
+    // Legacy Work Logs (kept for backward compatibility)
     async getWorkLogs(page = 1) {
         return this.request<PaginatedResponse<WorkLog>>(`/worklogs/?page=${page}`);
     }
@@ -282,6 +346,7 @@ export interface Project {
 export interface WorkLog {
     id: string;
     employee_name: string;
+    customer_name?: string;
     project_name: string;
     work_date: string;
     start_time: string;
@@ -325,4 +390,64 @@ export interface ApprovalData {
     contract_phase: string;
     contract_start_date: string;
     contract_end_date: string;
+}
+
+// Unified Work Entry (combines ShiftAssignment + WorkLog)
+export interface WorkEntry {
+    id: string;
+    status: 'planned' | 'confirmed' | 'cancelled' | 'no_show' | 'in_progress' | 'draft' | 'pending' | 'submitted' | 'approved' | 'rejected';
+    work_date: string;
+
+    // Employee
+    employee_id: string;
+    employee_name: string;
+
+    // Project
+    project_id: string;
+    project_name: string;
+    customer_name?: string;
+
+    // Shift template
+    shift_name?: string;
+    shift_color?: string;
+
+    // Planned times
+    planned_start_time?: string;
+    planned_end_time?: string;
+
+    // Actual times
+    actual_start_datetime?: string;
+    actual_end_datetime?: string;
+    display_time_range?: string;
+
+    // Supervisor
+    supervisor_name?: string;
+    supervisor_phone?: string;
+    supervisor_email?: string;
+
+    // Location
+    location?: string;
+    full_address?: string;
+
+    // Computed
+    calculated_hours: number;
+    is_today?: boolean;
+    is_past?: boolean;
+    is_future?: boolean;
+    can_fill_data?: boolean;
+
+    // Notes
+    notes?: string;
+    admin_notes?: string;
+    rejection_reason?: string;
+
+    // Billing
+    billing_week_year?: number;
+    billing_week_number?: number;
+
+    // Timestamps
+    created_at: string;
+    submitted_at?: string;
+    approved_at?: string;
+    confirmed_at?: string;
 }

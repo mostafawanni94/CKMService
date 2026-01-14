@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.employees.views import IsAdmin
-from apps.worklogs.models import WorkLog
+from apps.worklogs.models import WorkEntry
 from .models import Invoice, InvoiceLine, InvoiceCost, CostType, ProjectRate
 from .serializers import (
     InvoiceListSerializer, InvoiceDetailSerializer, InvoiceGenerateSerializer,
@@ -72,17 +72,17 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         week_start = week_start.replace(hour=6, minute=0, second=0)
         week_end = week_start + timedelta(days=7)
         
-        # Get approved work logs for this customer in this week
-        work_logs = WorkLog.objects.filter(
-            status=WorkLog.Status.APPROVED,
+        # Get approved work entries for this customer in this week
+        work_entries = WorkEntry.objects.filter(
+            status=WorkEntry.Status.APPROVED,
             project__customer_id=customer_id,
             billing_week_year=week_year,
             billing_week_number=week_number
         ).select_related('employee', 'project')
         
-        if not work_logs.exists():
+        if not work_entries.exists():
             return Response(
-                {'error': 'No approved work logs for this week'},
+                {'error': 'No approved work entries for this week'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
@@ -104,22 +104,22 @@ class InvoiceViewSet(viewsets.ModelViewSet):
             created_by=request.user
         )
         
-        # Create invoice lines from work logs
-        for log in work_logs:
+        # Create invoice lines from work entries
+        for entry in work_entries:
             # Get rate (simplified)
             rate = ProjectRate.objects.filter(
-                project=log.project,
-                effective_from__lte=log.work_date
+                project=entry.project,
+                effective_from__lte=entry.work_date
             ).first()
             
             hourly_rate = rate.customer_rate if rate else 25.00
             
             InvoiceLine.objects.create(
                 invoice=invoice,
-                project=log.project,
-                employee=log.employee,
-                description=f"Work on {log.work_date}",
-                quantity_hours=log.billable_hours,
+                project=entry.project,
+                employee=entry.employee,
+                description=f"Work on {entry.work_date}",
+                quantity_hours=entry.billable_hours,
                 hourly_rate=hourly_rate,
                 created_by=request.user
             )

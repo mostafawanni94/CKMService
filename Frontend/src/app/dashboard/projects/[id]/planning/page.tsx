@@ -16,16 +16,18 @@ interface PlannedDay {
     shift_start_time?: string;
     shift_end_time?: string;
     required_workers: number;
-    assignments?: Array<{
+    project_id?: string;  // From backend ProjectPlannedDaySerializer
+    project_name?: string;
+    // From list serializer (lightweight)
+    assigned_count?: number;
+    is_fully_staffed?: boolean;
+    // From detail serializer (full data, loaded on demand)
+    work_entries?: Array<{
         id: string;
-        employee: string;
+        employee_id: string;
         employee_name: string;
-        work_logs?: Array<{
-            id: string;
-            status: string;
-            calculated_hours: string;
-            work_date: string | null;
-        }>;
+        status: string;
+        calculated_hours: string;
     }>;
 }
 
@@ -80,6 +82,12 @@ export default function PlanningPage() {
     const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
     const [employeeSearch, setEmployeeSearch] = useState('');
     const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
+    // Additional shift form fields
+    const [selectedSupervisor, setSelectedSupervisor] = useState('');
+    const [selectedService, setSelectedService] = useState('');
+    const [shiftLocation, setShiftLocation] = useState('');
+    const [supervisors, setSupervisors] = useState<Array<{ id: string; full_name: string }>>([]);
+    const [services, setServices] = useState<Array<{ id: string; name: string }>>([]);
 
     // Table pagination
     const [currentPage, setCurrentPage] = useState(1);
@@ -88,6 +96,7 @@ export default function PlanningPage() {
 
     // Edit modal
     const [editingShift, setEditingShift] = useState<PlannedDay | null>(null);
+    const [loadingShiftDetails, setLoadingShiftDetails] = useState(false);
     const [editShiftName, setEditShiftName] = useState('');
     const [editStartTime, setEditStartTime] = useState('');
     const [editEndTime, setEditEndTime] = useState('');
@@ -104,6 +113,9 @@ export default function PlanningPage() {
     const [quickAddSearch, setQuickAddSearch] = useState('');
     // Calendar interaction mode: 'select' to select dates, 'view' to view existing shifts
     const [calendarMode, setCalendarMode] = useState<'select' | 'view'>('select');
+    // Bulk selection for shifts table
+    const [selectedShiftIds, setSelectedShiftIds] = useState<Set<string>>(new Set());
+    const [bulkDeleting, setBulkDeleting] = useState(false);
 
 
     const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
@@ -140,10 +152,46 @@ export default function PlanningPage() {
             const [projRes, daysRes, empRes] = await Promise.all([
                 fetch(`${API_URL}/projects/projects/${projectId}/`, { headers }),
                 fetch(`${API_URL}/projects/planned-days/?project=${projectId}&year=${currentYear}`, { headers }),
-                fetch(`${API_URL}/employees/users/`, { headers }),
+                fetch(`${API_URL}/employees/profiles/`, { headers }),
             ]);
 
-            if (projRes.ok) setProject(await projRes.json());
+            if (projRes.ok) {
+                const projData = await projRes.json();
+                setProject(projData);
+
+                // Extract supervisors from project
+                const sups = (projData.supervisors_list || []).map((s: any) => ({
+                    id: s.id,
+                    full_name: s.company_name || `${s.first_name || ''} ${s.last_name || ''}`.trim() || 'Unknown',
+                }));
+                setSupervisors(sups);
+
+                // Set default location from project
+                const locationParts = [
+                    projData.location_address,
+                    projData.location_postcode,
+                    projData.location_city
+                ].filter(Boolean);
+                if (locationParts.length > 0) {
+                    setShiftLocation(locationParts.join(', '));
+                } else if (projData.location) {
+                    setShiftLocation(projData.location);
+                }
+
+                // Load services from customer
+                if (projData.customer) {
+                    const custRes = await fetch(`${API_URL}/customers/customers/${projData.customer}/`, { headers });
+                    if (custRes.ok) {
+                        const customerData = await custRes.json();
+                        if (customerData.service_rates && customerData.service_rates.length > 0) {
+                            setServices(customerData.service_rates.map((sr: any) => ({
+                                id: sr.service,
+                                name: sr.service_name,
+                            })));
+                        }
+                    }
+                }
+            }
             if (daysRes.ok) {
                 const data = await daysRes.json();
                 setPlannedDays(Array.isArray(data) ? data : data.results || []);
@@ -163,7 +211,7 @@ export default function PlanningPage() {
     async function searchEmployees(query: string) {
         if (query.length < 2) return;
         try {
-            const res = await fetch(`${API_URL}/employees/users/?search=${encodeURIComponent(query)}&limit=20`, { headers });
+            const res = await fetch(`${API_URL}/employees/profiles/?search=${encodeURIComponent(query)}&limit=20`, { headers });
             if (res.ok) {
                 const data = await res.json();
                 setEmployees(Array.isArray(data) ? data : data.results || []);
@@ -336,14 +384,20 @@ export default function PlanningPage() {
             console.log('📅 [Planning] Employees:', selectedEmployees);
 
             // Bulk create planned days
+            const payload: any = {
+                shift_template: template.id,
+                dates: dates,
+                employee_ids: selectedEmployees,
+            };
+            // Add optional fields if selected
+            if (selectedSupervisor) payload.supervisor = selectedSupervisor;
+            if (selectedService) payload.service = parseInt(selectedService, 10);
+            if (shiftLocation) payload.location_override = shiftLocation;
+
             const bulkRes = await fetch(`${API_URL}/projects/planned-days/bulk_create/`, {
                 method: 'POST',
                 headers,
-                body: JSON.stringify({
-                    shift_template: template.id,
-                    dates: dates,
-                    employee_ids: selectedEmployees,
-                }),
+                body: JSON.stringify(payload),
             });
 
             const result = await bulkRes.json();
@@ -379,17 +433,133 @@ export default function PlanningPage() {
         try {
             await fetch(`${API_URL}/projects/planned-days/${shiftId}/`, { method: 'DELETE', headers });
             loadData();
+            // Remove from selection if selected
+            setSelectedShiftIds(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(shiftId);
+                return newSet;
+            });
         } catch (err) {
             console.error('Delete error:', err);
         }
     }
 
-    // Open edit modal with current values
-    function openEditModal(shift: PlannedDay) {
+    // Bulk delete selected shifts
+    async function bulkDeleteShifts() {
+        if (selectedShiftIds.size === 0) return;
+        if (!confirm(`Delete ${selectedShiftIds.size} selected shift(s) and all their assignments?`)) return;
+
+        setBulkDeleting(true);
+        try {
+            const deletePromises = Array.from(selectedShiftIds).map(shiftId =>
+                fetch(`${API_URL}/projects/planned-days/${shiftId}/`, { method: 'DELETE', headers })
+            );
+            await Promise.all(deletePromises);
+            setSelectedShiftIds(new Set());
+            loadData();
+        } catch (err) {
+            console.error('Bulk delete error:', err);
+            alert('Failed to delete some shifts. Please try again.');
+        } finally {
+            setBulkDeleting(false);
+        }
+    }
+
+    // Toggle shift selection
+    function toggleShiftSelection(shiftId: string) {
+        setSelectedShiftIds(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(shiftId)) {
+                newSet.delete(shiftId);
+            } else {
+                newSet.add(shiftId);
+            }
+            return newSet;
+        });
+    }
+
+    // Toggle select all (visible shifts only)
+    function toggleSelectAllShifts() {
+        const allVisibleIds = paginatedShifts.map(s => s.id);
+        const allSelected = allVisibleIds.every(id => selectedShiftIds.has(id));
+        if (allSelected) {
+            // Deselect all visible
+            setSelectedShiftIds(prev => {
+                const newSet = new Set(prev);
+                allVisibleIds.forEach(id => newSet.delete(id));
+                return newSet;
+            });
+        } else {
+            // Select all visible
+            setSelectedShiftIds(prev => {
+                const newSet = new Set(prev);
+                allVisibleIds.forEach(id => newSet.add(id));
+                return newSet;
+            });
+        }
+    }
+
+    // Open edit modal with current values - fetches full details from API
+    async function openEditModal(shift: PlannedDay) {
+        // Set initial data from list view (counts only)
         setEditingShift(shift);
         setEditShiftName(shift.shift_name || '');
         setEditStartTime(shift.shift_start_time?.slice(0, 5) || '09:00');
         setEditEndTime(shift.shift_end_time?.slice(0, 5) || '17:00');
+
+        // Fetch full details (with work_entries) from API
+        setLoadingShiftDetails(true);
+        try {
+            const res = await fetch(`${API_URL}/projects/planned-days/${shift.id}/`, { headers });
+            if (res.ok) {
+                const fullData = await res.json();
+                setEditingShift(fullData);
+            }
+        } catch (err) {
+            console.error('Error fetching shift details:', err);
+        } finally {
+            setLoadingShiftDetails(false);
+        }
+    }
+
+    // Save edited shift (update template times)
+    async function saveEditedShift() {
+        if (!editingShift) return;
+
+        try {
+            setSaving(true);
+
+            console.log('Saving shift template:', editingShift.shift_template);
+            console.log('Payload:', { name: editShiftName, start_time: editStartTime + ':00', end_time: editEndTime + ':00' });
+
+            // Update the shift template
+            const response = await fetch(`${API_URL}/projects/shift-templates/${editingShift.shift_template}/`, {
+                method: 'PATCH',
+                headers,
+                body: JSON.stringify({
+                    name: editShiftName,
+                    start_time: editStartTime + ':00',
+                    end_time: editEndTime + ':00',
+                }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API Error:', response.status, errorText);
+                throw new Error(`Failed to update shift: ${response.status}`);
+            }
+
+            // Refresh data
+            await loadData();
+            setEditingShift(null);
+            setShowEditEmployeeDropdown(false);
+            setEditEmployeeSearch('');
+        } catch (err) {
+            console.error('Failed to save shift:', err);
+            alert('Failed to save changes. Check console for details.');
+        } finally {
+            setSaving(false);
+        }
     }
 
     // Quick add shift from View Day modal
@@ -466,14 +636,18 @@ export default function PlanningPage() {
         if (!editingShift) return;
 
         try {
+            // Create a WorkEntry instead of ShiftAssignment (ShiftAssignment was removed)
+            // Use projectId from URL params if project_id is not available from shift
             const payload = {
-                planned_day: editingShift.id,
-                user_id: parseInt(empId),
+                employee: empId,  // EmployeeProfile UUID from /employees/profiles/
+                project: editingShift.project_id || projectId,  // Fallback to URL param
+                shift_template: editingShift.shift_template,
+                work_date: editingShift.date,
                 status: 'planned'
             };
             console.log('Adding employee with payload:', payload);
 
-            const res = await fetch(`${API_URL}/projects/shift-assignments/`, {
+            const res = await fetch(`${API_URL}/worklogs/entries/`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify(payload)
@@ -482,14 +656,14 @@ export default function PlanningPage() {
             console.log('Response status:', res.status);
 
             if (!res.ok) {
+                const errorText = await res.text();
                 let errorMsg = `Status ${res.status}`;
                 try {
-                    const error = await res.json();
+                    const error = JSON.parse(errorText);
                     console.error('Add employee error response:', error);
                     errorMsg = JSON.stringify(error);
                 } catch {
-                    const text = await res.text();
-                    errorMsg = text || `HTTP ${res.status}`;
+                    errorMsg = errorText || `HTTP ${res.status}`;
                 }
                 alert('Failed to add employee: ' + errorMsg);
                 return;
@@ -503,12 +677,12 @@ export default function PlanningPage() {
         }
     }
 
-    // Remove employee from shift and refresh
-    async function removeEmployeeFromShift(assignmentId: string, employeeName: string) {
+    // Remove employee from shift and refresh (now uses WorkEntry)
+    async function removeEmployeeFromShift(workEntryId: string, employeeName: string) {
         if (!confirm(`Remove ${employeeName} from this shift?`)) return;
 
         try {
-            await fetch(`${API_URL}/projects/shift-assignments/${assignmentId}/`, { method: 'DELETE', headers });
+            await fetch(`${API_URL}/worklogs/entries/${workEntryId}/`, { method: 'DELETE', headers });
             await refreshEditingShift();
         } catch (err) {
             console.error('Remove employee error:', err);
@@ -535,7 +709,7 @@ export default function PlanningPage() {
     // Get employees not yet assigned to the current shift
     function getAvailableEmployeesForEdit() {
         if (!editingShift) return employees;
-        const assignedIds = new Set((editingShift.assignments || []).map(a => a.employee));
+        const assignedIds = new Set((editingShift.work_entries || []).map(e => e.employee_id));
         return employees.filter(emp => !assignedIds.has(emp.id));
     }
 
@@ -570,15 +744,14 @@ export default function PlanningPage() {
             return date >= today && date <= thisWeekEnd;
         }).length;
 
-        const totalEmployees = new Set(
-            plannedDays.flatMap(s => (s.assignments || []).map(a => a.employee))
-        ).size;
+        // Total assigned employees count (sum of all assigned_count since we can't dedupe without employee IDs)
+        const totalAssignments = plannedDays.reduce((sum, s) => sum + (s.assigned_count || 0), 0);
 
         const unfilled = plannedDays.filter(s =>
-            (s.assignments?.length || 0) < s.required_workers
+            (s.assigned_count || 0) < s.required_workers
         ).length;
 
-        return { thisWeek, totalEmployees, unfilled, total: plannedDays.length };
+        return { thisWeek, totalEmployees: totalAssignments, unfilled, total: plannedDays.length };
     }, [plannedDays]);
 
     if (loading) {
@@ -1034,6 +1207,48 @@ export default function PlanningPage() {
                                 </div>
                             </div>
 
+                            {/* Supervisor & Service */}
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>Supervisor</label>
+                                    <select
+                                        value={selectedSupervisor}
+                                        onChange={e => setSelectedSupervisor(e.target.value)}
+                                        style={{ width: '100%', padding: '12px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px', background: 'white' }}
+                                    >
+                                        <option value="">Select supervisor...</option>
+                                        {supervisors.map(s => (
+                                            <option key={s.id} value={s.id}>{s.full_name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>Service</label>
+                                    <select
+                                        value={selectedService}
+                                        onChange={e => setSelectedService(e.target.value)}
+                                        style={{ width: '100%', padding: '12px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px', background: 'white' }}
+                                    >
+                                        <option value="">Select service...</option>
+                                        {services.map(s => (
+                                            <option key={s.id} value={s.id}>{s.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Location */}
+                            <div style={{ marginBottom: '16px' }}>
+                                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>Location</label>
+                                <input
+                                    type="text"
+                                    value={shiftLocation}
+                                    onChange={e => setShiftLocation(e.target.value)}
+                                    placeholder="Work location"
+                                    style={{ width: '100%', padding: '12px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px' }}
+                                />
+                            </div>
+
                             {/* Employee Selection */}
                             <div style={{ marginBottom: '20px' }}>
                                 <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>
@@ -1182,9 +1397,27 @@ export default function PlanningPage() {
                 {/* Scheduled Shifts Table */}
                 <div id="shifts-table" style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginTop: '24px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-                        <h2 style={{ fontSize: '18px', fontWeight: 600, margin: 0 }}>
-                            Scheduled Shifts ({filteredShifts.length})
-                        </h2>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <h2 style={{ fontSize: '18px', fontWeight: 600, margin: 0 }}>
+                                Scheduled Shifts ({filteredShifts.length})
+                            </h2>
+                            {selectedShiftIds.size > 0 && (
+                                <button
+                                    onClick={bulkDeleteShifts}
+                                    disabled={bulkDeleting}
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: '6px',
+                                        padding: '8px 16px', backgroundColor: '#DC2626', color: 'white',
+                                        border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
+                                        cursor: bulkDeleting ? 'not-allowed' : 'pointer',
+                                        opacity: bulkDeleting ? 0.7 : 1,
+                                    }}
+                                >
+                                    <Trash2 size={14} />
+                                    {bulkDeleting ? 'Deleting...' : `Delete Selected (${selectedShiftIds.size})`}
+                                </button>
+                            )}
+                        </div>
                         <div style={{ display: 'flex', gap: '12px' }}>
                             <select
                                 value={filterMonth ?? ''}
@@ -1214,6 +1447,15 @@ export default function PlanningPage() {
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
                                     <tr style={{ borderBottom: '2px solid #E5E7EB' }}>
+                                        <th style={{ textAlign: 'left', padding: '12px', width: '40px' }}>
+                                            <input
+                                                type="checkbox"
+                                                checked={paginatedShifts.length > 0 && paginatedShifts.every(s => selectedShiftIds.has(s.id))}
+                                                onChange={toggleSelectAllShifts}
+                                                style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#3B82F6' }}
+                                                title="Select all visible shifts"
+                                            />
+                                        </th>
                                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', fontWeight: 600, color: '#6B7280' }}>Date</th>
                                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', fontWeight: 600, color: '#6B7280' }}>Shift</th>
                                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', fontWeight: 600, color: '#6B7280' }}>Time</th>
@@ -1223,7 +1465,18 @@ export default function PlanningPage() {
                                 </thead>
                                 <tbody>
                                     {paginatedShifts.map(shift => (
-                                        <tr key={shift.id} style={{ borderBottom: '1px solid #F3F4F6' }}>
+                                        <tr key={shift.id} style={{
+                                            borderBottom: '1px solid #F3F4F6',
+                                            backgroundColor: selectedShiftIds.has(shift.id) ? '#EFF6FF' : 'transparent',
+                                        }}>
+                                            <td style={{ padding: '14px 12px' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedShiftIds.has(shift.id)}
+                                                    onChange={() => toggleShiftSelection(shift.id)}
+                                                    style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#3B82F6' }}
+                                                />
+                                            </td>
                                             <td style={{ padding: '14px 12px', fontSize: '14px' }}>
                                                 <div style={{ fontWeight: 500 }}>
                                                     {new Date(shift.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
@@ -1242,11 +1495,11 @@ export default function PlanningPage() {
                                                 </div>
                                             </td>
                                             <td style={{ padding: '14px 12px', fontSize: '14px' }}>
-                                                {(shift.assignments?.length || 0) > 0 ? (
+                                                {(shift.assigned_count || 0) > 0 ? (
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                         <Users size={14} style={{ color: '#10B981' }} />
                                                         <span style={{ color: '#10B981', fontWeight: 500 }}>
-                                                            {shift.assignments?.length} assigned
+                                                            {shift.assigned_count} assigned
                                                         </span>
                                                     </div>
                                                 ) : (
@@ -1397,37 +1650,40 @@ export default function PlanningPage() {
                         {/* Assigned Employees with remove button */}
                         <div style={{ marginBottom: '16px' }}>
                             <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px' }}>
-                                Assigned Employees ({editingShift.assignments?.length || 0})
+                                Assigned Employees ({loadingShiftDetails ? '...' : (editingShift.work_entries?.length || editingShift.assigned_count || 0)})
                             </label>
-                            {(editingShift.assignments || []).length > 0 ? (
-                                (editingShift.assignments || []).map(a => {
-                                    const latestWorkLog = a.work_logs?.[0];
-                                    const workLogStatus = latestWorkLog?.status;
-                                    const workLogColor = workLogStatus === 'approved' ? '#10B981'
-                                        : workLogStatus === 'pending' || workLogStatus === 'submitted' ? '#F59E0B'
-                                            : workLogStatus === 'rejected' ? '#EF4444'
-                                                : '#9CA3AF'; // gray if no worklog
-                                    const workLogLabel = workLogStatus ? workLogStatus.charAt(0).toUpperCase() + workLogStatus.slice(1) : 'No WorkLog';
+                            {loadingShiftDetails ? (
+                                <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280' }}>
+                                    <div style={{ display: 'inline-block', width: '20px', height: '20px', border: '2px solid #E5E7EB', borderTopColor: '#3B82F6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                                    <span style={{ marginLeft: '8px' }}>Loading employees...</span>
+                                </div>
+                            ) : (editingShift.work_entries || []).length > 0 ? (
+                                (editingShift.work_entries || []).map(entry => {
+                                    const statusColor = entry.status === 'approved' ? '#10B981'
+                                        : entry.status === 'pending' || entry.status === 'submitted' ? '#F59E0B'
+                                            : entry.status === 'rejected' ? '#EF4444'
+                                                : '#9CA3AF';
+                                    const statusLabel = entry.status ? entry.status.charAt(0).toUpperCase() + entry.status.slice(1) : 'Planned';
 
                                     return (
-                                        <div key={a.id} style={{ padding: '10px', background: '#F3F4F6', borderRadius: '8px', marginBottom: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <div key={entry.id} style={{ padding: '10px', background: '#F3F4F6', borderRadius: '8px', marginBottom: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: workLogColor }} title={workLogLabel} />
-                                                {a.employee_name}
-                                                {latestWorkLog && (
+                                                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: statusColor }} title={statusLabel} />
+                                                {entry.employee_name}
+                                                {entry.calculated_hours && parseFloat(entry.calculated_hours) > 0 && (
                                                     <span style={{
                                                         fontSize: '10px',
                                                         padding: '2px 6px',
-                                                        backgroundColor: workLogColor,
+                                                        backgroundColor: statusColor,
                                                         color: 'white',
                                                         borderRadius: '4px',
                                                     }}>
-                                                        {latestWorkLog.calculated_hours}h
+                                                        {entry.calculated_hours}h
                                                     </span>
                                                 )}
                                             </div>
                                             <button
-                                                onClick={() => removeEmployeeFromShift(a.id, a.employee_name)}
+                                                onClick={() => removeEmployeeFromShift(entry.id, entry.employee_name)}
                                                 style={{ padding: '4px 8px', background: '#FEE2E2', color: '#DC2626', border: 'none', borderRadius: '4px', fontSize: '11px', cursor: 'pointer' }}
                                             >
                                                 Remove
@@ -1516,14 +1772,11 @@ export default function PlanningPage() {
 
                         <div style={{ display: 'flex', gap: '8px' }}>
                             <button
-                                onClick={() => {
-                                    setEditingShift(null);
-                                    setShowEditEmployeeDropdown(false);
-                                    setEditEmployeeSearch('');
-                                }}
-                                style={{ flex: 1, padding: '12px', background: '#3B82F6', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 600, cursor: 'pointer' }}
+                                onClick={saveEditedShift}
+                                disabled={saving}
+                                style={{ flex: 1, padding: '12px', background: saving ? '#9CA3AF' : '#3B82F6', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer' }}
                             >
-                                Done
+                                {saving ? 'Saving...' : 'Save & Done'}
                             </button>
                             <button
                                 onClick={() => { setEditingShift(null); setShowEditEmployeeDropdown(false); setEditEmployeeSearch(''); }}
@@ -1585,22 +1838,15 @@ export default function PlanningPage() {
                                             </div>
                                         </div>
 
-                                        {/* Assigned Employees */}
+                                        {/* Assigned Employees Count */}
                                         <div>
                                             <div style={{ fontSize: '12px', fontWeight: 500, color: '#6B7280', marginBottom: '8px' }}>
-                                                Assigned Employees ({shift.assignments?.length || 0})
+                                                Assigned Employees ({shift.assigned_count || 0})
                                             </div>
-                                            {(shift.assignments?.length || 0) > 0 ? (
-                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                                                    {shift.assignments?.map(a => (
-                                                        <div key={a.id} style={{
-                                                            padding: '6px 12px', background: '#DCFCE7', color: '#166534',
-                                                            borderRadius: '20px', fontSize: '12px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px'
-                                                        }}>
-                                                            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }} />
-                                                            {a.employee_name}
-                                                        </div>
-                                                    ))}
+                                            {(shift.assigned_count || 0) > 0 ? (
+                                                <div style={{ fontSize: '13px', color: '#10B981', fontWeight: 500 }}>
+                                                    ✓ {shift.assigned_count} employee{(shift.assigned_count || 0) > 1 ? 's' : ''} assigned
+                                                    <span style={{ marginLeft: '8px', color: '#6B7280', fontWeight: 400 }}>(click Edit to manage)</span>
                                                 </div>
                                             ) : (
                                                 <div style={{ fontSize: '13px', color: '#F59E0B', fontStyle: 'italic' }}>

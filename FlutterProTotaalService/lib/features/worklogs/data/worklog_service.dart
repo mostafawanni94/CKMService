@@ -92,25 +92,49 @@ class WorkLogModel {
   });
 
   factory WorkLogModel.fromJson(Map<String, dynamic> json) {
+    // Helper to safely extract time string
+    String safeTimeString(dynamic value) {
+      if (value == null) return '';
+      final str = value.toString();
+      if (str.length >= 5) return str.substring(0, 5);
+      return str;
+    }
+    
+    // Safely parse allowances - could be a List or null
+    List<Map<String, dynamic>> parseAllowances(dynamic value) {
+      if (value == null) return [];
+      if (value is List) {
+        return value.whereType<Map<String, dynamic>>().toList();
+      }
+      return [];
+    }
+    
+    // Safely get nested value - handles both objects and UUIDs
+    String? safeNestedString(dynamic obj, String key) {
+      if (obj == null) return null;
+      if (obj is Map<String, dynamic>) return obj[key]?.toString();
+      return null;
+    }
+    
     return WorkLogModel(
       id: json['id']?.toString() ?? '',
-      locationAddress: json['location_address'] ?? json['location_override'] ?? json['project']?['address'] ?? '',
-      locationCity: json['location_city'] ?? json['project']?['city'] ?? '',
+      locationAddress: json['location_address'] ?? json['location_override'] ?? safeNestedString(json['project'], 'address') ?? '',
+      locationCity: json['location_city'] ?? safeNestedString(json['project'], 'city') ?? '',
       date: DateTime.tryParse(json['work_date'] ?? json['date'] ?? '') ?? DateTime.now(),
-      startTime: json['start_time']?.toString().substring(0, 5) ?? '',
-      endTime: json['end_time']?.toString().substring(0, 5) ?? '',
+      startTime: safeTimeString(json['start_time'] ?? json['actual_start_datetime']),
+      endTime: safeTimeString(json['end_time'] ?? json['actual_end_datetime']),
       breakMinutes: int.tryParse(json['break_duration_minutes']?.toString() ?? json['break_minutes']?.toString() ?? '0') ?? 0,
       hoursWorked: double.tryParse(json['calculated_hours']?.toString() ?? json['hours_worked']?.toString() ?? '0') ?? 0,
       status: json['status'] ?? 'draft',
       notes: json['notes'],
       rejectionReason: json['rejection_reason'],
-      allowances: (json['allowances'] as List?)?.cast<Map<String, dynamic>>() ?? [],
+      allowances: parseAllowances(json['allowances']),
       earnings: json['estimated_earnings'] != null 
           ? WorkLogEarnings.fromJson(json['estimated_earnings']) 
           : null,
-      projectName: json['project_name'] ?? json['project']?['name'],
-      customerName: json['customer_name'] ?? json['project']?['customer_name'],
-      supervisorName: json['supervisor_name'] ?? json['supervisor']?['full_name'],
+      projectName: json['project_name'] ?? safeNestedString(json['project'], 'name'),
+      customerName: json['customer_name'] ?? safeNestedString(json['project'], 'customer_name'),
+      supervisorName: json['supervisor_name'] ?? safeNestedString(json['supervisor'], 'full_name'),
     );
   }
 
@@ -204,6 +228,9 @@ class WorkLogService {
   }
 
   /// Submit new work log with optional allowances, breaks, and photos
+  /// 
+  /// If assignmentId is a work entry ID, we PATCH to update it with actual times.
+  /// The backend WorkEntry uses actual_start_datetime/actual_end_datetime.
   Future<WorkLogModel> submitWorkLog({
     required String assignmentId,
     required DateTime date,
@@ -215,11 +242,15 @@ class WorkLogService {
     List<WorkLogAllowanceModel>? allowances,
     List<String>? photoPaths,
   }) async {
+    // Build datetime strings from date and time
+    final startDateTime = '${date.toIso8601String().split('T')[0]}T$startTime:00';
+    final endDateTime = '${date.toIso8601String().split('T')[0]}T$endTime:00';
+    
     final body = <String, dynamic>{
-      'shift_assignment': assignmentId,
+      'actual_start_datetime': startDateTime,
+      'actual_end_datetime': endDateTime,
       'work_date': date.toIso8601String().split('T')[0],
-      'start_time': startTime,
-      'end_time': endTime,
+      'status': 'pending',  // Set to pending when submitting
       if (notes != null && notes.isNotEmpty) 'notes': notes,
     };
     
@@ -234,26 +265,30 @@ class WorkLogService {
       body['allowances'] = allowances.map((a) => a.toJson()).toList();
     }
     
-    final response = await _api.post('/worklogs/', body: body);
+    // PATCH the existing work entry to update with actual times
+    final response = await _api.patch('/worklogs/entries/$assignmentId/', body: body);
     final workLog = WorkLogModel.fromJson(response);
     
-    // Upload photos if any
-    if (photoPaths != null && photoPaths.isNotEmpty) {
-      for (final path in photoPaths) {
-        await uploadPhoto(workLog.id, path);
-      }
-    }
+    // TODO: Photo upload not yet implemented on backend
+    // Upload photos if any - use assignmentId directly since that's our entry ID
+    // if (photoPaths != null && photoPaths.isNotEmpty) {
+    //   for (final path in photoPaths) {
+    //     await uploadPhoto(assignmentId, path);
+    //   }
+    // }
     
     return workLog;
   }
 
-  /// Upload a photo to a work log
-  Future<void> uploadPhoto(String workLogId, String filePath) async {
-    await _api.uploadFile(
-      '/worklogs/$workLogId/add_photo/',
-      file: File(filePath),
-      fieldName: 'photo',
-    );
+  /// Upload a photo to a work entry
+  /// Note: Backend endpoint not yet implemented
+  Future<void> uploadPhoto(String entryId, String filePath) async {
+    // TODO: Implement when backend add_photo endpoint is ready
+    // await _api.uploadFile(
+    //   '/worklogs/entries/$entryId/add_photo/',
+    //   file: File(filePath),
+    //   fieldName: 'photo',
+    // );
   }
 
   /// Update rejected work log

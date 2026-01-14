@@ -13,7 +13,7 @@ const en = {
     customers: 'Customers',
     projects: 'Projects',
     worklogs: 'Work Logs',
-    invoices: 'Invoices',
+    invoices: 'Backoffice',
     wallet: 'Wallet',
     settings: 'Settings',
     logout: 'Logout',

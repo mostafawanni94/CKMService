@@ -1,198 +1,14 @@
-"""WorkLog Serializers."""
+"""WorkEntry Serializers - Unified Work Entry System."""
 
 from decimal import Decimal
 from rest_framework import serializers
-from .models import WorkLog, WorkLogPhoto, WorkLogAllowance, Shift
-
-
-class WorkLogPhotoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = WorkLogPhoto
-        fields = ['id', 'photo', 'caption', 'taken_at', 'created_at']
-
-
-class WorkLogAllowanceSerializer(serializers.ModelSerializer):
-    """Serializer for work log allowances."""
-    allowance_name = serializers.CharField(read_only=True)
-    allowance_type_name = serializers.CharField(source='allowance_type.name', read_only=True)
-    allowance_type_code = serializers.CharField(source='allowance_type.code', read_only=True)
-    base_price = serializers.DecimalField(source='allowance_type.base_price', read_only=True, max_digits=10, decimal_places=2)
-    
-    class Meta:
-        model = WorkLogAllowance
-        fields = [
-            'id', 'allowance_type', 'allowance_type_name', 'allowance_type_code',
-            'custom_allowance_name', 'allowance_name', 'hours', 'notes', 'base_price',
-            'start_time', 'end_time'  # From/To time fields
-        ]
-        read_only_fields = ['id']
-
-
-class WorkLogSerializer(serializers.ModelSerializer):
-    employee_name = serializers.CharField(source='employee.full_name', read_only=True)
-    project_name = serializers.CharField(source='project.name', read_only=True)
-    supervisor_name = serializers.CharField(source='supervisor.full_name', read_only=True, default='')
-    service_name = serializers.CharField(source='service.name', read_only=True, default='')
-    customer_name = serializers.CharField(source='project.customer.company_name', read_only=True, default='')
-    calculated_hours = serializers.DecimalField(max_digits=5, decimal_places=2, read_only=True)
-    billable_hours = serializers.DecimalField(max_digits=5, decimal_places=2, read_only=True)
-    photos = WorkLogPhotoSerializer(many=True, read_only=True)
-    allowances = WorkLogAllowanceSerializer(many=True, read_only=True)
-    status_display = serializers.CharField(source='get_status_display', read_only=True)
-    
-    # Calculate earnings for employee
-    estimated_earnings = serializers.SerializerMethodField()
-    
-    # Shift assignment info for unified view
-    shift_assignment_info = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = WorkLog
-        fields = '__all__'
-        read_only_fields = [
-            'id', 'status', 'submitted_at', 'approved_at', 'approved_by',
-            'billing_week_year', 'billing_week_number', 'created_at', 'updated_at',
-            'created_by', 'updated_by', 'is_deleted', 'deleted_at', 'deleted_by'
-        ]
-    
-    def get_estimated_earnings(self, obj):
-        """Calculate estimated earnings with full breakdown.
-        
-        Returns:
-            dict with base_hours, base_rate, base_amount, allowances_amount, total
-            OR None if no employee/rate
-        """
-        if not obj.employee or not obj.employee.hourly_rate:
-            return None
-        
-        hours = float(obj.billable_hours or obj.calculated_hours or 0)
-        hourly_rate = float(obj.employee.hourly_rate)
-        base_amount = hours * hourly_rate
-        
-        # Calculate allowances amount (only those included in employee pay)
-        allowances_amount = 0.0
-        allowances_list = []
-        
-        for allowance in obj.allowances.all():
-            if allowance.include_in_employee_pay:
-                amount = 0.0
-                if allowance.allowance_type and allowance.allowance_type.base_price:
-                    amount = float(allowance.hours) * float(allowance.allowance_type.base_price)
-                    allowances_list.append({
-                        'name': allowance.allowance_name,
-                        'hours': float(allowance.hours),
-                        'rate': float(allowance.allowance_type.base_price),
-                        'amount': amount,
-                    })
-                allowances_amount += amount
-        
-        return {
-            'base_hours': hours,
-            'base_rate': hourly_rate,
-            'base_amount': round(base_amount, 2),
-            'allowances': allowances_list,
-            'allowances_amount': round(allowances_amount, 2),
-            'total': round(base_amount + allowances_amount, 2),
-        }
-    
-    def get_shift_assignment_info(self, obj):
-        """Return info about the linked shift assignment if any."""
-        if not obj.shift_assignment:
-            return None
-        sa = obj.shift_assignment
-        pd = sa.planned_day
-        return {
-            'id': str(sa.id),
-            'date': pd.date.isoformat(),
-            'shift_name': pd.shift_template.name,
-            'shift_color': pd.shift_template.color,
-            'project_name': pd.shift_template.project.name,
-        }
-
-
-class WorkLogCreateSerializer(serializers.ModelSerializer):
-    """Serializer for employee to create work logs."""
-    allowances = WorkLogAllowanceSerializer(many=True, required=False)
-    breaks = serializers.JSONField(required=False, default=list)  # [{start: "HH:MM", end: "HH:MM"}, ...]
-    
-    class Meta:
-        model = WorkLog
-        fields = [
-            'project', 'start_datetime', 'end_datetime',
-            'work_date', 'start_time', 'end_time',  # Legacy fields for backward compat
-            'break_duration_minutes', 'break_start_time', 'break_end_time', 
-            'breaks',  # Multiple breaks array
-            'notes', 'supervisor', 'service', 'location_override', 'status',
-            'allowances', 'shift_assignment'  # Link to planning system
-        ]
-        extra_kwargs = {
-            'project': {'required': False, 'allow_null': True},  # Made optional - extracted from shift_assignment
-            'work_date': {'required': False},
-            'start_time': {'required': False},
-            'end_time': {'required': False},
-            'shift_assignment': {'required': False, 'allow_null': True},
-        }
-    
-    def validate(self, data):
-        # If shift_assignment is provided, extract project from it
-        shift_assignment = data.get('shift_assignment')
-        if shift_assignment and not data.get('project'):
-            # Get project from shift_assignment's planned_day's shift_template
-            try:
-                data['project'] = shift_assignment.planned_day.shift_template.project
-            except Exception:
-                pass
-        
-        # If new datetime fields are provided, use them
-        if data.get('start_datetime') and data.get('end_datetime'):
-            if data['end_datetime'] <= data['start_datetime']:
-                raise serializers.ValidationError({'end_datetime': 'End must be after start.'})
-        # Fallback: check legacy fields
-        elif data.get('start_time') and data.get('end_time'):
-            pass  # Allow overnight work
-        if data.get('break_duration_minutes', 0) < 0:
-            raise serializers.ValidationError({'break_duration_minutes': 'Cannot be negative.'})
-        return data
-    
-    def create(self, validated_data):
-        allowances_data = validated_data.pop('allowances', [])
-        
-        # Auto-submit: set status to 'pending' when created via web dashboard
-        validated_data['status'] = 'pending'
-        
-        work_log = super().create(validated_data)
-        
-        for allowance_data in allowances_data:
-            WorkLogAllowance.objects.create(work_log=work_log, **allowance_data)
-        
-        return work_log
-    
-    def update(self, instance, validated_data):
-        allowances_data = validated_data.pop('allowances', None)
-        work_log = super().update(instance, validated_data)
-        
-        if allowances_data is not None:
-            # Remove existing allowances and recreate
-            work_log.allowances.all().delete()
-            for allowance_data in allowances_data:
-                WorkLogAllowance.objects.create(work_log=work_log, **allowance_data)
-        
-        return work_log
-
-
-class WorkLogApprovalSerializer(serializers.Serializer):
-    adjusted_hours = serializers.DecimalField(
-        max_digits=5, decimal_places=2, required=False, allow_null=True
-    )
-    admin_notes = serializers.CharField(max_length=1000, required=False, allow_blank=True)
-
-
-class WorkLogRejectionSerializer(serializers.Serializer):
-    reason = serializers.CharField(min_length=5, max_length=500)
+from apps.employees.models import EmployeeProfile
+from apps.customers.models import Outfolder
+from .models import Shift, WorkEntry
 
 
 # =============================================================================
-# SHIFT SERIALIZERS
+# SHIFT SERIALIZERS (Legacy - kept for backward compatibility)
 # =============================================================================
 
 class ShiftSerializer(serializers.ModelSerializer):
@@ -250,4 +66,412 @@ class ShiftFillDataSerializer(serializers.Serializer):
 
 class ShiftRejectionSerializer(serializers.Serializer):
     """Serializer for admin to reject a shift."""
+    reason = serializers.CharField(min_length=5, max_length=500)
+
+
+# =============================================================================
+# UNIFIED WORK ENTRY SERIALIZERS
+# =============================================================================
+
+class WorkEntryListSerializer(serializers.ModelSerializer):
+    """
+    Lightweight serializer for listing work entries.
+    Optimized for mobile and web list views.
+    """
+    # Employee info
+    employee_name = serializers.CharField(source='employee.full_name', read_only=True)
+    employee_id = serializers.UUIDField(source='employee.id', read_only=True)
+    
+    # Project info  
+    project_name = serializers.CharField(source='project.name', read_only=True)
+    project_id = serializers.UUIDField(source='project.id', read_only=True)
+    customer_name = serializers.SerializerMethodField()
+    
+    # Shift template info
+    shift_name = serializers.CharField(source='shift_template.name', read_only=True, allow_null=True)
+    shift_color = serializers.CharField(source='shift_template.color', read_only=True, allow_null=True)
+    
+    # Supervisor info
+    supervisor_name = serializers.CharField(source='planned_supervisor.full_name', read_only=True, allow_null=True)
+    supervisor_phone = serializers.SerializerMethodField()
+    supervisor_email = serializers.SerializerMethodField()
+    
+    # Location
+    location = serializers.SerializerMethodField()
+    full_address = serializers.SerializerMethodField()
+    
+    # Service info
+    service_name = serializers.CharField(source='service.name', read_only=True, allow_null=True)
+    
+    # Legacy-compatible time fields for frontend
+    start_time = serializers.SerializerMethodField()
+    end_time = serializers.SerializerMethodField()
+    
+    # Computed fields
+    calculated_hours = serializers.DecimalField(max_digits=5, decimal_places=2, read_only=True)
+    display_time_range = serializers.CharField(read_only=True)
+    is_today = serializers.BooleanField(read_only=True)
+    is_past = serializers.BooleanField(read_only=True)
+    is_future = serializers.BooleanField(read_only=True)
+    can_fill_data = serializers.BooleanField(read_only=True)
+    
+    # Price calculation fields
+    calculated_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    service_rate = serializers.SerializerMethodField()
+    surcharges_applied = serializers.SerializerMethodField()
+    
+    # Invoice-compatible fields
+    surcharges_breakdown = serializers.SerializerMethodField()
+    hours_breakdown = serializers.SerializerMethodField()
+    break_duration = serializers.SerializerMethodField()
+    breaks = serializers.JSONField(read_only=True)
+    
+    class Meta:
+        model = WorkEntry
+        fields = [
+            'id', 'status', 'work_date',
+            # Employee
+            'employee_id', 'employee_name',
+            # Project
+            'project_id', 'project_name', 'customer_name',
+            # Shift template
+            'shift_name', 'shift_color',
+            # Service
+            'service_name',
+            # Times (both new and legacy-compatible)
+            'planned_start_time', 'planned_end_time',
+            'actual_start_datetime', 'actual_end_datetime',
+            'display_time_range',
+            'start_time', 'end_time',  # Legacy-compatible
+            # Supervisor
+            'supervisor_name', 'supervisor_phone', 'supervisor_email',
+            # Location
+            'location', 'full_address',
+            # Computed
+            'calculated_hours', 'is_today', 'is_past', 'is_future', 'can_fill_data',
+            # Price
+            'calculated_price', 'service_rate', 'surcharges_applied',
+            # Invoice-compatible
+            'surcharges_breakdown', 'hours_breakdown', 'break_duration', 'breaks',
+            # Notes
+            'notes',
+            # Timestamps
+            'created_at', 'submitted_at', 'approved_at',
+        ]
+    
+    def get_customer_name(self, obj):
+        if obj.project and obj.project.customer:
+            return obj.project.customer.company_name
+        return None
+    
+    def get_supervisor_phone(self, obj):
+        if obj.planned_supervisor:
+            for contact in obj.planned_supervisor.contacts.all():
+                if contact.contact_type in ['phone', 'mobile']:
+                    return contact.value
+        return None
+    
+    def get_supervisor_email(self, obj):
+        if obj.planned_supervisor:
+            for contact in obj.planned_supervisor.contacts.all():
+                if contact.contact_type == 'email':
+                    return contact.value
+        return None
+    
+    def get_location(self, obj):
+        if obj.location_override:
+            return obj.location_override
+        if obj.project:
+            return obj.project.location or ''
+        return ''
+    
+    def get_full_address(self, obj):
+        if obj.location_override:
+            return obj.location_override
+        if obj.project:
+            parts = [
+                obj.project.location or '',
+                obj.project.location_address or '',
+                obj.project.location_city or '',
+            ]
+            return ', '.join(p for p in parts if p)
+        return ''
+    
+    def get_start_time(self, obj):
+        """Legacy-compatible: Return start time as HH:MM string."""
+        if obj.actual_start_datetime:
+            return obj.actual_start_datetime.strftime('%H:%M')
+        if obj.planned_start_time:
+            return obj.planned_start_time.strftime('%H:%M')
+        return None
+    
+    def get_end_time(self, obj):
+        """Legacy-compatible: Return end time as HH:MM string."""
+        if obj.actual_end_datetime:
+            return obj.actual_end_datetime.strftime('%H:%M')
+        if obj.planned_end_time:
+            return obj.planned_end_time.strftime('%H:%M')
+        return None
+    
+    def get_service_rate(self, obj):
+        """Get hourly service rate for this entry."""
+        rate = obj.get_service_rate()
+        return float(rate) if rate else 0
+    
+    def get_surcharges_applied(self, obj):
+        """Get list of applicable surcharges with names and percentages."""
+        return obj.get_applicable_surcharges()
+    
+    def get_surcharges_breakdown(self, obj):
+        """Get comprehensive surcharge breakdown for invoice calculations."""
+        breakdown = obj.get_hours_breakdown_detailed()
+        base_rate = float(obj.get_service_rate())
+        
+        # Calculate amounts from detailed breakdown
+        normal_hours = breakdown.get('normal_hours', 0)
+        total_hours = breakdown.get('total_hours', 0)
+        surcharges_list = breakdown.get('surcharges', [])
+        
+        base_amount = total_hours * base_rate
+        total_surcharge_amount = sum(s.get('amount', 0) for s in surcharges_list)
+        
+        # Get allowances amount if any (field may not exist on model)
+        allowances_amount = 0
+        allowances_list = getattr(obj, 'allowances', None)
+        if allowances_list and isinstance(allowances_list, list):
+            for a in allowances_list:
+                a_hours = float(a.get('hours', 0) or 0)
+                a_rate = float(a.get('rate', 0) or 0)
+                allowances_amount += a_hours * a_rate
+        
+        return {
+            'base_rate': base_rate,
+            'base_amount': round(base_amount, 2),
+            'normal_hours': normal_hours,
+            'total_surcharge_amount': round(total_surcharge_amount, 2),
+            'total_allowances_amount': round(allowances_amount, 2),
+            'total': round(base_amount + total_surcharge_amount + allowances_amount, 2),
+            'breakdown': surcharges_list,
+        }
+    
+    def get_hours_breakdown(self, obj):
+        """Get hours breakdown by type (normal, night, weekend, etc.)."""
+        return obj.get_hours_breakdown_detailed()
+    
+    def get_break_duration(self, obj):
+        """Get break duration as formatted string (e.g., '0:30')."""
+        minutes = obj._get_total_break_minutes()
+        if minutes > 0:
+            hours = minutes // 60
+            mins = minutes % 60
+            return f"{hours}:{mins:02d}"
+        return "0:00"
+
+
+class WorkEntryDetailSerializer(WorkEntryListSerializer):
+    """
+    Full detail serializer for single work entry view.
+    Includes all fields and breakdown data.
+    """
+    # Include breaks
+    breaks = serializers.JSONField()
+    break_duration_minutes = serializers.IntegerField()
+    
+    # Admin fields
+    admin_notes = serializers.CharField(allow_blank=True)
+    admin_adjusted_hours = serializers.DecimalField(max_digits=5, decimal_places=2, allow_null=True)
+    
+    # Billing info
+    billing_week_year = serializers.IntegerField(allow_null=True)
+    billing_week_number = serializers.IntegerField(allow_null=True)
+    
+    # Rejection
+    rejection_reason = serializers.CharField(allow_blank=True)
+    
+    # Agency
+    agency_name = serializers.CharField(source='agency.name', read_only=True, allow_null=True)
+    
+    # Raw FK fields for frontend edit forms
+    project = serializers.UUIDField(source='project.id', read_only=True)
+    service = serializers.PrimaryKeyRelatedField(read_only=True)
+    supervisor = serializers.UUIDField(source='planned_supervisor.id', read_only=True, allow_null=True)
+    
+    class Meta(WorkEntryListSerializer.Meta):
+        fields = WorkEntryListSerializer.Meta.fields + [
+            'breaks', 'break_duration_minutes',
+            'admin_notes', 'admin_adjusted_hours',
+            'billing_week_year', 'billing_week_number',
+            'rejection_reason',
+            'agency_name',
+            'confirmed_at', 'cancelled_at', 'cancellation_reason',
+            'approved_by',
+            # Raw FK fields
+            'project', 'service', 'supervisor',
+        ]
+
+
+class WorkEntryCreateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for creating/updating work entries.
+    Used by employees to fill actual work data.
+    """
+    breaks = serializers.JSONField(required=False, default=list)
+    
+    # Field aliases for frontend compatibility
+    supervisor = serializers.PrimaryKeyRelatedField(
+        queryset=Outfolder.objects.all(),  # Outfolder = customer supervisor
+        source='planned_supervisor',
+        required=False,
+        allow_null=True,
+        write_only=True
+    )
+    start_datetime = serializers.DateTimeField(
+        source='actual_start_datetime',
+        required=False,
+        allow_null=True,
+        write_only=True
+    )
+    end_datetime = serializers.DateTimeField(
+        source='actual_end_datetime',
+        required=False,
+        allow_null=True,
+        write_only=True
+    )
+    # Break time fields for frontend (converted to breaks JSON array)
+    break_start_time = serializers.TimeField(required=False, allow_null=True, write_only=True)
+    break_end_time = serializers.TimeField(required=False, allow_null=True, write_only=True)
+    
+    class Meta:
+        model = WorkEntry
+        fields = [
+            'employee', 'project', 'shift_template',
+            'work_date', 'status',
+            'planned_start_time', 'planned_end_time', 'planned_supervisor',
+            'actual_start_datetime', 'actual_end_datetime',
+            'breaks', 'break_duration_minutes',
+            'service', 'location_override',
+            'notes',
+            # Aliases for frontend
+            'supervisor', 'start_datetime', 'end_datetime',
+            'break_start_time', 'break_end_time',
+        ]
+        extra_kwargs = {
+            'employee': {'required': False},  # Not required for updates
+            'project': {'required': False},
+            'work_date': {'required': False},
+            'status': {'required': False, 'default': 'pending'},
+            'shift_template': {'required': False, 'allow_null': True},
+            'planned_supervisor': {'required': False, 'allow_null': True},
+            'actual_start_datetime': {'required': False, 'allow_null': True},
+            'actual_end_datetime': {'required': False, 'allow_null': True},
+        }
+    
+    def validate(self, data):
+        # If actual times provided, end must be after start
+        start = data.get('actual_start_datetime')
+        end = data.get('actual_end_datetime')
+        if start and end and end <= start:
+            raise serializers.ValidationError({
+                'actual_end_datetime': 'End time must be after start time'
+            })
+        
+        # Convert break_start_time/break_end_time to breaks JSON array
+        break_start = data.pop('break_start_time', None)
+        break_end = data.pop('break_end_time', None)
+        if break_start and break_end:
+            data['breaks'] = [{'start': str(break_start), 'end': str(break_end)}]
+        
+        return data
+    
+    def create(self, validated_data):
+        # Set created_by from request user
+        request = self.context.get('request')
+        if request and request.user:
+            validated_data['created_by'] = request.user
+            
+            # Auto-populate employee from authenticated user if not provided
+            if not validated_data.get('employee'):
+                try:
+                    validated_data['employee'] = EmployeeProfile.objects.get(user=request.user)
+                except EmployeeProfile.DoesNotExist:
+                    raise serializers.ValidationError({'employee': 'No employee profile found for authenticated user.'})
+        
+        # For create, employee, project, work_date are required
+        if not validated_data.get('employee'):
+            raise serializers.ValidationError({'employee': 'This field is required. Please authenticate or provide employee ID.'})
+        if not validated_data.get('project'):
+            raise serializers.ValidationError({'project': 'This field is required.'})
+        if not validated_data.get('work_date'):
+            raise serializers.ValidationError({'work_date': 'This field is required.'})
+        
+        from apps.projects.models import ProjectPlannedDay, ProjectShiftTemplate
+        
+        template = validated_data.get('shift_template')
+        project = validated_data.get('project')
+        work_date = validated_data.get('work_date')
+        
+        # If no shift template provided, find or create a default "Manual Entry" template
+        if not template and project:
+            template, _ = ProjectShiftTemplate.objects.get_or_create(
+                project=project,
+                name='Manual Entry',
+                defaults={
+                    'start_time': '09:00:00',
+                    'end_time': '17:00:00',
+                    'color': '#6B7280',  # Gray color for manual entries
+                    'is_active': True,
+                }
+            )
+            validated_data['shift_template'] = template
+        
+        # Auto-populate planned times from shift template
+        if template:
+            if not validated_data.get('planned_start_time'):
+                validated_data['planned_start_time'] = template.start_time
+            if not validated_data.get('planned_end_time'):
+                validated_data['planned_end_time'] = template.end_time
+            
+            # Create a ProjectPlannedDay if it doesn't exist
+            # This ensures the work entry shows in the Planning calendar
+            if work_date:
+                ProjectPlannedDay.objects.get_or_create(
+                    shift_template=template,
+                    date=work_date,
+                    defaults={
+                        'required_workers': 1,
+                        'supervisor': validated_data.get('planned_supervisor'),
+                    }
+                )
+        
+        return super().create(validated_data)
+
+
+class WorkEntryFillDataSerializer(serializers.Serializer):
+    """Serializer for employee to fill actual work times."""
+    actual_start_datetime = serializers.DateTimeField(required=True)
+    actual_end_datetime = serializers.DateTimeField(required=True)
+    breaks = serializers.JSONField(required=False, default=list)
+    break_duration_minutes = serializers.IntegerField(required=False, default=0)
+    notes = serializers.CharField(max_length=2000, required=False, allow_blank=True)
+    
+    def validate(self, data):
+        start = data.get('actual_start_datetime')
+        end = data.get('actual_end_datetime')
+        if start and end and end <= start:
+            raise serializers.ValidationError({
+                'actual_end_datetime': 'End time must be after start time'
+            })
+        return data
+
+
+class WorkEntryApprovalSerializer(serializers.Serializer):
+    """Serializer for admin to approve work entry."""
+    adjusted_hours = serializers.DecimalField(
+        max_digits=5, decimal_places=2, required=False, allow_null=True
+    )
+    admin_notes = serializers.CharField(max_length=1000, required=False, allow_blank=True)
+
+
+class WorkEntryRejectionSerializer(serializers.Serializer):
+    """Serializer for admin to reject work entry."""
     reason = serializers.CharField(min_length=5, max_length=500)

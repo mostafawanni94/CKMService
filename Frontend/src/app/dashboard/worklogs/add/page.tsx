@@ -38,7 +38,9 @@ interface Project {
     name: string;
     customer: string;
     location?: string;
-    address?: string;
+    location_address?: string;
+    location_postcode?: string;
+    location_city?: string;
 }
 
 interface Supervisor {
@@ -57,13 +59,14 @@ export default function AddWorkLogPage() {
     const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    // Form state
-    const [employee, setEmployee] = useState('');
+    // Form state - Multi-employee selection
+    const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
     const [customer, setCustomer] = useState('');
     const [project, setProject] = useState('');
     const [supervisor, setSupervisor] = useState('');
     const [service, setService] = useState('');
     const [location, setLocation] = useState('');
+    const [originalLocation, setOriginalLocation] = useState('');
     const [startDatetime, setStartDatetime] = useState(new Date().toISOString().slice(0, 16));
     const [endDatetime, setEndDatetime] = useState(new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 16));
     const [notes, setNotes] = useState('');
@@ -88,12 +91,36 @@ export default function AddWorkLogPage() {
     // Filtered options
     const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
 
-    // Search states
+    // Search states for all dropdowns
     const [employeeSearch, setEmployeeSearch] = useState('');
+    const [customerSearch, setCustomerSearch] = useState('');
+    const [projectSearch, setProjectSearch] = useState('');
+    const [supervisorSearch, setSupervisorSearch] = useState('');
+    const [serviceSearch, setServiceSearch] = useState('');
+
     const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
+    const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
+    const [showProjectDropdown, setShowProjectDropdown] = useState(false);
+    const [showSupervisorDropdown, setShowSupervisorDropdown] = useState(false);
+    const [showServiceDropdown, setShowServiceDropdown] = useState(false);
 
     const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
     const headers = { 'Authorization': `Bearer ${token}` };
+
+    // Toggle employee selection (add/remove from array)
+    const toggleEmployee = (empId: string) => {
+        setSelectedEmployees(prev =>
+            prev.includes(empId)
+                ? prev.filter(id => id !== empId)
+                : [...prev, empId]
+        );
+    };
+
+    // Get employee name by ID helper
+    const getEmployeeName = (empId: string) => {
+        const emp = employees.find(e => e.id === empId);
+        return emp?.full_name || 'Employee';
+    };
 
     useEffect(() => {
         loadInitialData();
@@ -107,10 +134,13 @@ export default function AddWorkLogPage() {
         } else {
             setFilteredProjects([]);
         }
-        // Reset dependent fields
+        // Reset dependent fields and their search values
         setProject('');
+        setProjectSearch('');
         setSupervisor('');
+        setSupervisorSearch('');
         setService('');
+        setServiceSearch('');
         setLocation('');
         setSupervisors([]);
         setServices([]);
@@ -121,8 +151,19 @@ export default function AddWorkLogPage() {
         if (project) {
             const selectedProject = projects.find(p => String(p.id) === String(project));
             if (selectedProject) {
-                // Auto-fill location from project
-                setLocation(selectedProject.location || selectedProject.address || '');
+                // Auto-fill location from project - build full address
+                const addressParts = [
+                    selectedProject.location_address,
+                    selectedProject.location_postcode,
+                    selectedProject.location_city
+                ].filter(Boolean);
+
+                // Use full address or fallback to location field
+                const projectLocation = addressParts.length > 0
+                    ? addressParts.join(', ')
+                    : (selectedProject.location || '');
+                setLocation(projectLocation);
+                setOriginalLocation(projectLocation);
 
                 // Load supervisors from project and services from customer
                 loadProjectDetails(String(selectedProject.id), String(selectedProject.customer));
@@ -131,9 +172,13 @@ export default function AddWorkLogPage() {
             setSupervisors([]);
             setServices([]);
             setLocation('');
+            setOriginalLocation('');
         }
+        // Reset dependent fields and their search values
         setSupervisor('');
+        setSupervisorSearch('');
         setService('');
+        setServiceSearch('');
     }, [project]);
 
     async function loadInitialData() {
@@ -268,7 +313,7 @@ export default function AddWorkLogPage() {
     function validateForm(): boolean {
         const newErrors: Record<string, string> = {};
 
-        if (!employee) newErrors.employee = 'Employee is required';
+        if (selectedEmployees.length === 0) newErrors.employee = 'At least one employee is required';
         if (!customer) newErrors.customer = 'Customer is required';
         if (!project) newErrors.project = 'Project is required';
         if (!startDatetime) newErrors.startDatetime = 'Start date/time is required';
@@ -283,6 +328,42 @@ export default function AddWorkLogPage() {
             newErrors.breaks = 'At least one break is required';
         }
 
+        // Validate breaks are within work hours
+        if (startDatetime && endDatetime && validBreaks.length > 0) {
+            const workStartTime = startDatetime.split('T')[1]; // HH:MM
+            const workEndTime = endDatetime.split('T')[1]; // HH:MM
+
+            // Detect overnight shift (work end time is before work start time)
+            const isOvernightShift = workEndTime < workStartTime;
+
+            for (let i = 0; i < validBreaks.length; i++) {
+                const b = validBreaks[i];
+
+                let isValid = false;
+
+                if (isOvernightShift) {
+                    // For overnight shifts (e.g., 23:51 -> 07:51):
+                    // Break is valid if it's AFTER start time (e.g., 23:51-23:59)
+                    // OR if it's BEFORE end time (e.g., 00:00-07:51)
+                    const afterStart = b.start >= workStartTime && b.end >= workStartTime;
+                    const beforeEnd = b.start <= workEndTime && b.end <= workEndTime;
+                    isValid = afterStart || beforeEnd;
+                } else {
+                    // For normal shifts: break must be within work hours
+                    isValid = b.start >= workStartTime && b.end <= workEndTime;
+                }
+
+                if (!isValid) {
+                    newErrors.breaks = `Break ${i + 1} (${b.start}-${b.end}) must be within work hours (${workStartTime}-${workEndTime})`;
+                    break;
+                }
+                if (b.start >= b.end) {
+                    newErrors.breaks = `Break ${i + 1} end time must be after start time`;
+                    break;
+                }
+            }
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     }
@@ -294,66 +375,76 @@ export default function AddWorkLogPage() {
         setErrors({});
 
         try {
-            const payload: any = {
-                project: project,
-                employee: employee,
-                start_datetime: startDatetime,
-                end_datetime: endDatetime,
-                breaks: breaks.filter(b => b.start && b.end).map(b => ({
-                    start: b.start + ':00',
-                    end: b.end + ':00',
-                })),
-                location_override: location,
-                notes: notes,
-            };
+            // Extract work_date from start datetime (YYYY-MM-DD)
+            const workDate = startDatetime.split('T')[0];
 
-            if (supervisor) payload.supervisor = supervisor;
-            if (service) payload.service = service;
+            let successCount = 0;
+            let failCount = 0;
+            const failedEmployees: string[] = [];
 
-            if (allowances.length > 0) {
-                payload.allowances = allowances.filter(a => a.allowance_type || a.custom_allowance_name).map(a => ({
-                    allowance_type: a.allowance_type || null,  // Send null instead of empty string for custom
-                    custom_allowance_name: a.custom_allowance_name || '',
-                    hours: parseFloat(a.hours) || 0,
-                    notes: a.notes || '',
-                    start_time: a.start_time ? a.start_time + ':00' : null,  // Convert HH:MM to HH:MM:SS
-                    end_time: a.end_time ? a.end_time + ':00' : null,
-                }));
-            }
+            // Create a work log for each selected employee
+            for (const empId of selectedEmployees) {
+                const payload: any = {
+                    project: project,
+                    employee: empId,
+                    work_date: workDate,  // Required field
+                    start_datetime: startDatetime,
+                    end_datetime: endDatetime,
+                    breaks: breaks.filter(b => b.start && b.end).map(b => ({
+                        start: b.start + ':00',
+                        end: b.end + ':00',
+                    })),
+                    location_override: location,
+                    notes: notes,
+                };
 
-            const response = await fetch(`${API_URL}/worklogs/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(payload),
-            });
+                if (supervisor) payload.supervisor = supervisor;
+                if (service) payload.service = service;
 
-            if (!response.ok) {
-                const data = await response.json();
-                if (typeof data === 'object') {
-                    const fieldErrors: Record<string, string> = {};
-                    Object.entries(data).forEach(([key, value]) => {
-                        fieldErrors[key] = Array.isArray(value) ? value.join(', ') : String(value);
-                    });
-                    setErrors(fieldErrors);
-                } else {
-                    setErrors({ general: data.detail || 'Failed to create work log' });
+                if (allowances.length > 0) {
+                    payload.allowances = allowances.filter(a => a.allowance_type || a.custom_allowance_name).map(a => ({
+                        allowance_type: a.allowance_type || null,
+                        custom_allowance_name: a.custom_allowance_name || '',
+                        hours: parseFloat(a.hours) || 0,
+                        notes: a.notes || '',
+                        start_time: a.start_time ? a.start_time + ':00' : null,
+                        end_time: a.end_time ? a.end_time + ':00' : null,
+                    }));
                 }
-                return;
+
+                const response = await fetch(`${API_URL}/worklogs/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                if (response.ok) {
+                    successCount++;
+                } else {
+                    failCount++;
+                    const emp = employees.find(e => e.id === empId);
+                    failedEmployees.push(emp?.full_name || empId);
+                }
             }
 
-            router.push('/dashboard/worklogs');
+            // Show result and navigate
+            if (successCount > 0) {
+                if (failCount > 0) {
+                    alert(`Created ${successCount} work log(s). ${failCount} failed: ${failedEmployees.join(', ')}`);
+                }
+                router.push('/dashboard/worklogs');
+            } else {
+                setErrors({ general: 'Failed to create any work logs. Please try again.' });
+            }
         } catch (err) {
             setErrors({ general: err instanceof Error ? err.message : 'An error occurred' });
         } finally {
             setSaving(false);
         }
     }
-
-    const selectedEmployee = employees.find(e => e.id === employee);
-
     return (
         <DashboardLayout>
             <div style={{ minHeight: '100vh', backgroundColor: '#F9FAFB' }}>
@@ -400,7 +491,7 @@ export default function AddWorkLogPage() {
                     {/* Assignment Section */}
                     <div style={{
                         backgroundColor: 'white', borderRadius: '16px',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '24px', overflow: 'hidden'
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '24px'
                     }}>
                         <div style={{
                             padding: '20px 24px', borderBottom: '1px solid #E5E7EB',
@@ -424,51 +515,91 @@ export default function AddWorkLogPage() {
 
                         <div style={{ padding: '24px' }}>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
-                                {/* Employee */}
-                                <div style={{ position: 'relative' }}>
+                                {/* Multi-Employee Selection */}
+                                <div style={{ position: 'relative', gridColumn: 'span 2' }}>
                                     <label style={labelStyle}>
-                                        Employee <span style={{ color: '#EF4444' }}>*</span>
+                                        Employees <span style={{ color: '#EF4444' }}>*</span>
+                                        {selectedEmployees.length > 0 && (
+                                            <span style={{ color: '#6B7280', fontWeight: 400, marginLeft: '8px' }}>
+                                                ({selectedEmployees.length} selected)
+                                            </span>
+                                        )}
                                     </label>
+
+                                    {/* Selected employees chips */}
+                                    {selectedEmployees.length > 0 && (
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
+                                            {selectedEmployees.map(empId => (
+                                                <div key={empId} style={{
+                                                    display: 'flex', alignItems: 'center', gap: '6px',
+                                                    padding: '6px 12px', background: '#10B981', color: 'white',
+                                                    borderRadius: '20px', fontSize: '13px', fontWeight: 500
+                                                }}>
+                                                    {getEmployeeName(empId)}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => toggleEmployee(empId)}
+                                                        style={{ background: 'rgba(255,255,255,0.3)', border: 'none', color: 'white', cursor: 'pointer', padding: '2px 6px', borderRadius: '50%', fontSize: '12px' }}
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Search input */}
                                     <input
                                         type="text"
                                         value={employeeSearch}
                                         onChange={(e) => {
                                             setEmployeeSearch(e.target.value);
                                             setShowEmployeeDropdown(true);
-                                            if (employee) {
-                                                const selectedEmp = employees.find(emp => emp.id === employee);
-                                                if (selectedEmp && !selectedEmp.full_name.toLowerCase().includes(e.target.value.toLowerCase())) {
-                                                    setEmployee('');
-                                                }
-                                            }
                                         }}
                                         onFocus={() => setShowEmployeeDropdown(true)}
                                         onBlur={() => setTimeout(() => setShowEmployeeDropdown(false), 200)}
-                                        placeholder={loadingEmployees ? 'Loading...' : 'Search employee...'}
+                                        placeholder={loadingEmployees ? 'Loading...' : 'Search and select employees...'}
                                         style={{ ...inputStyle, borderColor: errors.employee ? '#EF4444' : '#E5E7EB' }}
                                     />
                                     {errors.employee && <span style={errorStyle}>{errors.employee}</span>}
+
+                                    {/* Dropdown with checkboxes */}
                                     {showEmployeeDropdown && (
                                         <div style={dropdownStyle}>
                                             {employees
                                                 .filter(emp => emp.full_name.toLowerCase().includes(employeeSearch.toLowerCase()))
+                                                .filter(emp => !selectedEmployees.includes(emp.id)) // Hide already selected
                                                 .slice(0, 10)
                                                 .map(emp => (
                                                     <div
                                                         key={emp.id}
                                                         onMouseDown={() => {
-                                                            setEmployee(emp.id);
-                                                            setEmployeeSearch(emp.full_name);
-                                                            setShowEmployeeDropdown(false);
+                                                            toggleEmployee(emp.id);
+                                                            setEmployeeSearch('');
                                                         }}
-                                                        style={dropdownItemStyle}
+                                                        style={{
+                                                            ...dropdownItemStyle,
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '10px'
+                                                        }}
                                                     >
+                                                        <span style={{
+                                                            width: '18px', height: '18px', borderRadius: '4px',
+                                                            border: '2px solid #10B981', display: 'flex',
+                                                            alignItems: 'center', justifyContent: 'center',
+                                                            background: 'white'
+                                                        }}>
+                                                            +
+                                                        </span>
                                                         {emp.full_name}
                                                     </div>
                                                 ))}
-                                            {employees.filter(emp => emp.full_name.toLowerCase().includes(employeeSearch.toLowerCase())).length === 0 && (
+                                            {employees.filter(emp => emp.full_name.toLowerCase().includes(employeeSearch.toLowerCase())).filter(emp => !selectedEmployees.includes(emp.id)).length === 0 && (
                                                 <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
-                                                    No employees found
+                                                    {selectedEmployees.length > 0 && employees.filter(emp => emp.full_name.toLowerCase().includes(employeeSearch.toLowerCase())).length === employees.length
+                                                        ? 'All matching employees selected'
+                                                        : 'No employees found'}
                                                 </div>
                                             )}
                                         </div>
@@ -476,79 +607,204 @@ export default function AddWorkLogPage() {
                                 </div>
 
                                 {/* Customer */}
-                                <div>
+                                <div style={{ position: 'relative' }}>
                                     <label style={labelStyle}>
                                         Customer <span style={{ color: '#EF4444' }}>*</span>
                                     </label>
-                                    <select
-                                        value={customer}
-                                        onChange={(e) => setCustomer(e.target.value)}
+                                    <input
+                                        type="text"
+                                        value={customerSearch}
+                                        onChange={(e) => {
+                                            setCustomerSearch(e.target.value);
+                                            setShowCustomerDropdown(true);
+                                            if (customer) {
+                                                const selectedCust = customers.find(c => c.id === customer);
+                                                if (selectedCust && !selectedCust.company_name.toLowerCase().includes(e.target.value.toLowerCase())) {
+                                                    setCustomer('');
+                                                }
+                                            }
+                                        }}
+                                        onFocus={() => setShowCustomerDropdown(true)}
+                                        onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
+                                        placeholder={loadingCustomers ? 'Loading...' : 'Search customer...'}
                                         style={{ ...inputStyle, borderColor: errors.customer ? '#EF4444' : '#E5E7EB' }}
-                                        disabled={loadingCustomers}
-                                    >
-                                        <option value="">{loadingCustomers ? 'Loading...' : 'Select customer...'}</option>
-                                        {customers.map(c => (
-                                            <option key={c.id} value={c.id}>{c.company_name}</option>
-                                        ))}
-                                    </select>
+                                    />
                                     {errors.customer && <span style={errorStyle}>{errors.customer}</span>}
+                                    {showCustomerDropdown && (
+                                        <div style={dropdownStyle}>
+                                            {customers
+                                                .filter(c => c.company_name.toLowerCase().includes(customerSearch.toLowerCase()))
+                                                .slice(0, 10)
+                                                .map(c => (
+                                                    <div
+                                                        key={c.id}
+                                                        onMouseDown={() => {
+                                                            setCustomer(c.id);
+                                                            setCustomerSearch(c.company_name);
+                                                            setShowCustomerDropdown(false);
+                                                        }}
+                                                        style={dropdownItemStyle}
+                                                    >
+                                                        {c.company_name}
+                                                    </div>
+                                                ))}
+                                            {customers.filter(c => c.company_name.toLowerCase().includes(customerSearch.toLowerCase())).length === 0 && (
+                                                <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
+                                                    No customers found
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Project */}
-                                <div>
+                                <div style={{ position: 'relative' }}>
                                     <label style={labelStyle}>
                                         Project <span style={{ color: '#EF4444' }}>*</span>
                                     </label>
-                                    <select
-                                        value={project}
-                                        onChange={(e) => setProject(e.target.value)}
+                                    <input
+                                        type="text"
+                                        value={projectSearch}
+                                        onChange={(e) => {
+                                            setProjectSearch(e.target.value);
+                                            setShowProjectDropdown(true);
+                                            if (project) {
+                                                const selectedProj = filteredProjects.find(p => p.id === project);
+                                                if (selectedProj && !selectedProj.name.toLowerCase().includes(e.target.value.toLowerCase())) {
+                                                    setProject('');
+                                                }
+                                            }
+                                        }}
+                                        onFocus={() => setShowProjectDropdown(true)}
+                                        onBlur={() => setTimeout(() => setShowProjectDropdown(false), 200)}
+                                        placeholder={!customer ? 'Select customer first...' : loadingProjects ? 'Loading...' : 'Search project...'}
                                         style={{ ...inputStyle, borderColor: errors.project ? '#EF4444' : '#E5E7EB' }}
-                                        disabled={!customer || loadingProjects}
-                                    >
-                                        <option value="">
-                                            {!customer ? 'Select customer first...' : loadingProjects ? 'Loading...' : 'Select project...'}
-                                        </option>
-                                        {filteredProjects.map(p => (
-                                            <option key={p.id} value={p.id}>{p.name}</option>
-                                        ))}
-                                    </select>
+                                        disabled={!customer}
+                                    />
                                     {errors.project && <span style={errorStyle}>{errors.project}</span>}
+                                    {showProjectDropdown && customer && (
+                                        <div style={dropdownStyle}>
+                                            {filteredProjects
+                                                .filter(p => p.name.toLowerCase().includes(projectSearch.toLowerCase()))
+                                                .slice(0, 10)
+                                                .map(p => (
+                                                    <div
+                                                        key={p.id}
+                                                        onMouseDown={() => {
+                                                            setProject(p.id);
+                                                            setProjectSearch(p.name);
+                                                            setShowProjectDropdown(false);
+                                                        }}
+                                                        style={dropdownItemStyle}
+                                                    >
+                                                        {p.name}
+                                                    </div>
+                                                ))}
+                                            {filteredProjects.filter(p => p.name.toLowerCase().includes(projectSearch.toLowerCase())).length === 0 && (
+                                                <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
+                                                    No projects found
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Supervisor */}
-                                <div>
+                                <div style={{ position: 'relative' }}>
                                     <label style={labelStyle}>Supervisor</label>
-                                    <select
-                                        value={supervisor}
-                                        onChange={(e) => setSupervisor(e.target.value)}
+                                    <input
+                                        type="text"
+                                        value={supervisorSearch}
+                                        onChange={(e) => {
+                                            setSupervisorSearch(e.target.value);
+                                            setShowSupervisorDropdown(true);
+                                            if (supervisor) {
+                                                const selectedSup = supervisors.find(s => s.id === supervisor);
+                                                if (selectedSup && !selectedSup.full_name.toLowerCase().includes(e.target.value.toLowerCase())) {
+                                                    setSupervisor('');
+                                                }
+                                            }
+                                        }}
+                                        onFocus={() => setShowSupervisorDropdown(true)}
+                                        onBlur={() => setTimeout(() => setShowSupervisorDropdown(false), 200)}
+                                        placeholder={!project ? 'Select project first...' : loadingSupervisors ? 'Loading...' : 'Search supervisor...'}
                                         style={inputStyle}
-                                        disabled={!project || loadingSupervisors}
-                                    >
-                                        <option value="">
-                                            {!project ? 'Select project first...' : loadingSupervisors ? 'Loading...' : 'Select supervisor...'}
-                                        </option>
-                                        {supervisors.map(s => (
-                                            <option key={s.id} value={s.id}>{s.full_name}</option>
-                                        ))}
-                                    </select>
+                                        disabled={!project}
+                                    />
+                                    {showSupervisorDropdown && project && (
+                                        <div style={dropdownStyle}>
+                                            {supervisors
+                                                .filter(s => s.full_name.toLowerCase().includes(supervisorSearch.toLowerCase()))
+                                                .slice(0, 10)
+                                                .map(s => (
+                                                    <div
+                                                        key={s.id}
+                                                        onMouseDown={() => {
+                                                            setSupervisor(s.id);
+                                                            setSupervisorSearch(s.full_name);
+                                                            setShowSupervisorDropdown(false);
+                                                        }}
+                                                        style={dropdownItemStyle}
+                                                    >
+                                                        {s.full_name}
+                                                    </div>
+                                                ))}
+                                            {supervisors.filter(s => s.full_name.toLowerCase().includes(supervisorSearch.toLowerCase())).length === 0 && (
+                                                <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
+                                                    No supervisors found
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Service */}
-                                <div>
+                                <div style={{ position: 'relative' }}>
                                     <label style={labelStyle}>Service Type</label>
-                                    <select
-                                        value={service}
-                                        onChange={(e) => setService(e.target.value)}
+                                    <input
+                                        type="text"
+                                        value={serviceSearch}
+                                        onChange={(e) => {
+                                            setServiceSearch(e.target.value);
+                                            setShowServiceDropdown(true);
+                                            if (service) {
+                                                const selectedServ = services.find(s => s.id === service);
+                                                if (selectedServ && !selectedServ.name.toLowerCase().includes(e.target.value.toLowerCase())) {
+                                                    setService('');
+                                                }
+                                            }
+                                        }}
+                                        onFocus={() => setShowServiceDropdown(true)}
+                                        onBlur={() => setTimeout(() => setShowServiceDropdown(false), 200)}
+                                        placeholder={!project ? 'Select project first...' : loadingServices ? 'Loading...' : 'Search service...'}
                                         style={inputStyle}
-                                        disabled={!project || loadingServices}
-                                    >
-                                        <option value="">
-                                            {!project ? 'Select project first...' : loadingServices ? 'Loading...' : 'Select service...'}
-                                        </option>
-                                        {services.map(s => (
-                                            <option key={s.id} value={s.id}>{s.name}</option>
-                                        ))}
-                                    </select>
+                                        disabled={!project}
+                                    />
+                                    {showServiceDropdown && project && (
+                                        <div style={dropdownStyle}>
+                                            {services
+                                                .filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase()))
+                                                .slice(0, 10)
+                                                .map(s => (
+                                                    <div
+                                                        key={s.id}
+                                                        onMouseDown={() => {
+                                                            setService(s.id);
+                                                            setServiceSearch(s.name);
+                                                            setShowServiceDropdown(false);
+                                                        }}
+                                                        style={dropdownItemStyle}
+                                                    >
+                                                        {s.name}
+                                                    </div>
+                                                ))}
+                                            {services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase())).length === 0 && (
+                                                <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
+                                                    No services found
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Location */}
@@ -565,7 +821,29 @@ export default function AddWorkLogPage() {
                                         style={inputStyle}
                                         disabled={!project}
                                     />
-                                    {project && !location && (
+                                    {project && originalLocation && location !== originalLocation && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setLocation(originalLocation)}
+                                            style={{
+                                                marginTop: '6px',
+                                                padding: '6px 12px',
+                                                backgroundColor: '#EFF6FF',
+                                                color: '#3B82F6',
+                                                border: '1px solid #3B82F6',
+                                                borderRadius: '6px',
+                                                fontSize: '12px',
+                                                fontWeight: 500,
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px',
+                                            }}
+                                        >
+                                            ↩ Reset to: {originalLocation.length > 30 ? originalLocation.substring(0, 30) + '...' : originalLocation}
+                                        </button>
+                                    )}
+                                    {project && location === originalLocation && (
                                         <span style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px', display: 'block' }}>
                                             Auto-filled from project (editable)
                                         </span>
@@ -664,40 +942,64 @@ export default function AddWorkLogPage() {
                                 )}
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                    {breaks.map((brk, index) => (
-                                        <div key={index} style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
-                                            <div style={{ flex: 1 }}>
-                                                <label style={{ ...labelStyle, fontSize: '12px', color: '#92400E' }}>Start</label>
-                                                <input
-                                                    type="time"
-                                                    value={brk.start}
-                                                    onChange={(e) => updateBreak(index, 'start', e.target.value)}
-                                                    style={{ ...inputStyle, padding: '10px 12px', backgroundColor: 'white' }}
-                                                />
+                                    {breaks.map((brk, index) => {
+                                        // Calculate break duration in minutes
+                                        let durationMins = 0;
+                                        if (brk.start && brk.end) {
+                                            const [sh, sm] = brk.start.split(':').map(Number);
+                                            const [eh, em] = brk.end.split(':').map(Number);
+                                            durationMins = (eh * 60 + em) - (sh * 60 + sm);
+                                            if (durationMins < 0) durationMins += 24 * 60; // Handle overnight
+                                        }
+
+                                        return (
+                                            <div key={index} style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+                                                <div style={{ flex: 1 }}>
+                                                    <label style={{ ...labelStyle, fontSize: '12px', color: '#92400E' }}>Start</label>
+                                                    <input
+                                                        type="time"
+                                                        value={brk.start}
+                                                        onChange={(e) => updateBreak(index, 'start', e.target.value)}
+                                                        style={{ ...inputStyle, padding: '10px 12px', backgroundColor: 'white' }}
+                                                    />
+                                                </div>
+                                                <div style={{ flex: 1 }}>
+                                                    <label style={{ ...labelStyle, fontSize: '12px', color: '#92400E' }}>End</label>
+                                                    <input
+                                                        type="time"
+                                                        value={brk.end}
+                                                        onChange={(e) => updateBreak(index, 'end', e.target.value)}
+                                                        style={{ ...inputStyle, padding: '10px 12px', backgroundColor: 'white' }}
+                                                    />
+                                                </div>
+                                                {/* Duration display */}
+                                                <div style={{
+                                                    padding: '10px 14px',
+                                                    backgroundColor: '#F59E0B',
+                                                    color: 'white',
+                                                    borderRadius: '8px',
+                                                    fontSize: '13px',
+                                                    fontWeight: 600,
+                                                    minWidth: '60px',
+                                                    textAlign: 'center'
+                                                }}>
+                                                    {durationMins > 0 ? `${durationMins} min` : '--'}
+                                                </div>
+                                                {breaks.length > 1 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeBreak(index)}
+                                                        style={{
+                                                            padding: '10px', backgroundColor: '#FEE2E2',
+                                                            border: 'none', borderRadius: '8px', cursor: 'pointer'
+                                                        }}
+                                                    >
+                                                        <Trash2 size={16} style={{ color: '#DC2626' }} />
+                                                    </button>
+                                                )}
                                             </div>
-                                            <div style={{ flex: 1 }}>
-                                                <label style={{ ...labelStyle, fontSize: '12px', color: '#92400E' }}>End</label>
-                                                <input
-                                                    type="time"
-                                                    value={brk.end}
-                                                    onChange={(e) => updateBreak(index, 'end', e.target.value)}
-                                                    style={{ ...inputStyle, padding: '10px 12px', backgroundColor: 'white' }}
-                                                />
-                                            </div>
-                                            {breaks.length > 1 && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeBreak(index)}
-                                                    style={{
-                                                        padding: '10px', backgroundColor: '#FEE2E2',
-                                                        border: 'none', borderRadius: '8px', cursor: 'pointer'
-                                                    }}
-                                                >
-                                                    <Trash2 size={16} style={{ color: '#DC2626' }} />
-                                                </button>
-                                            )}
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </div>
@@ -972,4 +1274,6 @@ const dropdownItemStyle: React.CSSProperties = {
     cursor: 'pointer',
     transition: 'background-color 0.15s',
     borderBottom: '1px solid #F3F4F6',
+    color: '#111827',
+    fontSize: '14px',
 };

@@ -124,10 +124,10 @@ def notify_new_user_created(sender, instance, created, **kwargs):
 # WORKLOG NOTIFICATION: Submitted for Approval
 # ==============================================================================
 
-@receiver(post_save, sender='worklogs.WorkLog')
+@receiver(post_save, sender='worklogs.WorkEntry')
 def notify_worklog_submitted(sender, instance, created, **kwargs):
     """
-    Notify admins when a worklog is submitted for approval.
+    Notify admins when a work entry is submitted for approval.
     
     Conditions:
     - Only when status changes to 'submitted'
@@ -272,10 +272,10 @@ def notify_profile_submitted(sender, instance, created, **kwargs):
 # WORKLOG NOTIFICATION: Rejected (HIGH PRIORITY)
 # ==============================================================================
 
-@receiver(post_save, sender='worklogs.WorkLog')
+@receiver(post_save, sender='worklogs.WorkEntry')
 def notify_worklog_rejected(sender, instance, created, **kwargs):
     """
-    Notify employee when their worklog is rejected.
+    Notify employee when their work entry is rejected.
     
     HIGH PRIORITY - Employee needs to take action!
     """
@@ -398,10 +398,10 @@ def notify_profile_rejected(sender, instance, created, **kwargs):
 # WORKLOG NOTIFICATION: Approved (Normal priority - for employee)
 # ==============================================================================
 
-@receiver(post_save, sender='worklogs.WorkLog')
+@receiver(post_save, sender='worklogs.WorkEntry')
 def notify_worklog_approved(sender, instance, created, **kwargs):
     """
-    Notify employee when their worklog is approved.
+    Notify employee when their work entry is approved.
     
     Normal priority - just informational.
     """

@@ -14,6 +14,7 @@ import '../../../invoices/presentation/screens/invoices_screen.dart';
 import '../../../shifts/data/shift_service.dart';
 import '../../../shifts/presentation/screens/my_shifts_screen.dart';
 import '../../../shifts/presentation/screens/shift_detail_screen.dart';
+import '../../../shifts/presentation/screens/assigned_shift_detail_screen.dart';
 import '../../../settings/presentation/screens/notification_settings_screen.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../../core/widgets/wallet_widgets.dart';
@@ -405,7 +406,7 @@ class _ProfileTab extends StatelessWidget {
   }
 }
 
-/// Upcoming Shifts List - Dynamic from API
+/// Upcoming Shifts List - Dynamic from Planning API
 class _UpcomingShiftsList extends StatefulWidget {
   const _UpcomingShiftsList();
 
@@ -415,7 +416,7 @@ class _UpcomingShiftsList extends StatefulWidget {
 
 class _UpcomingShiftsListState extends State<_UpcomingShiftsList> {
   final ShiftService _shiftService = ShiftService();
-  List<Shift> _shifts = [];
+  List<AssignedShift> _shifts = [];
   bool _loading = true;
 
   @override
@@ -426,9 +427,17 @@ class _UpcomingShiftsListState extends State<_UpcomingShiftsList> {
 
   Future<void> _loadShifts() async {
     try {
-      final shifts = await _shiftService.getMyShifts();
+      // Get shifts from today to +5 days for home page
+      final today = DateTime.now();
+      final endDate = today.add(const Duration(days: 5));
+      final response = await _shiftService.getMyAssignments(
+        startDate: today.toIso8601String().split('T')[0],
+        endDate: endDate.toIso8601String().split('T')[0],
+        page: 1,
+        pageSize: 5,
+      );
       setState(() {
-        _shifts = shifts.take(3).toList(); // Show max 3 on home
+        _shifts = response.results;
         _loading = false;
       });
     } catch (e) {
@@ -486,15 +495,25 @@ class _UpcomingShiftsListState extends State<_UpcomingShiftsList> {
     );
   }
 
-  Widget _buildShiftCard(Shift shift) {
-    final isToday = shift.isToday;
+  Widget _buildShiftCard(AssignedShift shift) {
+    final now = DateTime.now();
+    final shiftDate = shift.date;
+    final isToday = shiftDate.year == now.year && shiftDate.month == now.month && shiftDate.day == now.day;
+    
+    // Parse color from hex
+    Color shiftColor = const Color(0xFF3B82F6);
+    try {
+      if (shift.shiftColor.isNotEmpty) {
+        shiftColor = Color(int.parse(shift.shiftColor.replaceFirst('#', '0xFF')));
+      }
+    } catch (_) {}
     
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => ShiftDetailScreen(shift: shift),
+            builder: (_) => AssignedShiftDetailScreen(shift: shift),
           ),
         ).then((_) => _loadShifts());
       },
@@ -506,7 +525,7 @@ class _UpcomingShiftsListState extends State<_UpcomingShiftsList> {
           borderRadius: BorderRadius.circular(12),
           border: Border(
             left: BorderSide(
-              color: isToday ? const Color(0xFF10B981) : Color(shift.statusColor),
+              color: isToday ? const Color(0xFF10B981) : shiftColor,
               width: 4,
             ),
           ),
@@ -517,12 +536,12 @@ class _UpcomingShiftsListState extends State<_UpcomingShiftsList> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: (isToday ? const Color(0xFF10B981) : Color(shift.statusColor)).withOpacity(0.1),
+                color: (isToday ? const Color(0xFF10B981) : shiftColor).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 Icons.calendar_today_rounded,
-                color: isToday ? const Color(0xFF10B981) : Color(shift.statusColor),
+                color: isToday ? const Color(0xFF10B981) : shiftColor,
               ),
             ),
             const SizedBox(width: 12),
@@ -567,19 +586,17 @@ class _UpcomingShiftsListState extends State<_UpcomingShiftsList> {
                         Icon(Icons.event_rounded, size: 14, color: Colors.grey[500]),
                         const SizedBox(width: 4),
                         Text(
-                          '${shift.scheduledDate.day}/${shift.scheduledDate.month}',
+                          '${shiftDate.day}/${shiftDate.month}',
                           style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                         ),
                         const SizedBox(width: 12),
                       ],
-                      if (shift.scheduledStartTime != null && shift.scheduledEndTime != null) ...[
-                        Icon(Icons.access_time_rounded, size: 14, color: Colors.grey[500]),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${shift.scheduledStartTime!.substring(0, 5)} - ${shift.scheduledEndTime!.substring(0, 5)}',
-                          style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                        ),
-                      ],
+                      Icon(Icons.access_time_rounded, size: 14, color: Colors.grey[500]),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${shift.startTime} - ${shift.endTime}',
+                        style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                      ),
                     ],
                   ),
                 ],

@@ -702,7 +702,7 @@ class EmployeeAgencyHistory(TimeStampedModel):
 
 class SurchargeType(TimeStampedModel):
     """Master list of surcharge types that admin creates once.
-    Examples: Weekend, Night Shift, King's Day, Christmas, etc.
+    Examples: Weekend, Night Shift, King's Day, Christmas, Overtime, etc.
     These are reused across agencies.
     """
     
@@ -710,13 +710,14 @@ class SurchargeType(TimeStampedModel):
         WEEKEND = 'weekend', 'Weekend'
         NIGHT_SHIFT = 'night_shift', 'Night Shift'
         HOLIDAY = 'holiday', 'Public Holiday'
+        OVERTIME = 'overtime', 'Overtime (Overwerk)'
         CUSTOM = 'custom', 'Custom'
     
     name = models.CharField(
         max_length=100,
         unique=True,
         verbose_name="Surcharge Name",
-        help_text="e.g., Weekend, Night Shift, King's Day"
+        help_text="e.g., Weekend, Night Shift, King's Day, Overwerk"
     )
     category = models.CharField(
         max_length=20,
@@ -752,6 +753,16 @@ class SurchargeType(TimeStampedModel):
         blank=True,
         verbose_name="Specific Dates",
         help_text="List of dates in format ['MM-DD'] for recurring holidays, e.g., ['04-27'] for King's Day"
+    )
+    
+    # Overtime threshold (for overtime surcharges)
+    min_hours_threshold = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        verbose_name="Minimum Hours Threshold",
+        help_text="For overtime: surcharge applies only to hours above this threshold per day (e.g., 9.0 means hours > 9 get the surcharge)"
     )
     
     is_active = models.BooleanField(default=True, verbose_name="Is Active")
