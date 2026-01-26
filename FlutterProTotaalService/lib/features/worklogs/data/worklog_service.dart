@@ -129,8 +129,9 @@ class WorkLogModel {
       notes: json['notes'],
       rejectionReason: json['rejection_reason'],
       allowances: parseAllowances(json['allowances']),
-      earnings: json['estimated_earnings'] != null 
-          ? WorkLogEarnings.fromJson(json['estimated_earnings']) 
+      // Use surcharges_breakdown from API (includes base, surcharges, and allowances)
+      earnings: json['surcharges_breakdown'] != null 
+          ? WorkLogEarnings.fromJson(json['surcharges_breakdown']) 
           : null,
       projectName: json['project_name'] ?? safeNestedString(json['project'], 'name'),
       customerName: json['customer_name'] ?? safeNestedString(json['project'], 'customer_name'),
@@ -163,16 +164,17 @@ class WorkLogEarnings {
   });
 
   factory WorkLogEarnings.fromJson(Map<String, dynamic> json) {
-    final allowancesList = (json['allowances'] as List? ?? [])
+    // Parse breakdown array from surcharges_breakdown
+    final breakdownList = (json['breakdown'] as List? ?? [])
         .map((a) => AllowanceEarning.fromJson(a))
         .toList();
     
     return WorkLogEarnings(
-      baseHours: (json['base_hours'] ?? 0).toDouble(),
+      baseHours: (json['normal_hours'] ?? json['base_hours'] ?? 0).toDouble(),
       baseRate: (json['base_rate'] ?? 0).toDouble(),
       baseAmount: (json['base_amount'] ?? 0).toDouble(),
-      allowances: allowancesList,
-      allowancesAmount: (json['allowances_amount'] ?? 0).toDouble(),
+      allowances: breakdownList,  // Surcharge breakdown items
+      allowancesAmount: (json['total_allowances_amount'] ?? json['allowances_amount'] ?? 0).toDouble(),
       total: (json['total'] ?? 0).toDouble(),
     );
   }

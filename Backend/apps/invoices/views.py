@@ -92,17 +92,24 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         
         # Create invoice
         from apps.customers.models import Customer
+        from django.db import IntegrityError
         customer = Customer.objects.get(id=customer_id)
         
-        invoice = Invoice.objects.create(
-            invoice_number=invoice_number,
-            customer=customer,
-            week_year=week_year,
-            week_number=week_number,
-            week_start_date=week_start.date(),
-            week_end_date=week_end.date(),
-            created_by=request.user
-        )
+        try:
+            invoice = Invoice.objects.create(
+                invoice_number=invoice_number,
+                customer=customer,
+                week_year=week_year,
+                week_number=week_number,
+                week_start_date=week_start.date(),
+                week_end_date=week_end.date(),
+                created_by=request.user
+            )
+        except IntegrityError:
+            return Response(
+                {'error': 'Invoice already exists for this customer and week'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         # Create invoice lines from work entries
         for entry in work_entries:
@@ -119,7 +126,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 project=entry.project,
                 employee=entry.employee,
                 description=f"Work on {entry.work_date}",
-                quantity_hours=entry.billable_hours,
+                quantity_hours=entry.calculated_hours,
                 hourly_rate=hourly_rate,
                 created_by=request.user
             )

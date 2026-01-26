@@ -91,6 +91,7 @@ export default function InvoicesPage() {
     const [selectedSupervisor, setSelectedSupervisor] = useState('');
     const [weekStart, setWeekStart] = useState('');
     const [weekEnd, setWeekEnd] = useState('');
+    const [worklogStatusFilter, setWorklogStatusFilter] = useState('approved'); // 'all', 'approved', 'pending', 'rejected'
     const [showFilters, setShowFilters] = useState(false);
 
     // Search states for dropdowns
@@ -106,6 +107,9 @@ export default function InvoicesPage() {
     const [loadingWorklogs, setLoadingWorklogs] = useState(false);
     const [showExportModal, setShowExportModal] = useState(false);
 
+    // Toast message for invoice actions
+    const [invoiceMessage, setInvoiceMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
     // Customer surcharge types
     const [customerSurcharges, setCustomerSurcharges] = useState<{ name: string; percentage: number }[]>([]);
 
@@ -116,10 +120,10 @@ export default function InvoicesPage() {
 
     // Load worklogs when filters change
     useEffect(() => {
-        if (selectedCustomer || weekStart || weekEnd || selectedEmployees.length > 0) {
+        if (selectedCustomer || weekStart || weekEnd || selectedEmployees.length > 0 || worklogStatusFilter) {
             loadFilteredWorklogs();
         }
-    }, [selectedCustomer, selectedSupervisor, weekStart, weekEnd, selectedEmployees]);
+    }, [selectedCustomer, selectedSupervisor, weekStart, weekEnd, selectedEmployees, worklogStatusFilter]);
 
     // Load customer surcharge types when customer is selected
     useEffect(() => {
@@ -208,6 +212,11 @@ export default function InvoicesPage() {
 
             if (selectedEmployees.length > 0) {
                 selectedEmployees.forEach(empId => params.append('employee', empId));
+            }
+
+            // Worklog status filter
+            if (worklogStatusFilter && worklogStatusFilter !== 'all') {
+                params.append('status', worklogStatusFilter);
             }
 
             const response = await fetch(url + params.toString(), {
@@ -328,6 +337,51 @@ export default function InvoicesPage() {
         const filename = `Employee_Hours_${new Date().toISOString().split('T')[0]}.xlsx`;
         XLSX.writeFile(wb, filename);
         setShowExportModal(false);
+    }
+
+    // Generate Invoice from worklogs
+    async function generateInvoice() {
+        if (!selectedCustomer || !weekStart) {
+            alert('Please select a customer and week range first.');
+            return;
+        }
+
+        // Parse week from weekStart (format: "2026-W03")
+        const [year, week] = weekStart.split('-W').map(Number);
+
+        try {
+            const response = await fetch(`${API_URL}/invoices/invoices/generate/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    customer_id: selectedCustomer,
+                    week_year: year,
+                    week_number: week
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setInvoiceMessage({ type: 'success', text: `Invoice created! Number: ${data.invoice?.invoice_number}` });
+                setTimeout(() => {
+                    setShowExportModal(false);
+                    setInvoiceMessage(null);
+                }, 2000);
+                loadInvoices(); // Refresh invoices list
+            } else {
+                // Show error message prominently
+                const errorMsg = data.error || data.detail || JSON.stringify(data);
+                setInvoiceMessage({ type: 'error', text: errorMsg });
+                console.error('Invoice generation error:', data);
+            }
+        } catch (error) {
+            console.error('Generate invoice error:', error);
+            setInvoiceMessage({ type: 'error', text: error instanceof Error ? error.message : 'Network error' });
+        }
     }
 
     async function loadFilterData() {
@@ -1071,32 +1125,32 @@ export default function InvoicesPage() {
                             </div>
                         </div>
 
-                        {/* Status Filter */}
+                        {/* Worklog Status Filter */}
                         <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #E5E7EB' }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>
-                                    Status <span style={{ color: '#9CA3AF', fontWeight: 400 }}>(All)</span>
+                                    Worklog Status <span style={{ color: '#9CA3AF', fontWeight: 400 }}>({worklogStatusFilter === 'all' ? 'All' : worklogStatusFilter})</span>
                                 </label>
                             </div>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                                 {[
-                                    { key: 'draft', label: 'Draft', color: '#6B7280' },
+                                    { key: 'all', label: 'All', color: '#6B7280' },
+                                    { key: 'approved', label: 'Approved', color: '#059669' },
                                     { key: 'pending', label: 'Pending', color: '#D97706' },
-                                    { key: 'paid', label: 'Paid', color: '#059669' },
-                                    { key: 'overdue', label: 'Overdue', color: '#DC2626' },
+                                    { key: 'rejected', label: 'Rejected', color: '#DC2626' },
                                 ].map((status) => (
                                     <button
                                         key={status.key}
-                                        onClick={() => setFilter(filter === status.key ? 'all' : status.key)}
+                                        onClick={() => setWorklogStatusFilter(status.key)}
                                         style={{
                                             padding: '8px 16px',
                                             fontSize: '13px',
                                             fontWeight: 500,
-                                            border: filter === status.key ? 'none' : '1px solid #D1D5DB',
+                                            border: worklogStatusFilter === status.key ? 'none' : '1px solid #D1D5DB',
                                             borderRadius: '20px',
                                             cursor: 'pointer',
-                                            backgroundColor: filter === status.key ? status.color : 'white',
-                                            color: filter === status.key ? 'white' : '#374151',
+                                            backgroundColor: worklogStatusFilter === status.key ? status.color : 'white',
+                                            color: worklogStatusFilter === status.key ? 'white' : '#374151',
                                             display: 'flex',
                                             alignItems: 'center',
                                             gap: '6px',
@@ -1107,7 +1161,7 @@ export default function InvoicesPage() {
                                             width: '8px',
                                             height: '8px',
                                             borderRadius: '50%',
-                                            backgroundColor: filter === status.key ? 'white' : status.color,
+                                            backgroundColor: worklogStatusFilter === status.key ? 'white' : status.color,
                                         }} />
                                         {status.label}
                                     </button>
@@ -1126,6 +1180,7 @@ export default function InvoicesPage() {
                                     setSelectedEmployees([]);
                                     setSupervisors([]);
                                     setFilter('all');
+                                    setWorklogStatusFilter('approved');
                                     setWorklogs([]);
                                 }}
                                 style={{
@@ -1180,7 +1235,7 @@ export default function InvoicesPage() {
                                     >
                                         <p style={{ fontSize: '12px', color: '#3B82F6', fontWeight: 600, margin: 0, textTransform: 'uppercase' }}>Employees</p>
                                         <p style={{ fontSize: '28px', fontWeight: 700, color: '#1E40AF', margin: '4px 0 0 0' }}>
-                                            {new Set(worklogs.map(w => w.employee)).size}
+                                            {new Set(worklogs.map(w => w.employee_id)).size}
                                         </p>
                                         <p style={{ fontSize: '11px', color: '#60A5FA', margin: '4px 0 0 0' }}>Click to see details ↓</p>
                                     </div>
@@ -1811,6 +1866,45 @@ export default function InvoicesPage() {
                             )}
                         </div>
 
+                        {/* Toast Message */}
+                        {invoiceMessage && (
+                            <div style={{
+                                padding: '16px',
+                                backgroundColor: invoiceMessage.type === 'success' ? '#D1FAE5' : '#FEE2E2',
+                                borderRadius: '12px',
+                                marginBottom: '16px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px',
+                                border: `1px solid ${invoiceMessage.type === 'success' ? '#10B981' : '#EF4444'}`,
+                            }}>
+                                {invoiceMessage.type === 'success' ? (
+                                    <CheckCircle size={20} style={{ color: '#059669' }} />
+                                ) : (
+                                    <AlertCircle size={20} style={{ color: '#DC2626' }} />
+                                )}
+                                <span style={{
+                                    color: invoiceMessage.type === 'success' ? '#065F46' : '#991B1B',
+                                    fontWeight: 500,
+                                    flex: 1
+                                }}>
+                                    {invoiceMessage.text}
+                                </span>
+                                <button
+                                    onClick={() => setInvoiceMessage(null)}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        padding: '4px',
+                                        color: invoiceMessage.type === 'success' ? '#059669' : '#DC2626'
+                                    }}
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        )}
+
                         <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '24px' }}>
                             Choose the export format based on who will receive the file:
                         </p>
@@ -1926,6 +2020,62 @@ export default function InvoicesPage() {
                                     </p>
                                     <p style={{ color: '#6B7280', fontSize: '13px', margin: '4px 0 0 0' }}>
                                         Basic hours overview: date, start, end, break, total
+                                    </p>
+                                </div>
+                            </button>
+
+                            {/* Divider */}
+                            <div style={{
+                                borderTop: '1px dashed #E5E7EB',
+                                margin: '8px 0',
+                                position: 'relative'
+                            }}>
+                                <span style={{
+                                    position: 'absolute',
+                                    top: '-10px',
+                                    left: '50%',
+                                    transform: 'translateX(-50%)',
+                                    backgroundColor: 'white',
+                                    padding: '0 12px',
+                                    fontSize: '12px',
+                                    color: '#9CA3AF'
+                                }}>or</span>
+                            </div>
+
+                            {/* Create Invoice Button */}
+                            <button
+                                onClick={generateInvoice}
+                                disabled={worklogs.length === 0 || loadingWorklogs || !selectedCustomer || !weekStart}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '16px',
+                                    padding: '20px',
+                                    backgroundColor: (worklogs.length > 0 && selectedCustomer && weekStart) ? '#7C3AED' : '#E5E7EB',
+                                    border: 'none',
+                                    borderRadius: '14px',
+                                    cursor: (worklogs.length > 0 && selectedCustomer && weekStart) ? 'pointer' : 'not-allowed',
+                                    transition: 'all 0.2s',
+                                    textAlign: 'left',
+                                }}
+                            >
+                                <div style={{
+                                    width: '48px',
+                                    height: '48px',
+                                    borderRadius: '12px',
+                                    backgroundColor: 'rgba(255,255,255,0.15)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}>
+                                    <FileText size={24} style={{ color: 'white' }} />
+                                </div>
+                                <div>
+                                    <p style={{ color: 'white', fontWeight: 600, fontSize: '16px', margin: 0 }}>
+                                        Create Invoice
+                                    </p>
+                                    <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', margin: '4px 0 0 0' }}>
+                                        Generate invoice record from these worklogs
                                     </p>
                                 </div>
                             </button>

@@ -1035,33 +1035,56 @@ class WorkEntry(BaseModel):
                     st = surcharge_info['surcharge_type']
                     applies = False
                     
-                    # Check day constraints first
-                    day_matches = True
-                    if st.days_of_week:
-                        day_matches = day_of_week in st.days_of_week
-                    if st.specific_dates:
-                        date_str = current_date.strftime('%m-%d')
-                        day_matches = date_str in st.specific_dates
-                    
-                    if not day_matches:
-                        continue
-                    
-                    # Check time constraints
-                    if st.time_from and st.time_to:
-                        # Time-based surcharge (e.g., night shift)
-                        if st.time_from > st.time_to:
-                            # Overnight (e.g., 21:00-06:00)
-                            applies = current_time >= st.time_from or current_time < st.time_to
+                    # SPECIAL HANDLING for Weekend surcharges
+                    # Weekend period: Friday (start_time) → Monday (end_time) continuous
+                    if st.category == 'weekend' and st.time_from and st.time_to:
+                        # days_of_week should contain [5, 6] for Sat/Sun
+                        # This means: Friday start_time → Monday end_time
+                        # 0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri, 5=Sat, 6=Sun
+                        
+                        if day_of_week == 4:  # Friday
+                            # Friday: only after start_time (e.g., 21:30+)
+                            applies = current_time >= st.time_from
+                        elif day_of_week == 5:  # Saturday
+                            # All of Saturday is weekend
+                            applies = True
+                        elif day_of_week == 6:  # Sunday
+                            # All of Sunday is weekend
+                            applies = True
+                        elif day_of_week == 0:  # Monday
+                            # Monday: only before end_time (e.g., before 06:00)
+                            applies = current_time < st.time_to
                         else:
-                            applies = st.time_from <= current_time < st.time_to
-                    elif st.min_hours_threshold:
-                        # Overtime - applies to worked minutes ABOVE threshold
-                        threshold_minutes = float(st.min_hours_threshold) * 60
-                        # Only apply to minutes after threshold
-                        applies = total_worked_minutes > threshold_minutes
+                            applies = False
                     else:
-                        # No time constraint - day match is enough
-                        applies = True
+                        # Standard surcharge logic (non-weekend)
+                        # Check day constraints first
+                        day_matches = True
+                        if st.days_of_week:
+                            day_matches = day_of_week in st.days_of_week
+                        if st.specific_dates:
+                            date_str = current_date.strftime('%m-%d')
+                            day_matches = date_str in st.specific_dates
+                        
+                        if not day_matches:
+                            continue
+                        
+                        # Check time constraints
+                        if st.time_from and st.time_to:
+                            # Time-based surcharge (e.g., night shift)
+                            if st.time_from > st.time_to:
+                                # Overnight (e.g., 21:00-06:00)
+                                applies = current_time >= st.time_from or current_time < st.time_to
+                            else:
+                                applies = st.time_from <= current_time < st.time_to
+                        elif st.min_hours_threshold:
+                            # Overtime - applies to worked minutes ABOVE threshold
+                            threshold_minutes = float(st.min_hours_threshold) * 60
+                            # Only apply to minutes after threshold
+                            applies = total_worked_minutes > threshold_minutes
+                        else:
+                            # No time constraint - day match is enough
+                            applies = True
                     
                     if applies:
                         applicable_for_minute.append(surcharge_info)
