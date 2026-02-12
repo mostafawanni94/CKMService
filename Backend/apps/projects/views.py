@@ -289,6 +289,19 @@ class ProjectPlannedDayViewSet(viewsets.ModelViewSet):
             qs = qs.filter(date__gte=start_date)
         if end_date:
             qs = qs.filter(date__lte=end_date)
+        # Filter by employee(s) — comma-separated IDs
+        employee_ids = self.request.query_params.get('employee')
+        if employee_ids:
+            from apps.worklogs.models import WorkEntry
+            ids = [eid.strip() for eid in employee_ids.split(',') if eid.strip()]
+            qs = qs.filter(
+                date__in=WorkEntry.objects.filter(
+                    employee_id__in=ids
+                ).values('work_date'),
+                shift_template__in=WorkEntry.objects.filter(
+                    employee_id__in=ids
+                ).values('shift_template')
+            )
         return qs
     
     def destroy(self, request, *args, **kwargs):

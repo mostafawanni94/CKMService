@@ -9,6 +9,7 @@ from django.db import models
 
 from apps.employees.views import IsAdmin, IsAdminOrSelf
 from apps.employees.models import EmployeeProfile
+from apps.core.pagination import LargePagination
 from .models import Shift, WorkEntry
 from .serializers import (
     ShiftSerializer, ShiftCreateSerializer, ShiftFillDataSerializer, ShiftRejectionSerializer,
@@ -151,6 +152,7 @@ class WorkEntryViewSet(viewsets.ModelViewSet):
         'shift_template', 'planned_supervisor', 'agency',
         'service', 'approved_by'
     ).order_by('-work_date', '-actual_start_datetime')
+    pagination_class = LargePagination
     
     def get_queryset(self):
         user = self.request.user

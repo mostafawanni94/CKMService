@@ -73,6 +73,7 @@ function Sidebar({
         { name: t('projects'), href: '/dashboard/projects', icon: FolderKanban },
         { name: 'Services', href: '/dashboard/services', icon: CreditCard },
         { name: t('worklogs'), href: '/dashboard/worklogs', icon: Clock },
+        { name: 'Weekly Board', href: '/dashboard/weekly-board', icon: Calendar },
         { name: 'Certificates', href: '/dashboard/certificates', icon: Award },
         { name: 'Allowances', href: '/dashboard/allowances', icon: Gift },
         { name: 'Contract Types', href: '/dashboard/contract-types', icon: FileText },

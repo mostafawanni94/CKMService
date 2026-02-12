@@ -4,6 +4,7 @@ from decimal import Decimal
 from datetime import datetime
 from rest_framework import serializers
 from django.conf import settings
+from django.db import IntegrityError
 from zoneinfo import ZoneInfo
 from apps.employees.models import EmployeeProfile
 from apps.customers.models import Outfolder
@@ -629,16 +630,67 @@ class WorkEntryCreateSerializer(serializers.ModelSerializer):
             # Create a ProjectPlannedDay if it doesn't exist
             # This ensures the work entry shows in the Planning calendar
             if work_date:
-                ProjectPlannedDay.objects.get_or_create(
-                    shift_template=template,
-                    date=work_date,
-                    defaults={
-                        'required_workers': 1,
-                        'supervisor': validated_data.get('planned_supervisor'),
-                    }
-                )
+                try:
+                    ProjectPlannedDay.objects.get_or_create(
+                        shift_template=template,
+                        date=work_date,
+                        defaults={
+                            'required_workers': 1,
+                            'supervisor': validated_data.get('planned_supervisor'),
+                        }
+                    )
+                except IntegrityError:
+                    # Race condition: another request already created it — safe to ignore
+                    pass
         
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        """
+        Override update to sync ProjectPlannedDay when work_date changes.
+
+        When drag-and-drop moves a work entry to a new date, we need to:
+        1. Create a ProjectPlannedDay for the new date (if it doesn't exist)
+        2. Delete the old ProjectPlannedDay if no other entries remain on that date
+        """
+        from apps.projects.models import ProjectPlannedDay
+
+        old_work_date = instance.work_date
+        new_work_date = validated_data.get('work_date', old_work_date)
+        shift_template = validated_data.get('shift_template', instance.shift_template)
+
+        # Perform the actual update
+        instance = super().update(instance, validated_data)
+
+        # Sync ProjectPlannedDay if work_date changed and entry has a shift template
+        if shift_template and old_work_date and new_work_date and old_work_date != new_work_date:
+            # Create a ProjectPlannedDay for the NEW date
+            try:
+                ProjectPlannedDay.objects.get_or_create(
+                    shift_template=shift_template,
+                    date=new_work_date,
+                    defaults={
+                        'required_workers': 1,
+                        'supervisor': instance.planned_supervisor,
+                    }
+                )
+            except IntegrityError:
+                pass
+
+            # Clean up the OLD date if no other work entries remain there
+            from apps.worklogs.models import WorkEntry
+            remaining_on_old_date = WorkEntry.objects.filter(
+                shift_template=shift_template,
+                work_date=old_work_date,
+            ).exclude(id=instance.id).exists()
+
+            if not remaining_on_old_date:
+                ProjectPlannedDay.objects.filter(
+                    shift_template=shift_template,
+                    date=old_work_date,
+                ).delete()
+
+        return instance
 
 
 class WorkEntryFillDataSerializer(serializers.Serializer):

@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard';
-import { ArrowLeft, Plus, X, Clock, Trash2, Calendar, Users, Check, Search, ChevronLeft, ChevronRight, Edit2, Save } from 'lucide-react';
+import { ArrowLeft, Plus, X, Clock, Trash2, Calendar, Users, Check, Search, ChevronLeft, ChevronRight, Edit2, Save, Filter } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
@@ -117,6 +117,12 @@ export default function PlanningPage() {
     const [selectedShiftIds, setSelectedShiftIds] = useState<Set<string>>(new Set());
     const [bulkDeleting, setBulkDeleting] = useState(false);
 
+    // Employee filter state (for filtering calendar/table by employee)
+    const [filterEmployees, setFilterEmployees] = useState<string[]>([]);
+    const [filterEmpSearch, setFilterEmpSearch] = useState('');
+    const [showFilterEmpDropdown, setShowFilterEmpDropdown] = useState(false);
+    const [showFilterBar, setShowFilterBar] = useState(false);
+
 
     const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
     const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
@@ -145,13 +151,13 @@ export default function PlanningPage() {
     // Load data
     useEffect(() => {
         loadData();
-    }, [projectId, currentYear]);
+    }, [projectId, currentYear, filterEmployees]);
 
     async function loadData() {
         try {
             const [projRes, daysRes, empRes] = await Promise.all([
                 fetch(`${API_URL}/projects/projects/${projectId}/`, { headers }),
-                fetch(`${API_URL}/projects/planned-days/?project=${projectId}&year=${currentYear}`, { headers }),
+                fetch(`${API_URL}/projects/planned-days/?project=${projectId}&year=${currentYear}${filterEmployees.length > 0 ? '&employee=' + filterEmployees.join(',') : ''}`, { headers }),
                 fetch(`${API_URL}/employees/profiles/`, { headers }),
             ]);
 
@@ -872,6 +878,177 @@ export default function PlanningPage() {
                         <div style={{ fontSize: '32px', fontWeight: 700 }}>{stats.total}</div>
                         <div style={{ fontSize: '13px', opacity: 0.8 }}>shifts planned →</div>
                     </div>
+                </div>
+
+                {/* Employee Filter Bar */}
+                <div style={{ marginBottom: '16px' }}>
+                    <button
+                        onClick={() => setShowFilterBar(!showFilterBar)}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '10px 18px',
+                            background: filterEmployees.length > 0 ? '#EFF6FF' : 'white',
+                            border: filterEmployees.length > 0 ? '1px solid #BFDBFE' : '1px solid #E5E7EB',
+                            borderRadius: '10px',
+                            fontSize: '13px',
+                            fontWeight: 500,
+                            color: filterEmployees.length > 0 ? '#1D4ED8' : '#374151',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease',
+                        }}
+                    >
+                        <Filter size={15} />
+                        Filter by Employee
+                        {filterEmployees.length > 0 && (
+                            <span style={{
+                                background: '#3B82F6',
+                                color: 'white',
+                                borderRadius: '10px',
+                                padding: '1px 8px',
+                                fontSize: '11px',
+                                fontWeight: 700,
+                            }}>
+                                {filterEmployees.length}
+                            </span>
+                        )}
+                    </button>
+
+                    {showFilterBar && (
+                        <div
+                            style={{
+                                marginTop: '10px',
+                                padding: '16px 20px',
+                                background: 'white',
+                                borderRadius: '12px',
+                                border: '1px solid #E5E7EB',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                            }}
+                        >
+                            <label style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '8px', display: 'block' }}>
+                                <Users size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                                Employees {filterEmployees.length > 0 && <span style={{ color: '#3B82F6' }}>({filterEmployees.length})</span>}
+                            </label>
+
+                            {/* Selected chips */}
+                            {filterEmployees.length > 0 && (
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
+                                    {filterEmployees.map(empId => {
+                                        const emp = employees.find(e => e.id === empId);
+                                        return (
+                                            <span
+                                                key={empId}
+                                                style={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '4px',
+                                                    padding: '4px 10px',
+                                                    backgroundColor: '#EFF6FF',
+                                                    border: '1px solid #BFDBFE',
+                                                    borderRadius: '16px',
+                                                    fontSize: '12px',
+                                                    fontWeight: 500,
+                                                    color: '#1D4ED8',
+                                                }}
+                                            >
+                                                {emp ? getEmployeeName(emp) : empId}
+                                                <button
+                                                    onClick={() => setFilterEmployees(prev => prev.filter(id => id !== empId))}
+                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#60A5FA', padding: '0', display: 'flex', alignItems: 'center' }}
+                                                >
+                                                    <X size={12} />
+                                                </button>
+                                            </span>
+                                        );
+                                    })}
+                                    <button
+                                        onClick={() => { setFilterEmployees([]); setFilterEmpSearch(''); }}
+                                        style={{ fontSize: '11px', color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', fontWeight: 500 }}
+                                    >
+                                        Clear all
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Search input */}
+                            <div style={{ position: 'relative' }}>
+                                <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
+                                <input
+                                    type="text"
+                                    value={filterEmpSearch}
+                                    onChange={e => { setFilterEmpSearch(e.target.value); setShowFilterEmpDropdown(true); }}
+                                    onFocus={() => setShowFilterEmpDropdown(true)}
+                                    placeholder="Search employees…"
+                                    style={{
+                                        width: '100%',
+                                        padding: '9px 12px 9px 32px',
+                                        borderRadius: '8px',
+                                        border: '1px solid #D1D5DB',
+                                        fontSize: '13px',
+                                        outline: 'none',
+                                        maxWidth: '360px',
+                                    }}
+                                />
+                            </div>
+
+                            {/* Dropdown */}
+                            {showFilterEmpDropdown && (
+                                <div style={{
+                                    marginTop: '6px',
+                                    backgroundColor: 'white',
+                                    borderRadius: '8px',
+                                    border: '1px solid #E5E7EB',
+                                    boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                                    maxHeight: '220px',
+                                    overflowY: 'auto',
+                                    maxWidth: '360px',
+                                }}>
+                                    {employees
+                                        .filter(e => {
+                                            const name = getEmployeeName(e).toLowerCase();
+                                            return name.includes(filterEmpSearch.toLowerCase()) && !filterEmployees.includes(e.id);
+                                        })
+                                        .map(emp => (
+                                            <button
+                                                key={emp.id}
+                                                onClick={() => {
+                                                    setFilterEmployees(prev => [...prev, emp.id]);
+                                                    setFilterEmpSearch('');
+                                                }}
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '8px',
+                                                    width: '100%',
+                                                    textAlign: 'left',
+                                                    padding: '10px 14px',
+                                                    fontSize: '13px',
+                                                    color: '#374151',
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    cursor: 'pointer',
+                                                }}
+                                                className="hover:bg-gray-50"
+                                            >
+                                                <span style={{
+                                                    width: '16px', height: '16px', borderRadius: '4px',
+                                                    border: '1.5px solid #D1D5DB', display: 'flex',
+                                                    alignItems: 'center', justifyContent: 'center',
+                                                    flexShrink: 0, backgroundColor: 'white',
+                                                }} />
+                                                {getEmployeeName(emp)}
+                                            </button>
+                                        ))}
+                                    {employees.filter(e => getEmployeeName(e).toLowerCase().includes(filterEmpSearch.toLowerCase()) && !filterEmployees.includes(e.id)).length === 0 && (
+                                        <p style={{ padding: '10px 14px', fontSize: '13px', color: '#9CA3AF', margin: 0 }}>
+                                            {employees.length === filterEmployees.length ? 'All employees selected' : 'No employees found'}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* Main Grid */}
