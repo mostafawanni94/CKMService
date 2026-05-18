@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 /* ============================================================================
@@ -303,3 +304,5 @@ tbody tr:hover {
   outline: 2px solid #1E3A5F;
   outline-offset: 2px;
 }
+
+/* CKM Services styles are in ckm.css (imported via layout) */
