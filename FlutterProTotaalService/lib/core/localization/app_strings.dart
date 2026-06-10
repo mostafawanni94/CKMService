@@ -54,7 +54,7 @@ class AppStrings {
   // ===================
   // COMMON
   // ===================
-  String get appName => _t('Pro Totaal Service', 'برو توتال سيرفيس', 'Pro Totaal Service');
+  String get appName => _t('CKM Services', 'سي كي إم للخدمات', 'CKM Services');
   String get loading => _t('Loading...', 'جاري التحميل...', 'Загрузка...');
   String get error => _t('Error', 'خطأ', 'Ошибка');
   String get success => _t('Success', 'نجاح', 'Успех');
@@ -80,9 +80,9 @@ class AppStrings {
   String get forgotPassword => _t('Forgot Password?', 'نسيت كلمة المرور؟', 'Забыли пароль?');
   String get welcomeBack => _t('Welcome Back', 'مرحباً بعودتك', 'С возвращением');
   String get signInToContinue => _t(
-    'Sign in to continue to Pro Totaal Service',
-    'سجل الدخول للمتابعة إلى برو توتال سيرفيس',
-    'Войдите, чтобы продолжить работу с Pro Totaal Service',
+    'Sign in to continue to CKM Services',
+    'سجل الدخول للمتابعة إلى سي كي إم للخدمات',
+    'Войдите, чтобы продолжить работу с CKM Services',
   );
   String get enterEmail => _t('Enter your email', 'أدخل بريدك الإلكتروني', 'Введите вашу электронную почту');
   String get enterPassword => _t('Enter your password', 'أدخل كلمة المرور', 'Введите ваш пароль');

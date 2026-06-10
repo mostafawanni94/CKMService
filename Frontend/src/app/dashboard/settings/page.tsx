@@ -73,9 +73,9 @@ export default function SettingsPage() {
     const [error, setError] = useState<string | null>(null);
     const [originalSettings, setOriginalSettings] = useState<string>('');
     const [settings, setSettings] = useState<SystemConfig>({
-        company_name: 'Pro Totaal Service',
-        company_emails: [{ label: 'Main', value: 'admin@prototaalservice.nl' }],
-        company_phones: [{ label: 'Main', value: '+31 20 123 4567' }],
+        company_name: 'CKM Services',
+        company_emails: [{ label: 'Main', value: 'info@ckmservices.nl' }],
+        company_phones: [{ label: 'Main', value: '+31 6 26607384' }],
         company_address: 'Businesspark 10, Amsterdam',
         frontend_url: 'http://localhost:3000',
         week_starts_on: 'monday',

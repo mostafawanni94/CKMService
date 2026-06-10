@@ -761,7 +761,7 @@ export default function Home() {
                 </div>
                 <div className="ckm-contact-item">
                   <div className="ckm-contact-icon">📞</div>
-                  <span>+31 (0)85 123 4567</span>
+                  <span>+31 6 26607384</span>
                 </div>
                 <div className="ckm-contact-item">
                   <div className="ckm-contact-icon">📍</div>
@@ -904,7 +904,7 @@ export default function Home() {
               <h4>{t.contactInfo}</h4>
               <ul className="ckm-footer-links">
                 <li><span>✉️ info@ckmservices.nl</span></li>
-                <li><span>📞 +31 (0)85 123 4567</span></li>
+                <li><span>📞 +31 6 26607384</span></li>
                 <li><span>📍 Rotterdam, Netherlands</span></li>
               </ul>
             </div>

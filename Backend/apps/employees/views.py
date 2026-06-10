@@ -90,12 +90,12 @@ class UserViewSet(viewsets.ModelViewSet):
         user.set_password(temp_password)
         user.save()
         
-        message = f"""Pro Totaal Service - Login Credentials
+        message = f"""CKM Services - Login Credentials
 
 Email: {user.email}
 Temporary Password: {temp_password}
 
-Please login at: https://app.prototaalservice.nl
+Please login at: https://app.ckmservices.nl
 Change your password after first login."""
         
         if method == 'whatsapp':
@@ -111,7 +111,7 @@ Change your password after first login."""
             # Email method - also include copy option
             return Response({
                 'status': 'success',
-                'mailto_url': f"mailto:{user.email}?subject=Pro Totaal Service Login&body={quote(message)}",
+                'mailto_url': f"mailto:{user.email}?subject=CKM Services Login&body={quote(message)}",
                 'copy_text': message,  # For clipboard copy
                 'message': 'Credentials ready to send via email, or copy the text'
             })

@@ -30,7 +30,7 @@ def generate_werkgeversverklaring(employee, output_buffer):
     
     # Header - Company letterhead text
     c.setFont("Helvetica-Oblique", 10)
-    c.drawString(2*cm, height - 2*cm, "Afdrukken op briefpapier van Pro Totaal Service B.V.")
+    c.drawString(2*cm, height - 2*cm, "Afdrukken op briefpapier van CKM Services")
     
     # Date info (right side)
     today = datetime.now()
@@ -51,7 +51,7 @@ def generate_werkgeversverklaring(employee, output_buffer):
     
     # Declaration text
     y_pos -= 1*cm
-    c.drawString(2*cm, y_pos, "Hierbij verklaren wij als Pro Totaal Service B.V, gevestigd aan de Bargelaan 200, 2333CW Leiden het volgende :")
+    c.drawString(2*cm, y_pos, "Hierbij verklaren wij als CKM Services, gevestigd te Rotterdam het volgende :")
     
     y_pos -= 0.8*cm
     c.drawString(2*cm, y_pos, "De onderstaande medewerker is bij ons")
@@ -117,7 +117,7 @@ def generate_werkgeversverklaring(employee, output_buffer):
     c.drawString(2*cm, y_pos, "De heer Abdulrahman Alsayah")
     y_pos -= 0.5*cm
     c.setFont("Helvetica-Bold", 11)
-    c.drawString(2*cm, y_pos, "Pro Totaal Service B.V.")
+    c.drawString(2*cm, y_pos, "CKM Services")
     
     # Company stamp placeholder (right side)
     c.setFont("Helvetica", 10)

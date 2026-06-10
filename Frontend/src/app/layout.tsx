@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pro Totaal Service - Admin Dashboard",
-  description: "Employee management system for Pro Totaal Service",
+  title: "CKM Services - Admin Dashboard",
+  description: "Employee management system for CKM Services",
 };
 
 export default function RootLayout({

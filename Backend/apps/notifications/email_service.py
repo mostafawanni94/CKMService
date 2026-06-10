@@ -71,7 +71,7 @@ class EmailService:
             # Create message
             msg = MIMEMultipart('alternative')
             msg['Subject'] = subject
-            msg['From'] = f"Pro Totaal Service <{self.sender_email}>"
+            msg['From'] = f"CKM Services <{self.sender_email}>"
             msg['To'] = ', '.join(recipients)
             
             # Plain text version
@@ -158,7 +158,7 @@ class EmailService:
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>🔔 Pro Totaal Service</h1>
+                    <h1>🔔 CKM Services</h1>
                 </div>
                 <div class="content">
                     <span class="badge">{notification_priority.upper()}</span>
@@ -168,7 +168,7 @@ class EmailService:
                     {f'<a href="{action_url}" class="button">View Details →</a>' if action_url else ''}
                 </div>
                 <div class="footer">
-                    This is an automated notification from Pro Totaal Service.
+                    This is an automated notification from CKM Services.
                 </div>
             </div>
         </body>

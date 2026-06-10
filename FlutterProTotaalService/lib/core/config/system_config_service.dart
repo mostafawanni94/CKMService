@@ -30,7 +30,7 @@ class SystemConfig {
       weekStartsOn: json['week_starts_on'] ?? 'monday',
       weekStartHour: json['week_start_hour'] ?? '06:00',
       defaultBreakMinutes: json['default_break_minutes'] ?? 30,
-      companyName: json['company_name'] ?? 'Pro Totaal Service',
+      companyName: json['company_name'] ?? 'CKM Services',
       updatedAt: json['updated_at'] != null 
           ? DateTime.tryParse(json['updated_at']) 
           : null,
@@ -53,7 +53,7 @@ class SystemConfig {
       weekStartsOn: 'monday',
       weekStartHour: '06:00',
       defaultBreakMinutes: 30,
-      companyName: 'Pro Totaal Service',
+      companyName: 'CKM Services',
       cachedAt: DateTime.now(),
     );
   }
@@ -105,7 +105,7 @@ class SystemConfigService {
           weekStartsOn: json['week_starts_on'] ?? 'monday',
           weekStartHour: json['week_start_hour'] ?? '06:00',
           defaultBreakMinutes: json['default_break_minutes'] ?? 30,
-          companyName: json['company_name'] ?? 'Pro Totaal Service',
+          companyName: json['company_name'] ?? 'CKM Services',
           updatedAt: json['updated_at'] != null 
               ? DateTime.tryParse(json['updated_at'])
               : null,

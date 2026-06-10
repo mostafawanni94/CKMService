@@ -209,7 +209,7 @@ class SystemConfig(TimeStampedModel):
         SUNDAY = 'sunday', 'Sunday'
 
     # Company Info
-    company_name = models.CharField(max_length=200, default='Pro Totaal Service')
+    company_name = models.CharField(max_length=200, default='CKM Services')
     company_emails = models.JSONField(
         default=list,
         blank=True,
@@ -220,7 +220,7 @@ class SystemConfig(TimeStampedModel):
         blank=True,
         help_text="List of company phone numbers, e.g. [{'label': 'Main', 'number': '+31 20 123 4567'}]"
     )
-    company_address = models.TextField(default='Businesspark 10, Amsterdam')
+    company_address = models.TextField(default='Rotterdam, Netherlands')
     
     # Frontend URL for email links
     frontend_url = models.URLField(

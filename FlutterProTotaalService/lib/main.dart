@@ -1,4 +1,4 @@
-/// Pro Totaal Service - Main Entry Point
+/// CKM Services - Main Entry Point
 /// 
 /// App with MVVM architecture, Provider state management, multi-language support.
 
@@ -48,7 +48,7 @@ class ProTotaalServiceApp extends StatelessWidget {
       child: Consumer<LocalizationProvider>(
         builder: (context, localization, _) {
           return MaterialApp(
-            title: 'Pro Totaal Service',
+            title: 'CKM Services',
             debugShowCheckedModeBanner: false,
             theme: _buildTheme(),
             
@@ -183,7 +183,7 @@ class _SplashScreen extends StatelessWidget {
               ),
               child: const Center(
                 child: Text(
-                  'PTS', 
+                  'CKM', 
                   style: TextStyle(
                     color: AppColors.primary, 
                     fontSize: 32, 
@@ -200,7 +200,7 @@ class _SplashScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Pro Totaal Service',
+              'CKM Services',
               style: TextStyle(
                 color: Colors.white.withOpacity(0.9),
                 fontSize: 18,

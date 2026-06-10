@@ -68,10 +68,10 @@ export default function LoginPage() {
                         justifyContent: 'center',
                         margin: '0 auto 16px'
                     }}>
-                        <span style={{ color: 'white', fontSize: '20px', fontWeight: 'bold' }}>PTS</span>
+                        <span style={{ color: 'white', fontSize: '20px', fontWeight: 'bold' }}>CKM</span>
                     </div>
                     <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827', margin: 0 }}>
-                        Pro Totaal Service
+                        CKM Services
                     </h1>
                     <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
                         Admin Dashboard Login
@@ -112,7 +112,7 @@ export default function LoginPage() {
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="admin@prototaalservice.nl"
+                            placeholder="admin@ckmservices.nl"
                             required
                             autoFocus
                             style={{
@@ -233,7 +233,7 @@ export default function LoginPage() {
                     </p>
                     <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
                         Need help?{' '}
-                        <a href="mailto:support@prototaalservice.nl" style={{ color: '#1E3A5F', fontWeight: '500' }}>
+                        <a href="mailto:info@ckmservices.nl" style={{ color: '#1E3A5F', fontWeight: '500' }}>
                             Contact Support
                         </a>
                     </p>

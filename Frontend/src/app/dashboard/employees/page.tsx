@@ -298,7 +298,7 @@ export default function EmployeesPage() {
 
     function copyCredentials() {
         if (!createdEmployee) return;
-        const text = `Pro Totaal Service Login\n\nEmail: ${createdEmployee.email}\nWachtwoord: ${createdEmployee.password}\n\nDownload de app en log in om je profiel aan te vullen.`;
+        const text = `CKM Services Login\n\nEmail: ${createdEmployee.email}\nWachtwoord: ${createdEmployee.password}\n\nDownload de app en log in om je profiel aan te vullen.`;
         navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
@@ -306,7 +306,7 @@ export default function EmployeesPage() {
 
     function shareWhatsApp() {
         if (!createdEmployee) return;
-        const text = encodeURIComponent(`Pro Totaal Service Login\n\nEmail: ${createdEmployee.email}\nWachtwoord: ${createdEmployee.password}\n\nDownload de app en log in om je profiel aan te vullen.`);
+        const text = encodeURIComponent(`CKM Services Login\n\nEmail: ${createdEmployee.email}\nWachtwoord: ${createdEmployee.password}\n\nDownload de app en log in om je profiel aan te vullen.`);
         window.open(`https://wa.me/?text=${text}`, '_blank');
     }
 

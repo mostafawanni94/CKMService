@@ -131,7 +131,7 @@ class _DashboardTab extends StatelessWidget {
                           'Hello, ${auth.user?.firstName ?? 'User'}!',
                           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                         ),
-                        const Text('Pro Totaal Service', style: TextStyle(color: AppColors.textSecondary)),
+                        const Text('CKM Services', style: TextStyle(color: AppColors.textSecondary)),
                       ],
                     ),
                   ),

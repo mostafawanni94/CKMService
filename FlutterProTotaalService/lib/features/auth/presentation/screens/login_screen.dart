@@ -311,8 +311,8 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       child: const Center(
         child: Text(
-          'PTS',
-          style: TextStyle(
+          'CKM',
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 32,
             fontWeight: FontWeight.bold,
@@ -336,7 +336,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Sign in to continue to Pro Totaal Service',
+          'Sign in to continue to CKM Services',
           style: TextStyle(
             fontSize: 15,
             color: Colors.grey.shade600,
@@ -359,7 +359,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          '© 2024 Pro Totaal Service',
+          '© 2026 CKM Services',
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey.shade400,

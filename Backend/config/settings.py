@@ -1,5 +1,5 @@
 """
-Django settings for Pro Totaal Service Backend.
+Django settings for CKM Services Backend.
 
 Enterprise-grade configuration with PostgreSQL support,
 REST API framework, and extensible architecture.
@@ -239,7 +239,7 @@ CORS_ALLOWED_ORIGINS = os.getenv(
 CORS_ALLOW_CREDENTIALS = True
 
 # =============================================================================
-# PRO TOTAAL SERVICE - BUSINESS CONFIGURATION
+# CKM SERVICES - BUSINESS CONFIGURATION
 # =============================================================================
 
 # Weekly operational logic: Monday 06:00 → Sunday 06:00
