@@ -469,7 +469,6 @@ export default function Home() {
             <a href="#process">{t.process}</a>
             <a href="#faq">{t.faq}</a>
             <a href="#contact">{t.contact}</a>
-            <Link href="/login">{t.portal}</Link>
           </div>
 
           <div className="ckm-nav-right">
@@ -510,7 +509,6 @@ export default function Home() {
             <a href="#process" onClick={() => setMobileMenuOpen(false)}>{t.process}</a>
             <a href="#faq" onClick={() => setMobileMenuOpen(false)}>{t.faq}</a>
             <a href="#contact" onClick={() => setMobileMenuOpen(false)}>{t.contact}</a>
-            <Link href="/login" onClick={() => setMobileMenuOpen(false)}>{t.portal}</Link>
           </div>
         )}
       </nav>
