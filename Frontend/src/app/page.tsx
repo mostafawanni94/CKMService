@@ -451,15 +451,11 @@ export default function Home() {
             <Image
               src="/images/ckm-logo.png"
               alt="CKM Services Logo"
-              width={42}
+              width={81}
               height={42}
               className="ckm-logo-img"
               priority
             />
-            <span className="ckm-logo-text">
-              <span className="ckm-logo-ckm">CKM</span>
-              <span className="ckm-logo-services">Services</span>
-            </span>
           </a>
 
           <div className="ckm-nav-links">
@@ -870,7 +866,7 @@ export default function Home() {
               <Image
                 src="/images/ckm-logo.png"
                 alt="CKM Services"
-                width={36}
+                width={69}
                 height={36}
                 className="ckm-footer-logo"
               />
