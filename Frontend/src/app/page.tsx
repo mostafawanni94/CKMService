@@ -451,7 +451,7 @@ export default function Home() {
             <Image
               src="/images/ckm-logo.png"
               alt="CKM Services Logo"
-              width={81}
+              width={77}
               height={42}
               className="ckm-logo-img"
               priority
@@ -866,7 +866,7 @@ export default function Home() {
               <Image
                 src="/images/ckm-logo.png"
                 alt="CKM Services"
-                width={69}
+                width={66}
                 height={36}
                 className="ckm-footer-logo"
               />
