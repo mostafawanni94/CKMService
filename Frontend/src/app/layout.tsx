@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CKM Services - Admin Dashboard",
-  description: "Employee management system for CKM Services",
+  metadataBase: new URL("https://www.ckmservices.nl"),
+  title: "CKM Services",
+  description: "Professional cleaning and organizing services. Reliable, flexible, and with attention to detail.",
 };
 
 export default function RootLayout({
