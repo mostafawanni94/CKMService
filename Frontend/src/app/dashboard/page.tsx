@@ -287,8 +287,8 @@ export default function DashboardPage() {
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         {[
-                            { title: t('djangoAdmin'), desc: t('djangoAdminDesc'), icon: FolderKanban, href: 'http://localhost:8000/admin/', color: '#ea580c', external: true },
-                            { title: t('apiDocs'), desc: t('apiDocsDesc'), icon: FileText, href: 'http://localhost:8000/api/docs/', color: '#2563eb', external: true },
+                            { title: t('djangoAdmin'), desc: t('djangoAdminDesc'), icon: FolderKanban, href: 'https://www.ckmservices.nl/admin/', color: '#ea580c', external: true },
+                            { title: t('apiDocs'), desc: t('apiDocsDesc'), icon: FileText, href: 'https://www.ckmservices.nl/api/docs/', color: '#2563eb', external: true },
                             { title: t('systemSettings'), desc: t('systemSettingsDesc'), icon: Settings, href: '/dashboard/settings', color: '#7c3aed', external: false },
                         ].map((link) => (
                             <a

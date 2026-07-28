@@ -8,7 +8,7 @@ import { api, WorkEntry } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n';
 import { Clock, CheckCircle, XCircle, AlertCircle, Search, Eye, Check, X, Plus, Gift, Trash2, Edit2 } from 'lucide-react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 // Types
 interface AllowanceType {

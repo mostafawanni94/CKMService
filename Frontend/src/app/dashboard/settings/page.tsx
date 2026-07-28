@@ -28,7 +28,7 @@ import {
     ChevronDown
 } from 'lucide-react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 interface ContactEntry {
     label: string;
@@ -77,7 +77,7 @@ export default function SettingsPage() {
         company_emails: [{ label: 'Main', value: 'info@ckmservices.nl' }],
         company_phones: [{ label: 'Main', value: '+31 6 26607384' }],
         company_address: 'Businesspark 10, Amsterdam',
-        frontend_url: 'http://localhost:3000',
+        frontend_url: 'https://www.ckmservices.nl',
         week_starts_on: 'monday',
         week_start_hour: '06:00',
         default_break_minutes: 30,

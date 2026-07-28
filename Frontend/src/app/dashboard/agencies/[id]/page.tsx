@@ -57,7 +57,7 @@ const CATEGORY_COLORS: { [key: string]: string } = {
     'custom': '#8B5CF6',
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 export default function AgencyFormPage() {
     const params = useParams();

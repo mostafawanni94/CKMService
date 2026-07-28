@@ -5,7 +5,7 @@ import { DashboardLayout } from '@/components/layout/dashboard';
 import { Card, Button, Input } from '@/components/ui';
 import { FileText, Download, Eye, Clock, CheckCircle, AlertCircle, X, Plus, Upload, Building2, ArrowDownLeft, Calendar, Filter } from 'lucide-react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 interface IncomingInvoice {
     id: string;

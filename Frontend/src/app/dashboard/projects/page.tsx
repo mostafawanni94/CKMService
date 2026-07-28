@@ -47,7 +47,7 @@ export default function ProjectsPage() {
     const [customerSupervisors, setCustomerSupervisors] = useState<Supervisor[]>([]);
     const [loadingSupervisors, setLoadingSupervisors] = useState(false);
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
     useEffect(() => {
         loadData();

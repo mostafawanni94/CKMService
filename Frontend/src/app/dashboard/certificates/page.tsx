@@ -64,7 +64,7 @@ export default function CertificatesPage() {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/certificates/types/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/types/`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                 },
@@ -130,8 +130,8 @@ export default function CertificatesPage() {
         setSaving(true);
         try {
             const url = editingCertificate
-                ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/certificates/types/${editingCertificate.id}/`
-                : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/certificates/types/`;
+                ? `${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/types/${editingCertificate.id}/`
+                : `${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/types/`;
 
             const response = await fetch(url, {
                 method: editingCertificate ? 'PUT' : 'POST',
@@ -161,7 +161,7 @@ export default function CertificatesPage() {
         if (!confirm('Are you sure you want to delete this certificate type?')) return;
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/certificates/types/${id}/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/types/${id}/`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
@@ -185,7 +185,7 @@ export default function CertificatesPage() {
         if (!cert) return;
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/certificates/types/${id}/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/types/${id}/`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

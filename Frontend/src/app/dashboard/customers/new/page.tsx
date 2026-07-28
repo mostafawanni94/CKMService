@@ -128,7 +128,7 @@ export default function NewCustomerPage() {
     const [postcodeLookupLoading, setPostcodeLookupLoading] = useState(false);
     const postcodeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
     useEffect(() => {
         loadSurchargeTypes();

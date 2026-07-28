@@ -52,7 +52,7 @@ export default function CustomersPage() {
         try {
             const token = localStorage.getItem('access_token');
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/customers/customers/?page=${page}&page_size=${pageSize}`,
+                `${process.env.NEXT_PUBLIC_API_URL || '/api'}/customers/customers/?page=${page}&page_size=${pageSize}`,
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -108,7 +108,7 @@ export default function CustomersPage() {
             if (editForm.g_rekening) formData.append('g_rekening', editForm.g_rekening);
             if (editLogo) formData.append('logo', editLogo);
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/customers/customers/${selectedCustomer.id}/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/customers/customers/${selectedCustomer.id}/`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
@@ -136,7 +136,7 @@ export default function CustomersPage() {
         if (!selectedCustomer) return;
         setDeleting(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/customers/customers/${selectedCustomer.id}/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/customers/customers/${selectedCustomer.id}/`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,

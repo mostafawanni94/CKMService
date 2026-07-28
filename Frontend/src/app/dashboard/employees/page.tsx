@@ -249,7 +249,7 @@ export default function EmployeesPage() {
         setCreateError(null);
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/employees/users/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/users/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -368,7 +368,7 @@ export default function EmployeesPage() {
         if (!selectedEmployee) return;
         setSaving(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/employees/profiles/${selectedEmployee.id}/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${selectedEmployee.id}/`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -423,7 +423,7 @@ export default function EmployeesPage() {
         if (!selectedEmployee) return;
         setDeleting(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/employees/profiles/${selectedEmployee.id}/soft_delete/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${selectedEmployee.id}/soft_delete/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -773,7 +773,7 @@ export default function EmployeesPage() {
                                                                 setShowExtractModal(true);
                                                                 setLoadingDocs(true);
                                                                 try {
-                                                                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/employees/profiles/${emp.id}/available_documents/`, {
+                                                                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${emp.id}/available_documents/`, {
                                                                         headers: {
                                                                             'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                                                                         },
@@ -2022,7 +2022,7 @@ export default function EmployeesPage() {
                                     onClick={async () => {
                                         setExporting(true);
                                         try {
-                                            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/employees/profiles/${extractEmployee.id}/export_documents/`, {
+                                            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${extractEmployee.id}/export_documents/`, {
                                                 method: 'POST',
                                                 headers: {
                                                     'Content-Type': 'application/json',

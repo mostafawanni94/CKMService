@@ -5,7 +5,7 @@ import { DashboardLayout } from '@/components/layout/dashboard';
 import { Card, Button, Input } from '@/components/ui';
 import { BarChart3, Users, Clock, DollarSign, Download, Calendar, Filter, TrendingUp, Building2 } from 'lucide-react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 interface Employee {
     id: string;

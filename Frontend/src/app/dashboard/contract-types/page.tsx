@@ -66,7 +66,7 @@ export default function ContractTypesPage() {
         try {
             setIsLoading(true);
             setLoadError(null);
-            const API_URL = 'http://localhost:8000/api';
+            const API_URL = '/api';
             const response = await fetch(`${API_URL}/employees/contract-types/`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
@@ -146,7 +146,7 @@ export default function ContractTypesPage() {
     // Save contract type
     const saveContractType = async () => {
         try {
-            const API_URL = 'http://localhost:8000/api';
+            const API_URL = '/api';
             const url = editingType
                 ? `${API_URL}/employees/contract-types/${editingType.id}/`
                 : `${API_URL}/employees/contract-types/`;
@@ -175,7 +175,7 @@ export default function ContractTypesPage() {
         if (!confirm('Are you sure you want to delete this contract type?')) return;
 
         try {
-            const API_URL = 'http://localhost:8000/api';
+            const API_URL = '/api';
             const response = await fetch(`${API_URL}/employees/contract-types/${id}/`, {
                 method: 'DELETE',
                 headers: {
@@ -194,7 +194,7 @@ export default function ContractTypesPage() {
     // Toggle active status
     const toggleActive = async (type: ContractType) => {
         try {
-            const API_URL = 'http://localhost:8000/api';
+            const API_URL = '/api';
             const response = await fetch(`${API_URL}/employees/contract-types/${type.id}/`, {
                 method: 'PATCH',
                 headers: {

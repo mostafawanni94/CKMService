@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { ArrowLeft, Plus, Gift, Trash2, Coffee, User, Clock, FileText, AlertCircle, CheckCircle, XCircle, MapPin, Camera, Image, X } from 'lucide-react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 interface WorkLog {
     id: number;

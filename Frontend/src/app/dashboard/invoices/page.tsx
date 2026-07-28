@@ -8,7 +8,7 @@ import { FileText, Download, Eye, Clock, CheckCircle, AlertCircle, DollarSign, X
 import * as XLSX from 'xlsx';
 import ExcelJS from 'exceljs';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 interface InvoiceDetail {
     id: string;

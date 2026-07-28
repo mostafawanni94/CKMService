@@ -11,7 +11,7 @@ import {
     CheckCircle, XCircle, Upload, Trash2, Eye, Calendar, ChevronDown, Award, Plus, Image as ImageIcon, Search
 } from 'lucide-react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 const LICENSE_CATEGORIES = [
     { code: 'AM', icon: '🛵' }, { code: 'A1', icon: '🏍️' }, { code: 'A2', icon: '🏍️' }, { code: 'A', icon: '🏍️' },
@@ -514,7 +514,7 @@ export default function EmployeeDetailPage() {
         try {
             // Load employee's certificates
             const certsResponse = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/certificates/employee-certificates/?employee=${employee.id}`,
+                `${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/employee-certificates/?employee=${employee.id}`,
                 { headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` } }
             );
             if (certsResponse.ok) {
@@ -524,7 +524,7 @@ export default function EmployeeDetailPage() {
 
             // Load certificate types
             const typesResponse = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/certificates/types/active/`,
+                `${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/types/active/`,
                 { headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` } }
             );
             if (typesResponse.ok) {
@@ -545,7 +545,7 @@ export default function EmployeeDetailPage() {
         try {
             setLoading(true);
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/employees/profiles/${params.id}/`,
+                `${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${params.id}/`,
                 { headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` } }
             );
             if (response.status === 403) { setNoPermission(true); return; }
@@ -566,7 +566,7 @@ export default function EmployeeDetailPage() {
         setContractDataError(null);
         try {
             const token = localStorage.getItem('access_token') || localStorage.getItem('accessToken');
-            const API_URL = 'http://localhost:8000/api';
+            const API_URL = '/api';
             const [ctRes, agRes] = await Promise.all([
                 fetch(`${API_URL}/employees/contract-types/`, { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch(`${API_URL}/employees/agencies/`, { headers: { 'Authorization': `Bearer ${token}` } }),
@@ -616,7 +616,7 @@ export default function EmployeeDetailPage() {
         setSaving(true);
         try {
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/employees/profiles/${employee.id}/`,
+                `${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${employee.id}/`,
                 {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
@@ -656,7 +656,7 @@ export default function EmployeeDetailPage() {
                 formData.append('notes', 'Contract uploaded with rate change');
 
                 const contractResponse = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/employees/profiles/${employee.id}/upload_contract/`,
+                    `${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${employee.id}/upload_contract/`,
                     {
                         method: 'POST',
                         headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
@@ -699,7 +699,7 @@ export default function EmployeeDetailPage() {
         if (!employee) return;
         setSaving(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/employees/profiles/${employee.id}/approve/`,
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${employee.id}/approve/`,
                 { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('access_token')}` } });
             if (!response.ok) { const d = await response.json(); throw new Error(d.error || d.detail || 'Failed'); }
             setShowApproveModal(false);
@@ -712,7 +712,7 @@ export default function EmployeeDetailPage() {
         if (!employee || !rejectReason.trim()) return;
         setSaving(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/employees/profiles/${employee.id}/reject/`,
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${employee.id}/reject/`,
                 { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }, body: JSON.stringify({ reason: rejectReason }) });
             if (!response.ok) { const d = await response.json(); throw new Error(d.detail || 'Failed'); }
             setShowRejectModal(false); setRejectReason('');
@@ -730,7 +730,7 @@ export default function EmployeeDetailPage() {
             const formData = new FormData();
             formData.append(fieldName, file);
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/employees/profiles/${employee.id}/`,
+                `${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${employee.id}/`,
                 { method: 'PATCH', headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }, body: formData }
             );
             if (!response.ok) throw new Error('Upload failed');
@@ -756,7 +756,7 @@ export default function EmployeeDetailPage() {
         if (!employee || !confirm('Delete this file?')) return;
         try {
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/employees/profiles/${employee.id}/`,
+                `${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${employee.id}/`,
                 { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }, body: JSON.stringify({ [fieldName]: null }) }
             );
             if (!response.ok) throw new Error('Failed');
@@ -793,7 +793,7 @@ export default function EmployeeDetailPage() {
             if (certificateForm.issue_date) formData.append('issue_date', certificateForm.issue_date);
 
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/certificates/employee-certificates/`,
+                `${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/employee-certificates/`,
                 { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }, body: formData }
             );
             if (!response.ok) {
@@ -818,7 +818,7 @@ export default function EmployeeDetailPage() {
         if (!confirm('Are you sure you want to delete this certificate?')) return;
         try {
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/certificates/employee-certificates/${certId}/`,
+                `${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/employee-certificates/${certId}/`,
                 { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` } }
             );
             if (!response.ok && response.status !== 204) throw new Error('Failed to delete');
@@ -1031,7 +1031,7 @@ export default function EmployeeDetailPage() {
                                 onChange={async (e) => {
                                     const newStatus = e.target.value;
                                     try {
-                                        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+                                        const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
                                         const response = await fetch(`${API_URL}/employees/profiles/${params.id}/`, {
                                             method: 'PATCH',
                                             headers: {

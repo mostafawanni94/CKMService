@@ -166,7 +166,7 @@ export default function CustomerDetailPage() {
     const [uploadingContract, setUploadingContract] = useState(false);
     const [pendingSave, setPendingSave] = useState(false); // Flag for pending save after contract upload
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 
     useEffect(() => {

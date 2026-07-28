@@ -58,7 +58,7 @@ const NL_PUBLIC_HOLIDAYS = [
     { date: '06-09', name: 'Whit Monday (Tweede Pinksterdag)' },
 ];
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 export default function SurchargeTypesPage() {
     const { t } = useLanguage();

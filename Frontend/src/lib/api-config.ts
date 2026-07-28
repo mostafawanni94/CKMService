@@ -5,8 +5,8 @@
  * communication with the Django backend.
  */
 
-// Base API URL - uses environment variable or defaults to localhost
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+// Base API URL - uses environment variable or defaults to relative /api path
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 /**
  * Build a full API URL with the given endpoint
