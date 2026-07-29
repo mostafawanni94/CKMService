@@ -70,6 +70,7 @@ urlpatterns = [
     path('api/certificates/', include('apps.certificates.urls')),
     path('api/notifications/', include('apps.notifications.urls')),
     path('api/settings/', include('apps.core.urls')),
+    path('api/customer-portal/', include('apps.customers.portal_urls')),
 ]
 
 # Serve media files in development

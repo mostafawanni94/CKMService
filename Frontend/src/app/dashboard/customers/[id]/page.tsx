@@ -166,6 +166,13 @@ export default function CustomerDetailPage() {
     const [uploadingContract, setUploadingContract] = useState(false);
     const [pendingSave, setPendingSave] = useState(false); // Flag for pending save after contract upload
 
+    // Portal Access
+    const [portalUsers, setPortalUsers] = useState<{ id: string; email: string; first_name: string; last_name: string; is_active: boolean; created_at: string; last_login: string | null }[]>([]);
+    const [showAddPortalUser, setShowAddPortalUser] = useState(false);
+    const [portalUserForm, setPortalUserForm] = useState({ email: '', password: '', first_name: '', last_name: '' });
+    const [creatingPortalUser, setCreatingPortalUser] = useState(false);
+    const [portalUserError, setPortalUserError] = useState<string | null>(null);
+
     const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 
@@ -174,7 +181,22 @@ export default function CustomerDetailPage() {
         loadSurchargeTypes();
         loadServices();
         loadAllowanceTypes();
+        loadPortalUsers();
     }, [params.id]);
+
+    async function loadPortalUsers() {
+        try {
+            const token = localStorage.getItem('access_token');
+            const res = await fetch(`${API_URL}/employees/customer-users/?customer=${params.id}`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+            if (res.ok) {
+                setPortalUsers(await res.json());
+            }
+        } catch (err) {
+            console.error('Failed to load portal users', err);
+        }
+    }
 
 
     async function loadSurchargeTypes() {
@@ -2313,6 +2335,173 @@ export default function CustomerDetailPage() {
                         </div>
                     </div>
                 )}
+
+                {/* Portal Access Card */}
+                <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <UserCircle style={{ width: '20px', height: '20px', color: '#6366F1' }} />
+                            </div>
+                            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Portal Access</h2>
+                            <span style={{ fontSize: '12px', color: '#6B7280', backgroundColor: '#F3F4F6', padding: '2px 8px', borderRadius: '10px' }}>
+                                {portalUsers.length} user{portalUsers.length !== 1 ? 's' : ''}
+                            </span>
+                        </div>
+                        <button
+                            onClick={() => { setShowAddPortalUser(!showAddPortalUser); setPortalUserError(null); }}
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px',
+                                backgroundColor: '#6366F1', color: 'white', border: 'none', borderRadius: '8px',
+                                fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+                            }}
+                        >
+                            <Plus style={{ width: '14px', height: '14px' }} /> Add Login
+                        </button>
+                    </div>
+
+                    <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '16px' }}>
+                        Create login credentials so this customer can view their projects, work entries, and photos in the CKM Customer Portal app.
+                    </p>
+
+                    {/* Add Portal User Form */}
+                    {showAddPortalUser && (
+                        <div style={{ backgroundColor: '#F9FAFB', borderRadius: '12px', padding: '16px', marginBottom: '16px', border: '1px solid #E5E7EB' }}>
+                            <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#111827', margin: '0 0 12px 0' }}>New Portal Login</h3>
+                            {portalUserError && (
+                                <div style={{ padding: '8px 12px', backgroundColor: '#FEE2E2', borderRadius: '8px', color: '#DC2626', fontSize: '13px', marginBottom: '12px' }}>
+                                    {portalUserError}
+                                </div>
+                            )}
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+                                <input
+                                    type="text" placeholder="First name"
+                                    value={portalUserForm.first_name}
+                                    onChange={e => setPortalUserForm({ ...portalUserForm, first_name: e.target.value })}
+                                    style={{ padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px' }}
+                                />
+                                <input
+                                    type="text" placeholder="Last name"
+                                    value={portalUserForm.last_name}
+                                    onChange={e => setPortalUserForm({ ...portalUserForm, last_name: e.target.value })}
+                                    style={{ padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px' }}
+                                />
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
+                                <input
+                                    type="email" placeholder="Email address"
+                                    value={portalUserForm.email}
+                                    onChange={e => setPortalUserForm({ ...portalUserForm, email: e.target.value })}
+                                    style={{ padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px' }}
+                                />
+                                <input
+                                    type="text" placeholder="Password (min 8 chars)"
+                                    value={portalUserForm.password}
+                                    onChange={e => setPortalUserForm({ ...portalUserForm, password: e.target.value })}
+                                    style={{ padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px' }}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                <button
+                                    onClick={() => { setShowAddPortalUser(false); setPortalUserError(null); }}
+                                    style={{ padding: '8px 16px', backgroundColor: 'white', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '13px', cursor: 'pointer' }}
+                                >Cancel</button>
+                                <button
+                                    onClick={async () => {
+                                        if (!portalUserForm.email || !portalUserForm.password) {
+                                            setPortalUserError('Email and password are required');
+                                            return;
+                                        }
+                                        if (portalUserForm.password.length < 8) {
+                                            setPortalUserError('Password must be at least 8 characters');
+                                            return;
+                                        }
+                                        setCreatingPortalUser(true);
+                                        setPortalUserError(null);
+                                        try {
+                                            const token = localStorage.getItem('access_token');
+                                            const res = await fetch(`${API_URL}/employees/customer-users/`, {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                                body: JSON.stringify({ ...portalUserForm, customer_id: params.id }),
+                                            });
+                                            if (!res.ok) {
+                                                const err = await res.json();
+                                                throw new Error(err.email?.[0] || err.detail || err.error || 'Failed to create');
+                                            }
+                                            // Reload portal users
+                                            const listRes = await fetch(`${API_URL}/employees/customer-users/?customer=${params.id}`, {
+                                                headers: { 'Authorization': `Bearer ${token}` },
+                                            });
+                                            if (listRes.ok) setPortalUsers(await listRes.json());
+                                            setShowAddPortalUser(false);
+                                            setPortalUserForm({ email: '', password: '', first_name: '', last_name: '' });
+                                        } catch (err: any) {
+                                            setPortalUserError(err.message || 'Failed to create portal user');
+                                        } finally {
+                                            setCreatingPortalUser(false);
+                                        }
+                                    }}
+                                    disabled={creatingPortalUser}
+                                    style={{
+                                        padding: '8px 16px', backgroundColor: '#6366F1', color: 'white',
+                                        border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
+                                        cursor: creatingPortalUser ? 'not-allowed' : 'pointer',
+                                        opacity: creatingPortalUser ? 0.6 : 1,
+                                    }}
+                                >{creatingPortalUser ? 'Creating...' : 'Create Login'}</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Portal Users List */}
+                    {portalUsers.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '24px', color: '#9CA3AF', fontSize: '14px' }}>
+                            No portal users yet. Click "Add Login" to create access for this customer.
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {portalUsers.map(u => (
+                                <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: '#F9FAFB', borderRadius: '10px', border: '1px solid #E5E7EB' }}>
+                                    <div style={{ width: '36px', height: '36px', borderRadius: '18px', backgroundColor: u.is_active ? '#DCFCE7' : '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <UserCircle style={{ width: '18px', height: '18px', color: u.is_active ? '#16A34A' : '#DC2626' }} />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontSize: '14px', fontWeight: 500, color: '#111827' }}>
+                                            {u.first_name || u.last_name ? `${u.first_name} ${u.last_name}`.trim() : u.email}
+                                        </div>
+                                        <div style={{ fontSize: '12px', color: '#6B7280' }}>
+                                            {u.email} • {u.is_active ? 'Active' : 'Inactive'}
+                                            {u.last_login ? ` • Last login: ${new Date(u.last_login).toLocaleDateString()}` : ' • Never logged in'}
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={async () => {
+                                            const action = u.is_active ? 'deactivate' : 'activate';
+                                            const token = localStorage.getItem('access_token');
+                                            await fetch(`${API_URL}/employees/customer-users/${u.id}/${action}/`, {
+                                                method: 'POST',
+                                                headers: { 'Authorization': `Bearer ${token}` },
+                                            });
+                                            const listRes = await fetch(`${API_URL}/employees/customer-users/?customer=${params.id}`, {
+                                                headers: { 'Authorization': `Bearer ${token}` },
+                                            });
+                                            if (listRes.ok) setPortalUsers(await listRes.json());
+                                        }}
+                                        style={{
+                                            padding: '6px 12px', fontSize: '12px', fontWeight: 500,
+                                            border: '1px solid #E5E7EB', borderRadius: '6px', cursor: 'pointer',
+                                            backgroundColor: u.is_active ? '#FEE2E2' : '#DCFCE7',
+                                            color: u.is_active ? '#DC2626' : '#16A34A',
+                                        }}
+                                    >
+                                        {u.is_active ? 'Deactivate' : 'Activate'}
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
                 {/* Delete Confirmation Modal */}
                 {showDeleteConfirm && (

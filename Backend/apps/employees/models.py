@@ -62,6 +62,7 @@ class User(AbstractUser):
         EMPLOYEE = 'employee', 'Employee'
         FINANCE = 'finance', 'Finance Manager'
         OPERATIONS = 'operations', 'Operations Coordinator'
+        CUSTOMER = 'customer', 'Customer Portal User'
     
     # Remove username, use email instead
     username = None
@@ -81,6 +82,16 @@ class User(AbstractUser):
         default=True,
         verbose_name="First Login",
         help_text="True until employee completes profile"
+    )
+    # Customer link (for customer portal users)
+    customer = models.ForeignKey(
+        'customers.Customer',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='portal_users',
+        verbose_name="Linked Customer",
+        help_text="For customer portal users - links this account to a customer company"
     )
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
@@ -106,6 +117,10 @@ class User(AbstractUser):
     @property
     def is_employee(self):
         return self.role == self.Role.EMPLOYEE
+    
+    @property
+    def is_customer(self):
+        return self.role == self.Role.CUSTOMER
 
 
 # =============================================================================

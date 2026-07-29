@@ -9,7 +9,7 @@ from .views import (
     UserViewSet, DocumentTypeViewSet, EmployeeProfileViewSet,
     ContractTypeViewSet, AgencyViewSet,
     SurchargeTypeViewSet, AgencySurchargeViewSet, AgencyWalletViewSet, AgencyTransactionViewSet,
-    AllowanceTypeViewSet
+    AllowanceTypeViewSet, CustomerPortalUserViewSet
 )
 
 router = DefaultRouter()
@@ -21,6 +21,7 @@ router.register(r'profiles', EmployeeProfileViewSet, basename='employee-profile'
 router.register(r'surcharge-types', SurchargeTypeViewSet, basename='surcharge-type')
 router.register(r'allowance-types', AllowanceTypeViewSet, basename='allowance-type')
 router.register(r'wallets', AgencyWalletViewSet, basename='agency-wallet')
+router.register(r'customer-users', CustomerPortalUserViewSet, basename='customer-portal-user')
 
 urlpatterns = [
     path('', include(router.urls)),

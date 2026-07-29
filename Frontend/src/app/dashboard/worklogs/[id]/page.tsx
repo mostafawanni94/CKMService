@@ -30,7 +30,7 @@ interface WorkLog {
     rejection_reason: string | null;
     created_at: string;
     allowances?: any[];
-    photos?: Array<{ id: string; photo: string; caption: string }>;
+    photos?: Array<{ id: string; photo: string; photo_url: string; caption: string; photo_type: string; photo_type_display: string; taken_at: string }>;
 }
 
 interface AllowanceType {
@@ -104,7 +104,7 @@ export default function WorkLogEditPage() {
     const [employees, setEmployees] = useState<{ id: string; full_name: string }[]>([]);
 
     // Photos
-    const [photos, setPhotos] = useState<Array<{ id: string; photo: string; caption: string }>>([]);
+    const [photos, setPhotos] = useState<Array<{ id: string; photo: string; photo_url: string; caption: string; photo_type: string; photo_type_display: string; taken_at: string }>>([]);
     const [uploadingPhoto, setUploadingPhoto] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -1689,7 +1689,7 @@ export default function WorkLogEditPage() {
                                             border: '1px solid #E5E7EB',
                                         }}>
                                             <img
-                                                src={photo.photo}
+                                                src={photo.photo_url || photo.photo}
                                                 alt={photo.caption || 'Work log photo'}
                                                 style={{
                                                     width: '100%',

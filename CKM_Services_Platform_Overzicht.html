@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CKM Services — Platform Overzicht</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #F1F5F9;
+            color: #1E293B;
+            line-height: 1.6;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        @page { size: A4; margin: 0; }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: white;
+            position: relative;
+            overflow: hidden;
+            page-break-after: always;
+        }
+
+        @media screen {
+            .page { margin: 20px auto; box-shadow: 0 20px 60px rgba(0,0,0,0.12); border-radius: 4px; }
+        }
+
+        /* ─── Cover ──────────────────────────── */
+        .cover {
+            background: white;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 60px;
+        }
+        .cover-badge {
+            background: #F0FDF4; border: 1px solid #D1FAE5;
+            border-radius: 24px; padding: 8px 20px; margin-bottom: 40px;
+            color: #059669; font-size: 13px; font-weight: 600;
+        }
+        .cover-logo {
+            margin-bottom: 32px;
+        }
+        .cover-logo img { width: 240px; height: auto; }
+        .cover h1 { color: #1E293B; font-size: 44px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 10px; }
+        .cover .tagline { color: #64748B; font-size: 18px; margin-bottom: 60px; }
+        .cover-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; width: 100%; max-width: 480px; }
+        .cover-item {
+            background: #F8FAFC; border: 1px solid #E2E8F0;
+            border-radius: 14px; padding: 20px 14px; text-align: center;
+        }
+        .cover-item .ic { font-size: 26px; margin-bottom: 8px; }
+        .cover-item .lb { color: #1E293B; font-size: 12px; font-weight: 600; }
+        .cover-footer { position: absolute; bottom: 36px; color: #94A3B8; font-size: 12px; }
+
+        /* ─── Content ────────────────────────── */
+        .content { padding: 44px 50px; }
+        .hdr { display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 2px solid #E2E8F0; margin-bottom: 28px; }
+        .hdr .brand { font-size: 13px; font-weight: 700; color: #3B82F6; display: flex; align-items: center; gap: 6px; }
+        .hdr .brand img { height: 22px; width: auto; }
+        .hdr .pn { font-size: 11px; color: #94A3B8; }
+        h2 { font-size: 26px; font-weight: 800; color: #0F172A; letter-spacing: -0.6px; margin-bottom: 6px; }
+        .sub { color: #64748B; font-size: 13px; margin-bottom: 20px; }
+        h3 { font-size: 16px; font-weight: 700; color: #1E293B; margin: 20px 0 8px; }
+        p { font-size: 13px; color: #475569; margin-bottom: 10px; }
+
+        /* Screenshots Layout */
+        .screenshot { text-align: center; margin: 16px 0; }
+        .screenshot img { max-width: 100%; max-height: 400px; object-fit: contain; border-radius: 8px; border: 1px solid #E2E8F0; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .caption { font-size: 11px; color: #94A3B8; font-style: italic; margin-top: 6px; }
+
+        .mobile-screenshot { text-align: center; margin: 16px 0; }
+        .mobile-screenshot img { max-width: 260px; height: auto; border-radius: 20px; border: 4px solid #1E293B; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        
+        .mobile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+        
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+        .card { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px; }
+        .card .ci { font-size: 22px; margin-bottom: 8px; }
+        .card h4 { font-size: 13px; font-weight: 700; color: #1E293B; margin-bottom: 4px; }
+        .card p { font-size: 11px; color: #64748B; margin: 0; }
+
+        .contact { background: linear-gradient(135deg, #0F1B2D, #1A2F4A); border-radius: 14px; padding: 28px; text-align: center; color: white; margin-top: 24px; }
+        .contact h3 { color: white; font-size: 18px; margin: 0 0 12px; }
+        .contact p { color: #94A3B8; font-size: 13px; }
+
+        @media print {
+            body { background: white; }
+            .page { box-shadow: none; margin: 0; border-radius: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══ PAGE 1: COVER ═══ -->
+<div class="page cover">
+    <div class="cover-logo"><img src="ckm_logo.png" alt="CKM Services" onerror="this.style.display='none'"></div>
+    <div class="cover-badge">Workforce Management Platform</div>
+    <div class="tagline">Compleet platform voor personeels- en projectbeheer</div>
+    <div class="cover-grid">
+        <div class="cover-item"><div class="ic">🖥️</div><div class="lb">Admin Dashboard</div></div>
+        <div class="cover-item"><div class="ic">📱</div><div class="lb">Medewerker App</div></div>
+        <div class="cover-item"><div class="ic">🏢</div><div class="lb">Klant Portal</div></div>
+    </div>
+    <div class="cover-footer">CKM Services B.V. &nbsp;•&nbsp; info@ckmservices.nl &nbsp;•&nbsp; www.ckmservices.nl</div>
+</div>
+
+<!-- ═══ PAGE 2: ADMIN DASHBOARD ═══ -->
+<div class="page">
+    <div class="content">
+        <div class="hdr"><div class="brand">CKM Services</div><div class="pn">2 / 7</div></div>
+        <h2>🖥️ Admin Dashboard</h2>
+        <p class="sub">Centraal beheer voor alle bedrijfsactiviteiten</p>
+
+        <div class="screenshot">
+            <img src="screen5.png" alt="Dashboard">
+            <div class="caption">Hoofdpagina — Direct overzicht van alle openstaande taken</div>
+        </div>
+
+        <div class="screenshot" style="margin-top: 30px;">
+            <img src="screen9.png" alt="Weekly Board">
+            <div class="caption">Weekly Board — Overzichtelijke weergave van alle urenregistraties per week</div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ PAGE 3: MEDEWERKERS & KLANTEN ═══ -->
+<div class="page">
+    <div class="content">
+        <div class="hdr"><div class="brand">CKM Services</div><div class="pn">3 / 7</div></div>
+        <h2>👥 Medewerkers & Klanten</h2>
+        <p class="sub">Volledige controle over uw personeel en opdrachtgevers</p>
+
+        <div class="screenshot">
+            <img src="screen6.png" alt="Medewerkers">
+            <div class="caption">Medewerkersbeheer — Statusfilters, contactgegevens en profielacties</div>
+        </div>
+
+        <div class="screenshot" style="margin-top: 30px;">
+            <img src="screen7.png" alt="Klanten">
+            <div class="caption">Klantenbeheer — Beheer van opdrachtgevers, locaties en contracten</div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ PAGE 4: PROJECTEN & URENREGISTRATIE ═══ -->
+<div class="page">
+    <div class="content">
+        <div class="hdr"><div class="brand">CKM Services</div><div class="pn">4 / 7</div></div>
+        <h2>📋 Projecten & Urenregistratie</h2>
+        <p class="sub">Moeiteloos projecten plannen en uren goedkeuren</p>
+
+        <div class="screenshot">
+            <img src="screen8.png" alt="Projecten">
+            <div class="caption">Projecten Dashboard — Actuele voortgang en teamgrootte per project</div>
+        </div>
+
+        <div class="screenshot" style="margin-top: 30px;">
+            <img src="screen10.png" alt="Urenregistratie">
+            <div class="caption">Urenregistratie — Goedkeuren van werkbriefjes inclusief toeslagen (avond/weekend)</div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ PAGE 5: MOBILE APP - PROJECTEN ═══ -->
+<div class="page">
+    <div class="content">
+        <div class="hdr"><div class="brand">CKM Services</div><div class="pn">5 / 7</div></div>
+        <h2>📱 Klant Portal & App (Deel 1)</h2>
+        <p class="sub">Transparantie voor uw klanten en medewerkers</p>
+
+        <div class="mobile-grid">
+            <div class="mobile-screenshot">
+                <img src="screen4.png" alt="My Projects">
+                <div class="caption">Overzicht van alle projecten inclusief realtime voortgangspercentages</div>
+            </div>
+            <div class="mobile-screenshot">
+                <img src="screen1.png" alt="Project Details">
+                <div class="caption">Gedetailleerde weergave van een project met teamleden en status</div>
+            </div>
+        </div>
+        
+        <div class="grid2" style="margin-top: 20px;">
+            <div class="card"><div class="ci">🏢</div><h4>Klant Portal</h4><p>Opdrachtgevers volgen hun projecten real-time in de app. Direct overzicht van gewerkte uren en kosten.</p></div>
+            <div class="card"><div class="ci">📊</div><h4>Real-time Voortgang</h4><p>Visualisaties tonen direct de voltooiing van het project en de team-samenstelling.</p></div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ PAGE 6: MOBILE APP - WERKUREN & FOTO'S ═══ -->
+<div class="page">
+    <div class="content">
+        <div class="hdr"><div class="brand">CKM Services</div><div class="pn">6 / 7</div></div>
+        <h2>📸 Urenregistratie & Werkfoto's</h2>
+        <p class="sub">Digitaal bewijs van uitgevoerde werkzaamheden</p>
+
+        <div class="mobile-grid">
+            <div class="mobile-screenshot">
+                <img src="screen2.png" alt="Work Days">
+                <div class="caption">Overzicht van alle werkdagen inclusief aantal medewerkers en geüploade foto's</div>
+            </div>
+            <div class="mobile-screenshot">
+                <img src="screen3.png" alt="Work Day Details">
+                <div class="caption">Gedetailleerde werkdag met start/eindtijden en werkfoto's (bewijsmateriaal)</div>
+            </div>
+        </div>
+        
+        <div class="grid2" style="margin-top: 20px;">
+            <div class="card"><div class="ci">📸</div><h4>Fotobewijs</h4><p>Medewerkers uploaden direct vanaf locatie foto's van hun werk. Altijd inzicht voor de klant.</p></div>
+            <div class="card"><div class="ci">⏰</div><h4>Digitale Werkbriefjes</h4><p>Nooit meer papieren urenbriefjes. Alles digitaal met pauzes en start-/eindtijden.</p></div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ PAGE 7: CONTACT ═══ -->
+<div class="page">
+    <div class="content">
+        <div class="hdr"><div class="brand">CKM Services</div><div class="pn">7 / 7</div></div>
+        <div class="contact" style="margin-top: 200px;">
+            <h3>Meer informatie?</h3>
+            <p>Neem contact met ons op voor een live demonstratie van het platform.</p>
+            <br>
+            <p>Email: <strong>info@ckmservices.nl</strong><br>Website: <strong>www.ckmservices.nl</strong></p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

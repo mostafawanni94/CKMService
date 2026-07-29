@@ -587,3 +587,62 @@ class AgencyDetailSerializer(serializers.ModelSerializer):
             }
             for e in employees
         ]
+
+
+# =============================================================================
+# CUSTOMER PORTAL USER SERIALIZERS
+# =============================================================================
+
+User = get_user_model()
+
+
+class CustomerPortalUserCreateSerializer(serializers.Serializer):
+    """Serializer for admin to create a customer portal login account."""
+    email = serializers.EmailField()
+    password = serializers.CharField(min_length=8, write_only=True)
+    first_name = serializers.CharField(max_length=100, required=False, default='')
+    last_name = serializers.CharField(max_length=100, required=False, default='')
+    customer_id = serializers.UUIDField()
+    
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError('A user with this email already exists.')
+        return value
+    
+    def validate_customer_id(self, value):
+        from apps.customers.models import Customer
+        try:
+            Customer.objects.get(id=value)
+        except Customer.DoesNotExist:
+            raise serializers.ValidationError('Customer not found.')
+        return value
+    
+    def create(self, validated_data):
+        from apps.customers.models import Customer
+        customer = Customer.objects.get(id=validated_data['customer_id'])
+        
+        user = User.objects.create_user(
+            email=validated_data['email'],
+            password=validated_data['password'],
+            first_name=validated_data.get('first_name', ''),
+            last_name=validated_data.get('last_name', ''),
+            role='customer',
+            customer=customer,
+            is_first_login=False,
+        )
+        return user
+
+
+class CustomerPortalUserListSerializer(serializers.ModelSerializer):
+    """Read-only serializer for listing customer portal users."""
+    customer_name = serializers.CharField(source='customer.company_name', read_only=True, default='')
+    
+    class Meta:
+        model = User
+        fields = [
+            'id', 'email', 'first_name', 'last_name',
+            'customer', 'customer_name',
+            'is_active', 'created_at', 'last_login',
+        ]
+        read_only_fields = fields
+

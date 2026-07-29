@@ -10,12 +10,12 @@ from django.db import models
 from apps.employees.views import IsAdmin, IsAdminOrSelf
 from apps.employees.models import EmployeeProfile
 from apps.core.pagination import LargePagination
-from .models import Shift, WorkEntry
+from .models import Shift, WorkEntry, WorkEntryPhoto
 from .serializers import (
     ShiftSerializer, ShiftCreateSerializer, ShiftFillDataSerializer, ShiftRejectionSerializer,
     WorkEntryListSerializer, WorkEntryDetailSerializer, WorkEntryCreateSerializer,
     WorkEntryFillDataSerializer, WorkEntryApprovalSerializer, WorkEntryRejectionSerializer,
-    WorkEntryBulkCreateSerializer,
+    WorkEntryBulkCreateSerializer, WorkEntryPhotoSerializer, WorkEntryPhotoUploadSerializer,
 )
 
 
@@ -614,3 +614,64 @@ class WorkEntryViewSet(viewsets.ModelViewSet):
             )
         except Exception as e:
             print(f"Failed to create wallet earning: {e}")
+    
+    # =========================================================================
+    # PHOTO ACTIONS
+    # =========================================================================
+    
+    @action(detail=True, methods=['post'], url_path='add_photo')
+    def add_photo(self, request, pk=None):
+        """Upload a photo to a work entry.
+        
+        Accepts multipart/form-data with:
+        - photo: image file (required)
+        - caption: text (optional)
+        - photo_type: before/during/after/other (optional, default: after)
+        """
+        entry = self.get_object()
+        
+        # Only the employee who owns the entry or admin can upload
+        if entry.employee.user != request.user and not request.user.is_admin:
+            return Response({'error': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
+        
+        serializer = WorkEntryPhotoUploadSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        photo = WorkEntryPhoto.objects.create(
+            work_entry=entry,
+            photo=serializer.validated_data['photo'],
+            caption=serializer.validated_data.get('caption', ''),
+            photo_type=serializer.validated_data.get('photo_type', 'after'),
+            uploaded_by=request.user,
+        )
+        
+        return Response(
+            WorkEntryPhotoSerializer(photo, context={'request': request}).data,
+            status=status.HTTP_201_CREATED
+        )
+    
+    @action(detail=True, methods=['get'], url_path='photos')
+    def list_photos(self, request, pk=None):
+        """List all photos for a work entry."""
+        entry = self.get_object()
+        photos = entry.photos.all()
+        serializer = WorkEntryPhotoSerializer(photos, many=True, context={'request': request})
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['delete'], url_path='photos/(?P<photo_id>[^/.]+)')
+    def delete_photo(self, request, pk=None, photo_id=None):
+        """Delete a specific photo from a work entry."""
+        entry = self.get_object()
+        
+        try:
+            photo = entry.photos.get(id=photo_id)
+        except WorkEntryPhoto.DoesNotExist:
+            return Response({'error': 'Photo not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Only the uploader or admin can delete
+        if photo.uploaded_by != request.user and not request.user.is_admin:
+            return Response({'error': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
+        
+        photo.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+

@@ -8,7 +8,7 @@ from django.db import IntegrityError
 from zoneinfo import ZoneInfo
 from apps.employees.models import EmployeeProfile
 from apps.customers.models import Outfolder
-from .models import Shift, WorkEntry
+from .models import Shift, WorkEntry, WorkEntryPhoto
 
 
 class LocalDateTimeField(serializers.DateTimeField):
@@ -429,6 +429,42 @@ class WorkEntryListSerializer(serializers.ModelSerializer):
         return False
 
 
+# =============================================================================
+# WORK ENTRY PHOTO SERIALIZERS
+# =============================================================================
+
+class WorkEntryPhotoSerializer(serializers.ModelSerializer):
+    """Serializer for work entry photos."""
+    photo_url = serializers.SerializerMethodField()
+    photo_type_display = serializers.CharField(source='get_photo_type_display', read_only=True)
+    
+    class Meta:
+        model = WorkEntryPhoto
+        fields = [
+            'id', 'work_entry', 'photo', 'photo_url', 'caption',
+            'photo_type', 'photo_type_display', 'taken_at', 'uploaded_by',
+            'created_at',
+        ]
+        read_only_fields = ['id', 'taken_at', 'uploaded_by', 'created_at']
+    
+    def get_photo_url(self, obj):
+        request = self.context.get('request')
+        if obj.photo and request:
+            return request.build_absolute_uri(obj.photo.url)
+        return None
+
+
+class WorkEntryPhotoUploadSerializer(serializers.Serializer):
+    """Serializer for uploading photos to a work entry."""
+    photo = serializers.ImageField(required=True)
+    caption = serializers.CharField(max_length=200, required=False, default='')
+    photo_type = serializers.ChoiceField(
+        choices=WorkEntryPhoto.PhotoType.choices,
+        required=False,
+        default='after'
+    )
+
+
 class WorkEntryDetailSerializer(WorkEntryListSerializer):
     """
     Full detail serializer for single work entry view.
@@ -457,6 +493,10 @@ class WorkEntryDetailSerializer(WorkEntryListSerializer):
     service = serializers.PrimaryKeyRelatedField(read_only=True)
     supervisor = serializers.UUIDField(source='planned_supervisor.id', read_only=True, allow_null=True)
     
+    # Photos
+    photos = WorkEntryPhotoSerializer(many=True, read_only=True)
+    photos_count = serializers.SerializerMethodField()
+    
     class Meta(WorkEntryListSerializer.Meta):
         fields = WorkEntryListSerializer.Meta.fields + [
             'breaks', 'break_duration_minutes',
@@ -468,7 +508,12 @@ class WorkEntryDetailSerializer(WorkEntryListSerializer):
             'approved_by',
             # Raw FK fields
             'project', 'service', 'supervisor',
+            # Photos
+            'photos', 'photos_count',
         ]
+    
+    def get_photos_count(self, obj):
+        return obj.photos.count() if hasattr(obj, 'photos') else 0
 
 
 class WorkEntryCreateSerializer(serializers.ModelSerializer):
@@ -768,3 +813,4 @@ class WorkEntryBulkCreateSerializer(serializers.Serializer):
                 created_entries.append(entry)
 
         return {'created': created_entries, 'skipped': skipped}
+

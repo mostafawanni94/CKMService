@@ -38,8 +38,8 @@ class ProjectAssignmentSerializer(serializers.ModelSerializer):
             'id': obj.project.id,
             'name': obj.project.name,
             'location': obj.project.location,
-            'address': obj.project.address,
-            'city': obj.project.city,
+            'address': obj.project.location_address,
+            'city': obj.project.location_city,
             'customer': {
                 'id': obj.project.customer.id,
                 'company_name': obj.project.customer.company_name,

@@ -1417,3 +1417,70 @@ class WorkEntry(BaseModel):
         
         super().save(*args, **kwargs)
 
+
+# =============================================================================
+# WORK ENTRY PHOTO
+# =============================================================================
+
+class WorkEntryPhoto(BaseModel):
+    """
+    Photos attached to work entries by employees.
+    
+    Employees upload before/during/after photos as proof of work.
+    These photos are visible to:
+    - The employee who uploaded them
+    - Admin dashboard
+    - Customer portal (customers can see photos for their projects)
+    """
+    
+    class PhotoType(models.TextChoices):
+        BEFORE = 'before', 'Before Work'
+        DURING = 'during', 'During Work'
+        AFTER = 'after', 'After Work'
+        OTHER = 'other', 'Other'
+    
+    work_entry = models.ForeignKey(
+        WorkEntry,
+        on_delete=models.CASCADE,
+        related_name='photos',
+        verbose_name="Work Entry"
+    )
+    photo = models.ImageField(
+        upload_to='worklogs/photos/%Y/%m/',
+        verbose_name="Photo"
+    )
+    caption = models.CharField(
+        max_length=200,
+        blank=True,
+        default='',
+        verbose_name="Caption",
+        help_text="Optional description of the photo"
+    )
+    photo_type = models.CharField(
+        max_length=20,
+        choices=PhotoType.choices,
+        default=PhotoType.AFTER,
+        verbose_name="Photo Type"
+    )
+    taken_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Taken At"
+    )
+    uploaded_by = models.ForeignKey(
+        'employees.User',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='uploaded_work_photos',
+        verbose_name="Uploaded By"
+    )
+    
+    class Meta:
+        verbose_name = 'Work Entry Photo'
+        verbose_name_plural = 'Work Entry Photos'
+        ordering = ['taken_at']
+    
+    def __str__(self):
+        return f"Photo for {self.work_entry} ({self.get_photo_type_display()})"
+
+

@@ -24,7 +24,8 @@ from .serializers import (
     EmployeeApprovalSerializer, EmployeeRejectionSerializer,
     SurchargeTypeSerializer, AgencySurchargeSerializer, AgencySurchargeCreateSerializer,
     AgencyWalletSerializer, AgencyTransactionSerializer, AgencyDetailSerializer,
-    EmployeeRateHistorySerializer, EmployeeContractHistorySerializer, AllowanceTypeSerializer
+    EmployeeRateHistorySerializer, EmployeeContractHistorySerializer, AllowanceTypeSerializer,
+    CustomerPortalUserCreateSerializer, CustomerPortalUserListSerializer,
 )
 
 
@@ -982,3 +983,87 @@ class AgencyTransactionViewSet(viewsets.ReadOnlyModelViewSet):
         if wallet_id:
             return AgencyTransaction.objects.filter(wallet_id=wallet_id)
         return AgencyTransaction.objects.all()
+
+
+# =============================================================================
+# CUSTOMER PORTAL USER MANAGEMENT
+# =============================================================================
+
+class CustomerPortalUserViewSet(viewsets.ViewSet):
+    """
+    Admin endpoints to manage customer portal login accounts.
+    
+    POST   /api/employees/customer-users/           — Create portal user
+    GET    /api/employees/customer-users/           — List all portal users
+    GET    /api/employees/customer-users/?customer=<id>  — List portal users for a customer
+    POST   /api/employees/customer-users/<id>/deactivate/ — Deactivate portal user
+    POST   /api/employees/customer-users/<id>/activate/   — Reactivate portal user
+    POST   /api/employees/customer-users/<id>/reset-password/ — Reset password
+    """
+    permission_classes = [IsAdmin]
+    
+    def list(self, request):
+        """List all customer portal users (optionally filtered by customer)."""
+        queryset = User.objects.filter(role='customer').select_related('customer')
+        
+        customer_id = request.query_params.get('customer')
+        if customer_id:
+            queryset = queryset.filter(customer_id=customer_id)
+        
+        serializer = CustomerPortalUserListSerializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def create(self, request):
+        """Create a new customer portal user account."""
+        serializer = CustomerPortalUserCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        
+        return Response({
+            'id': str(user.id),
+            'email': user.email,
+            'customer': str(user.customer_id),
+            'customer_name': user.customer.company_name if user.customer else '',
+            'message': f'Portal user created for {user.email}',
+        }, status=status.HTTP_201_CREATED)
+    
+    @action(detail=True, methods=['post'])
+    def deactivate(self, request, pk=None):
+        """Deactivate a customer portal user."""
+        try:
+            user = User.objects.get(id=pk, role='customer')
+        except User.DoesNotExist:
+            return Response({'error': 'Portal user not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        user.is_active = False
+        user.save(update_fields=['is_active'])
+        return Response({'message': f'Portal access deactivated for {user.email}'})
+    
+    @action(detail=True, methods=['post'])
+    def activate(self, request, pk=None):
+        """Reactivate a customer portal user."""
+        try:
+            user = User.objects.get(id=pk, role='customer')
+        except User.DoesNotExist:
+            return Response({'error': 'Portal user not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        user.is_active = True
+        user.save(update_fields=['is_active'])
+        return Response({'message': f'Portal access activated for {user.email}'})
+    
+    @action(detail=True, methods=['post'], url_path='reset-password')
+    def reset_password(self, request, pk=None):
+        """Reset password for a customer portal user."""
+        try:
+            user = User.objects.get(id=pk, role='customer')
+        except User.DoesNotExist:
+            return Response({'error': 'Portal user not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        new_password = request.data.get('new_password')
+        if not new_password or len(new_password) < 8:
+            return Response({'error': 'Password must be at least 8 characters'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user.set_password(new_password)
+        user.save(update_fields=['password'])
+        return Response({'message': f'Password reset for {user.email}'})
+

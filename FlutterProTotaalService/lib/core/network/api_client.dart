@@ -37,15 +37,8 @@ class ApiClient {
   // TODO: For production, use _prodBaseUrl. For development with real device, use your Mac's IP.
   // Your Mac's current IP: 192.168.2.40 (run `ipconfig getifaddr en0` to check)
   static String get _devBaseUrl {
-    // For real devices on same WiFi: use Mac's IP address (192.168.x.x)
-    // For Android Emulator: 10.0.2.2 maps to host machine's localhost
-    // For iOS Simulator: use localhost or 127.0.0.1
-    if (Platform.isIOS) {
-      return 'http://localhost:8000/api'; // iOS Simulator
-    } else if (Platform.isAndroid) {
-      return 'http://10.0.2.2:8000/api'; // Android Emulator
-    }
-    return 'http://localhost:8000/api';
+    // For iOS Simulator, use localhost. For Android emulator, use 10.0.2.2.
+    return 'http://127.0.0.1:8000/api';
   }
   static const String _prodBaseUrl = 'https://api.prototaalservice.nl/api';
   
