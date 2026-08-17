@@ -637,6 +637,64 @@ class Agency(TimeStampedModel):
         help_text="Soft delete flag - never hard delete agencies"
     )
     
+    # Contact Information
+    contact_name = models.CharField(
+        max_length=200, blank=True, default='',
+        verbose_name="Contact Person",
+        help_text="Primary contact person at the agency"
+    )
+    contact_email = models.EmailField(
+        blank=True, default='',
+        verbose_name="Contact Email"
+    )
+    contact_phone = models.CharField(
+        max_length=20, blank=True, default='',
+        verbose_name="Contact Phone"
+    )
+    
+    # Legal / Financial
+    kvk_number = models.CharField(
+        max_length=20, blank=True, default='',
+        verbose_name="KvK Number",
+        help_text="Chamber of Commerce registration number"
+    )
+    btw_number = models.CharField(
+        max_length=20, blank=True, default='',
+        verbose_name="BTW Number",
+        help_text="VAT identification number (e.g. NL123456789B01)"
+    )
+    iban = models.CharField(
+        max_length=34, blank=True, default='',
+        verbose_name="IBAN",
+        help_text="Bank account number for payments"
+    )
+    
+    # Address
+    street_name = models.CharField(
+        max_length=200, blank=True, default='',
+        verbose_name="Street Name"
+    )
+    house_number = models.CharField(
+        max_length=10, blank=True, default='',
+        verbose_name="House Number"
+    )
+    house_number_addition = models.CharField(
+        max_length=10, blank=True, default='',
+        verbose_name="House Number Addition"
+    )
+    postcode = models.CharField(
+        max_length=10, blank=True, default='',
+        verbose_name="Postcode"
+    )
+    city = models.CharField(
+        max_length=100, blank=True, default='',
+        verbose_name="City"
+    )
+    country = models.CharField(
+        max_length=100, blank=True, default='Netherlands',
+        verbose_name="Country"
+    )
+    
     # Billing Information
     base_hourly_rate = models.DecimalField(
         max_digits=8,
@@ -658,6 +716,21 @@ class Agency(TimeStampedModel):
     
     def __str__(self):
         return f"{self.name} ({self.code})"
+    
+    @property
+    def full_address(self):
+        """Return formatted full address."""
+        parts = []
+        if self.street_name:
+            addr = self.street_name
+            if self.house_number:
+                addr += f" {self.house_number}"
+            if self.house_number_addition:
+                addr += self.house_number_addition
+            parts.append(addr)
+        if self.postcode or self.city:
+            parts.append(f"{self.postcode} {self.city}".strip())
+        return ", ".join(parts) if parts else ""
     
     def soft_delete(self):
         """Soft delete the agency."""

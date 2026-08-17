@@ -671,6 +671,13 @@ class WorkEntryCreateSerializer(serializers.ModelSerializer):
             if not validated_data.get('planned_end_time'):
                 validated_data['planned_end_time'] = template.end_time
         
+        # Auto-populate agency from employee's current_agency
+        # This ensures agency employees' work is automatically tracked for billing
+        employee = validated_data.get('employee')
+        if employee and not validated_data.get('agency'):
+            if hasattr(employee, 'current_agency') and employee.current_agency:
+                validated_data['agency'] = employee.current_agency
+        
         return super().create(validated_data)
 
     def update(self, instance, validated_data):

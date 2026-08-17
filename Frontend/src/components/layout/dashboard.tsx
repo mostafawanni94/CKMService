@@ -28,6 +28,9 @@ import {
     Award,
     Gift,
     Briefcase,
+    Receipt,
+    BarChart3,
+    Wallet,
 } from 'lucide-react';
 
 /* ============================================================================
@@ -85,6 +88,13 @@ function Sidebar({
     const invoiceItems = [
         { name: 'Outgoing Invoices', href: '/dashboard/invoices', icon: FileText },
         { name: 'Incoming Invoices', href: '/dashboard/incoming-invoices', icon: FileText },
+        { name: 'Agency Invoices', href: '/dashboard/agency-invoices', icon: Building2 },
+    ];
+
+    // Finance submenu items
+    const financeItems = [
+        { name: 'Expenses', href: '/dashboard/expenses', icon: Receipt },
+        { name: 'Financial Overview', href: '/dashboard/finance', icon: BarChart3 },
     ];
 
     const toggleSubmenu = (menuName: string) => {
@@ -356,9 +366,86 @@ function Sidebar({
                                     </div>
                                 )}
                             </div>
-                        </div>
 
-                        {/* SETTINGS Section */}
+                            {/* Finance Expandable Menu */}
+                            <div>
+                                <button
+                                    onClick={() => toggleSubmenu('finance')}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '14px',
+                                        width: '100%',
+                                        padding: isCollapsed ? '12px' : '12px 20px',
+                                        justifyContent: isCollapsed ? 'center' : 'flex-start',
+                                        borderRadius: '12px',
+                                        transition: 'all 0.15s ease',
+                                        backgroundColor: expandedMenus.includes('finance') || pathname.startsWith('/dashboard/expenses') || pathname.startsWith('/dashboard/finance') ? '#F3F4F6' : 'transparent',
+                                        color: expandedMenus.includes('finance') || pathname.startsWith('/dashboard/expenses') || pathname.startsWith('/dashboard/finance') ? '#1F2937' : '#6B7280',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        textDecoration: 'none',
+                                    }}
+                                    className="hover:bg-gray-100"
+                                >
+                                    <Wallet size={20} strokeWidth={1.5} />
+                                    {!isCollapsed && (
+                                        <>
+                                            <span style={{
+                                                fontSize: '14px',
+                                                fontWeight: expandedMenus.includes('finance') ? 600 : 500,
+                                                flex: 1,
+                                                textAlign: 'left',
+                                            }}>
+                                                Finance
+                                            </span>
+                                            <ChevronDown size={14} style={{
+                                                transition: 'transform 0.2s',
+                                                transform: expandedMenus.includes('finance') ? 'rotate(180deg)' : 'rotate(0)',
+                                            }} />
+                                        </>
+                                    )}
+                                </button>
+
+                                {!isCollapsed && expandedMenus.includes('finance') && (
+                                    <div style={{
+                                        marginLeft: '20px',
+                                        marginTop: '4px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '2px',
+                                    }}>
+                                        {financeItems.map((subItem) => {
+                                            const isSubActive = pathname === subItem.href || pathname.startsWith(subItem.href);
+                                            return (
+                                                <Link
+                                                    key={subItem.href}
+                                                    href={subItem.href}
+                                                    onClick={handleNavClick}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '12px',
+                                                        padding: '8px 16px',
+                                                        borderRadius: '10px',
+                                                        transition: 'all 0.15s ease',
+                                                        backgroundColor: isSubActive ? '#E5E7EB' : 'transparent',
+                                                        color: isSubActive ? '#1F2937' : '#6B7280',
+                                                        textDecoration: 'none',
+                                                        fontSize: '13px',
+                                                        fontWeight: isSubActive ? 600 : 500,
+                                                    }}
+                                                    className="hover:bg-gray-100"
+                                                >
+                                                    <subItem.icon size={16} strokeWidth={1.5} />
+                                                    {subItem.name}
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                         <div style={{ marginTop: '32px' }}>
                             <p style={{
                                 fontSize: '11px',

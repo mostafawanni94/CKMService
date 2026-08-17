@@ -240,11 +240,20 @@ class AgencySerializer(serializers.ModelSerializer):
     """Serializer for agencies (admin-managed)."""
     employee_count = serializers.SerializerMethodField()
     surcharges = AgencySurchargeCreateSerializer(many=True, required=False)
+    full_address = serializers.CharField(read_only=True)
     
     class Meta:
         model = Agency
         fields = [
             'id', 'name', 'code', 'description', 'is_active', 'is_deleted',
+            # Contact
+            'contact_name', 'contact_email', 'contact_phone',
+            # Legal / Financial
+            'kvk_number', 'btw_number', 'iban',
+            # Address
+            'street_name', 'house_number', 'house_number_addition',
+            'postcode', 'city', 'country', 'full_address',
+            # Billing
             'base_hourly_rate', 'has_surcharges',
             'employee_count', 'surcharges', 'created_at', 'updated_at'
         ]

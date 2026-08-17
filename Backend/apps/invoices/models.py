@@ -657,3 +657,290 @@ class ProjectRate(BaseModel):
         if self.customer_rate == 0:
             return Decimal('0.00')
         return ((self.customer_rate - self.employee_rate) / self.customer_rate * 100).quantize(Decimal('0.01'))
+
+
+# =============================================================================
+# AGENCY INVOICE
+# =============================================================================
+
+class AgencyInvoice(BaseModel):
+    """
+    Invoice for an agency — tracks what CKM owes to the agency
+    for their employees' work during a specific period.
+    
+    Payment tracking:
+        - When generated, status is DRAFT
+        - Admin reviews and sends → SENT
+        - When paid, admin uploads bank proof → PAID
+        - Work entries linked to a paid invoice cannot be re-invoiced
+    """
+    
+    class Status(models.TextChoices):
+        DRAFT = 'draft', 'Draft'
+        PENDING = 'pending', 'Pending Review'
+        SENT = 'sent', 'Sent to Agency'
+        PARTIALLY_PAID = 'partially_paid', 'Partially Paid'
+        PAID = 'paid', 'Paid'
+        OVERDUE = 'overdue', 'Overdue'
+        CANCELLED = 'cancelled', 'Cancelled'
+    
+    # Invoice number
+    invoice_number = models.CharField(
+        max_length=50,
+        unique=True,
+        verbose_name="Invoice Number",
+        help_text="Auto-generated: AG-YYYY-NNNN"
+    )
+    
+    # Agency
+    agency = models.ForeignKey(
+        'employees.Agency',
+        on_delete=models.PROTECT,
+        related_name='invoices',
+        verbose_name="Agency"
+    )
+    
+    # Period
+    period_start = models.DateField(
+        verbose_name="Period Start",
+        help_text="First day of the billing period"
+    )
+    period_end = models.DateField(
+        verbose_name="Period End",
+        help_text="Last day of the billing period"
+    )
+    
+    # Totals
+    total_hours = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Total Hours"
+    )
+    subtotal = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Subtotal (excl. VAT)"
+    )
+    total_surcharges = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Total Surcharges"
+    )
+    vat_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=Decimal('21.00'),
+        verbose_name="VAT Rate (%)"
+    )
+    vat_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="VAT Amount"
+    )
+    total = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Total (incl. VAT)"
+    )
+    
+    # Status
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.DRAFT,
+        db_index=True,
+        verbose_name="Status"
+    )
+    
+    # Dates
+    issue_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="Issue Date"
+    )
+    due_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="Due Date"
+    )
+    paid_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="Paid Date"
+    )
+    
+    # Payment tracking
+    amount_paid = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Amount Paid"
+    )
+    bank_proof = models.FileField(
+        upload_to='agency_invoices/bank_proofs/',
+        blank=True,
+        null=True,
+        verbose_name="Bank Payment Proof",
+        help_text="Upload bank transfer confirmation when marking as paid"
+    )
+    
+    # Notes
+    notes = models.TextField(
+        blank=True,
+        default='',
+        verbose_name="Notes"
+    )
+    internal_notes = models.TextField(
+        blank=True,
+        default='',
+        verbose_name="Internal Notes"
+    )
+    
+    class Meta:
+        verbose_name = 'Agency Invoice'
+        verbose_name_plural = 'Agency Invoices'
+        ordering = ['-period_start']
+    
+    def __str__(self):
+        return f"{self.invoice_number} - {self.agency.name}"
+    
+    @property
+    def amount_due(self):
+        return self.total - self.amount_paid
+    
+    @property
+    def is_fully_paid(self):
+        return self.amount_paid >= self.total
+    
+    def calculate_totals(self):
+        """Recalculate all totals from line items."""
+        from django.db.models import Sum
+        
+        agg = self.lines.aggregate(
+            total_hours=Sum('hours'),
+            total_base=Sum('base_amount'),
+            total_surcharge=Sum('surcharge_amount'),
+            total_line=Sum('total'),
+        )
+        
+        self.total_hours = agg['total_hours'] or Decimal('0.00')
+        self.subtotal = agg['total_base'] or Decimal('0.00')
+        self.total_surcharges = agg['total_surcharge'] or Decimal('0.00')
+        
+        taxable = self.subtotal + self.total_surcharges
+        self.vat_amount = (taxable * self.vat_rate / 100).quantize(Decimal('0.01'))
+        self.total = taxable + self.vat_amount
+        
+        self.save(update_fields=[
+            'total_hours', 'subtotal', 'total_surcharges',
+            'vat_amount', 'total', 'updated_at'
+        ])
+
+
+# =============================================================================
+# AGENCY INVOICE LINE
+# =============================================================================
+
+class AgencyInvoiceLine(BaseModel):
+    """
+    Line item on an agency invoice.
+    
+    Each line links to a specific WorkEntry to prevent double-billing.
+    Once a WorkEntry is linked to an AgencyInvoiceLine, it cannot
+    be included in another agency invoice.
+    """
+    
+    invoice = models.ForeignKey(
+        AgencyInvoice,
+        on_delete=models.CASCADE,
+        related_name='lines',
+        verbose_name="Agency Invoice"
+    )
+    
+    # Links
+    employee = models.ForeignKey(
+        'employees.EmployeeProfile',
+        on_delete=models.PROTECT,
+        related_name='agency_invoice_lines',
+        verbose_name="Employee"
+    )
+    work_entry = models.OneToOneField(
+        'worklogs.WorkEntry',
+        on_delete=models.PROTECT,
+        related_name='agency_invoice_line',
+        verbose_name="Work Entry",
+        help_text="Each work entry can only appear on one agency invoice (prevents double-billing)"
+    )
+    project = models.ForeignKey(
+        'projects.Project',
+        on_delete=models.PROTECT,
+        related_name='agency_invoice_lines',
+        verbose_name="Project"
+    )
+    
+    # Work details
+    work_date = models.DateField(verbose_name="Work Date")
+    hours = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        verbose_name="Hours Worked"
+    )
+    
+    # Billing
+    base_rate = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        verbose_name="Base Rate (€/hr)",
+        help_text="Agency's base hourly rate at time of invoicing"
+    )
+    base_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Base Amount (€)"
+    )
+    surcharge_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Surcharge (%)"
+    )
+    surcharge_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Surcharge Amount (€)"
+    )
+    total = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="Line Total (€)"
+    )
+    
+    description = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name="Description"
+    )
+    
+    class Meta:
+        verbose_name = 'Agency Invoice Line'
+        verbose_name_plural = 'Agency Invoice Lines'
+        ordering = ['work_date', 'employee']
+    
+    def __str__(self):
+        return f"{self.invoice}: {self.employee} - {self.work_date} ({self.hours}h)"
+    
+    def save(self, *args, **kwargs):
+        """Auto-calculate totals."""
+        self.base_amount = (self.hours * self.base_rate).quantize(Decimal('0.01'))
+        self.surcharge_amount = (self.base_amount * self.surcharge_percentage / 100).quantize(Decimal('0.01'))
+        self.total = self.base_amount + self.surcharge_amount
+        super().save(*args, **kwargs)
+
