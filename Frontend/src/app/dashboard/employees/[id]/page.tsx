@@ -2314,8 +2314,8 @@ export default function EmployeeDetailPage() {
                                         </div>
                                     </div>
 
-                                    {/* Agency Card - Only show for agency contracts */}
-                                    {contractTypes.find(ct => ct.id === Number(editForm.contract_type_id))?.requires_agency && (
+                                    {/* Agency Card - Always visible for agency assignment */}
+                                    {(
                                         <div style={{
                                             backgroundColor: 'white',
                                             borderRadius: '16px',
