@@ -1,0 +1,21 @@
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.filterRow {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.mutedText {
+  font-size: 12px;
+  color: #64748B;
+}
+
+.successText {
+  color: #059669;
+  font-weight: 600;
+}

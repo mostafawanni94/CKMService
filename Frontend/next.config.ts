@@ -4,6 +4,8 @@ const nextConfig: NextConfig = {
   // Prevent NextJS from stripping trailing slashes on rewrites
   skipTrailingSlashRedirect: true,
 
+  devIndicators: false,
+
   // Prevent auto-scroll to top on navigation
   experimental: {
     scrollRestoration: true,
