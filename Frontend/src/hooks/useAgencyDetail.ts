@@ -9,7 +9,7 @@ import type { Agency, AgencySurcharge, AgencyEmployee, AgencyInvoice, SurchargeT
 
 type TabKey = 'overview' | 'employees' | 'billing' | 'surcharges';
 
-const DEFAULT_AGENCY: Partial<Agency> = {
+const DEFAULT_AGENCY: Agency = {
   name: '', code: '', description: '', is_active: true,
   base_hourly_rate: 20.00, has_surcharges: false, surcharges: [],
   contact_name: '', contact_email: '', contact_phone: '',
@@ -28,7 +28,7 @@ export function useAgencyDetail() {
   const isNew = params.id === 'new';
 
   // Core state
-  const [formData, setFormData] = useState<Partial<Agency>>(DEFAULT_AGENCY);
+  const [formData, setFormData] = useState<Agency>(DEFAULT_AGENCY);
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
