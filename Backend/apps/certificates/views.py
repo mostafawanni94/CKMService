@@ -3,7 +3,7 @@ from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.employees.views import IsAdmin
+from apps.core.permissions import IsAdmin
 from .models import CertificateType, EmployeeCertificate
 from .serializers import CertificateTypeSerializer, EmployeeCertificateSerializer
 

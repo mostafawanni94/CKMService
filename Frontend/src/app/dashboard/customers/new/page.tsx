@@ -8,6 +8,7 @@ import { ContractUploader, PendingContract } from '@/components/ui/ContractUploa
 import { FormCard, inputStyle as formInputStyle, labelStyle as formLabelStyle } from '@/components/ui/FormCard';
 import { ContactListEditor } from '@/components/ui/ContactListEditor';
 import { ArrowLeft, Save, Camera, Building2, UserCircle, Plus, X, Phone, Mail, PhoneCall, Briefcase, Euro, CheckCircle, Percent, CreditCard, Gift, Trash2, Check } from 'lucide-react';
+import { apiFetch, readApiError } from '@/hooks/useApi';
 
 interface Contact {
     contact_type: 'phone' | 'email' | 'mobile';
@@ -60,7 +61,7 @@ export default function NewCustomerPage() {
         iban: '',
         btw_number: '',
         kvk_number: '',
-        g_rekening: '',
+        g_rekening: ''
     });
 
     // Customer contacts (phones and emails)
@@ -74,7 +75,7 @@ export default function NewCustomerPage() {
     const [manager, setManager] = useState<Manager>({
         first_name: '',
         last_name: '',
-        contacts: [{ contact_type: 'phone', value: '', label: '', is_primary: true }],
+        contacts: [{ contact_type: 'phone', value: '', label: '', is_primary: true }]
     });
 
     const [supervisors, setSupervisors] = useState<Outfolder[]>([]);
@@ -83,7 +84,7 @@ export default function NewCustomerPage() {
         first_name: '',
         last_name: '',
         rayon_name: '',
-        contacts: [{ contact_type: 'phone', value: '', label: '', is_primary: false }],
+        contacts: [{ contact_type: 'phone', value: '', label: '', is_primary: false }]
     });
 
     // Pending Contracts (uploaded after customer creation)
@@ -138,9 +139,7 @@ export default function NewCustomerPage() {
 
     async function loadSurchargeTypes() {
         try {
-            const response = await fetch(`${API_URL}/employees/surcharge-types/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/employees/surcharge-types/`);
             if (response.ok) {
                 const data = await response.json();
                 setSurchargeTypes(data.results || data);
@@ -152,9 +151,7 @@ export default function NewCustomerPage() {
 
     async function loadServices() {
         try {
-            const response = await fetch(`${API_URL}/customers/services/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/customers/services/`);
             if (response.ok) {
                 const data = await response.json();
                 setAvailableServices(data.results || data);
@@ -166,9 +163,7 @@ export default function NewCustomerPage() {
 
     async function loadAllowanceTypes() {
         try {
-            const response = await fetch(`${API_URL}/employees/allowance-types/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/employees/allowance-types/`);
             if (response.ok) {
                 const data = await response.json();
                 setAvailableAllowanceTypes(data.results || data);
@@ -395,7 +390,7 @@ export default function NewCustomerPage() {
     function addSupervisorContact(type: 'phone' | 'email') {
         setNewSupervisor(s => ({
             ...s,
-            contacts: [...s.contacts, { contact_type: type, value: '', label: '', is_primary: false }],
+            contacts: [...s.contacts, { contact_type: type, value: '', label: '', is_primary: false }]
         }));
     }
 
@@ -406,7 +401,7 @@ export default function NewCustomerPage() {
     function updateSupervisorContact(index: number, value: string) {
         setNewSupervisor(s => ({
             ...s,
-            contacts: s.contacts.map((c, i) => i === index ? { ...c, value } : c),
+            contacts: s.contacts.map((c, i) => i === index ? { ...c, value } : c)
         }));
     }
 
@@ -417,13 +412,13 @@ export default function NewCustomerPage() {
         }
         setSupervisors([...supervisors, {
             ...newSupervisor,
-            contacts: newSupervisor.contacts.filter(c => c.value.trim()),
+            contacts: newSupervisor.contacts.filter(c => c.value.trim())
         }]);
         setNewSupervisor({
             first_name: '',
             last_name: '',
             rayon_name: '',
-            contacts: [{ contact_type: 'phone', value: '', label: '', is_primary: false }],
+            contacts: [{ contact_type: 'phone', value: '', label: '', is_primary: false }]
         });
         setShowAddSupervisor(false);
     }
@@ -475,36 +470,29 @@ export default function NewCustomerPage() {
             }
             if (logo) formData.append('logo', logo);
 
-            const customerResponse = await fetch(`${API_URL}/customers/customers/`, {
+            const customerResponse = await apiFetch(`/customers/customers/`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-                body: formData,
+                body: formData
             });
 
-            if (!customerResponse.ok) {
-                const data = await customerResponse.json();
-                throw new Error(data.company_name?.[0] || data.detail || 'Failed to create customer');
-            }
+            if (!customerResponse.ok) throw new Error(await readApiError(customerResponse));
 
             const createdCustomer = await customerResponse.json();
 
             // Add customer contacts
             for (const contact of customerContacts) {
                 if (contact.value.trim()) {
-                    await fetch(`${API_URL}/customers/customers/${createdCustomer.id}/add_contact/`, {
+                    await apiFetch(`/customers/customers/${createdCustomer.id}/add_contact/`, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
                             contact_type: contact.contact_type,
                             value: contact.value,
                             label: 'company',
-                            is_primary: contact.is_primary,
-                        }),
+                            is_primary: contact.is_primary
+                        })
                     });
                 }
             }
@@ -512,46 +500,43 @@ export default function NewCustomerPage() {
             // Add manager contacts (labeled as 'manager')
             for (const contact of manager.contacts) {
                 if (contact.value.trim()) {
-                    await fetch(`${API_URL}/customers/customers/${createdCustomer.id}/add_contact/`, {
+                    await apiFetch(`/customers/customers/${createdCustomer.id}/add_contact/`, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
                             contact_type: contact.contact_type,
                             value: contact.value,
                             label: 'manager',
-                            is_primary: contact.is_primary,
-                        }),
+                            is_primary: contact.is_primary
+                        })
                     });
                 }
             }
 
             // Add HR email if provided
             if (hrEmail.trim()) {
-                await fetch(`${API_URL}/customers/customers/${createdCustomer.id}/add_contact/`, {
+                await apiFetch(`/customers/customers/${createdCustomer.id}/add_contact/`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         contact_type: 'email',
                         value: hrEmail.trim(),
                         label: 'hr',
-                        is_primary: false,
-                    }),
+                        is_primary: false
+                    })
                 });
             }
 
             // Create the supervisors (outfolders)
             for (const supervisor of supervisors) {
-                const outfolderResponse = await fetch(`${API_URL}/customers/outfolders/`, {
+                const outfolderResponse = await apiFetch(`/customers/outfolders/`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         customer: createdCustomer.id,
@@ -559,8 +544,8 @@ export default function NewCustomerPage() {
                         last_name: supervisor.last_name,
                         company_name: supervisor.rayon_name || form.company_name,
                         notes: '',
-                        is_active: true,
-                    }),
+                        is_active: true
+                    })
                 });
 
                 if (outfolderResponse.ok) {
@@ -568,18 +553,17 @@ export default function NewCustomerPage() {
 
                     for (const contact of supervisor.contacts) {
                         if (contact.value.trim()) {
-                            await fetch(`${API_URL}/customers/outfolders/${createdOutfolder.id}/add_contact/`, {
+                            await apiFetch(`/customers/outfolders/${createdOutfolder.id}/add_contact/`, {
                                 method: 'POST',
                                 headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                    'Content-Type': 'application/json'
                                 },
                                 body: JSON.stringify({
                                     contact_type: contact.contact_type,
                                     value: contact.value,
                                     label: contact.label || '',
-                                    is_primary: contact.is_primary,
-                                }),
+                                    is_primary: contact.is_primary
+                                })
                             });
                         }
                     }
@@ -614,13 +598,12 @@ export default function NewCustomerPage() {
                     apply_surcharges: a.apply_surcharges
                 }))
             };
-            await fetch(`${API_URL}/customers/customers/${createdCustomer.id}/`, {
+            await apiFetch(`/customers/customers/${createdCustomer.id}/`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(billingPayload),
+                body: JSON.stringify(billingPayload)
             });
 
             // Upload pending contracts
@@ -630,12 +613,9 @@ export default function NewCustomerPage() {
                 contractFormData.append('effective_from', contract.effectiveFrom);
                 if (contract.notes) contractFormData.append('notes', contract.notes);
 
-                await fetch(`${API_URL}/customers/customers/${createdCustomer.id}/upload_contract/`, {
+                await apiFetch(`/customers/customers/${createdCustomer.id}/upload_contract/`, {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                    },
-                    body: contractFormData,
+                    body: contractFormData
                 });
             }
 
@@ -654,7 +634,7 @@ export default function NewCustomerPage() {
         border: '1px solid #E5E7EB',
         borderRadius: '10px',
         fontSize: '14px',
-        outline: 'none',
+        outline: 'none'
     };
 
     const labelStyle = {
@@ -663,7 +643,7 @@ export default function NewCustomerPage() {
         fontWeight: 600,
         color: '#6B7280',
         marginBottom: '8px',
-        textTransform: 'uppercase' as const,
+        textTransform: 'uppercase' as const
     };
 
     const customerPhones = customerContacts.filter(c => c.contact_type === 'phone' || c.contact_type === 'mobile');
@@ -812,7 +792,7 @@ export default function NewCustomerPage() {
                                     borderRadius: '10px',
                                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                                     zIndex: 9999,
-                                    overflow: 'hidden',
+                                    overflow: 'hidden'
                                 }}>
                                     <div style={{ padding: '8px 12px', borderBottom: '1px solid #E5E7EB', backgroundColor: '#F9FAFB' }}>
                                         <span style={{ fontSize: '11px', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase' }}>🛣️ Select Street</span>
@@ -825,7 +805,7 @@ export default function NewCustomerPage() {
                                                     setForm(f => ({
                                                         ...f,
                                                         city: suggestion.city,
-                                                        street_name: suggestion.street,
+                                                        street_name: suggestion.street
                                                     }));
                                                     setShowPostcodeSuggestions(false);
                                                 }}
@@ -836,7 +816,7 @@ export default function NewCustomerPage() {
                                                     gap: '10px',
                                                     cursor: 'pointer',
                                                     backgroundColor: 'transparent',
-                                                    borderBottom: '1px solid #F3F4F6',
+                                                    borderBottom: '1px solid #F3F4F6'
                                                 }}
                                                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#EFF6FF'}
                                                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -1178,7 +1158,7 @@ export default function NewCustomerPage() {
                             border: `2px solid ${hasServiceSurcharges ? '#7C3AED' : '#E5E7EB'}`,
                             borderRadius: '12px',
                             cursor: 'pointer',
-                            marginBottom: hasServiceSurcharges ? '20px' : '24px',
+                            marginBottom: hasServiceSurcharges ? '20px' : '24px'
                         }}
                     >
                         <div>
@@ -1191,7 +1171,7 @@ export default function NewCustomerPage() {
                             borderRadius: '13px',
                             backgroundColor: hasServiceSurcharges ? '#7C3AED' : '#D1D5DB',
                             position: 'relative',
-                            transition: 'all 0.15s ease',
+                            transition: 'all 0.15s ease'
                         }}>
                             <div style={{
                                 width: '20px',
@@ -1202,7 +1182,7 @@ export default function NewCustomerPage() {
                                 top: '3px',
                                 left: hasServiceSurcharges ? '21px' : '3px',
                                 transition: 'all 0.15s ease',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                             }} />
                         </div>
                     </div>
@@ -1230,7 +1210,7 @@ export default function NewCustomerPage() {
                                                 padding: '10px 14px',
                                                 backgroundColor: isSelected ? '#EDE9FE' : 'white',
                                                 border: `1px solid ${isSelected ? '#7C3AED' : '#E5E7EB'}`,
-                                                borderRadius: '8px',
+                                                borderRadius: '8px'
                                             }}
                                         >
                                             <button
@@ -1301,7 +1281,7 @@ export default function NewCustomerPage() {
                                             padding: '16px 20px',
                                             backgroundColor: isSelected ? '#F5F3FF' : '#F9FAFB',
                                             border: `2px solid ${isSelected ? '#7C3AED' : '#E5E7EB'}`,
-                                            borderRadius: '12px',
+                                            borderRadius: '12px'
                                         }}
                                     >
                                         {/* Checkbox */}
@@ -1403,7 +1383,7 @@ export default function NewCustomerPage() {
                             border: `2px solid ${hasAllowanceSurcharges ? '#DC2626' : '#E5E7EB'}`,
                             borderRadius: '12px',
                             cursor: 'pointer',
-                            marginBottom: hasAllowanceSurcharges ? '20px' : '24px',
+                            marginBottom: hasAllowanceSurcharges ? '20px' : '24px'
                         }}
                     >
                         <div>
@@ -1416,7 +1396,7 @@ export default function NewCustomerPage() {
                             borderRadius: '13px',
                             backgroundColor: hasAllowanceSurcharges ? '#DC2626' : '#D1D5DB',
                             position: 'relative',
-                            transition: 'all 0.15s ease',
+                            transition: 'all 0.15s ease'
                         }}>
                             <div style={{
                                 width: '20px',
@@ -1427,7 +1407,7 @@ export default function NewCustomerPage() {
                                 top: '3px',
                                 left: hasAllowanceSurcharges ? '21px' : '3px',
                                 transition: 'all 0.15s ease',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                             }} />
                         </div>
                     </div>
@@ -1455,7 +1435,7 @@ export default function NewCustomerPage() {
                                                 padding: '10px 14px',
                                                 backgroundColor: isSelected ? '#FEE2E2' : 'white',
                                                 border: `1px solid ${isSelected ? '#DC2626' : '#E5E7EB'}`,
-                                                borderRadius: '8px',
+                                                borderRadius: '8px'
                                             }}
                                         >
                                             <button
@@ -1523,7 +1503,7 @@ export default function NewCustomerPage() {
                                         padding: '16px 20px',
                                         backgroundColor: '#FEF2F2',
                                         border: '2px solid #FECACA',
-                                        borderRadius: '12px',
+                                        borderRadius: '12px'
                                     }}
                                 >
                                     {/* Allowance Type Dropdown or Custom Name */}
@@ -1580,7 +1560,7 @@ export default function NewCustomerPage() {
                                                     fontSize: '14px',
                                                     border: '1px solid #E5E7EB',
                                                     borderRadius: '8px',
-                                                    outline: 'none',
+                                                    outline: 'none'
                                                 }}
                                             />
                                             <input
@@ -1597,7 +1577,7 @@ export default function NewCustomerPage() {
                                                     textTransform: 'uppercase',
                                                     border: '1px solid #E5E7EB',
                                                     borderRadius: '8px',
-                                                    outline: 'none',
+                                                    outline: 'none'
                                                 }}
                                             />
                                         </>

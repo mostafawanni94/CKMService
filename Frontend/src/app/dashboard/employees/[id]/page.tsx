@@ -13,8 +13,9 @@ import { useEmployeeDetail } from '@/hooks/useEmployeeDetail';
 import type { EmployeeDetail, TabType, CertificateType, EmployeeCertificate, RateHistory, ContractHistory } from '@/hooks/useEmployeeDetail';
 import {
     Card, Field, TimelineRow, DocSlot,
-    LICENSE_CATEGORIES, COUNTRIES, NATIONALITIES, DOCUMENT_TYPES,
+    LICENSE_CATEGORIES, COUNTRIES, NATIONALITIES, DOCUMENT_TYPES
 } from '@/components/features/employees/EmployeeHelpers';
+import { apiFetch } from '@/hooks/useApi';
 
 
 
@@ -59,7 +60,7 @@ export default function EmployeeDetailPage() {
         nationalityDropdownRef,
         postcodeLookupLoading, postcodeSuggestions,
         showPostcodeSuggestions, setShowPostcodeSuggestions,
-        postcodeDropdownRef, lookupPostcode,
+        postcodeDropdownRef, lookupPostcode
     } = vm;
 
     // Approval data state (kept local as it's only used in the approve modal)
@@ -69,7 +70,7 @@ export default function EmployeeDetailPage() {
         approved: { bg: 'bg-emerald-100', text: 'text-emerald-700', dot: 'bg-emerald-500' },
         pending: { bg: 'bg-amber-100', text: 'text-amber-700', dot: 'bg-amber-500' },
         incomplete: { bg: 'bg-gray-100', text: 'text-gray-600', dot: 'bg-gray-400' },
-        rejected: { bg: 'bg-red-100', text: 'text-red-700', dot: 'bg-red-500' },
+        rejected: { bg: 'bg-red-100', text: 'text-red-700', dot: 'bg-red-500' }
     };
 
     const tabs = [
@@ -112,7 +113,7 @@ export default function EmployeeDetailPage() {
                                             fontWeight: 600,
                                             color: '#374151',
                                             cursor: 'pointer',
-                                            transition: 'all 0.2s',
+                                            transition: 'all 0.2s'
                                         }}
                                     >
                                         <X style={{ width: '16px', height: '16px' }} /> Cancel
@@ -132,7 +133,7 @@ export default function EmployeeDetailPage() {
                                             fontWeight: 600,
                                             color: 'white',
                                             cursor: 'pointer',
-                                            transition: 'all 0.2s',
+                                            transition: 'all 0.2s'
                                         }}
                                     >
                                         <Save style={{ width: '16px', height: '16px' }} /> {saving ? 'Saving...' : 'Save'}
@@ -154,7 +155,7 @@ export default function EmployeeDetailPage() {
                                             fontWeight: 600,
                                             color: '#374151',
                                             cursor: 'pointer',
-                                            transition: 'all 0.2s',
+                                            transition: 'all 0.2s'
                                         }}
                                     >
                                         <Edit style={{ width: '16px', height: '16px' }} /> Edit
@@ -176,7 +177,7 @@ export default function EmployeeDetailPage() {
                                                     color: 'white',
                                                     cursor: 'pointer',
                                                     transition: 'all 0.2s',
-                                                    boxShadow: '0 4px 12px rgba(22, 163, 74, 0.3)',
+                                                    boxShadow: '0 4px 12px rgba(22, 163, 74, 0.3)'
                                                 }}
                                             >
                                                 <Check style={{ width: '16px', height: '16px' }} /> Approve
@@ -196,7 +197,7 @@ export default function EmployeeDetailPage() {
                                                     color: 'white',
                                                     cursor: 'pointer',
                                                     transition: 'all 0.2s',
-                                                    boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)',
+                                                    boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)'
                                                 }}
                                             >
                                                 <X style={{ width: '16px', height: '16px' }} /> Reject
@@ -217,7 +218,7 @@ export default function EmployeeDetailPage() {
                         padding: '32px 24px',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '24px',
+                        gap: '24px'
                     }}>
                         {/* Avatar */}
                         <div style={{
@@ -232,7 +233,7 @@ export default function EmployeeDetailPage() {
                             fontWeight: 700,
                             color: '#1E3A5F',
                             boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-                            flexShrink: 0,
+                            flexShrink: 0
                         }}>
                             {employee.first_name?.[0]}{employee.last_name?.[0]}
                         </div>
@@ -244,14 +245,14 @@ export default function EmployeeDetailPage() {
                                 fontWeight: 700,
                                 color: 'white',
                                 margin: 0,
-                                letterSpacing: '-0.02em',
+                                letterSpacing: '-0.02em'
                             }}>
                                 {employee.full_name || `${employee.first_name} ${employee.prefix_name || ''} ${employee.last_name}`.trim()}
                             </h1>
                             <p style={{
                                 color: 'rgba(255,255,255,0.6)',
                                 fontSize: '14px',
-                                margin: '4px 0 0',
+                                margin: '4px 0 0'
                             }}>
                                 Employee Profile
                             </p>
@@ -265,13 +266,12 @@ export default function EmployeeDetailPage() {
                                     const newStatus = e.target.value;
                                     try {
                                         const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
-                                        const response = await fetch(`${API_URL}/employees/profiles/${params.id}/`, {
+                                        const response = await apiFetch(`/employees/profiles/${params.id}/`, {
                                             method: 'PATCH',
                                             headers: {
-                                                'Content-Type': 'application/json',
-                                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                                'Content-Type': 'application/json'
                                             },
-                                            body: JSON.stringify({ status: newStatus }),
+                                            body: JSON.stringify({ status: newStatus })
                                         });
                                         if (!response.ok) throw new Error('Failed to update status');
                                         // Refresh the page data
@@ -297,7 +297,7 @@ export default function EmployeeDetailPage() {
                                         employee.status === 'pending' ? '#FCD34D' :
                                             employee.status === 'rejected' ? '#F87171' : 'white',
                                     textTransform: 'capitalize',
-                                    outline: 'none',
+                                    outline: 'none'
                                 }}
                             >
                                 <option value="incomplete" style={{ color: '#374151', backgroundColor: 'white' }}>Incomplete</option>
@@ -321,7 +321,7 @@ export default function EmployeeDetailPage() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                pointerEvents: 'none',
+                                pointerEvents: 'none'
                             }}>
                                 {employee.status === 'approved' && <CheckCircle size={16} color="white" />}
                                 {employee.status === 'pending' && <Clock size={16} color="white" />}
@@ -334,7 +334,7 @@ export default function EmployeeDetailPage() {
                                 right: '12px',
                                 top: '50%',
                                 transform: 'translateY(-50%)',
-                                pointerEvents: 'none',
+                                pointerEvents: 'none'
                             }}>
                                 <ChevronDown size={16} color="rgba(255,255,255,0.6)" />
                             </div>
@@ -348,7 +348,7 @@ export default function EmployeeDetailPage() {
                     borderBottom: '1px solid #E5E7EB',
                     position: 'sticky',
                     top: '60px',
-                    zIndex: 10,
+                    zIndex: 10
                 }}>
                     <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '16px 24px' }}>
                         <nav style={{
@@ -356,7 +356,7 @@ export default function EmployeeDetailPage() {
                             gap: '8px',
                             backgroundColor: '#F3F4F6',
                             padding: '6px',
-                            borderRadius: '12px',
+                            borderRadius: '12px'
                         }}>
                             {tabs.map(tab => {
                                 const Icon = tab.icon;
@@ -378,7 +378,7 @@ export default function EmployeeDetailPage() {
                                             transition: 'all 0.2s ease',
                                             backgroundColor: active ? 'white' : 'transparent',
                                             color: active ? '#1E3A5F' : '#6B7280',
-                                            boxShadow: active ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                                            boxShadow: active ? '0 2px 8px rgba(0,0,0,0.08)' : 'none'
                                         }}
                                     >
                                         <Icon size={16} />
@@ -398,7 +398,7 @@ export default function EmployeeDetailPage() {
                             borderRadius: '16px',
                             border: '1px solid #FCA5A5',
                             marginBottom: '24px',
-                            overflow: 'hidden',
+                            overflow: 'hidden'
                         }}>
                             <div style={{
                                 display: 'flex',
@@ -406,7 +406,7 @@ export default function EmployeeDetailPage() {
                                 gap: '12px',
                                 padding: '16px 20px',
                                 backgroundColor: '#FEF2F2',
-                                borderBottom: '1px solid #FCA5A5',
+                                borderBottom: '1px solid #FCA5A5'
                             }}>
                                 <div style={{
                                     width: '40px',
@@ -415,7 +415,7 @@ export default function EmployeeDetailPage() {
                                     backgroundColor: '#FEE2E2',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'center',
+                                    justifyContent: 'center'
                                 }}>
                                     <AlertTriangle style={{ width: '20px', height: '20px', color: '#DC2626' }} />
                                 </div>
@@ -459,7 +459,7 @@ export default function EmployeeDetailPage() {
                                                     border: '1px solid #E5E7EB',
                                                     borderRadius: '10px',
                                                     cursor: 'pointer',
-                                                    fontSize: '14px',
+                                                    fontSize: '14px'
                                                 }}
                                             >
                                                 <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -488,7 +488,7 @@ export default function EmployeeDetailPage() {
                                                     border: '1px solid #E5E7EB',
                                                     borderRadius: '10px',
                                                     boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-                                                    zIndex: 9999,
+                                                    zIndex: 9999
                                                 }}>
                                                     {/* Search Input */}
                                                     <div style={{ padding: '10px', borderBottom: '1px solid #E5E7EB' }}>
@@ -506,7 +506,7 @@ export default function EmployeeDetailPage() {
                                                                     border: '1px solid #E5E7EB',
                                                                     borderRadius: '8px',
                                                                     fontSize: '14px',
-                                                                    outline: 'none',
+                                                                    outline: 'none'
                                                                 }}
                                                                 onClick={(e) => e.stopPropagation()}
                                                             />
@@ -532,7 +532,7 @@ export default function EmployeeDetailPage() {
                                                                         gap: '12px',
                                                                         cursor: 'pointer',
                                                                         backgroundColor: editForm.nationality === nationality.name ? '#EFF6FF' : 'transparent',
-                                                                        borderLeft: editForm.nationality === nationality.name ? '3px solid #2563EB' : '3px solid transparent',
+                                                                        borderLeft: editForm.nationality === nationality.name ? '3px solid #2563EB' : '3px solid transparent'
                                                                     }}
                                                                     onMouseEnter={(e) => {
                                                                         if (editForm.nationality !== nationality.name) {
@@ -616,7 +616,7 @@ export default function EmployeeDetailPage() {
                                                         border: '1px solid #E5E7EB',
                                                         borderRadius: '10px',
                                                         fontSize: '14px',
-                                                        outline: 'none',
+                                                        outline: 'none'
                                                     }}
                                                 />
                                             </div>
@@ -653,7 +653,7 @@ export default function EmployeeDetailPage() {
                                                             border: '1px solid #E5E7EB',
                                                             borderRadius: '10px',
                                                             fontSize: '14px',
-                                                            outline: 'none',
+                                                            outline: 'none'
                                                         }}
                                                     />
                                                 </div>
@@ -689,7 +689,7 @@ export default function EmployeeDetailPage() {
                                                             borderRadius: '10px',
                                                             fontSize: '14px',
                                                             outline: 'none',
-                                                            textTransform: 'uppercase',
+                                                            textTransform: 'uppercase'
                                                         }}
                                                     />
                                                 </div>
@@ -728,7 +728,7 @@ export default function EmployeeDetailPage() {
                                                         borderRadius: '10px',
                                                         fontSize: '14px',
                                                         outline: 'none',
-                                                        fontFamily: 'monospace',
+                                                        fontFamily: 'monospace'
                                                     }}
                                                 />
                                                 {postcodeLookupLoading && (
@@ -742,7 +742,7 @@ export default function EmployeeDetailPage() {
                                                         border: '2px solid #E5E7EB',
                                                         borderTopColor: '#2563EB',
                                                         borderRadius: '50%',
-                                                        animation: 'spin 1s linear infinite',
+                                                        animation: 'spin 1s linear infinite'
                                                     }} />
                                                 )}
                                             </div>
@@ -759,7 +759,7 @@ export default function EmployeeDetailPage() {
                                                     borderRadius: '10px',
                                                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                                                     zIndex: 9999,
-                                                    overflow: 'hidden',
+                                                    overflow: 'hidden'
                                                 }}>
                                                     <div style={{ padding: '8px 12px', borderBottom: '1px solid #E5E7EB', backgroundColor: '#F9FAFB' }}>
                                                         <span style={{ fontSize: '11px', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase' }}>🛣️ Select Address</span>
@@ -784,7 +784,7 @@ export default function EmployeeDetailPage() {
                                                                     gap: '12px',
                                                                     cursor: 'pointer',
                                                                     backgroundColor: 'transparent',
-                                                                    borderBottom: '1px solid #F3F4F6',
+                                                                    borderBottom: '1px solid #F3F4F6'
                                                                 }}
                                                                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#EFF6FF'}
                                                                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -862,7 +862,7 @@ export default function EmployeeDetailPage() {
                                                 backgroundColor: editForm.travel_cost_per_km ? 'rgba(124, 58, 237, 0.03)' : '#F9FAFB',
                                                 border: `2px solid ${editForm.travel_cost_per_km ? '#7C3AED' : '#E5E7EB'}`,
                                                 borderRadius: '12px',
-                                                transition: 'all 0.15s ease',
+                                                transition: 'all 0.15s ease'
                                             }}
                                         >
                                             {/* Checkbox */}
@@ -883,7 +883,7 @@ export default function EmployeeDetailPage() {
                                                         alignItems: 'center',
                                                         justifyContent: 'center',
                                                         cursor: 'pointer',
-                                                        flexShrink: 0,
+                                                        flexShrink: 0
                                                     }}
                                                 >
                                                     {editForm.travel_cost_per_km !== null && editForm.travel_cost_per_km !== undefined && (
@@ -901,7 +901,7 @@ export default function EmployeeDetailPage() {
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
-                                                flexShrink: 0,
+                                                flexShrink: 0
                                             }}>
                                                 <Car size={20} color={editForm.travel_cost_per_km ? '#7C3AED' : '#9CA3AF'} />
                                             </div>
@@ -912,7 +912,7 @@ export default function EmployeeDetailPage() {
                                                     fontSize: '14px',
                                                     fontWeight: 600,
                                                     color: editForm.travel_cost_per_km ? '#1F2937' : '#6B7280',
-                                                    margin: 0,
+                                                    margin: 0
                                                 }}>
                                                     Travel Cost per KM
                                                 </p>
@@ -939,7 +939,7 @@ export default function EmployeeDetailPage() {
                                                                     fontWeight: 600,
                                                                     border: '1px solid #E5E7EB',
                                                                     borderRadius: '8px',
-                                                                    textAlign: 'right',
+                                                                    textAlign: 'right'
                                                                 }}
                                                             />
                                                             <span style={{ color: '#6B7280', fontWeight: 500, fontSize: '13px' }}>€/km</span>
@@ -948,7 +948,7 @@ export default function EmployeeDetailPage() {
                                                         <div style={{
                                                             padding: '6px 12px',
                                                             backgroundColor: '#D1FAE5',
-                                                            borderRadius: '8px',
+                                                            borderRadius: '8px'
                                                         }}>
                                                             <span style={{ fontSize: '14px', fontWeight: 700, color: '#059669' }}>
                                                                 €{parseFloat(editForm.travel_cost_per_km || '0').toFixed(2)}/km
@@ -969,7 +969,7 @@ export default function EmployeeDetailPage() {
                                                 backgroundColor: editForm.travel_hour_percentage ? 'rgba(59, 130, 246, 0.03)' : '#F9FAFB',
                                                 border: `2px solid ${editForm.travel_hour_percentage ? '#3B82F6' : '#E5E7EB'}`,
                                                 borderRadius: '12px',
-                                                transition: 'all 0.15s ease',
+                                                transition: 'all 0.15s ease'
                                             }}
                                         >
                                             {/* Checkbox */}
@@ -990,7 +990,7 @@ export default function EmployeeDetailPage() {
                                                         alignItems: 'center',
                                                         justifyContent: 'center',
                                                         cursor: 'pointer',
-                                                        flexShrink: 0,
+                                                        flexShrink: 0
                                                     }}
                                                 >
                                                     {editForm.travel_hour_percentage !== null && editForm.travel_hour_percentage !== undefined && (
@@ -1008,7 +1008,7 @@ export default function EmployeeDetailPage() {
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
-                                                flexShrink: 0,
+                                                flexShrink: 0
                                             }}>
                                                 <Clock size={20} color={editForm.travel_hour_percentage ? '#3B82F6' : '#9CA3AF'} />
                                             </div>
@@ -1019,7 +1019,7 @@ export default function EmployeeDetailPage() {
                                                     fontSize: '14px',
                                                     fontWeight: 600,
                                                     color: editForm.travel_hour_percentage ? '#1F2937' : '#6B7280',
-                                                    margin: 0,
+                                                    margin: 0
                                                 }}>
                                                     Travel Hour Percentage
                                                 </p>
@@ -1047,7 +1047,7 @@ export default function EmployeeDetailPage() {
                                                                     fontWeight: 600,
                                                                     border: '1px solid #E5E7EB',
                                                                     borderRadius: '8px',
-                                                                    textAlign: 'right',
+                                                                    textAlign: 'right'
                                                                 }}
                                                             />
                                                             <span style={{ color: '#6B7280', fontWeight: 500, fontSize: '13px' }}>%</span>
@@ -1056,7 +1056,7 @@ export default function EmployeeDetailPage() {
                                                         <div style={{
                                                             padding: '6px 12px',
                                                             backgroundColor: '#D1FAE5',
-                                                            borderRadius: '8px',
+                                                            borderRadius: '8px'
                                                         }}>
                                                             <span style={{ fontSize: '14px', fontWeight: 700, color: '#059669' }}>
                                                                 {parseFloat(editForm.travel_hour_percentage || '0').toFixed(2)}%
@@ -1088,7 +1088,7 @@ export default function EmployeeDetailPage() {
                                                 padding: '16px 20px',
                                                 backgroundColor: editForm.can_add_allowances ? 'rgba(139, 92, 246, 0.03)' : '#F9FAFB',
                                                 border: `2px solid ${editForm.can_add_allowances ? '#8B5CF6' : '#E5E7EB'}`,
-                                                borderRadius: '12px',
+                                                borderRadius: '12px'
                                             }}
                                         >
                                             {isEditing && (
@@ -1099,7 +1099,7 @@ export default function EmployeeDetailPage() {
                                                         width: '24px', height: '24px', borderRadius: '6px',
                                                         backgroundColor: editForm.can_add_allowances ? '#8B5CF6' : 'white',
                                                         border: editForm.can_add_allowances ? 'none' : '2px solid #D1D5DB',
-                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
                                                     }}
                                                 >
                                                     {editForm.can_add_allowances && <Check size={16} color="white" />}
@@ -1129,7 +1129,7 @@ export default function EmployeeDetailPage() {
                                                 padding: '16px 20px',
                                                 backgroundColor: editForm.receives_surcharges ? 'rgba(245, 158, 11, 0.03)' : '#F9FAFB',
                                                 border: `2px solid ${editForm.receives_surcharges ? '#F59E0B' : '#E5E7EB'}`,
-                                                borderRadius: '12px',
+                                                borderRadius: '12px'
                                             }}
                                         >
                                             {isEditing && (
@@ -1140,7 +1140,7 @@ export default function EmployeeDetailPage() {
                                                         width: '24px', height: '24px', borderRadius: '6px',
                                                         backgroundColor: editForm.receives_surcharges ? '#F59E0B' : 'white',
                                                         border: editForm.receives_surcharges ? 'none' : '2px solid #D1D5DB',
-                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
                                                     }}
                                                 >
                                                     {editForm.receives_surcharges && <Check size={16} color="white" />}
@@ -1340,7 +1340,7 @@ export default function EmployeeDetailPage() {
                                     flexDirection: 'column',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    gap: '16px',
+                                    gap: '16px'
                                 }}>
                                     <div style={{
                                         width: '40px',
@@ -1348,7 +1348,7 @@ export default function EmployeeDetailPage() {
                                         border: '4px solid #E5E7EB',
                                         borderTop: '4px solid #3B82F6',
                                         borderRadius: '50%',
-                                        animation: 'spin 1s linear infinite',
+                                        animation: 'spin 1s linear infinite'
                                     }} />
                                     <p style={{ color: '#6B7280', fontSize: '14px', margin: 0 }}>
                                         Loading contract data...
@@ -1368,7 +1368,7 @@ export default function EmployeeDetailPage() {
                                     flexDirection: 'column',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    gap: '16px',
+                                    gap: '16px'
                                 }}>
                                     <div style={{
                                         width: '48px',
@@ -1377,7 +1377,7 @@ export default function EmployeeDetailPage() {
                                         backgroundColor: '#FEE2E2',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        justifyContent: 'center',
+                                        justifyContent: 'center'
                                     }}>
                                         <AlertTriangle size={24} color="#DC2626" />
                                     </div>
@@ -1402,7 +1402,7 @@ export default function EmployeeDetailPage() {
                                             borderRadius: '10px',
                                             fontSize: '14px',
                                             fontWeight: 600,
-                                            cursor: 'pointer',
+                                            cursor: 'pointer'
                                         }}
                                     >
                                         <Clock size={16} /> Retry
@@ -1418,14 +1418,14 @@ export default function EmployeeDetailPage() {
                                         backgroundColor: 'white',
                                         borderRadius: '16px',
                                         border: '1px solid #E5E7EB',
-                                        overflow: 'hidden',
+                                        overflow: 'hidden'
                                     }}>
                                         <div style={{
                                             padding: '20px 24px',
                                             borderBottom: '1px solid #E5E7EB',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            gap: '12px',
+                                            gap: '12px'
                                         }}>
                                             <div style={{
                                                 width: '40px',
@@ -1434,7 +1434,7 @@ export default function EmployeeDetailPage() {
                                                 backgroundColor: '#DBEAFE',
                                                 display: 'flex',
                                                 alignItems: 'center',
-                                                justifyContent: 'center',
+                                                justifyContent: 'center'
                                             }}>
                                                 <FileText size={20} color="#2563EB" />
                                             </div>
@@ -1481,7 +1481,7 @@ export default function EmployeeDetailPage() {
                                                         padding: '14px 16px',
                                                         backgroundColor: '#F9FAFB',
                                                         borderRadius: '12px',
-                                                        border: '1px solid #E5E7EB',
+                                                        border: '1px solid #E5E7EB'
                                                     }}>
                                                         <span style={{ fontSize: '15px', fontWeight: 500, color: '#1F2937' }}>
                                                             {contractTypes.find(ct => ct.id === editForm.contract_type_id)?.name || (
@@ -1496,7 +1496,7 @@ export default function EmployeeDetailPage() {
                                                                 color: '#4338CA',
                                                                 fontSize: '11px',
                                                                 fontWeight: 600,
-                                                                borderRadius: '4px',
+                                                                borderRadius: '4px'
                                                             }}>
                                                                 {contractTypes.find(ct => ct.id === editForm.contract_type_id)?.code}
                                                             </span>
@@ -1510,7 +1510,7 @@ export default function EmployeeDetailPage() {
                                                 <div style={{
                                                     display: 'flex',
                                                     gap: '12px',
-                                                    flexWrap: 'wrap',
+                                                    flexWrap: 'wrap'
                                                 }}>
                                                     {contractTypes.find(ct => ct.id === Number(editForm.contract_type_id))?.requires_end_date && (
                                                         <span style={{
@@ -1522,7 +1522,7 @@ export default function EmployeeDetailPage() {
                                                             color: '#92400E',
                                                             fontSize: '12px',
                                                             fontWeight: 500,
-                                                            borderRadius: '8px',
+                                                            borderRadius: '8px'
                                                         }}>
                                                             <Calendar size={14} /> End Date Required
                                                         </span>
@@ -1537,7 +1537,7 @@ export default function EmployeeDetailPage() {
                                                             color: '#7C3AED',
                                                             fontSize: '12px',
                                                             fontWeight: 500,
-                                                            borderRadius: '8px',
+                                                            borderRadius: '8px'
                                                         }}>
                                                             <Building2 size={14} /> Agency Required
                                                         </span>
@@ -1553,7 +1553,7 @@ export default function EmployeeDetailPage() {
                                             backgroundColor: 'white',
                                             borderRadius: '16px',
                                             border: '2px solid #DDD6FE',
-                                            overflow: 'hidden',
+                                            overflow: 'hidden'
                                         }}>
                                             <div style={{
                                                 padding: '20px 24px',
@@ -1561,7 +1561,7 @@ export default function EmployeeDetailPage() {
                                                 backgroundColor: '#FAF5FF',
                                                 display: 'flex',
                                                 alignItems: 'center',
-                                                gap: '12px',
+                                                gap: '12px'
                                             }}>
                                                 <div style={{
                                                     width: '40px',
@@ -1570,7 +1570,7 @@ export default function EmployeeDetailPage() {
                                                     backgroundColor: '#DDD6FE',
                                                     display: 'flex',
                                                     alignItems: 'center',
-                                                    justifyContent: 'center',
+                                                    justifyContent: 'center'
                                                 }}>
                                                     <Building2 size={20} color="#7C3AED" />
                                                 </div>
@@ -1619,7 +1619,7 @@ export default function EmployeeDetailPage() {
                                                                 padding: '14px 16px',
                                                                 backgroundColor: '#FAF5FF',
                                                                 borderRadius: '12px',
-                                                                border: '1px solid #DDD6FE',
+                                                                border: '1px solid #DDD6FE'
                                                             }}>
                                                                 <span style={{ fontSize: '15px', fontWeight: 500, color: '#5B21B6' }}>
                                                                     {agencies.find(ag => ag.id === editForm.current_agency_id)?.name || (
@@ -1639,14 +1639,14 @@ export default function EmployeeDetailPage() {
                                         backgroundColor: 'white',
                                         borderRadius: '16px',
                                         border: '1px solid #E5E7EB',
-                                        overflow: 'hidden',
+                                        overflow: 'hidden'
                                     }}>
                                         <div style={{
                                             padding: '20px 24px',
                                             borderBottom: '1px solid #E5E7EB',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            gap: '12px',
+                                            gap: '12px'
                                         }}>
                                             <div style={{
                                                 width: '40px',
@@ -1655,7 +1655,7 @@ export default function EmployeeDetailPage() {
                                                 backgroundColor: '#D1FAE5',
                                                 display: 'flex',
                                                 alignItems: 'center',
-                                                justifyContent: 'center',
+                                                justifyContent: 'center'
                                             }}>
                                                 <Calendar size={20} color="#059669" />
                                             </div>
@@ -1687,7 +1687,7 @@ export default function EmployeeDetailPage() {
                                                                 border: '2px solid #E5E7EB',
                                                                 borderRadius: '12px',
                                                                 backgroundColor: '#F9FAFB',
-                                                                outline: 'none',
+                                                                outline: 'none'
                                                             }}
                                                         />
                                                     ) : (
@@ -1695,7 +1695,7 @@ export default function EmployeeDetailPage() {
                                                             padding: '14px 16px',
                                                             backgroundColor: '#F9FAFB',
                                                             borderRadius: '12px',
-                                                            border: '1px solid #E5E7EB',
+                                                            border: '1px solid #E5E7EB'
                                                         }}>
                                                             <span style={{ fontSize: '15px', fontWeight: 500, color: '#1F2937' }}>
                                                                 {editForm.contract_start_date || (
@@ -1724,7 +1724,7 @@ export default function EmployeeDetailPage() {
                                                                 border: `2px solid ${contractTypes.find(ct => ct.id === Number(editForm.contract_type_id))?.requires_end_date ? '#FCA5A5' : '#E5E7EB'}`,
                                                                 borderRadius: '12px',
                                                                 backgroundColor: '#F9FAFB',
-                                                                outline: 'none',
+                                                                outline: 'none'
                                                             }}
                                                         />
                                                     ) : (
@@ -1732,7 +1732,7 @@ export default function EmployeeDetailPage() {
                                                             padding: '14px 16px',
                                                             backgroundColor: '#F9FAFB',
                                                             borderRadius: '12px',
-                                                            border: '1px solid #E5E7EB',
+                                                            border: '1px solid #E5E7EB'
                                                         }}>
                                                             <span style={{ fontSize: '15px', fontWeight: 500, color: '#1F2937' }}>
                                                                 {editForm.contract_end_date || (
@@ -1751,14 +1751,14 @@ export default function EmployeeDetailPage() {
                                         backgroundColor: 'white',
                                         borderRadius: '16px',
                                         border: '1px solid #E5E7EB',
-                                        overflow: 'hidden',
+                                        overflow: 'hidden'
                                     }}>
                                         <div style={{
                                             padding: '20px 24px',
                                             borderBottom: '1px solid #E5E7EB',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            gap: '12px',
+                                            gap: '12px'
                                         }}>
                                             <div style={{
                                                 width: '40px',
@@ -1767,7 +1767,7 @@ export default function EmployeeDetailPage() {
                                                 backgroundColor: '#DBEAFE',
                                                 display: 'flex',
                                                 alignItems: 'center',
-                                                justifyContent: 'center',
+                                                justifyContent: 'center'
                                             }}>
                                                 <FileText size={20} color="#3B82F6" />
                                             </div>
@@ -1824,7 +1824,7 @@ export default function EmployeeDetailPage() {
                                                                                 color: '#3B82F6',
                                                                                 textDecoration: 'none',
                                                                                 fontSize: '13px',
-                                                                                fontWeight: 500,
+                                                                                fontWeight: 500
                                                                             }}
                                                                         >
                                                                             <Eye size={14} />
@@ -1850,14 +1850,14 @@ export default function EmployeeDetailPage() {
                                         backgroundColor: 'white',
                                         borderRadius: '16px',
                                         border: '1px solid #E5E7EB',
-                                        overflow: 'hidden',
+                                        overflow: 'hidden'
                                     }}>
                                         <div style={{
                                             padding: '20px 24px',
                                             borderBottom: '1px solid #E5E7EB',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            gap: '12px',
+                                            gap: '12px'
                                         }}>
                                             <div style={{
                                                 width: '40px',
@@ -1866,7 +1866,7 @@ export default function EmployeeDetailPage() {
                                                 backgroundColor: '#FEF3C7',
                                                 display: 'flex',
                                                 alignItems: 'center',
-                                                justifyContent: 'center',
+                                                justifyContent: 'center'
                                             }}>
                                                 <Upload size={20} color="#D97706" />
                                             </div>
@@ -1909,14 +1909,14 @@ export default function EmployeeDetailPage() {
                                 borderRadius: '16px',
                                 border: '1px solid #E5E7EB',
                                 overflow: 'hidden',
-                                marginBottom: '24px',
+                                marginBottom: '24px'
                             }}>
                                 <div style={{
                                     padding: '20px 24px',
                                     borderBottom: '1px solid #E5E7EB',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'space-between',
+                                    justifyContent: 'space-between'
                                 }}>
                                     <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#1F2937', margin: 0 }}>
                                         Employee Certificates
@@ -1934,7 +1934,7 @@ export default function EmployeeDetailPage() {
                                             borderRadius: '8px',
                                             fontSize: '14px',
                                             fontWeight: 500,
-                                            cursor: 'pointer',
+                                            cursor: 'pointer'
                                         }}
                                     >
                                         <Plus size={16} />
@@ -1964,7 +1964,7 @@ export default function EmployeeDetailPage() {
                                                     padding: '16px',
                                                     backgroundColor: '#F9FAFB',
                                                     borderRadius: '12px',
-                                                    border: '1px solid #E5E7EB',
+                                                    border: '1px solid #E5E7EB'
                                                 }}>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                                                         <div style={{
@@ -1974,7 +1974,7 @@ export default function EmployeeDetailPage() {
                                                             backgroundColor: '#DBEAFE',
                                                             display: 'flex',
                                                             alignItems: 'center',
-                                                            justifyContent: 'center',
+                                                            justifyContent: 'center'
                                                         }}>
                                                             <Award size={20} color="#2563EB" />
                                                         </div>
@@ -2006,7 +2006,7 @@ export default function EmployeeDetailPage() {
                                                                 cursor: 'pointer',
                                                                 display: 'flex',
                                                                 alignItems: 'center',
-                                                                justifyContent: 'center',
+                                                                justifyContent: 'center'
                                                             }}
                                                         >
                                                             <Eye size={16} />
@@ -2022,7 +2022,7 @@ export default function EmployeeDetailPage() {
                                                                 cursor: 'pointer',
                                                                 display: 'flex',
                                                                 alignItems: 'center',
-                                                                justifyContent: 'center',
+                                                                justifyContent: 'center'
                                                             }}
                                                         >
                                                             <Trash2 size={16} />
@@ -2050,7 +2050,7 @@ export default function EmployeeDetailPage() {
                                 width: '100%',
                                 maxHeight: '90vh',
                                 overflow: 'auto',
-                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
                             }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                                     <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#111827', margin: 0 }}>Add Certificate</h3>
@@ -2071,7 +2071,7 @@ export default function EmployeeDetailPage() {
                                                 padding: '10px 12px',
                                                 borderRadius: '8px',
                                                 border: '1px solid #D1D5DB',
-                                                fontSize: '14px',
+                                                fontSize: '14px'
                                             }}
                                         >
                                             <option value="">Select a type...</option>
@@ -2094,7 +2094,7 @@ export default function EmployeeDetailPage() {
                                                 padding: '10px 12px',
                                                 borderRadius: '8px',
                                                 border: '1px solid #D1D5DB',
-                                                fontSize: '14px',
+                                                fontSize: '14px'
                                             }}
                                         />
                                     </div>
@@ -2113,7 +2113,7 @@ export default function EmployeeDetailPage() {
                                                     padding: '10px 12px',
                                                     borderRadius: '8px',
                                                     border: '1px solid #D1D5DB',
-                                                    fontSize: '14px',
+                                                    fontSize: '14px'
                                                 }}
                                             />
                                         </div>
@@ -2130,7 +2130,7 @@ export default function EmployeeDetailPage() {
                                                     padding: '10px 12px',
                                                     borderRadius: '8px',
                                                     border: '1px solid #D1D5DB',
-                                                    fontSize: '14px',
+                                                    fontSize: '14px'
                                                 }}
                                             />
                                         </div>
@@ -2155,7 +2155,7 @@ export default function EmployeeDetailPage() {
                                                     backgroundColor: uploadMode === 'pdf' ? 'white' : 'transparent',
                                                     color: uploadMode === 'pdf' ? '#1E3A5F' : '#6B7280',
                                                     boxShadow: uploadMode === 'pdf' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
-                                                    transition: 'all 0.2s',
+                                                    transition: 'all 0.2s'
                                                 }}
                                             >
                                                 PDF Document
@@ -2174,7 +2174,7 @@ export default function EmployeeDetailPage() {
                                                     backgroundColor: uploadMode === 'images' ? 'white' : 'transparent',
                                                     color: uploadMode === 'images' ? '#1E3A5F' : '#6B7280',
                                                     boxShadow: uploadMode === 'images' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
-                                                    transition: 'all 0.2s',
+                                                    transition: 'all 0.2s'
                                                 }}
                                             >
                                                 Photos (Front & Back)
@@ -2269,7 +2269,7 @@ export default function EmployeeDetailPage() {
                                                 fontSize: '14px',
                                                 fontWeight: 500,
                                                 color: '#374151',
-                                                cursor: 'pointer',
+                                                cursor: 'pointer'
                                             }}
                                         >
                                             Cancel
@@ -2312,7 +2312,7 @@ export default function EmployeeDetailPage() {
                                                 ) ? 'not-allowed' : 'pointer',
                                                 display: 'flex',
                                                 alignItems: 'center',
-                                                gap: '8px',
+                                                gap: '8px'
                                             }}
                                         >
                                             {savingCertificate ? 'Saving...' : 'Save Certificate'}
@@ -2336,7 +2336,7 @@ export default function EmployeeDetailPage() {
                                 width: '100%',
                                 maxHeight: '90vh',
                                 overflow: 'auto',
-                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
                             }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                                     <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', margin: 0 }}>Certificate Details</h3>
@@ -2358,7 +2358,7 @@ export default function EmployeeDetailPage() {
                                             fontSize: '12px',
                                             fontWeight: 600,
                                             backgroundColor: selectedCertificate.is_expired ? '#FEE2E2' : '#DCFCE7',
-                                            color: selectedCertificate.is_expired ? '#991B1B' : '#166534',
+                                            color: selectedCertificate.is_expired ? '#991B1B' : '#166534'
                                         }}>
                                             {selectedCertificate.is_expired ? 'Expired' : 'Active'}
                                         </span>
@@ -2482,7 +2482,7 @@ export default function EmployeeDetailPage() {
                                             // Let's stick to the 'card' look.
                                             display: 'flex',
                                             alignItems: 'center',
-                                            justifyContent: 'space-between',
+                                            justifyContent: 'space-between'
                                         }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                                                 <div style={{
@@ -2492,7 +2492,7 @@ export default function EmployeeDetailPage() {
                                                     backgroundColor: '#EFF6FF',
                                                     display: 'flex',
                                                     alignItems: 'center',
-                                                    justifyContent: 'center',
+                                                    justifyContent: 'center'
                                                 }}>
                                                     <FileText size={24} color="#3B82F6" />
                                                 </div>
@@ -2541,7 +2541,7 @@ export default function EmployeeDetailPage() {
                                 maxWidth: '420px',
                                 width: '100%',
                                 textAlign: 'center',
-                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
                             }}>
                                 {/* Success Icon */}
                                 <div style={{ width: '64px', height: '64px', borderRadius: '32px', backgroundColor: '#DCFCE7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
@@ -2567,7 +2567,7 @@ export default function EmployeeDetailPage() {
                                             fontSize: '14px',
                                             fontWeight: 600,
                                             cursor: 'pointer',
-                                            transition: 'all 0.2s',
+                                            transition: 'all 0.2s'
                                         }}
                                     >
                                         Cancel
@@ -2588,7 +2588,7 @@ export default function EmployeeDetailPage() {
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                             gap: '8px',
-                                            transition: 'all 0.2s',
+                                            transition: 'all 0.2s'
                                         }}
                                     >
                                         <CheckCircle style={{ width: '16px', height: '16px' }} /> Approve
@@ -2610,7 +2610,7 @@ export default function EmployeeDetailPage() {
                                 maxWidth: '480px',
                                 width: '100%',
                                 textAlign: 'center',
-                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
                             }}>
                                 <div style={{ width: '64px', height: '64px', borderRadius: '32px', backgroundColor: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
                                     <FileText style={{ width: '32px', height: '32px', color: '#D97706' }} />
@@ -2637,7 +2637,7 @@ export default function EmployeeDetailPage() {
                                             fontSize: '14px',
                                             fontWeight: 600,
                                             cursor: 'pointer',
-                                            transition: 'all 0.2s',
+                                            transition: 'all 0.2s'
                                         }}
                                     >
                                         No, Save Rate Only
@@ -2657,7 +2657,7 @@ export default function EmployeeDetailPage() {
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                             gap: '8px',
-                                            transition: 'all 0.2s',
+                                            transition: 'all 0.2s'
                                         }}
                                     >
                                         <Upload style={{ width: '16px', height: '16px' }} />
@@ -2683,7 +2683,7 @@ export default function EmployeeDetailPage() {
                                         border: 'none',
                                         fontSize: '13px',
                                         color: '#9CA3AF',
-                                        cursor: 'pointer',
+                                        cursor: 'pointer'
                                     }}
                                 >
                                     Cancel
@@ -2702,7 +2702,7 @@ export default function EmployeeDetailPage() {
                                 maxWidth: '420px',
                                 width: '100%',
                                 textAlign: 'center',
-                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
                             }}>
                                 {/* Warning Icon */}
                                 <div style={{ width: '64px', height: '64px', borderRadius: '32px', backgroundColor: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
@@ -2732,13 +2732,13 @@ export default function EmployeeDetailPage() {
                                             marginBottom: '8px',
                                             textAlign: 'left',
                                             fontFamily: 'inherit',
-                                            boxSizing: 'border-box',
+                                            boxSizing: 'border-box'
                                         }}
                                     />
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                                         <span style={{
                                             fontSize: '12px',
-                                            color: rejectReason.length > 0 && rejectReason.trim().length < 10 ? '#DC2626' : '#9CA3AF',
+                                            color: rejectReason.length > 0 && rejectReason.trim().length < 10 ? '#DC2626' : '#9CA3AF'
                                         }}>
                                             {rejectReason.trim().length < 10 ? `Minimum 10 characters required (${rejectReason.trim().length}/10)` : '✓ Minimum met'}
                                         </span>
@@ -2761,7 +2761,7 @@ export default function EmployeeDetailPage() {
                                             fontSize: '14px',
                                             fontWeight: 600,
                                             cursor: 'pointer',
-                                            transition: 'all 0.2s',
+                                            transition: 'all 0.2s'
                                         }}
                                     >
                                         Cancel
@@ -2783,7 +2783,7 @@ export default function EmployeeDetailPage() {
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                             gap: '8px',
-                                            transition: 'all 0.2s',
+                                            transition: 'all 0.2s'
                                         }}
                                     >
                                         <X style={{ width: '16px', height: '16px' }} /> Reject

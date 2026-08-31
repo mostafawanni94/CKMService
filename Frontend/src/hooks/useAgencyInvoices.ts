@@ -44,6 +44,6 @@ export function useAgencyInvoices() {
     page, setPage, totalPages,
     statusFilter, setStatusFilter,
     searchQuery, setSearchQuery,
-    refetch: fetchInvoices,
+    refetch: fetchInvoices
   };
 }

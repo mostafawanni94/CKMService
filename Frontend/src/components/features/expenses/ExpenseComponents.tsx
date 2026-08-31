@@ -7,7 +7,7 @@ import React from 'react';
 import { Receipt, Trash2, Edit3, Upload, Euro } from 'lucide-react';
 import {
   Modal, Button, Input, Select, FormGrid, Badge,
-  DataTable, StatCard, EmptyState,
+  DataTable, StatCard, EmptyState
 } from '@/components/ui/shared';
 import type { Column } from '@/components/ui/shared';
 import { colors, spacing, fontSize, fontWeight } from '@/styles/tokens';
@@ -46,7 +46,7 @@ export function ExpenseTable({ expenses, loading, onEdit, onDelete }: ExpenseTab
   const columns: Column<Expense>[] = [
     {
       key: 'date', header: 'Date',
-      render: (e) => <span style={{ fontWeight: fontWeight.semibold }}>{e.expense_date}</span>,
+      render: (e) => <span style={{ fontWeight: fontWeight.semibold }}>{e.expense_date}</span>
     },
     {
       key: 'vendor', header: 'Vendor',
@@ -55,7 +55,7 @@ export function ExpenseTable({ expenses, loading, onEdit, onDelete }: ExpenseTab
           <div style={{ fontWeight: fontWeight.semibold, color: colors.textPrimary }}>{e.vendor_name}</div>
           <div style={{ fontSize: fontSize.sm, color: colors.textMuted }}>{e.description}</div>
         </div>
-      ),
+      )
     },
     {
       key: 'category', header: 'Category',
@@ -63,7 +63,7 @@ export function ExpenseTable({ expenses, loading, onEdit, onDelete }: ExpenseTab
         <Badge color={e.category_color || colors.textSecondary} bg={`${e.category_color}18` || colors.bgAlt}>
           {e.category_name}
         </Badge>
-      ),
+      )
     },
     {
       key: 'amount', header: 'Amount', align: 'right',
@@ -74,11 +74,11 @@ export function ExpenseTable({ expenses, loading, onEdit, onDelete }: ExpenseTab
             excl. €{parseFloat(e.amount_excl_vat).toFixed(2)} + {e.vat_rate}% BTW
           </div>
         </div>
-      ),
+      )
     },
     {
       key: 'payment', header: 'Payment',
-      render: (e) => <span style={{ fontSize: fontSize.md, color: colors.textMuted }}>{e.payment_method_display}</span>,
+      render: (e) => <span style={{ fontSize: fontSize.md, color: colors.textMuted }}>{e.payment_method_display}</span>
     },
     {
       key: 'actions', header: '',
@@ -91,7 +91,7 @@ export function ExpenseTable({ expenses, loading, onEdit, onDelete }: ExpenseTab
             <Trash2 size={16} />
           </button>
         </div>
-      ),
+      )
     },
   ];
 
@@ -125,7 +125,7 @@ interface ExpenseModalProps {
 
 export function ExpenseModal({
   open, onClose, title, form, updateForm,
-  categories, receiptFile, setReceiptFile, onSave, saving,
+  categories, receiptFile, setReceiptFile, onSave, saving
 }: ExpenseModalProps) {
   // Calculate preview
   const amountExcl = parseFloat(form.amount_excl_vat) || 0;
@@ -195,7 +195,7 @@ export function ExpenseModal({
             <label style={{
               display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px',
               border: `1.5px dashed ${colors.border}`, borderRadius: '8px', cursor: 'pointer',
-              fontSize: fontSize.base, color: colors.textMuted,
+              fontSize: fontSize.base, color: colors.textMuted
             }}>
               <Upload size={16} />
               {receiptFile ? receiptFile.name : 'Choose file...'}

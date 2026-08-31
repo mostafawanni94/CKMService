@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { Button } from '@/components/ui';
 import { Calendar, Clock, MapPin, User, Building2, Phone, Mail, ArrowLeft, Check, AlertCircle, Users } from 'lucide-react';
+import { apiFetch } from '@/hooks/useApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -55,7 +56,7 @@ export default function NewShiftPage() {
         location_notes: '',
         supervisor_phone: '',
         supervisor_email: '',
-        special_instructions: '',
+        special_instructions: ''
     });
 
     // Employee search
@@ -70,9 +71,7 @@ export default function NewShiftPage() {
 
     async function loadEmployees() {
         try {
-            const response = await fetch(`${API_URL}/employees/profiles/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/employees/profiles/`);
             if (response.ok) {
                 const data = await response.json();
                 setEmployees((data.results || data).map((e: any) => ({ id: e.id, full_name: e.full_name })));
@@ -84,9 +83,7 @@ export default function NewShiftPage() {
 
     async function loadProjects() {
         try {
-            const response = await fetch(`${API_URL}/projects/projects/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/projects/projects/`);
             if (response.ok) {
                 const data = await response.json();
                 setProjects((data.results || data).map((p: any) => ({
@@ -103,9 +100,7 @@ export default function NewShiftPage() {
 
     async function loadCustomers() {
         try {
-            const response = await fetch(`${API_URL}/customers/customers/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/customers/customers/`);
             if (response.ok) {
                 const data = await response.json();
                 setCustomers((data.results || data).map((c: any) => ({ id: c.id, company_name: c.company_name })));
@@ -123,9 +118,7 @@ export default function NewShiftPage() {
         }
         try {
             // Load supervisors from project detail API
-            const projRes = await fetch(`${API_URL}/projects/projects/${projectId}/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const projRes = await apiFetch(`/projects/projects/${projectId}/`);
             if (projRes.ok) {
                 const projData = await projRes.json();
                 const sups = (projData.supervisors_list || []).map((s: any) => ({
@@ -139,9 +132,7 @@ export default function NewShiftPage() {
 
             // Load services from customer
             if (customerId) {
-                const svcRes = await fetch(`${API_URL}/customers/worklog-customers/${customerId}/services/`, {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-                });
+                const svcRes = await apiFetch(`/customers/worklog-customers/${customerId}/services/`);
                 if (svcRes.ok) {
                     const data = await svcRes.json();
                     setServices(data);
@@ -186,16 +177,15 @@ export default function NewShiftPage() {
                         location_notes: formData.location_notes,
                         supervisor_phone: formData.supervisor_phone,
                         supervisor_email: formData.supervisor_email,
-                        special_instructions: formData.special_instructions,
+                        special_instructions: formData.special_instructions
                     };
 
-                    return await fetch(`${API_URL}/worklogs/shifts/`, {
+                    return await apiFetch(`/worklogs/shifts/`, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                            'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(payload),
+                        body: JSON.stringify(payload)
                     });
                 })
             );
@@ -226,7 +216,7 @@ export default function NewShiftPage() {
         border: '1px solid #E5E7EB',
         borderRadius: '10px',
         outline: 'none',
-        backgroundColor: '#FAFAFA',
+        backgroundColor: '#FAFAFA'
     };
 
     const labelStyle = {
@@ -234,7 +224,7 @@ export default function NewShiftPage() {
         fontSize: '13px',
         fontWeight: 600 as const,
         color: '#374151',
-        marginBottom: '8px',
+        marginBottom: '8px'
     };
 
     return (
@@ -249,7 +239,7 @@ export default function NewShiftPage() {
                             backgroundColor: '#F3F4F6',
                             border: 'none',
                             borderRadius: '10px',
-                            cursor: 'pointer',
+                            cursor: 'pointer'
                         }}
                     >
                         <ArrowLeft size={20} />
@@ -411,7 +401,7 @@ export default function NewShiftPage() {
                                             border: 'none',
                                             borderRadius: '6px',
                                             cursor: 'pointer',
-                                            fontWeight: 500,
+                                            fontWeight: 500
                                         }}
                                     >
                                         Clear All
@@ -435,7 +425,7 @@ export default function NewShiftPage() {
                                                 borderRadius: '20px',
                                                 fontSize: '13px',
                                                 color: '#1D4ED8',
-                                                fontWeight: 500,
+                                                fontWeight: 500
                                             }}>
                                                 {emp.full_name}
                                                 <button
@@ -449,7 +439,7 @@ export default function NewShiftPage() {
                                                         cursor: 'pointer',
                                                         padding: '0',
                                                         display: 'flex',
-                                                        color: '#3B82F6',
+                                                        color: '#3B82F6'
                                                     }}
                                                 >
                                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -486,7 +476,7 @@ export default function NewShiftPage() {
                                         maxHeight: '250px',
                                         overflowY: 'auto',
                                         zIndex: 100,
-                                        marginTop: '4px',
+                                        marginTop: '4px'
                                     }}>
                                         {employees
                                             .filter(emp => emp.full_name.toLowerCase().includes(employeeSearch.toLowerCase()))
@@ -516,7 +506,7 @@ export default function NewShiftPage() {
                                                             alignItems: 'center',
                                                             justifyContent: 'space-between',
                                                             backgroundColor: isSelected ? '#EFF6FF' : 'white',
-                                                            borderBottom: '1px solid #F3F4F6',
+                                                            borderBottom: '1px solid #F3F4F6'
                                                         }}
                                                     >
                                                         <span>{emp.full_name}</span>
@@ -599,7 +589,7 @@ export default function NewShiftPage() {
                                     borderRadius: '10px',
                                     fontSize: '14px',
                                     fontWeight: 600,
-                                    cursor: 'pointer',
+                                    cursor: 'pointer'
                                 }}
                             >
                                 Cancel
@@ -616,7 +606,7 @@ export default function NewShiftPage() {
                                     fontSize: '14px',
                                     fontWeight: 600,
                                     cursor: saving ? 'wait' : 'pointer',
-                                    opacity: saving || formData.selectedEmployees.length === 0 ? 0.7 : 1,
+                                    opacity: saving || formData.selectedEmployees.length === 0 ? 0.7 : 1
                                 }}
                             >
                                 {saving ? 'Creating...' : `Create ${formData.selectedEmployees.length || ''} Shift${formData.selectedEmployees.length !== 1 ? 's' : ''}`}

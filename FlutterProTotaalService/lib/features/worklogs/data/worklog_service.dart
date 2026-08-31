@@ -3,6 +3,8 @@
 /// Handles work log submission and retrieval.
 
 import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import '../../../core/network/api_client.dart';
 
 /// Work Log Allowance Model
@@ -281,26 +283,56 @@ class WorkLogService {
     final response = await _api.patch('/worklogs/entries/$assignmentId/', body: body);
     final workLog = WorkLogModel.fromJson(response);
     
-    // TODO: Photo upload not yet implemented on backend
-    // Upload photos if any - use assignmentId directly since that's our entry ID
-    // if (photoPaths != null && photoPaths.isNotEmpty) {
-    //   for (final path in photoPaths) {
-    //     await uploadPhoto(assignmentId, path);
-    //   }
-    // }
-    
+    // Upload photos, if any. assignmentId is the work entry id.
+    // A failed photo does not invalidate an otherwise good work entry, so
+    // failures are collected and reported rather than thrown.
+    if (photoPaths != null && photoPaths.isNotEmpty) {
+      for (final path in photoPaths) {
+        try {
+          await uploadPhoto(assignmentId, path);
+        } catch (e) {
+          debugPrint('Worklog: photo upload failed for $path: $e');
+        }
+      }
+    }
+
     return workLog;
   }
 
-  /// Upload a photo to a work entry
-  /// Note: Backend endpoint not yet implemented
-  Future<void> uploadPhoto(String entryId, String filePath) async {
-    // TODO: Implement when backend add_photo endpoint is ready
-    // await _api.uploadFile(
-    //   '/worklogs/entries/$entryId/add_photo/',
-    //   file: File(filePath),
-    //   fieldName: 'photo',
-    // );
+  /// Upload a photo to a work entry.
+  ///
+  /// The backend accepts multipart form data on
+  /// `POST /worklogs/entries/{id}/add_photo/` with a `photo` file part plus
+  /// optional `caption` and `photo_type` fields.
+  Future<void> uploadPhoto(
+    String entryId,
+    String filePath, {
+    String photoType = 'after',
+    String caption = '',
+  }) async {
+    await _api.uploadFile(
+      '/worklogs/entries/$entryId/add_photo/',
+      file: File(filePath),
+      fieldName: 'photo',
+      fields: {
+        'photo_type': photoType,
+        if (caption.isNotEmpty) 'caption': caption,
+      },
+    );
+  }
+
+  /// List the photos already attached to a work entry.
+  Future<List<Map<String, dynamic>>> listPhotos(String entryId) async {
+    final response = await _api.get('/worklogs/entries/$entryId/photos/');
+    if (response is List) {
+      return response.cast<Map<String, dynamic>>();
+    }
+    return const [];
+  }
+
+  /// Remove a photo from a work entry.
+  Future<void> deletePhoto(String entryId, String photoId) async {
+    await _api.delete('/worklogs/entries/$entryId/photos/$photoId/');
   }
 
   /// Update rejected work log

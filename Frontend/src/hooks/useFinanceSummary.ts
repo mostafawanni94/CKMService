@@ -52,6 +52,6 @@ export function useFinanceSummary() {
     income, expenses, netProfit, vatCollected, vatPaid, vatDue,
     incomeExclVat, expensesExclVat,
     // Actions
-    setYear, setQuarter, handleExport, refetch: fetchSummary,
+    setYear, setQuarter, handleExport, refetch: fetchSummary
   };
 }

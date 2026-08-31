@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/components/layout/dashboard';
 import { Button } from '@/components/ui';
 import { FolderKanban, ArrowLeft, MapPin, Save, Trash2, Building2, AlertTriangle, UserCircle, Check, X, Calendar } from 'lucide-react';
 import { Customer } from '@/lib/api';
+import { apiFetch } from '@/hooks/useApi';
 
 interface Supervisor {
     id: string;
@@ -38,7 +39,7 @@ export default function ProjectDetailPage() {
         name: '',
         location: '',
         description: '',
-        customer: '',
+        customer: ''
     });
 
     // Supervisors state
@@ -64,11 +65,7 @@ export default function ProjectDetailPage() {
 
     async function loadCustomers() {
         try {
-            const response = await fetch(`${API_URL}/customers/customers/`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            });
+            const response = await apiFetch(`/customers/customers/`);
             if (response.ok) {
                 const data = await response.json();
                 setCustomers(data.results || []);
@@ -81,11 +78,7 @@ export default function ProjectDetailPage() {
     async function loadCustomerSupervisors(customerId: string) {
         setLoadingSupervisors(true);
         try {
-            const response = await fetch(`${API_URL}/customers/customers/${customerId}/`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            });
+            const response = await apiFetch(`/customers/customers/${customerId}/`);
             if (response.ok) {
                 const data = await response.json();
                 setCustomerSupervisors(data.outfolders || []);
@@ -101,11 +94,7 @@ export default function ProjectDetailPage() {
     async function loadProject() {
         setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/projects/projects/${params.id}/`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            });
+            const response = await apiFetch(`/projects/projects/${params.id}/`);
             if (!response.ok) throw new Error('Project not found');
             const data = await response.json();
             setProject(data);
@@ -113,7 +102,7 @@ export default function ProjectDetailPage() {
                 name: data.name || '',
                 location: data.location || '',
                 description: data.description || '',
-                customer: data.customer || '',
+                customer: data.customer || ''
             });
             // Set selected supervisors from project data
             if (data.supervisors_list) {
@@ -137,17 +126,16 @@ export default function ProjectDetailPage() {
     async function handleSave() {
         setSaving(true);
         try {
-            const response = await fetch(`${API_URL}/projects/projects/${params.id}/`, {
+            const response = await apiFetch(`/projects/projects/${params.id}/`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     ...editForm,
                     outfolder: selectedSupervisors.length > 0 ? selectedSupervisors[0] : null,
-                    supervisors: selectedSupervisors,
-                }),
+                    supervisors: selectedSupervisors
+                })
             });
             if (!response.ok) throw new Error('Failed to save');
             await loadProject();
@@ -162,11 +150,8 @@ export default function ProjectDetailPage() {
     async function handleDelete() {
         setDeleting(true);
         try {
-            const response = await fetch(`${API_URL}/projects/projects/${params.id}/`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
+            const response = await apiFetch(`/projects/projects/${params.id}/`, {
+                method: 'DELETE'
             });
             if (!response.ok) throw new Error('Failed to delete');
             router.push('/dashboard/projects');
@@ -183,7 +168,7 @@ export default function ProjectDetailPage() {
         border: '1px solid #E5E7EB',
         borderRadius: '10px',
         fontSize: '14px',
-        outline: 'none',
+        outline: 'none'
     };
 
     const labelStyle = {
@@ -192,7 +177,7 @@ export default function ProjectDetailPage() {
         fontWeight: 600,
         color: '#6B7280',
         marginBottom: '8px',
-        textTransform: 'uppercase' as const,
+        textTransform: 'uppercase' as const
     };
 
     if (loading) {
@@ -223,7 +208,7 @@ export default function ProjectDetailPage() {
     const statusStyles: Record<string, { bg: string; text: string }> = {
         active: { bg: '#DCFCE7', text: '#16A34A' },
         completed: { bg: '#F3F4F6', text: '#6B7280' },
-        paused: { bg: '#FEF3C7', text: '#D97706' },
+        paused: { bg: '#FEF3C7', text: '#D97706' }
     };
 
     const currentStatus = statusStyles[project.status] || statusStyles.active;
@@ -244,7 +229,7 @@ export default function ProjectDetailPage() {
                         background: 'none',
                         border: 'none',
                         cursor: 'pointer',
-                        marginBottom: '16px',
+                        marginBottom: '16px'
                     }}
                 >
                     <ArrowLeft style={{ width: '16px', height: '16px' }} />
@@ -264,7 +249,7 @@ export default function ProjectDetailPage() {
                             alignItems: 'center',
                             justifyContent: 'center',
                             border: '4px solid white',
-                            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
                         }}>
                             <FolderKanban style={{ width: '32px', height: '32px', color: 'white' }} />
                         </div>
@@ -282,7 +267,7 @@ export default function ProjectDetailPage() {
                                     fontSize: '12px',
                                     fontWeight: 600,
                                     backgroundColor: currentStatus.bg,
-                                    color: currentStatus.text,
+                                    color: currentStatus.text
                                 }}>
                                     {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
                                 </span>
@@ -305,7 +290,7 @@ export default function ProjectDetailPage() {
                                 borderRadius: '10px',
                                 fontSize: '14px',
                                 fontWeight: 600,
-                                cursor: 'pointer',
+                                cursor: 'pointer'
                             }}
                         >
                             <Calendar style={{ width: '16px', height: '16px' }} />
@@ -324,7 +309,7 @@ export default function ProjectDetailPage() {
                                 borderRadius: '10px',
                                 fontSize: '14px',
                                 fontWeight: 600,
-                                cursor: 'pointer',
+                                cursor: 'pointer'
                             }}
                         >
                             <Trash2 style={{ width: '16px', height: '16px' }} />
@@ -345,7 +330,7 @@ export default function ProjectDetailPage() {
                                 fontSize: '14px',
                                 fontWeight: 600,
                                 cursor: saving ? 'not-allowed' : 'pointer',
-                                opacity: saving ? 0.7 : 1,
+                                opacity: saving ? 0.7 : 1
                             }}
                         >
                             <Save style={{ width: '16px', height: '16px' }} />
@@ -361,7 +346,7 @@ export default function ProjectDetailPage() {
                         backgroundColor: 'white',
                         borderRadius: '16px',
                         border: '1px solid #E5E7EB',
-                        padding: '24px',
+                        padding: '24px'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
                             <div style={{ padding: '10px', backgroundColor: '#EFF6FF', borderRadius: '10px' }}>
@@ -430,7 +415,7 @@ export default function ProjectDetailPage() {
                         backgroundColor: 'white',
                         borderRadius: '16px',
                         border: '1px solid #E5E7EB',
-                        padding: '24px',
+                        padding: '24px'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
                             <div style={{ padding: '10px', backgroundColor: '#F3E8FF', borderRadius: '10px' }}>
@@ -473,7 +458,7 @@ export default function ProjectDetailPage() {
                                             border: selectedSupervisors.includes(supervisor.id) ? '2px solid #2563EB' : '1px solid #E5E7EB',
                                             borderRadius: '10px',
                                             cursor: 'pointer',
-                                            transition: 'all 0.15s',
+                                            transition: 'all 0.15s'
                                         }}
                                     >
                                         <div style={{
@@ -485,7 +470,7 @@ export default function ProjectDetailPage() {
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            flexShrink: 0,
+                                            flexShrink: 0
                                         }}>
                                             {selectedSupervisors.includes(supervisor.id) && (
                                                 <Check style={{ width: '14px', height: '14px', color: 'white' }} />
@@ -517,7 +502,7 @@ export default function ProjectDetailPage() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        padding: '16px',
+                        padding: '16px'
                     }}>
                         <div
                             style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)' }}
@@ -530,7 +515,7 @@ export default function ProjectDetailPage() {
                             padding: '32px',
                             maxWidth: '400px',
                             width: '100%',
-                            textAlign: 'center',
+                            textAlign: 'center'
                         }}>
                             <div style={{
                                 width: '64px',
@@ -540,7 +525,7 @@ export default function ProjectDetailPage() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                margin: '0 auto 16px',
+                                margin: '0 auto 16px'
                             }}>
                                 <Trash2 style={{ width: '28px', height: '28px', color: '#DC2626' }} />
                             </div>
@@ -560,7 +545,7 @@ export default function ProjectDetailPage() {
                                         borderRadius: '10px',
                                         fontSize: '14px',
                                         fontWeight: 600,
-                                        cursor: 'pointer',
+                                        cursor: 'pointer'
                                     }}
                                 >
                                     Cancel
@@ -578,7 +563,7 @@ export default function ProjectDetailPage() {
                                         fontSize: '14px',
                                         fontWeight: 600,
                                         cursor: deleting ? 'not-allowed' : 'pointer',
-                                        opacity: deleting ? 0.7 : 1,
+                                        opacity: deleting ? 0.7 : 1
                                     }}
                                 >
                                     {deleting ? 'Deleting...' : 'Delete'}

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/dashboard';
+import { apiFetch, readApiError } from '@/hooks/useApi';
 
 // Types
 interface CertificateType {
@@ -52,7 +53,7 @@ export default function CertificatesPage() {
         is_required: false,
         has_expiry: true,
         has_diploma_number: true,
-        sort_order: 0,
+        sort_order: 0
     });
 
     // Load certificate types from API
@@ -64,10 +65,7 @@ export default function CertificatesPage() {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/types/`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
+            const response = await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/types/`, {
             });
             if (!response.ok) throw new Error('Failed to load certificate types');
             const data = await response.json();
@@ -94,7 +92,7 @@ export default function CertificatesPage() {
         total: certificates.length,
         active: certificates.filter(c => c.is_active).length,
         required: certificates.filter(c => c.is_required).length,
-        totalEmployees: certificates.reduce((sum, c) => sum + (c.employee_count || 0), 0),
+        totalEmployees: certificates.reduce((sum, c) => sum + (c.employee_count || 0), 0)
     };
 
     // Open modal for add/edit
@@ -108,7 +106,7 @@ export default function CertificatesPage() {
                 is_required: certificate.is_required,
                 has_expiry: certificate.has_expiry,
                 has_diploma_number: certificate.has_diploma_number,
-                sort_order: certificate.sort_order,
+                sort_order: certificate.sort_order
             });
         } else {
             setEditingCertificate(null);
@@ -119,7 +117,7 @@ export default function CertificatesPage() {
                 is_required: false,
                 has_expiry: true,
                 has_diploma_number: true,
-                sort_order: certificates.length + 1,
+                sort_order: certificates.length + 1
             });
         }
         setIsModalOpen(true);
@@ -133,19 +131,15 @@ export default function CertificatesPage() {
                 ? `${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/types/${editingCertificate.id}/`
                 : `${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/types/`;
 
-            const response = await fetch(url, {
+            const response = await apiFetch(url, {
                 method: editingCertificate ? 'PUT' : 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(formData)
             });
 
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.detail || data.name?.[0] || 'Failed to save certificate type');
-            }
+            if (!response.ok) throw new Error(await readApiError(response));
 
             setIsModalOpen(false);
             await loadCertificates(); // Reload from API
@@ -161,11 +155,8 @@ export default function CertificatesPage() {
         if (!confirm('Are you sure you want to delete this certificate type?')) return;
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/types/${id}/`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
+            const response = await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/types/${id}/`, {
+                method: 'DELETE'
             });
 
             if (!response.ok && response.status !== 204) {
@@ -185,13 +176,12 @@ export default function CertificatesPage() {
         if (!cert) return;
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/types/${id}/`, {
+            const response = await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/certificates/types/${id}/`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ is_active: !cert.is_active }),
+                body: JSON.stringify({ is_active: !cert.is_active })
             });
 
             if (!response.ok) {
@@ -212,21 +202,21 @@ export default function CertificatesPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    marginBottom: '32px',
+                    marginBottom: '32px'
                 }}>
                     <div>
                         <h1 style={{
                             fontSize: '28px',
                             fontWeight: 700,
                             color: '#1F2937',
-                            margin: 0,
+                            margin: 0
                         }}>
                             Certificate Types
                         </h1>
                         <p style={{
                             fontSize: '15px',
                             color: '#6B7280',
-                            marginTop: '6px',
+                            marginTop: '6px'
                         }}>
                             Manage certificate types that employees can upload
                         </p>
@@ -247,7 +237,7 @@ export default function CertificatesPage() {
                             fontWeight: 600,
                             cursor: 'pointer',
                             boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-                            transition: 'all 0.15s ease',
+                            transition: 'all 0.15s ease'
                         }}
                         onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
                         onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
@@ -262,7 +252,7 @@ export default function CertificatesPage() {
                     display: 'grid',
                     gridTemplateColumns: 'repeat(4, 1fr)',
                     gap: '20px',
-                    marginBottom: '32px',
+                    marginBottom: '32px'
                 }}>
                     <StatCard
                         label="Total Types"
@@ -295,12 +285,12 @@ export default function CertificatesPage() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '16px',
-                    marginBottom: '24px',
+                    marginBottom: '24px'
                 }}>
                     {/* Search */}
                     <div style={{
                         flex: 1,
-                        position: 'relative',
+                        position: 'relative'
                     }}>
                         <Search
                             size={18}
@@ -309,7 +299,7 @@ export default function CertificatesPage() {
                                 left: '14px',
                                 top: '50%',
                                 transform: 'translateY(-50%)',
-                                color: '#9CA3AF',
+                                color: '#9CA3AF'
                             }}
                         />
                         <input
@@ -324,7 +314,7 @@ export default function CertificatesPage() {
                                 backgroundColor: 'white',
                                 border: '1px solid #E5E7EB',
                                 borderRadius: '12px',
-                                outline: 'none',
+                                outline: 'none'
                             }}
                         />
                     </div>
@@ -335,7 +325,7 @@ export default function CertificatesPage() {
                         gap: '8px',
                         backgroundColor: '#F3F4F6',
                         padding: '4px',
-                        borderRadius: '10px',
+                        borderRadius: '10px'
                     }}>
                         {(['all', 'active', 'inactive'] as const).map((filter) => (
                             <button
@@ -351,7 +341,7 @@ export default function CertificatesPage() {
                                     borderRadius: '8px',
                                     cursor: 'pointer',
                                     transition: 'all 0.15s ease',
-                                    textTransform: 'capitalize',
+                                    textTransform: 'capitalize'
                                 }}
                             >
                                 {filter}
@@ -365,7 +355,7 @@ export default function CertificatesPage() {
                     backgroundColor: 'white',
                     borderRadius: '16px',
                     border: '1px solid #E5E7EB',
-                    overflow: 'hidden',
+                    overflow: 'hidden'
                 }}>
                     {/* Table Header */}
                     <div style={{
@@ -379,7 +369,7 @@ export default function CertificatesPage() {
                         fontWeight: 600,
                         color: '#6B7280',
                         textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
+                        letterSpacing: '0.05em'
                     }}>
                         <div></div>
                         <div>Certificate Name</div>
@@ -396,7 +386,7 @@ export default function CertificatesPage() {
                         <div style={{
                             padding: '60px 20px',
                             textAlign: 'center',
-                            color: '#9CA3AF',
+                            color: '#9CA3AF'
                         }}>
                             <div style={{
                                 width: '40px',
@@ -405,7 +395,7 @@ export default function CertificatesPage() {
                                 borderTopColor: '#3B82F6',
                                 borderRadius: '50%',
                                 margin: '0 auto 16px',
-                                animation: 'spin 1s linear infinite',
+                                animation: 'spin 1s linear infinite'
                             }} />
                             <p style={{ fontSize: '14px' }}>Loading certificate types...</p>
                             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -414,7 +404,7 @@ export default function CertificatesPage() {
                         <div style={{
                             padding: '60px 20px',
                             textAlign: 'center',
-                            color: '#EF4444',
+                            color: '#EF4444'
                         }}>
                             <AlertTriangle size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
                             <p style={{ fontSize: '16px', fontWeight: 500 }}>{error}</p>
@@ -427,7 +417,7 @@ export default function CertificatesPage() {
                                     color: 'white',
                                     border: 'none',
                                     borderRadius: '8px',
-                                    cursor: 'pointer',
+                                    cursor: 'pointer'
                                 }}
                             >
                                 Retry
@@ -437,7 +427,7 @@ export default function CertificatesPage() {
                         <div style={{
                             padding: '60px 20px',
                             textAlign: 'center',
-                            color: '#9CA3AF',
+                            color: '#9CA3AF'
                         }}>
                             <Award size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
                             <p style={{ fontSize: '16px', fontWeight: 500 }}>No certificate types found</p>
@@ -457,7 +447,7 @@ export default function CertificatesPage() {
                                     alignItems: 'center',
                                     borderBottom: index < filteredCertificates.length - 1 ? '1px solid #F3F4F6' : 'none',
                                     backgroundColor: cert.is_active ? 'white' : '#FAFAFA',
-                                    transition: 'background-color 0.15s ease',
+                                    transition: 'background-color 0.15s ease'
                                 }}
                             >
                                 {/* Drag Handle */}
@@ -474,7 +464,7 @@ export default function CertificatesPage() {
                                         backgroundColor: cert.is_active ? '#EEF2FF' : '#F3F4F6',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        justifyContent: 'center',
+                                        justifyContent: 'center'
                                     }}>
                                         <Award size={20} color={cert.is_active ? '#6366F1' : '#9CA3AF'} />
                                     </div>
@@ -482,7 +472,7 @@ export default function CertificatesPage() {
                                         <p style={{
                                             fontWeight: 600,
                                             color: cert.is_active ? '#1F2937' : '#9CA3AF',
-                                            fontSize: '14px',
+                                            fontSize: '14px'
                                         }}>
                                             {cert.name}
                                         </p>
@@ -493,7 +483,7 @@ export default function CertificatesPage() {
                                                 gap: '4px',
                                                 fontSize: '11px',
                                                 color: '#6B7280',
-                                                marginTop: '2px',
+                                                marginTop: '2px'
                                             }}>
                                                 <Hash size={10} />
                                                 Has diploma number
@@ -508,7 +498,7 @@ export default function CertificatesPage() {
                                     color: '#6B7280',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
+                                    whiteSpace: 'nowrap'
                                 }}>
                                     {cert.description || 'No description'}
                                 </p>
@@ -528,7 +518,7 @@ export default function CertificatesPage() {
                                             backgroundColor: cert.is_active ? '#D1FAE5' : '#F3F4F6',
                                             border: 'none',
                                             borderRadius: '6px',
-                                            cursor: 'pointer',
+                                            cursor: 'pointer'
                                         }}
                                     >
                                         {cert.is_active ? <CheckCircle size={12} /> : <XCircle size={12} />}
@@ -548,7 +538,7 @@ export default function CertificatesPage() {
                                             fontWeight: 500,
                                             color: '#D97706',
                                             backgroundColor: '#FEF3C7',
-                                            borderRadius: '6px',
+                                            borderRadius: '6px'
                                         }}>
                                             <AlertTriangle size={12} />
                                             Required
@@ -566,7 +556,7 @@ export default function CertificatesPage() {
                                             alignItems: 'center',
                                             gap: '4px',
                                             fontSize: '12px',
-                                            color: '#6B7280',
+                                            color: '#6B7280'
                                         }}>
                                             <Calendar size={14} />
                                             Yes
@@ -587,7 +577,7 @@ export default function CertificatesPage() {
                                         fontWeight: 500,
                                         color: '#3B82F6',
                                         backgroundColor: '#EFF6FF',
-                                        borderRadius: '6px',
+                                        borderRadius: '6px'
                                     }}>
                                         <Users size={12} />
                                         {cert.employee_count || 0}
@@ -599,7 +589,7 @@ export default function CertificatesPage() {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    gap: '4px',
+                                    gap: '4px'
                                 }}>
                                     <button
                                         onClick={() => openModal(cert)}
@@ -609,7 +599,7 @@ export default function CertificatesPage() {
                                             backgroundColor: 'transparent',
                                             border: 'none',
                                             borderRadius: '6px',
-                                            cursor: 'pointer',
+                                            cursor: 'pointer'
                                         }}
                                         title="Edit"
                                     >
@@ -623,7 +613,7 @@ export default function CertificatesPage() {
                                             backgroundColor: 'transparent',
                                             border: 'none',
                                             borderRadius: '6px',
-                                            cursor: 'pointer',
+                                            cursor: 'pointer'
                                         }}
                                         title="Delete"
                                     >
@@ -645,7 +635,7 @@ export default function CertificatesPage() {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            zIndex: 100,
+                            zIndex: 100
                         }}
                         onClick={() => setIsModalOpen(false)}
                     >
@@ -657,7 +647,7 @@ export default function CertificatesPage() {
                                 maxWidth: '520px',
                                 maxHeight: '90vh',
                                 overflow: 'auto',
-                                boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
+                                boxShadow: '0 25px 50px rgba(0,0,0,0.25)'
                             }}
                             onClick={(e) => e.stopPropagation()}
                         >
@@ -665,20 +655,20 @@ export default function CertificatesPage() {
                             <div style={{
                                 padding: '24px 24px 0',
                                 borderBottom: '1px solid #F3F4F6',
-                                paddingBottom: '20px',
+                                paddingBottom: '20px'
                             }}>
                                 <h2 style={{
                                     fontSize: '20px',
                                     fontWeight: 700,
                                     color: '#1F2937',
-                                    margin: 0,
+                                    margin: 0
                                 }}>
                                     {editingCertificate ? 'Edit Certificate Type' : 'Add Certificate Type'}
                                 </h2>
                                 <p style={{
                                     fontSize: '14px',
                                     color: '#6B7280',
-                                    marginTop: '4px',
+                                    marginTop: '4px'
                                 }}>
                                     {editingCertificate
                                         ? 'Update the certificate type details'
@@ -695,7 +685,7 @@ export default function CertificatesPage() {
                                         fontSize: '14px',
                                         fontWeight: 500,
                                         marginBottom: '8px',
-                                        color: '#374151',
+                                        color: '#374151'
                                     }}>
                                         Certificate Name *
                                     </label>
@@ -710,7 +700,7 @@ export default function CertificatesPage() {
                                             fontSize: '14px',
                                             border: '1px solid #E5E7EB',
                                             borderRadius: '10px',
-                                            outline: 'none',
+                                            outline: 'none'
                                         }}
                                     />
                                 </div>
@@ -722,7 +712,7 @@ export default function CertificatesPage() {
                                         fontSize: '14px',
                                         fontWeight: 500,
                                         marginBottom: '8px',
-                                        color: '#374151',
+                                        color: '#374151'
                                     }}>
                                         Description
                                     </label>
@@ -738,7 +728,7 @@ export default function CertificatesPage() {
                                             border: '1px solid #E5E7EB',
                                             borderRadius: '10px',
                                             outline: 'none',
-                                            resize: 'vertical',
+                                            resize: 'vertical'
                                         }}
                                     />
                                 </div>
@@ -748,7 +738,7 @@ export default function CertificatesPage() {
                                     display: 'grid',
                                     gridTemplateColumns: '1fr 1fr',
                                     gap: '12px',
-                                    marginBottom: '20px',
+                                    marginBottom: '20px'
                                 }}>
                                     <ToggleOption
                                         label="Is Active"
@@ -783,7 +773,7 @@ export default function CertificatesPage() {
                                         fontSize: '14px',
                                         fontWeight: 500,
                                         marginBottom: '8px',
-                                        color: '#374151',
+                                        color: '#374151'
                                     }}>
                                         Sort Order
                                     </label>
@@ -798,7 +788,7 @@ export default function CertificatesPage() {
                                             fontSize: '14px',
                                             border: '1px solid #E5E7EB',
                                             borderRadius: '10px',
-                                            outline: 'none',
+                                            outline: 'none'
                                         }}
                                     />
                                 </div>
@@ -807,7 +797,7 @@ export default function CertificatesPage() {
                                 <div style={{
                                     display: 'flex',
                                     gap: '12px',
-                                    justifyContent: 'flex-end',
+                                    justifyContent: 'flex-end'
                                 }}>
                                     <button
                                         onClick={() => setIsModalOpen(false)}
@@ -819,7 +809,7 @@ export default function CertificatesPage() {
                                             backgroundColor: '#F3F4F6',
                                             border: 'none',
                                             borderRadius: '10px',
-                                            cursor: 'pointer',
+                                            cursor: 'pointer'
                                         }}
                                     >
                                         Cancel
@@ -835,7 +825,7 @@ export default function CertificatesPage() {
                                             backgroundColor: (formData.name.trim() && !saving) ? '#3B82F6' : '#D1D5DB',
                                             border: 'none',
                                             borderRadius: '10px',
-                                            cursor: (formData.name.trim() && !saving) ? 'pointer' : 'not-allowed',
+                                            cursor: (formData.name.trim() && !saving) ? 'pointer' : 'not-allowed'
                                         }}
                                     >
                                         {saving ? 'Saving...' : (editingCertificate ? 'Save Changes' : 'Create Certificate Type')}
@@ -862,25 +852,25 @@ function StatCard({ label, value, icon: Icon, color }: {
             backgroundColor: 'white',
             borderRadius: '16px',
             padding: '20px',
-            border: '1px solid #E5E7EB',
+            border: '1px solid #E5E7EB'
         }}>
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
+                justifyContent: 'space-between'
             }}>
                 <div>
                     <p style={{
                         fontSize: '13px',
                         color: '#6B7280',
-                        marginBottom: '6px',
+                        marginBottom: '6px'
                     }}>
                         {label}
                     </p>
                     <p style={{
                         fontSize: '28px',
                         fontWeight: 700,
-                        color: '#1F2937',
+                        color: '#1F2937'
                     }}>
                         {value}
                     </p>
@@ -892,7 +882,7 @@ function StatCard({ label, value, icon: Icon, color }: {
                     backgroundColor: `${color}15`,
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    justifyContent: 'center'
                 }}>
                     <Icon size={24} color={color} />
                 </div>
@@ -917,19 +907,19 @@ function ToggleOption({ label, description, checked, onChange }: {
                 border: `2px solid ${checked ? '#3B82F6' : '#E5E7EB'}`,
                 borderRadius: '12px',
                 cursor: 'pointer',
-                transition: 'all 0.15s ease',
+                transition: 'all 0.15s ease'
             }}
         >
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                marginBottom: '4px',
+                marginBottom: '4px'
             }}>
                 <span style={{
                     fontWeight: 600,
                     fontSize: '13px',
-                    color: checked ? '#3B82F6' : '#374151',
+                    color: checked ? '#3B82F6' : '#374151'
                 }}>
                     {label}
                 </span>
@@ -941,14 +931,14 @@ function ToggleOption({ label, description, checked, onChange }: {
                     border: `2px solid ${checked ? '#3B82F6' : '#D1D5DB'}`,
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    justifyContent: 'center'
                 }}>
                     {checked && <CheckCircle size={12} color="white" />}
                 </div>
             </div>
             <p style={{
                 fontSize: '11px',
-                color: '#6B7280',
+                color: '#6B7280'
             }}>
                 {description}
             </p>

@@ -6,7 +6,7 @@
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { apiFetch, apiGet } from '@/hooks/useApi';
+import { apiFetch, apiGet, readApiError } from '@/hooks/useApi';
 import { extractResults } from '@/lib/types';
 
 // ─── Types ──────────────────────────────────────────────────
@@ -131,17 +131,6 @@ export interface AgencyInfo {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
-function getToken() {
-  return localStorage.getItem('access_token') || localStorage.getItem('accessToken') || '';
-}
-
-function authHeaders(): Record<string, string> {
-  return { 'Authorization': `Bearer ${getToken()}` };
-}
-
-function jsonAuthHeaders(): Record<string, string> {
-  return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` };
-}
 
 // ─── Hook ───────────────────────────────────────────────────
 
@@ -228,10 +217,7 @@ export function useEmployeeDetail() {
   async function loadEmployee() {
     try {
       setLoading(true);
-      const response = await fetch(
-        `${API_URL}/employees/profiles/${params.id}/`,
-        { headers: authHeaders() }
-      );
+      const response = await apiFetch(`/employees/profiles/${params.id}/`);
       if (response.status === 403) { setNoPermission(true); return; }
       if (!response.ok) throw new Error('Failed to load');
       const data = await response.json();
@@ -247,14 +233,14 @@ export function useEmployeeDetail() {
 
   async function loadRateHistory() {
     try {
-      const response = await fetch(`${API_URL}/employees/profiles/${params.id}/rate_history/`, { headers: authHeaders() });
+      const response = await apiFetch(`/employees/profiles/${params.id}/rate_history/`);
       if (response.ok) setRateHistory(await response.json());
     } catch (e) { console.error('Failed to load rate history', e); }
   }
 
   async function loadContractHistory() {
     try {
-      const response = await fetch(`${API_URL}/employees/profiles/${params.id}/contract_history/`, { headers: authHeaders() });
+      const response = await apiFetch(`/employees/profiles/${params.id}/contract_history/`);
       if (response.ok) setContractHistory(await response.json());
     } catch (e) { console.error('Failed to load contract history', e); }
   }
@@ -264,8 +250,8 @@ export function useEmployeeDetail() {
     setContractDataError(null);
     try {
       const [ctRes, agRes] = await Promise.all([
-        fetch(`${API_URL}/employees/contract-types/`, { headers: authHeaders() }),
-        fetch(`${API_URL}/employees/agencies/`, { headers: authHeaders() }),
+        apiFetch(`/employees/contract-types/`),
+        apiFetch(`/employees/agencies/`),
       ]);
       if (!ctRes.ok) throw new Error(`Contract types failed: ${ctRes.status}`);
       if (!agRes.ok) throw new Error(`Agencies failed: ${agRes.status}`);
@@ -287,8 +273,8 @@ export function useEmployeeDetail() {
     setCertificatesLoading(true);
     try {
       const [certsRes, typesRes] = await Promise.all([
-        fetch(`${API_URL}/certificates/employee-certificates/?employee=${employee.id}`, { headers: authHeaders() }),
-        fetch(`${API_URL}/certificates/types/active/`, { headers: authHeaders() }),
+        apiFetch(`/certificates/employee-certificates/?employee=${employee.id}`),
+        apiFetch(`/certificates/types/active/`),
       ]);
       if (certsRes.ok) {
         const certsData = await certsRes.json();
@@ -362,7 +348,7 @@ export function useEmployeeDetail() {
         53: 'Tilburg', 54: 'Breda', 60: 'Maastricht', 61: 'Maastricht',
         62: 'Maastricht', 63: 'Heerlen', 70: 'Enschede', 80: 'Zwolle',
         81: 'Zwolle', 82: 'Lelystad', 90: 'Groningen', 91: 'Groningen',
-        95: 'Leeuwarden', 96: 'Leeuwarden',
+        95: 'Leeuwarden', 96: 'Leeuwarden'
       };
       const city = CITY_MAP[postcodeFirstTwo];
       if (city) {
@@ -394,11 +380,9 @@ export function useEmployeeDetail() {
     if (!employee) return;
     setSaving(true);
     try {
-      const response = await fetch(
-        `${API_URL}/employees/profiles/${employee.id}/`,
+      const response = await apiFetch(`/employees/profiles/${employee.id}/`,
         {
           method: 'PATCH',
-          headers: jsonAuthHeaders(),
           body: JSON.stringify({
             first_name: editForm.first_name, last_name: editForm.last_name, prefix_name: editForm.prefix_name,
             gender: editForm.gender, date_of_birth: editForm.date_of_birth, birthplace: editForm.birthplace,
@@ -420,20 +404,19 @@ export function useEmployeeDetail() {
             contract_type_id: editForm.contract_type_id, current_agency_id: editForm.current_agency_id,
             contract_type: editForm.contract_type_id, current_agency: editForm.current_agency_id,
             contract_phase: editForm.contract_phase, contract_start_date: editForm.contract_start_date, contract_end_date: editForm.contract_end_date,
-            user_email: editForm.user?.email,
-          }),
+            user_email: editForm.user?.email
+          })
         }
       );
-      if (!response.ok) { const d = await response.json(); throw new Error(d.detail || 'Failed'); }
+      if (!response.ok) throw new Error(await readApiError(response));
       if (withContract && contractFile && pendingRateChange) {
         const formData = new FormData();
         formData.append('contract_document', contractFile);
         formData.append('hourly_rate', pendingRateChange);
         formData.append('effective_from', new Date().toISOString().split('T')[0]);
         formData.append('notes', 'Contract uploaded with rate change');
-        const contractResponse = await fetch(
-          `${API_URL}/employees/profiles/${employee.id}/upload_contract/`,
-          { method: 'POST', headers: authHeaders(), body: formData }
+        const contractResponse = await apiFetch(`/employees/profiles/${employee.id}/upload_contract/`,
+          { method: 'POST', body: formData }
         );
         if (!contractResponse.ok) {
           const d = await contractResponse.json();
@@ -462,9 +445,9 @@ export function useEmployeeDetail() {
     if (!employee) return;
     setSaving(true);
     try {
-      const response = await fetch(`${API_URL}/employees/profiles/${employee.id}/approve/`,
-        { method: 'POST', headers: jsonAuthHeaders() });
-      if (!response.ok) { const d = await response.json(); throw new Error(d.error || d.detail || 'Failed'); }
+      const response = await apiFetch(`/employees/profiles/${employee.id}/approve/`,
+        { method: 'POST', });
+      if (!response.ok) throw new Error(await readApiError(response));
       setShowApproveModal(false);
       await loadEmployee();
     } catch (err) { alert(err instanceof Error ? err.message : 'Failed'); }
@@ -475,9 +458,9 @@ export function useEmployeeDetail() {
     if (!employee || !rejectReason.trim()) return;
     setSaving(true);
     try {
-      const response = await fetch(`${API_URL}/employees/profiles/${employee.id}/reject/`,
-        { method: 'POST', headers: jsonAuthHeaders(), body: JSON.stringify({ reason: rejectReason }) });
-      if (!response.ok) { const d = await response.json(); throw new Error(d.detail || 'Failed'); }
+      const response = await apiFetch(`/employees/profiles/${employee.id}/reject/`,
+        { method: 'POST', body: JSON.stringify({ reason: rejectReason }) });
+      if (!response.ok) throw new Error(await readApiError(response));
       setShowRejectModal(false);
       setRejectReason('');
       await loadEmployee();
@@ -497,9 +480,8 @@ export function useEmployeeDetail() {
     try {
       const formData = new FormData();
       formData.append(fieldName, file);
-      const response = await fetch(
-        `${API_URL}/employees/profiles/${employee.id}/`,
-        { method: 'PATCH', headers: authHeaders(), body: formData }
+      const response = await apiFetch(`/employees/profiles/${employee.id}/`,
+        { method: 'PATCH', body: formData }
       );
       if (!response.ok) throw new Error('Upload failed');
       const updatedEmployee = await response.json();
@@ -515,9 +497,8 @@ export function useEmployeeDetail() {
   async function handleDeleteFile(fieldName: string) {
     if (!employee || !confirm('Delete this file?')) return;
     try {
-      const response = await fetch(
-        `${API_URL}/employees/profiles/${employee.id}/`,
-        { method: 'PATCH', headers: jsonAuthHeaders(), body: JSON.stringify({ [fieldName]: null }) }
+      const response = await apiFetch(`/employees/profiles/${employee.id}/`,
+        { method: 'PATCH', body: JSON.stringify({ [fieldName]: null }) }
       );
       if (!response.ok) throw new Error('Failed');
       await loadEmployee();
@@ -541,12 +522,9 @@ export function useEmployeeDetail() {
       if (certificateForm.expiry_date) formData.append('expiry_date', certificateForm.expiry_date);
       if (certificateForm.issue_date) formData.append('issue_date', certificateForm.issue_date);
 
-      const response = await fetch(`${API_URL}/certificates/employee-certificates/`,
-        { method: 'POST', headers: authHeaders(), body: formData });
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || data.certificate_type?.[0] || 'Failed to add certificate');
-      }
+      const response = await apiFetch(`/certificates/employee-certificates/`,
+        { method: 'POST', body: formData });
+      if (!response.ok) throw new Error(await readApiError(response));
       setShowAddCertificateModal(false);
       setCertificateForm({ certificate_type_id: '', diploma_number: '', expiry_date: '', issue_date: '' });
       setCertificateFile(null);
@@ -560,8 +538,8 @@ export function useEmployeeDetail() {
   async function handleDeleteCertificate(certId: number) {
     if (!confirm('Are you sure you want to delete this certificate?')) return;
     try {
-      const response = await fetch(`${API_URL}/certificates/employee-certificates/${certId}/`,
-        { method: 'DELETE', headers: authHeaders() });
+      const response = await apiFetch(`/certificates/employee-certificates/${certId}/`,
+        { method: 'DELETE', });
       if (!response.ok && response.status !== 204) throw new Error('Failed to delete');
       setCertificatesLoaded(false);
     } catch (err) { alert('Failed to delete certificate'); }
@@ -627,6 +605,6 @@ export function useEmployeeDetail() {
     // Postcode
     postcodeLookupLoading, postcodeSuggestions,
     showPostcodeSuggestions, setShowPostcodeSuggestions,
-    postcodeDropdownRef, lookupPostcode,
+    postcodeDropdownRef, lookupPostcode
   };
 }

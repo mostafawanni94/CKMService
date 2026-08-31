@@ -92,7 +92,7 @@ export function AllowanceEditor({
                                 padding: '16px 20px',
                                 backgroundColor: allowance.allowance_type ? '#F0FDF4' : '#FEF2F2',
                                 border: `2px solid ${allowance.allowance_type ? '#BBF7D0' : '#FECACA'}`,
-                                borderRadius: '12px',
+                                borderRadius: '12px'
                             }}
                         >
                             {/* Type Dropdown */}

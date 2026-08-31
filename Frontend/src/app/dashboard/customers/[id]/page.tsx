@@ -4,6 +4,7 @@ import { DashboardLayout } from '@/components/layout/dashboard';
 import { Button } from '@/components/ui';
 import { Building2, ArrowLeft, MapPin, Save, Trash2, CreditCard, AlertTriangle, Camera, UserCircle, Plus, X, Phone, Mail, Edit2, Check, PhoneCall, Briefcase, Euro, CheckCircle, Percent, FileText, Upload, Eye, Gift } from 'lucide-react';
 import { useCustomerDetail } from '@/hooks/useCustomerDetail';
+import { apiFetch, readApiError } from '@/hooks/useApi';
 
 export default function CustomerDetailPage() {
     const vm = useCustomerDetail();
@@ -41,7 +42,7 @@ export default function CustomerDetailPage() {
         existingManagerPhones, existingManagerEmails, newManagerPhones, newManagerEmails,
         outfolderPhones, outfolderEmails,
         inputStyle, labelStyle,
-        handleSave, handleDelete,
+        handleSave, handleDelete
     } = vm;
 
     if (loading) {
@@ -540,7 +541,7 @@ export default function CustomerDetailPage() {
                             border: `2px solid ${hasServiceSurcharges ? '#7C3AED' : '#E5E7EB'}`,
                             borderRadius: '12px',
                             cursor: 'pointer',
-                            marginBottom: '20px',
+                            marginBottom: '20px'
                         }}
                     >
                         <div>
@@ -553,7 +554,7 @@ export default function CustomerDetailPage() {
                             borderRadius: '13px',
                             backgroundColor: hasServiceSurcharges ? '#7C3AED' : '#D1D5DB',
                             position: 'relative',
-                            transition: 'all 0.15s ease',
+                            transition: 'all 0.15s ease'
                         }}>
                             <div style={{
                                 width: '20px',
@@ -564,7 +565,7 @@ export default function CustomerDetailPage() {
                                 top: '3px',
                                 left: hasServiceSurcharges ? '21px' : '3px',
                                 transition: 'all 0.15s ease',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                             }} />
                         </div>
                     </div>
@@ -592,7 +593,7 @@ export default function CustomerDetailPage() {
                                                 padding: '10px 14px',
                                                 backgroundColor: isSelected ? '#EDE9FE' : 'white',
                                                 border: `1px solid ${isSelected ? '#7C3AED' : '#E5E7EB'}`,
-                                                borderRadius: '8px',
+                                                borderRadius: '8px'
                                             }}
                                         >
                                             <button
@@ -664,7 +665,7 @@ export default function CustomerDetailPage() {
                                             padding: '16px 20px',
                                             backgroundColor: isSelected ? '#F5F3FF' : '#F9FAFB',
                                             border: `2px solid ${isSelected ? '#7C3AED' : '#E5E7EB'}`,
-                                            borderRadius: '12px',
+                                            borderRadius: '12px'
                                         }}
                                     >
                                         {/* Checkbox */}
@@ -766,7 +767,7 @@ export default function CustomerDetailPage() {
                             border: `2px solid ${hasAllowanceSurcharges ? '#DC2626' : '#E5E7EB'}`,
                             borderRadius: '12px',
                             cursor: 'pointer',
-                            marginBottom: '20px',
+                            marginBottom: '20px'
                         }}
                     >
                         <div>
@@ -779,7 +780,7 @@ export default function CustomerDetailPage() {
                             borderRadius: '13px',
                             backgroundColor: hasAllowanceSurcharges ? '#DC2626' : '#D1D5DB',
                             position: 'relative',
-                            transition: 'all 0.15s ease',
+                            transition: 'all 0.15s ease'
                         }}>
                             <div style={{
                                 width: '20px',
@@ -790,7 +791,7 @@ export default function CustomerDetailPage() {
                                 top: '3px',
                                 left: hasAllowanceSurcharges ? '21px' : '3px',
                                 transition: 'all 0.15s ease',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                             }} />
                         </div>
                     </div>
@@ -818,7 +819,7 @@ export default function CustomerDetailPage() {
                                                 padding: '10px 14px',
                                                 backgroundColor: isSelected ? '#FEE2E2' : 'white',
                                                 border: `1px solid ${isSelected ? '#DC2626' : '#E5E7EB'}`,
-                                                borderRadius: '8px',
+                                                borderRadius: '8px'
                                             }}
                                         >
                                             <button
@@ -886,7 +887,7 @@ export default function CustomerDetailPage() {
                                         padding: '16px 20px',
                                         backgroundColor: '#FEF2F2',
                                         border: '2px solid #FECACA',
-                                        borderRadius: '12px',
+                                        borderRadius: '12px'
                                     }}
                                 >
                                     {/* Allowance Type Dropdown or Custom Name */}
@@ -943,7 +944,7 @@ export default function CustomerDetailPage() {
                                                     fontSize: '14px',
                                                     border: '1px solid #E5E7EB',
                                                     borderRadius: '8px',
-                                                    outline: 'none',
+                                                    outline: 'none'
                                                 }}
                                             />
                                             <input
@@ -960,7 +961,7 @@ export default function CustomerDetailPage() {
                                                     textTransform: 'uppercase',
                                                     border: '1px solid #E5E7EB',
                                                     borderRadius: '8px',
-                                                    outline: 'none',
+                                                    outline: 'none'
                                                 }}
                                             />
                                         </>
@@ -1057,7 +1058,7 @@ export default function CustomerDetailPage() {
                                             padding: '16px',
                                             borderRadius: '12px',
                                             border: `2px solid ${isEnabled ? '#F59E0B' : '#E5E7EB'}`,
-                                            backgroundColor: isEnabled ? '#FFFBEB' : '#F9FAFB',
+                                            backgroundColor: isEnabled ? '#FFFBEB' : '#F9FAFB'
                                         }}
                                     >
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -1074,7 +1075,7 @@ export default function CustomerDetailPage() {
                                                         cursor: 'pointer',
                                                         display: 'flex',
                                                         alignItems: 'center',
-                                                        justifyContent: 'center',
+                                                        justifyContent: 'center'
                                                     }}
                                                 >
                                                     {isEnabled && <Check size={14} style={{ color: 'white' }} />}
@@ -1105,7 +1106,7 @@ export default function CustomerDetailPage() {
                                                                 border: '1px solid #FCD34D',
                                                                 borderRadius: '8px',
                                                                 outline: 'none',
-                                                                textAlign: 'center',
+                                                                textAlign: 'center'
                                                             }}
                                                         />
                                                         <span style={{ fontSize: '13px', color: '#6B7280' }}>/hr</span>
@@ -1133,7 +1134,7 @@ export default function CustomerDetailPage() {
                                                             borderRadius: '11px',
                                                             border: 'none',
                                                             cursor: 'pointer',
-                                                            position: 'relative',
+                                                            position: 'relative'
                                                         }}
                                                     >
                                                         <div style={{
@@ -1144,7 +1145,7 @@ export default function CustomerDetailPage() {
                                                             height: '18px',
                                                             backgroundColor: 'white',
                                                             borderRadius: '50%',
-                                                            transition: 'left 0.2s',
+                                                            transition: 'left 0.2s'
                                                         }} />
                                                     </button>
                                                     <span style={{ fontSize: '13px', color: '#374151' }}>Apply surcharges to this allowance</span>
@@ -1167,7 +1168,7 @@ export default function CustomerDetailPage() {
                                                                         color: isSelected ? '#059669' : '#6B7280',
                                                                         fontSize: '12px',
                                                                         fontWeight: 500,
-                                                                        cursor: 'pointer',
+                                                                        cursor: 'pointer'
                                                                     }}
                                                                 >
                                                                     {surcharge.surcharge_type_name} ({surcharge.percentage}%)
@@ -1207,7 +1208,7 @@ export default function CustomerDetailPage() {
                             style={{
                                 display: 'flex', alignItems: 'center', gap: '8px',
                                 padding: '10px 16px', backgroundColor: '#3B82F6', color: 'white',
-                                border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 500, cursor: 'pointer',
+                                border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 500, cursor: 'pointer'
                             }}
                         >
                             <Upload size={16} />
@@ -1310,7 +1311,7 @@ export default function CustomerDetailPage() {
                                     style={{
                                         padding: '10px 20px', backgroundColor: '#3B82F6', color: 'white',
                                         border: 'none', borderRadius: '8px', cursor: 'pointer',
-                                        opacity: uploadingContract ? 0.5 : 1,
+                                        opacity: uploadingContract ? 0.5 : 1
                                     }}
                                 >
                                     {uploadingContract ? 'Uploading...' : 'Upload Contract'}
@@ -1337,7 +1338,7 @@ export default function CustomerDetailPage() {
                             style={{
                                 display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px',
                                 backgroundColor: '#6366F1', color: 'white', border: 'none', borderRadius: '8px',
-                                fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+                                fontSize: '13px', fontWeight: 600, cursor: 'pointer'
                             }}
                         >
                             <Plus style={{ width: '14px', height: '14px' }} /> Add Login
@@ -1403,20 +1404,13 @@ export default function CustomerDetailPage() {
                                         setCreatingPortalUser(true);
                                         setPortalUserError(null);
                                         try {
-                                            const token = localStorage.getItem('access_token');
-                                            const res = await fetch(`${API_URL}/employees/customer-users/`, {
+                                            const res = await apiFetch(`/employees/customer-users/`, {
                                                 method: 'POST',
-                                                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                                                body: JSON.stringify({ ...portalUserForm, customer_id: params.id }),
+                                                body: JSON.stringify({ ...portalUserForm, customer_id: params.id })
                                             });
-                                            if (!res.ok) {
-                                                const err = await res.json();
-                                                throw new Error(err.email?.[0] || err.detail || err.error || 'Failed to create');
-                                            }
+                                            if (!res.ok) throw new Error(await readApiError(res));
                                             // Reload portal users
-                                            const listRes = await fetch(`${API_URL}/employees/customer-users/?customer=${params.id}`, {
-                                                headers: { 'Authorization': `Bearer ${token}` },
-                                            });
+                                            const listRes = await apiFetch(`/employees/customer-users/?customer=${params.id}`);
                                             if (listRes.ok) setPortalUsers(await listRes.json());
                                             setShowAddPortalUser(false);
                                             setPortalUserForm({ email: '', password: '', first_name: '', last_name: '' });
@@ -1431,7 +1425,7 @@ export default function CustomerDetailPage() {
                                         padding: '8px 16px', backgroundColor: '#6366F1', color: 'white',
                                         border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
                                         cursor: creatingPortalUser ? 'not-allowed' : 'pointer',
-                                        opacity: creatingPortalUser ? 0.6 : 1,
+                                        opacity: creatingPortalUser ? 0.6 : 1
                                     }}
                                 >{creatingPortalUser ? 'Creating...' : 'Create Login'}</button>
                             </div>
@@ -1462,21 +1456,17 @@ export default function CustomerDetailPage() {
                                     <button
                                         onClick={async () => {
                                             const action = u.is_active ? 'deactivate' : 'activate';
-                                            const token = localStorage.getItem('access_token');
-                                            await fetch(`${API_URL}/employees/customer-users/${u.id}/${action}/`, {
-                                                method: 'POST',
-                                                headers: { 'Authorization': `Bearer ${token}` },
+                                            await apiFetch(`/employees/customer-users/${u.id}/${action}/`, {
+                                                method: 'POST'
                                             });
-                                            const listRes = await fetch(`${API_URL}/employees/customer-users/?customer=${params.id}`, {
-                                                headers: { 'Authorization': `Bearer ${token}` },
-                                            });
+                                            const listRes = await apiFetch(`/employees/customer-users/?customer=${params.id}`);
                                             if (listRes.ok) setPortalUsers(await listRes.json());
                                         }}
                                         style={{
                                             padding: '6px 12px', fontSize: '12px', fontWeight: 500,
                                             border: '1px solid #E5E7EB', borderRadius: '6px', cursor: 'pointer',
                                             backgroundColor: u.is_active ? '#FEE2E2' : '#DCFCE7',
-                                            color: u.is_active ? '#DC2626' : '#16A34A',
+                                            color: u.is_active ? '#DC2626' : '#16A34A'
                                         }}
                                     >
                                         {u.is_active ? 'Deactivate' : 'Activate'}

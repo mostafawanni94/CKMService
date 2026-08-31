@@ -1,175 +1,165 @@
-/// Firebase Cloud Messaging (FCM) Service
-/// 
-/// Handles push notification registration, receiving, and display.
-/// 
-/// Setup required:
-/// 1. Add firebase_messaging and firebase_core to pubspec.yaml
-/// 2. Configure Firebase project and add google-services.json (Android)
-/// 3. Configure Firebase project and add GoogleService-Info.plist (iOS)
-/// 4. Call FcmService.initialize() in main.dart
+/// Firebase Cloud Messaging (FCM) push notifications.
+///
+/// The whole implementation used to be commented out, so `initialize()` only
+/// printed a debug line and no device ever registered a token — which is why
+/// `Notification.push_sent` was always false server-side.
+///
+/// It is live now, and degrades gracefully: if the Firebase config files are
+/// absent (`android/app/google-services.json`,
+/// `ios/Runner/GoogleService-Info.plist`) `Firebase.initializeApp()` throws,
+/// which is caught and logged. The app keeps working without push.
+///
+/// Remaining setup, once a Firebase project exists:
+///   1. Download the two config files into the paths above.
+///   2. In the dashboard under Settings, set the Firebase project id and paste
+///      the service-account JSON, then enable push.
+library;
 
-import 'dart:convert';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-// Uncomment these when firebase packages are added:
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../core/network/api_client.dart';
 
-/// Background message handler - must be top-level function
-// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-//   await Firebase.initializeApp();
-//   debugPrint('Background message: ${message.messageId}');
-// }
+import '../network/api_client.dart';
+
+/// Background isolate handler. Must be a top-level function.
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  debugPrint('FCM: background message ${message.messageId}');
+}
 
 class FcmService {
   static final FcmService _instance = FcmService._internal();
   factory FcmService() => _instance;
   FcmService._internal();
 
-  // FirebaseMessaging? _messaging;
+  static const _tokenPrefsKey = 'fcm_token';
+
+  FirebaseMessaging? _messaging;
   String? _fcmToken;
+  bool _available = false;
+
   final ApiClient _api = ApiClient();
 
-  /// Get the current FCM token
+  /// The current device token, or null when push is unavailable.
   String? get fcmToken => _fcmToken;
 
-  /// Initialize FCM - call this in main.dart after Firebase.initializeApp()
+  /// True once Firebase initialised successfully on this device.
+  bool get isAvailable => _available;
+
+  /// Called when a notification is tapped; set this from the app shell to route.
+  void Function(Map<String, dynamic> data)? onNotificationTap;
+
+  /// Called for messages that arrive while the app is in the foreground.
+  void Function(RemoteMessage message)? onForegroundMessage;
+
+  /// Initialise Firebase and start listening. Safe to call when unconfigured.
   Future<void> initialize() async {
-    // When Firebase is configured, uncomment:
-    /*
+    try {
+      await Firebase.initializeApp();
+    } catch (e) {
+      debugPrint(
+        'FCM: Firebase is not configured on this build ($e). '
+        'Push notifications are disabled; the app continues normally.',
+      );
+      _available = false;
+      return;
+    }
+
+    _available = true;
     _messaging = FirebaseMessaging.instance;
 
-    // Request permission (iOS)
-    NotificationSettings settings = await _messaging!.requestPermission(
+    final settings = await _messaging!.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
-    
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      debugPrint('FCM: User granted permission');
+    if (settings.authorizationStatus == AuthorizationStatus.denied) {
+      debugPrint('FCM: notification permission denied by the user.');
+      return;
     }
 
-    // Get FCM token
     _fcmToken = await _messaging!.getToken();
-    debugPrint('FCM Token: $_fcmToken');
-    
-    // Save token locally
     if (_fcmToken != null) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('fcm_token', _fcmToken!);
+      await prefs.setString(_tokenPrefsKey, _fcmToken!);
     }
 
-    // Listen for token refresh
-    _messaging!.onTokenRefresh.listen((newToken) {
+    _messaging!.onTokenRefresh.listen((newToken) async {
       _fcmToken = newToken;
-      _registerTokenWithBackend(newToken);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_tokenPrefsKey, newToken);
+      await _registerTokenWithBackend(newToken);
     });
 
-    // Handle foreground messages
-    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+    FirebaseMessaging.onMessage.listen((message) {
+      debugPrint('FCM: foreground message ${message.messageId}');
+      onForegroundMessage?.call(message);
+    });
 
-    // Handle notification tap when app is in background
     FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
 
-    // Check if app was opened from notification
-    RemoteMessage? initialMessage = await _messaging!.getInitialMessage();
-    if (initialMessage != null) {
-      _handleNotificationTap(initialMessage);
+    final initial = await _messaging!.getInitialMessage();
+    if (initial != null) {
+      _handleNotificationTap(initial);
     }
 
-    // Set background handler
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    */
-
-    debugPrint('FCM Service: Firebase not configured yet. Add firebase packages to pubspec.yaml');
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   }
 
-  /// Register FCM token with backend
+  void _handleNotificationTap(RemoteMessage message) {
+    debugPrint('FCM: notification tapped ${message.messageId}');
+    onNotificationTap?.call(Map<String, dynamic>.from(message.data));
+  }
+
+  /// Send this device's token to the backend so it can be targeted.
   Future<void> _registerTokenWithBackend(String token) async {
     try {
       await _api.post('/notifications/devices/register/', body: {
         'token': token,
         'platform': defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
       });
-      debugPrint('FCM: Token registered with backend');
+      debugPrint('FCM: token registered with the backend.');
     } catch (e) {
-      debugPrint('FCM: Failed to register token: $e');
+      debugPrint('FCM: failed to register token: $e');
     }
   }
 
-  /// Handle foreground messages
-  void _handleForegroundMessage(dynamic message) {
-    // When Firebase is configured, message will be RemoteMessage type
-    debugPrint('FCM: Foreground message received');
-    
-    // Show local notification
-    // You can use flutter_local_notifications package for this
-    /*
-    final notification = message.notification;
-    if (notification != null) {
-      // Show local notification banner
-      _showLocalNotification(
-        title: notification.title ?? 'Notification',
-        body: notification.body ?? '',
-        payload: jsonEncode(message.data),
-      );
-    }
-    */
-  }
-
-  /// Handle notification tap
-  void _handleNotificationTap(dynamic message) {
-    debugPrint('FCM: Notification tapped');
-    
-    // Navigate based on notification data
-    /*
-    final data = message.data;
-    if (data.containsKey('type')) {
-      switch (data['type']) {
-        case 'worklog':
-          // Navigate to worklog
-          break;
-        case 'certificate':
-          // Navigate to certificates
-          break;
-        default:
-          // Navigate to notifications
-          break;
-      }
-    }
-    */
-  }
-
-  /// Subscribe to a topic (e.g., 'employees', 'worklogs')
   Future<void> subscribeToTopic(String topic) async {
-    // await _messaging?.subscribeToTopic(topic);
-    debugPrint('FCM: Subscribed to topic: $topic');
+    if (!_available) return;
+    await _messaging?.subscribeToTopic(topic);
   }
 
-  /// Unsubscribe from a topic
   Future<void> unsubscribeFromTopic(String topic) async {
-    // await _messaging?.unsubscribeFromTopic(topic);
-    debugPrint('FCM: Unsubscribed from topic: $topic');
+    if (!_available) return;
+    await _messaging?.unsubscribeFromTopic(topic);
   }
 
-  /// Called when user logs in - register token
+  /// Register the token after a successful sign-in.
+  ///
+  /// Registration must happen *after* login, not during initialize(), because
+  /// the endpoint is authenticated and binds the token to the signed-in user.
   Future<void> onUserLogin() async {
-    if (_fcmToken != null) {
-      await _registerTokenWithBackend(_fcmToken!);
+    if (!_available) return;
+    _fcmToken ??= await _messaging?.getToken();
+    final token = _fcmToken;
+    if (token != null) {
+      await _registerTokenWithBackend(token);
     }
   }
 
-  /// Called when user logs out - unregister token
+  /// Retire the token on sign-out so the next user does not inherit it.
   Future<void> onUserLogout() async {
+    final token = _fcmToken;
+    if (token == null) return;
     try {
-      await _api.post('/notifications/devices/unregister/', body: {
-        'token': _fcmToken,
-      });
-    } catch (_) {}
+      await _api.post('/notifications/devices/unregister/', body: {'token': token});
+    } catch (e) {
+      debugPrint('FCM: failed to unregister token: $e');
+    }
   }
 }
 
-/// Global FCM service instance
+/// Global FCM service instance.
 final fcmService = FcmService();

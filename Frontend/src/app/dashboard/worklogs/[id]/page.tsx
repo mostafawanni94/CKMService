@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { ArrowLeft, Plus, Gift, Trash2, Coffee, User, Clock, FileText, AlertCircle, CheckCircle, XCircle, MapPin, Camera, Image, X } from 'lucide-react';
+import { apiFetch } from '@/hooks/useApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -108,8 +109,6 @@ export default function WorkLogEditPage() {
     const [uploadingPhoto, setUploadingPhoto] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-    const headers = { 'Authorization': `Bearer ${token}` };
 
     // Check if form has changes
     const hasChanges = useMemo(() => {
@@ -119,7 +118,7 @@ export default function WorkLogEditPage() {
             project, supervisor, service, location,
             startDatetime, endDatetime, notes, status,
             breaks: JSON.stringify(breaks),
-            allowances: JSON.stringify(allowances),
+            allowances: JSON.stringify(allowances)
         };
 
         return (
@@ -145,10 +144,10 @@ export default function WorkLogEditPage() {
         try {
             // First load projects, customers, employees, and allowance types
             const [projRes, custRes, allowRes, empRes] = await Promise.all([
-                fetch(`${API_URL}/projects/projects/`, { headers }),
-                fetch(`${API_URL}/customers/customers/`, { headers }),
-                fetch(`${API_URL}/employees/allowance-types/`, { headers }),
-                fetch(`${API_URL}/employees/profiles/`, { headers }),
+                apiFetch(`/projects/projects/`),
+                apiFetch(`/customers/customers/`),
+                apiFetch(`/employees/allowance-types/`),
+                apiFetch(`/employees/profiles/`),
             ]);
 
             let projectsList: any[] = [];
@@ -181,7 +180,7 @@ export default function WorkLogEditPage() {
             }
 
             // Now load the worklog
-            const response = await fetch(`${API_URL}/worklogs/${params.id}/`, { headers });
+            const response = await apiFetch(`/worklogs/${params.id}/`);
             if (!response.ok) throw new Error('Failed to load work log');
             const data = await response.json();
             setWorklog(data);
@@ -225,7 +224,7 @@ export default function WorkLogEditPage() {
             if (data.breaks && data.breaks.length > 0) {
                 breaksVal = data.breaks.map((b: any) => ({
                     start: b.start?.substring(0, 5) || '',
-                    end: b.end?.substring(0, 5) || '',
+                    end: b.end?.substring(0, 5) || ''
                 }));
             } else {
                 breaksVal = [{ start: '12:00', end: '12:30' }];
@@ -240,7 +239,7 @@ export default function WorkLogEditPage() {
                     hours: a.hours?.toString() || '',
                     notes: a.notes || '',
                     start_time: a.start_time?.substring(0, 5) || '',
-                    end_time: a.end_time?.substring(0, 5) || '',
+                    end_time: a.end_time?.substring(0, 5) || ''
                 }));
             }
 
@@ -290,7 +289,7 @@ export default function WorkLogEditPage() {
                 notes: notesVal,
                 status: statusVal,
                 breaks: JSON.stringify(breaksVal),
-                allowances: JSON.stringify(allowancesVal),
+                allowances: JSON.stringify(allowancesVal)
             });
 
             // Load supervisors/services using project and customer
@@ -316,12 +315,12 @@ export default function WorkLogEditPage() {
 
         try {
             // Load supervisors from project detail API
-            const projRes = await fetch(`${API_URL}/projects/projects/${projectId}/`, { headers });
+            const projRes = await apiFetch(`/projects/projects/${projectId}/`);
             if (projRes.ok) {
                 const projData = await projRes.json();
                 const sups = (projData.supervisors_list || []).map((s: any) => ({
                     id: s.id,
-                    full_name: s.company_name || `${s.first_name || ''} ${s.last_name || ''}`.trim() || 'Unknown',
+                    full_name: s.company_name || `${s.first_name || ''} ${s.last_name || ''}`.trim() || 'Unknown'
                 }));
                 setSupervisors(sups);
 
@@ -335,14 +334,14 @@ export default function WorkLogEditPage() {
 
             // Load services from customer (from service_rates)
             if (customerId) {
-                const custRes = await fetch(`${API_URL}/customers/customers/${customerId}/`, { headers });
+                const custRes = await apiFetch(`/customers/customers/${customerId}/`);
                 if (custRes.ok) {
                     const customerData = await custRes.json();
                     // Customer API returns service_rates with service info
                     if (customerData.service_rates && customerData.service_rates.length > 0) {
                         const servicesList = customerData.service_rates.map((sr: any) => ({
                             id: sr.service,
-                            name: sr.service_name,
+                            name: sr.service_name
                         }));
                         setServices(servicesList);
 
@@ -449,7 +448,7 @@ export default function WorkLogEditPage() {
             hours: '',
             notes: '',
             start_time: '',
-            end_time: '',
+            end_time: ''
         }]);
     }
 
@@ -475,10 +474,9 @@ export default function WorkLogEditPage() {
             const formData = new FormData();
             formData.append('photo', file);
 
-            const response = await fetch(`${API_URL}/worklogs/${params.id}/add_photo/`, {
+            const response = await apiFetch(`/worklogs/${params.id}/add_photo/`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` },
-                body: formData,
+                body: formData
             });
 
             if (response.ok) {
@@ -503,9 +501,8 @@ export default function WorkLogEditPage() {
         if (!confirm('Are you sure you want to delete this photo?')) return;
 
         try {
-            const response = await fetch(`${API_URL}/worklogs/photos/${photoId}/`, {
+            const response = await apiFetch(`/worklogs/photos/${photoId}/`, {
                 method: 'DELETE',
-                headers,
             });
             if (response.ok || response.status === 204) {
                 setPhotos(prev => prev.filter(p => p.id !== photoId));
@@ -601,11 +598,11 @@ export default function WorkLogEditPage() {
                 end_datetime: endDatetime,
                 breaks: breaks.filter(b => b.start && b.end).map(b => ({
                     start: b.start + ':00',
-                    end: b.end + ':00',
+                    end: b.end + ':00'
                 })),
                 location_override: location || '',
                 notes: notes || '',
-                status: status,
+                status: status
             };
 
             // Only include supervisor if selected (not empty)
@@ -625,19 +622,18 @@ export default function WorkLogEditPage() {
                     hours: parseFloat(a.hours) || 0,
                     notes: a.notes || '',
                     start_time: a.start_time ? a.start_time + ':00' : null,  // Convert HH:MM to HH:MM:SS
-                    end_time: a.end_time ? a.end_time + ':00' : null,
+                    end_time: a.end_time ? a.end_time + ':00' : null
                 }));
             }
 
             console.log('Sending payload:', payload);
 
-            const response = await fetch(`${API_URL}/worklogs/${params.id}/`, {
+            const response = await apiFetch(`/worklogs/${params.id}/`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(payload)
             });
 
             console.log('Response status:', response.status);
@@ -669,9 +665,8 @@ export default function WorkLogEditPage() {
         setSaving(true);
         setErrors({});
         try {
-            const response = await fetch(`${API_URL}/worklogs/${params.id}/approve/`, {
+            const response = await apiFetch(`/worklogs/${params.id}/approve/`, {
                 method: 'POST',
-                headers,
             });
             if (!response.ok) {
                 const data = await response.json();
@@ -694,13 +689,12 @@ export default function WorkLogEditPage() {
         setSaving(true);
         setErrors({});
         try {
-            const response = await fetch(`${API_URL}/worklogs/${params.id}/reject/`, {
+            const response = await apiFetch(`/worklogs/${params.id}/reject/`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ reason }),
+                body: JSON.stringify({ reason })
             });
             if (!response.ok) {
                 const data = await response.json();
@@ -721,7 +715,7 @@ export default function WorkLogEditPage() {
         draft: { bg: '#F3F4F6', border: '#D1D5DB', text: '#6B7280' },
         pending: { bg: '#FEF3C7', border: '#F59E0B', text: '#D97706' },
         approved: { bg: '#D1FAE5', border: '#10B981', text: '#059669' },
-        rejected: { bg: '#FEE2E2', border: '#EF4444', text: '#DC2626' },
+        rejected: { bg: '#FEE2E2', border: '#EF4444', text: '#DC2626' }
     };
 
     if (loading) {
@@ -772,7 +766,7 @@ export default function WorkLogEditPage() {
                                     border: '1px solid rgba(255,255,255,0.2)',
                                     borderRadius: '8px', padding: '8px 14px',
                                     cursor: 'pointer', fontSize: '13px', fontWeight: 500,
-                                    transition: 'all 0.2s',
+                                    transition: 'all 0.2s'
                                 }}
                             >
                                 <ArrowLeft size={14} /> Back
@@ -788,7 +782,7 @@ export default function WorkLogEditPage() {
                                             padding: '8px 16px', backgroundColor: '#10B981', color: 'white',
                                             border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
                                             cursor: saving ? 'not-allowed' : 'pointer',
-                                            opacity: saving ? 0.7 : 1,
+                                            opacity: saving ? 0.7 : 1
                                         }}
                                     >
                                         <CheckCircle size={14} /> {['pending', 'submitted'].includes(status) ? 'Approve' : 'Force Approve'}
@@ -801,7 +795,7 @@ export default function WorkLogEditPage() {
                                             padding: '8px 16px', backgroundColor: '#EF4444', color: 'white',
                                             border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
                                             cursor: saving ? 'not-allowed' : 'pointer',
-                                            opacity: saving ? 0.7 : 1,
+                                            opacity: saving ? 0.7 : 1
                                         }}
                                     >
                                         <XCircle size={14} /> Reject
@@ -817,7 +811,7 @@ export default function WorkLogEditPage() {
                             justifyContent: 'space-between',
                             background: 'rgba(255,255,255,0.08)',
                             borderRadius: '14px',
-                            padding: '16px 20px',
+                            padding: '16px 20px'
                         }}>
                             {/* Left: Employee info */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -826,7 +820,7 @@ export default function WorkLogEditPage() {
                                     background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     fontSize: '15px', fontWeight: 700, color: 'white',
-                                    boxShadow: '0 2px 8px rgba(59,130,246,0.3)',
+                                    boxShadow: '0 2px 8px rgba(59,130,246,0.3)'
                                 }}>
                                     {worklog.employee_name?.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()}
                                 </div>
@@ -855,11 +849,11 @@ export default function WorkLogEditPage() {
                                     fontWeight: 600,
                                     backgroundColor: currentStatus.bg,
                                     border: `1px solid ${currentStatus.border}`,
-                                    color: currentStatus.text,
+                                    color: currentStatus.text
                                 }}>
                                     <span style={{
                                         width: '6px', height: '6px', borderRadius: '50%',
-                                        backgroundColor: currentStatus.text,
+                                        backgroundColor: currentStatus.text
                                     }} />
                                     {status.charAt(0).toUpperCase() + status.slice(1)}
                                 </div>
@@ -878,7 +872,7 @@ export default function WorkLogEditPage() {
                                         border: '1px solid rgba(255,255,255,0.2)',
                                         color: 'white',
                                         outline: 'none',
-                                        minWidth: '120px',
+                                        minWidth: '120px'
                                     }}
                                     title="Change status"
                                 >
@@ -1333,7 +1327,7 @@ export default function WorkLogEditPage() {
                                         style={{
                                             display: 'flex', alignItems: 'center', gap: '6px',
                                             padding: '8px 14px', backgroundColor: '#D97706', color: 'white',
-                                            border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer',
+                                            border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer'
                                         }}
                                     >
                                         <Plus size={14} />
@@ -1479,7 +1473,7 @@ export default function WorkLogEditPage() {
                                 style={{
                                     display: 'flex', alignItems: 'center', gap: '6px',
                                     padding: '10px 18px', backgroundColor: '#8B5CF6', color: 'white',
-                                    border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer',
+                                    border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer'
                                 }}
                             >
                                 <Plus size={16} />
@@ -1634,7 +1628,7 @@ export default function WorkLogEditPage() {
                                         padding: '10px 18px', backgroundColor: '#D97706', color: 'white',
                                         border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600,
                                         cursor: uploadingPhoto ? 'not-allowed' : 'pointer',
-                                        opacity: uploadingPhoto ? 0.7 : 1,
+                                        opacity: uploadingPhoto ? 0.7 : 1
                                     }}
                                 >
                                     {uploadingPhoto ? (
@@ -1686,7 +1680,7 @@ export default function WorkLogEditPage() {
                                             borderRadius: '12px',
                                             overflow: 'hidden',
                                             backgroundColor: '#F3F4F6',
-                                            border: '1px solid #E5E7EB',
+                                            border: '1px solid #E5E7EB'
                                         }}>
                                             <img
                                                 src={photo.photo_url || photo.photo}
@@ -1694,7 +1688,7 @@ export default function WorkLogEditPage() {
                                                 style={{
                                                     width: '100%',
                                                     height: '100%',
-                                                    objectFit: 'cover',
+                                                    objectFit: 'cover'
                                                 }}
                                             />
                                             {(status === 'draft' || status === 'pending') && (
@@ -1713,7 +1707,7 @@ export default function WorkLogEditPage() {
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         justifyContent: 'center',
-                                                        color: 'white',
+                                                        color: 'white'
                                                     }}
                                                 >
                                                     <X size={14} />
@@ -1729,7 +1723,7 @@ export default function WorkLogEditPage() {
                                                     backgroundColor: 'rgba(0,0,0,0.6)',
                                                     color: 'white',
                                                     fontSize: '11px',
-                                                    textAlign: 'center',
+                                                    textAlign: 'center'
                                                 }}>
                                                     {photo.caption}
                                                 </div>
@@ -1757,7 +1751,7 @@ export default function WorkLogEditPage() {
                                 style={{
                                     padding: '14px 28px', backgroundColor: '#F3F4F6', color: '#374151',
                                     border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: 600,
-                                    cursor: 'pointer',
+                                    cursor: 'pointer'
                                 }}
                             >
                                 Cancel
@@ -1771,7 +1765,7 @@ export default function WorkLogEditPage() {
                                     color: 'white',
                                     border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: 600,
                                     cursor: (saving || !hasChanges || Object.keys(errors).some(k => k.startsWith('break_'))) ? 'not-allowed' : 'pointer',
-                                    opacity: saving ? 0.7 : 1,
+                                    opacity: saving ? 0.7 : 1
                                 }}
                             >
                                 {saving ? 'Saving...' : hasChanges ? 'Save Changes' : 'No Changes'}
@@ -1790,7 +1784,7 @@ const labelStyle: React.CSSProperties = {
     fontSize: '14px',
     fontWeight: 500,
     marginBottom: '8px',
-    color: '#374151',
+    color: '#374151'
 };
 
 const inputStyle: React.CSSProperties = {
@@ -1801,7 +1795,7 @@ const inputStyle: React.CSSProperties = {
     borderRadius: '10px',
     outline: 'none',
     backgroundColor: 'white',
-    transition: 'border-color 0.2s',
+    transition: 'border-color 0.2s'
 };
 
 const dropdownStyle: React.CSSProperties = {
@@ -1816,7 +1810,7 @@ const dropdownStyle: React.CSSProperties = {
     zIndex: 100,
     maxHeight: '240px',
     overflowY: 'auto',
-    marginTop: '4px',
+    marginTop: '4px'
 };
 
 const dropdownItemStyle: React.CSSProperties = {
@@ -1824,5 +1818,5 @@ const dropdownItemStyle: React.CSSProperties = {
     cursor: 'pointer',
     fontSize: '14px',
     color: '#374151',
-    transition: 'background-color 0.15s',
+    transition: 'background-color 0.15s'
 };

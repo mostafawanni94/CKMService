@@ -42,24 +42,24 @@ class NotificationService {
 
   /// Get all notifications
   Future<List<NotificationModel>> getNotifications() async {
-    final response = await _api.get('/notifications/');
+    final response = await _api.get('/notifications/notifications/');
     final results = response['results'] as List? ?? [];
     return results.map((n) => NotificationModel.fromJson(n)).toList();
   }
 
   /// Get unread count
   Future<int> getUnreadCount() async {
-    final response = await _api.get('/notifications/unread_count/');
+    final response = await _api.get('/notifications/notifications/unread_count/');
     return response['count'] ?? 0;
   }
 
   /// Mark as read
   Future<void> markAsRead(String id) async {
-    await _api.post('/notifications/$id/mark_read/');
+    await _api.post('/notifications/notifications/$id/mark_read/');
   }
 
   /// Mark all as read
   Future<void> markAllAsRead() async {
-    await _api.post('/notifications/mark_all_read/');
+    await _api.post('/notifications/notifications/mark_all_read/');
   }
 }

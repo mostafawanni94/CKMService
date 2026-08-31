@@ -1,11 +1,19 @@
-# ProTotaalService - Complete Use Case Documentation
+# CKM Services — Complete Use Case Documentation
+
+> **Start with [CLAUDE.md](CLAUDE.md)** for architecture, conventions and
+> gotchas. This document is the detailed per-endpoint reference.
 
 ## Overview
 
-This document provides comprehensive use case documentation for all three platforms:
-- **Backend (Django REST Framework)**
-- **Frontend (Next.js Dashboard)**
-- **Flutter (Mobile App)**
+Use case documentation for all four applications:
+
+- **Backend** — Django REST Framework, the single source of truth
+- **Frontend** — Next.js admin dashboard
+- **`FlutterProTotaalService/`** — the **employee** mobile app
+- **`FlutterEmployeeProject/`** — the **customer portal** app
+
+> ⚠️ The two Flutter directory names are inverted relative to what the apps
+> actually are. Confirm via `pubspec.yaml` before editing either one.
 
 ---
 
@@ -14,16 +22,35 @@ This document provides comprehensive use case documentation for all three platfo
 ## App Structure
 ```
 Backend/apps/
-├── employees/      # User accounts & employee profiles
-├── customers/      # Customer & supplier management
-├── projects/       # Project management & assignments
-├── worklogs/       # Work log submission & approval
-├── invoices/       # Invoice generation & management
+├── core/           # Base models, SystemConfig, shared permissions, test factories
+├── employees/      # User accounts, employee profiles, agencies, auth views
+├── customers/      # Customer management, services, rates, customer portal
+├── projects/       # Project management, assignments, shift planning
+├── worklogs/       # Shifts, work entries, surcharge calculation, Excel export
+├── invoices/       # Customer, agency and incoming invoices; pending earnings
+├── hr/             # Leave types & requests, payroll periods, payslips, attendance
+├── expenses/       # Expense categories, expenses, income records
 ├── wallet/         # Employee wallet & advances
-├── notifications/  # System notifications
-├── certificates/   # Certificate management
-└── core/           # Shared utilities
+├── notifications/  # In-app, email and FCM push notifications
+└── certificates/   # Certificate management
 ```
+
+## What changed recently
+
+The `expenses`, `hr` and incoming-invoice modules post-date most of the sections
+below, and several endpoints moved:
+
+| Area | Now |
+|---|---|
+| Permissions | `apps/core/permissions.py` — adds `IsFinanceStaff`, `IsOperationsStaff`, `IsBackOffice` |
+| Auth | Adds `/api/auth/password-reset/` and `/confirm/`; the access token carries `role`, `email`, `is_first_login` |
+| Token lifetime | 1 hour access / 30 day refresh, rotating with blacklisting |
+| Shifts | `ShiftViewSet` is registered at `/api/worklogs/shifts/` |
+| Employee self-service | `/api/employees/profiles/me/`, `/upload_document/`, `/my_assignments/`, `/contracts/` |
+| Earnings | `/api/invoices/pending-earnings/` |
+| Supplier invoices | `/api/invoices/incoming-invoices/` (+ `summary/`, `mark_paid/`) |
+| HR | `/api/hr/` — `leave-types`, `leave-requests`, `payroll-periods`, `payslips`, `attendance` |
+| Push | FCM **HTTP v1** with a service account, configured in Settings |
 
 ---
 

@@ -7,6 +7,8 @@ REST API framework, and extensible architecture.
 
 import os
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -19,10 +21,54 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY SETTINGS
 # =============================================================================
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production')
-DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,10.0.2.2,192.168.2.40,*').split(',')
-APPEND_SLASH = False  # Disable automatic slash redirect to prevent loops with NextJS proxy
+def _env_bool(name, default=False):
+    return os.getenv(name, str(default)).strip().lower() in ('true', '1', 'yes', 'on')
+
+
+def _env_list(name, default=''):
+    return [item.strip() for item in os.getenv(name, default).split(',') if item.strip()]
+
+
+# DEBUG now defaults to *off*. A missing or unreadable .env used to silently
+# produce a debug server with a known signing key and ALLOWED_HOSTS = ['*'].
+DEBUG = _env_bool('DEBUG', False)
+
+SECRET_KEY = os.getenv('SECRET_KEY', '')
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = 'django-insecure-local-development-only'
+    else:
+        raise ImproperlyConfigured(
+            'SECRET_KEY must be set when DEBUG is off. Copy .env.example to .env '
+            'and set a unique value.'
+        )
+
+ALLOWED_HOSTS = _env_list('ALLOWED_HOSTS', 'localhost,127.0.0.1,10.0.2.2' if DEBUG else '')
+if '*' in ALLOWED_HOSTS and not DEBUG:
+    raise ImproperlyConfigured(
+        "ALLOWED_HOSTS may not contain '*' when DEBUG is off. List the real "
+        "hostnames this API is served on."
+    )
+if not ALLOWED_HOSTS and not DEBUG:
+    raise ImproperlyConfigured('ALLOWED_HOSTS must be set when DEBUG is off.')
+
+# The Next.js proxy forwards paths verbatim, so Django must not issue its own
+# slash redirects or the two disagree and requests loop. Every client therefore
+# has to send the trailing slash exactly as the router declares it.
+APPEND_SLASH = False
+
+# HTTPS / cookie hardening, applied only outside local development.
+if not DEBUG:
+    SECURE_SSL_REDIRECT = _env_bool('SECURE_SSL_REDIRECT', True)
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', 60 * 60 * 24 * 365))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+    CSRF_TRUSTED_ORIGINS = _env_list('CSRF_TRUSTED_ORIGINS')
 
 # =============================================================================
 # APPLICATION DEFINITION
@@ -40,6 +86,9 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
+    # Required for BLACKLIST_AFTER_ROTATION below to actually do anything;
+    # without it, rotated refresh tokens stayed valid forever.
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'django_filters',
     'drf_spectacular',
@@ -57,6 +106,7 @@ LOCAL_APPS = [
     'apps.notifications.apps.NotificationsConfig',
     'apps.certificates.apps.CertificatesConfig',
     'apps.expenses.apps.ExpensesConfig',
+    'apps.hr.apps.HRConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -191,7 +241,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'apps.core.pagination.RelativePageNumberPagination',
     'PAGE_SIZE': 20,
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
@@ -204,6 +254,7 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/hour',
         'user': '1000/hour',
+        'password_reset': '5/hour',
     },
     'DATETIME_FORMAT': '%Y-%m-%dT%H:%M:%S%z',
     'DATE_FORMAT': '%Y-%m-%d',
@@ -216,8 +267,14 @@ REST_FRAMEWORK = {
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),  # 30 days
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=90),  # 90 days
+    # Access tokens are held in browser localStorage and in mobile secure
+    # storage; they are kept short because every client now refreshes.
+    'ACCESS_TOKEN_LIFETIME': timedelta(
+        minutes=int(os.getenv('ACCESS_TOKEN_LIFETIME_MINUTES', '60'))
+    ),
+    'REFRESH_TOKEN_LIFETIME': timedelta(
+        days=int(os.getenv('REFRESH_TOKEN_LIFETIME_DAYS', '30'))
+    ),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': True,

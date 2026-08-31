@@ -84,7 +84,7 @@ export const inputStyle: React.CSSProperties = {
     borderRadius: '10px',
     outline: 'none',
     backgroundColor: '#FAFAFA',
-    boxSizing: 'border-box',
+    boxSizing: 'border-box'
 };
 
 // Common label style
@@ -93,5 +93,5 @@ export const labelStyle: React.CSSProperties = {
     fontSize: '13px',
     fontWeight: 500,
     color: '#374151',
-    marginBottom: '6px',
+    marginBottom: '6px'
 };

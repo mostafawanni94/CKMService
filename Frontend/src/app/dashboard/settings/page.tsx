@@ -27,6 +27,7 @@ import {
     ToggleRight,
     ChevronDown
 } from 'lucide-react';
+import { apiFetch } from '@/hooks/useApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -98,7 +99,7 @@ export default function SettingsPage() {
         email_on_invoices: false,
         email_on_high_priority: true,
         firebase_push_enabled: false,
-        firebase_server_key: '',
+        firebase_server_key: ''
     });
 
     // Check if settings have changed
@@ -115,11 +116,7 @@ export default function SettingsPage() {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${API_URL}/settings/config/`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            });
+            const response = await apiFetch(`/settings/config/`);
             if (response.ok) {
                 const data = await response.json();
                 setSettings(data);
@@ -137,13 +134,12 @@ export default function SettingsPage() {
         setSaving(true);
         setError(null);
         try {
-            const response = await fetch(`${API_URL}/settings/config/`, {
+            const response = await apiFetch(`/settings/config/`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(settings),
+                body: JSON.stringify(settings)
             });
 
             if (response.ok) {
@@ -199,7 +195,7 @@ export default function SettingsPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    marginBottom: '32px',
+                    marginBottom: '32px'
                 }}>
                     <div>
                         <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1F2937', margin: 0 }}>
@@ -227,7 +223,7 @@ export default function SettingsPage() {
                             cursor: (saving || !hasChanges) ? 'not-allowed' : 'pointer',
                             boxShadow: hasChanges ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none',
                             transition: 'all 0.2s ease',
-                            opacity: (saving || !hasChanges) ? 0.7 : 1,
+                            opacity: (saving || !hasChanges) ? 0.7 : 1
                         }}
                     >
                         {saving ? (
@@ -251,7 +247,7 @@ export default function SettingsPage() {
                         marginBottom: '24px',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '12px',
+                        gap: '12px'
                     }}>
                         <AlertCircle size={20} color="#DC2626" />
                         <span style={{ color: '#DC2626', fontWeight: 500 }}>{error}</span>
@@ -458,7 +454,7 @@ export default function SettingsPage() {
                         border: '1px solid #BBF7D0',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '12px',
+                        gap: '12px'
                     }}>
                         <div style={{
                             width: '40px',
@@ -467,7 +463,7 @@ export default function SettingsPage() {
                             backgroundColor: '#10B981',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center',
+                            justifyContent: 'center'
                         }}>
                             <CheckCircle size={20} color="white" />
                         </div>
@@ -505,14 +501,14 @@ export default function SettingsPage() {
                                     border: selectedLanguage === lang.code ? '2px solid #8B5CF6' : '2px solid #E5E7EB',
                                     backgroundColor: selectedLanguage === lang.code ? '#F5F3FF' : 'white',
                                     cursor: 'pointer',
-                                    transition: 'all 0.15s ease',
+                                    transition: 'all 0.15s ease'
                                 }}
                             >
                                 <span style={{ fontSize: '28px' }}>{lang.flag}</span>
                                 <span style={{
                                     fontSize: '13px',
                                     fontWeight: selectedLanguage === lang.code ? 600 : 500,
-                                    color: selectedLanguage === lang.code ? '#7C3AED' : '#374151',
+                                    color: selectedLanguage === lang.code ? '#7C3AED' : '#374151'
                                 }}>
                                     {lang.name}
                                 </span>
@@ -555,7 +551,7 @@ export default function SettingsPage() {
                                         border: '1px solid #E5E7EB',
                                         borderRadius: '10px',
                                         fontSize: '14px',
-                                        fontFamily: 'monospace',
+                                        fontFamily: 'monospace'
                                     }}
                                 />
                                 <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
@@ -803,7 +799,7 @@ function SettingsCard({ icon: Icon, iconColor, iconBg, title, description, child
             border: '1px solid #E5E7EB',
             padding: '24px',
             marginBottom: '24px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
         }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
                 <div style={{
@@ -813,7 +809,7 @@ function SettingsCard({ icon: Icon, iconColor, iconBg, title, description, child
                     backgroundColor: iconBg,
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    justifyContent: 'center'
                 }}>
                     <Icon size={22} color={iconColor} />
                 </div>
@@ -870,7 +866,7 @@ function NotificationToggle({ label, description, checked, onChange }: {
                 border: '1px solid #E5E7EB',
                 backgroundColor: checked ? '#FFFBEB' : '#FAFAFA',
                 cursor: 'pointer',
-                transition: 'all 0.15s ease',
+                transition: 'all 0.15s ease'
             }}
         >
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -881,7 +877,7 @@ function NotificationToggle({ label, description, checked, onChange }: {
                     backgroundColor: checked ? '#FEF3C7' : '#F3F4F6',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    justifyContent: 'center'
                 }}>
                     {checked ? (
                         <CheckCircle size={18} color="#F59E0B" />
@@ -902,7 +898,7 @@ function NotificationToggle({ label, description, checked, onChange }: {
                 padding: '2px',
                 transition: 'all 0.15s ease',
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: 'center'
             }}>
                 <div style={{
                     width: '24px',
@@ -911,7 +907,7 @@ function NotificationToggle({ label, description, checked, onChange }: {
                     backgroundColor: 'white',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
                     transform: checked ? 'translateX(20px)' : 'translateX(0)',
-                    transition: 'transform 0.15s ease',
+                    transition: 'transform 0.15s ease'
                 }} />
             </div>
         </div>
@@ -925,7 +921,7 @@ const labelStyle: React.CSSProperties = {
     fontSize: '13px',
     fontWeight: 600,
     marginBottom: '8px',
-    color: '#374151',
+    color: '#374151'
 };
 
 const inputStyle: React.CSSProperties = {
@@ -936,13 +932,13 @@ const inputStyle: React.CSSProperties = {
     borderRadius: '10px',
     outline: 'none',
     transition: 'border-color 0.15s ease',
-    boxSizing: 'border-box',
+    boxSizing: 'border-box'
 };
 
 const selectStyle: React.CSSProperties = {
     ...inputStyle,
     backgroundColor: 'white',
-    cursor: 'pointer',
+    cursor: 'pointer'
 };
 
 const addButtonStyle: React.CSSProperties = {
@@ -957,7 +953,7 @@ const addButtonStyle: React.CSSProperties = {
     border: '1px solid #BFDBFE',
     borderRadius: '8px',
     cursor: 'pointer',
-    transition: 'all 0.15s ease',
+    transition: 'all 0.15s ease'
 };
 
 const deleteButtonStyle: React.CSSProperties = {
@@ -971,7 +967,7 @@ const deleteButtonStyle: React.CSSProperties = {
     border: '1px solid #FECACA',
     borderRadius: '10px',
     cursor: 'pointer',
-    transition: 'all 0.15s ease',
+    transition: 'all 0.15s ease'
 };
 
 // Email Rule Toggle Component (with description)
@@ -993,7 +989,7 @@ function EmailRuleToggle({ label, description, checked, onChange }: {
                 border: checked ? '1px solid #10B981' : '1px solid #E5E7EB',
                 backgroundColor: checked ? '#ECFDF5' : 'white',
                 cursor: 'pointer',
-                transition: 'all 0.15s ease',
+                transition: 'all 0.15s ease'
             }}
         >
             <div style={{
@@ -1006,7 +1002,7 @@ function EmailRuleToggle({ label, description, checked, onChange }: {
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
-                marginTop: '2px',
+                marginTop: '2px'
             }}>
                 {checked && <CheckCircle size={12} color="white" />}
             </div>
@@ -1015,7 +1011,7 @@ function EmailRuleToggle({ label, description, checked, onChange }: {
                     fontSize: '14px',
                     fontWeight: 600,
                     color: checked ? '#065F46' : '#374151',
-                    display: 'block',
+                    display: 'block'
                 }}>
                     {label}
                 </span>
@@ -1024,7 +1020,7 @@ function EmailRuleToggle({ label, description, checked, onChange }: {
                         fontSize: '12px',
                         color: checked ? '#059669' : '#6B7280',
                         marginTop: '2px',
-                        display: 'block',
+                        display: 'block'
                     }}>
                         {description}
                     </span>
@@ -1077,7 +1073,7 @@ function EmailRuleWithRecipients({
                 borderRadius: '10px',
                 border: checked ? '1px solid #10B981' : '1px solid #E5E7EB',
                 backgroundColor: checked ? '#ECFDF5' : 'white',
-                transition: 'all 0.15s ease',
+                transition: 'all 0.15s ease'
             }}
         >
             {/* Header with toggle */}
@@ -1087,7 +1083,7 @@ function EmailRuleWithRecipients({
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',
-                    cursor: 'pointer',
+                    cursor: 'pointer'
                 }}
             >
                 <div style={{
@@ -1099,7 +1095,7 @@ function EmailRuleWithRecipients({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    flexShrink: 0,
+                    flexShrink: 0
                 }}>
                     {checked && <CheckCircle size={12} color="white" />}
                 </div>
@@ -1108,14 +1104,14 @@ function EmailRuleWithRecipients({
                     <span style={{
                         fontSize: '14px',
                         fontWeight: 600,
-                        color: checked ? '#065F46' : '#374151',
+                        color: checked ? '#065F46' : '#374151'
                     }}>
                         {label}
                     </span>
                     <span style={{
                         fontSize: '12px',
                         color: checked ? '#059669' : '#6B7280',
-                        marginLeft: '8px',
+                        marginLeft: '8px'
                     }}>
                         {description}
                     </span>
@@ -1145,7 +1141,7 @@ function EmailRuleWithRecipients({
                                                 fontSize: '12px',
                                                 backgroundColor: '#10B981',
                                                 color: 'white',
-                                                borderRadius: '16px',
+                                                borderRadius: '16px'
                                             }}
                                         >
                                             {email}
@@ -1175,7 +1171,7 @@ function EmailRuleWithRecipients({
                                         border: '1px solid #D1D5DB',
                                         borderRadius: '6px',
                                         cursor: 'pointer',
-                                        color: '#6B7280',
+                                        color: '#6B7280'
                                     }}
                                 >
                                     <span>{emails.length === 0 ? 'Select recipients...' : `${emails.length} selected`}</span>
@@ -1196,7 +1192,7 @@ function EmailRuleWithRecipients({
                                         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                                         zIndex: 50,
                                         maxHeight: '200px',
-                                        overflowY: 'auto',
+                                        overflowY: 'auto'
                                     }}>
                                         {availableEmails.map(email => {
                                             const isSelected = emails.includes(email);
@@ -1211,7 +1207,7 @@ function EmailRuleWithRecipients({
                                                         padding: '10px 12px',
                                                         cursor: 'pointer',
                                                         backgroundColor: isSelected ? '#F0FDF4' : 'white',
-                                                        borderBottom: '1px solid #F3F4F6',
+                                                        borderBottom: '1px solid #F3F4F6'
                                                     }}
                                                 >
                                                     <div style={{
@@ -1222,7 +1218,7 @@ function EmailRuleWithRecipients({
                                                         backgroundColor: isSelected ? '#10B981' : 'white',
                                                         display: 'flex',
                                                         alignItems: 'center',
-                                                        justifyContent: 'center',
+                                                        justifyContent: 'center'
                                                     }}>
                                                         {isSelected && <Check size={10} color="white" />}
                                                     </div>

@@ -1,133 +1,238 @@
+/**
+ * Payroll — pay runs built from approved work entries.
+ *
+ * Generation is idempotent server-side: an employee already carried by a
+ * payslip in the period is skipped, and a work entry is never counted twice.
+ */
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { CreditCard, Play, Check } from 'lucide-react';
+
 import { DashboardLayout } from '@/components/layout/dashboard';
-import { CreditCard, Plus, Search, Download, Eye } from 'lucide-react';
+import {
+    Button, DataTable, FormGrid, Input, Modal, PageHeader,
+    SectionCard, Select, StatCard, StatusBadge, TextArea,
+} from '@/components/ui/shared';
+import { usePayroll, type PayrollPeriod, type Payslip } from '@/hooks/useHr';
+import styles from '../page.module.css';
+
+const STATUS_OPTIONS = [
+    { value: 'all', label: 'All statuses' },
+    { value: 'draft', label: 'Draft' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'paid', label: 'Paid' },
+    { value: 'cancelled', label: 'Cancelled' },
+];
+
+const euro = (value: string | number) =>
+    `€ ${Number(value || 0).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+const emptyForm = { name: '', start_date: '', end_date: '', notes: '' };
 
 export default function HRPayrollPage() {
-    const [payrolls, setPayrolls] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [search, setSearch] = useState('');
-    const [filter, setFilter] = useState('all');
+    const vm = usePayroll();
+    const [showModal, setShowModal] = useState(false);
+    const [form, setForm] = useState(emptyForm);
+    const [formError, setFormError] = useState<string | null>(null);
 
-    useEffect(() => {
-        setLoading(false);
-        setPayrolls([]);
-    }, []);
+    const update = (key: keyof typeof emptyForm) => (value: string) =>
+        setForm(prev => ({ ...prev, [key]: value }));
 
-    if (loading) {
-        return (
-            <DashboardLayout>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px' }}>
-                    <div style={{ width: '40px', height: '40px', border: '3px solid #E5E7EB', borderTopColor: '#1E3A5F', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-                </div>
-            </DashboardLayout>
-        );
+    async function handleCreate() {
+        setFormError(null);
+        if (!form.name || !form.start_date || !form.end_date) {
+            setFormError('Name, start date and end date are required.');
+            return;
+        }
+        try {
+            await vm.createPeriod(form);
+            setForm(emptyForm);
+            setShowModal(false);
+        } catch (err) {
+            setFormError(err instanceof Error ? err.message : 'Could not create the period.');
+        }
     }
+
+    const periodColumns = [
+        { key: 'name', header: 'Period', render: (row: PayrollPeriod) => row.name },
+        {
+            key: 'range',
+            header: 'Range',
+            render: (row: PayrollPeriod) => `${row.start_date} → ${row.end_date}`,
+        },
+        {
+            key: 'employee_count',
+            header: 'Employees',
+            align: 'right' as const,
+            render: (row: PayrollPeriod) => `${row.employee_count}`,
+        },
+        {
+            key: 'total_gross',
+            header: 'Gross',
+            align: 'right' as const,
+            render: (row: PayrollPeriod) => euro(row.total_gross),
+        },
+        {
+            key: 'status',
+            header: 'Status',
+            render: (row: PayrollPeriod) => <StatusBadge status={row.status} />,
+        },
+        {
+            key: 'actions',
+            header: '',
+            render: (row: PayrollPeriod) => (
+                <div className={styles.rowActions}>
+                    <Button variant="ghost" onClick={() => vm.loadPayslips(row.id)}>
+                        Payslips
+                    </Button>
+                    {row.status !== 'paid' && (
+                        <Button
+                            variant="secondary"
+                            onClick={() => vm.generate(row.id)}
+                            disabled={vm.busy}
+                            icon={<Play size={14} />}
+                        >
+                            Generate
+                        </Button>
+                    )}
+                    {row.status === 'pending' && (
+                        <Button
+                            variant="success"
+                            onClick={() => vm.markPaid(row.id)}
+                            disabled={vm.busy}
+                            icon={<Check size={14} />}
+                        >
+                            Mark paid
+                        </Button>
+                    )}
+                </div>
+            ),
+        },
+    ];
+
+    const payslipColumns = [
+        { key: 'employee_name', header: 'Employee', render: (row: Payslip) => row.employee_name },
+        {
+            key: 'total_hours',
+            header: 'Hours',
+            align: 'right' as const,
+            render: (row: Payslip) => Number(row.total_hours || 0).toFixed(2),
+        },
+        {
+            key: 'gross_pay',
+            header: 'Gross',
+            align: 'right' as const,
+            render: (row: Payslip) => euro(row.gross_pay),
+        },
+        {
+            key: 'deductions',
+            header: 'Deductions',
+            align: 'right' as const,
+            render: (row: Payslip) => euro(row.deductions),
+        },
+        {
+            key: 'net_pay',
+            header: 'Net',
+            align: 'right' as const,
+            render: (row: Payslip) => euro(row.net_pay),
+        },
+        {
+            key: 'status',
+            header: 'Status',
+            render: (row: Payslip) => <StatusBadge status={row.status} />,
+        },
+    ];
 
     return (
         <DashboardLayout>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-                    <div>
-                        <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1E3A5F', margin: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <CreditCard style={{ width: '28px', height: '28px' }} />
-                            Payroll
-                        </h1>
-                        <p style={{ fontSize: '15px', color: '#6B7280', margin: '4px 0 0 0' }}>Manage employee payroll and salaries</p>
-                    </div>
-                    <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#1E3A5F', color: 'white', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(30, 58, 95, 0.3)' }}>
-                        <Plus size={18} />
-                        Run Payroll
-                    </button>
+            <div className={styles.container}>
+                <PageHeader
+                    title="Payroll"
+                    subtitle="Build pay runs from approved work entries"
+                    actions={
+                        <Button onClick={() => setShowModal(true)} icon={<CreditCard size={16} />}>
+                            New period
+                        </Button>
+                    }
+                />
+
+                <div className={styles.statRow}>
+                    <StatCard label="Periods" value={vm.totals.periods} />
+                    <StatCard label="Pending" value={vm.totals.pending} />
+                    <StatCard label="Paid" value={vm.totals.paid} />
+                    <StatCard label="Gross total" value={euro(vm.totals.grossTotal)} />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                    <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px 24px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <CreditCard size={24} style={{ color: '#3B82F6' }} />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Total Payroll</p>
-                            <p style={{ fontSize: '24px', fontWeight: 700, color: '#1E3A5F', margin: 0 }}>€0</p>
-                        </div>
-                    </div>
-                    <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px 24px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <CreditCard size={24} style={{ color: '#059669' }} />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Paid</p>
-                            <p style={{ fontSize: '24px', fontWeight: 700, color: '#059669', margin: 0 }}>€0</p>
-                        </div>
-                    </div>
-                    <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px 24px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <CreditCard size={24} style={{ color: '#D97706' }} />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Pending</p>
-                            <p style={{ fontSize: '24px', fontWeight: 700, color: '#D97706', margin: 0 }}>€0</p>
-                        </div>
-                    </div>
-                    <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px 24px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <CreditCard size={24} style={{ color: '#6B7280' }} />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Employees</p>
-                            <p style={{ fontSize: '24px', fontWeight: 700, color: '#1E3A5F', margin: 0 }}>0</p>
-                        </div>
-                    </div>
+                <div className={styles.filterRow}>
+                    <Select
+                        value={vm.statusFilter}
+                        onChange={vm.setStatusFilter}
+                        options={STATUS_OPTIONS}
+                    />
                 </div>
 
-                <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '16px 24px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                        {['all', 'paid', 'pending', 'draft'].map((status) => (
-                            <button key={status} onClick={() => setFilter(status)} style={{ padding: '10px 20px', borderRadius: '10px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', backgroundColor: filter === status ? '#1E3A5F' : '#F3F4F6', color: filter === status ? 'white' : '#6B7280' }}>
-                                {status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
-                            </button>
-                        ))}
-                    </div>
-                    <div style={{ position: 'relative' }}>
-                        <input placeholder="Search payroll..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ padding: '10px 16px 10px 40px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '14px', width: '240px' }} />
-                        <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
-                    </div>
-                </div>
+                <SectionCard title="Pay runs">
+                    <DataTable<PayrollPeriod>
+                        data={vm.periods}
+                        columns={periodColumns}
+                        loading={vm.loading}
+                        rowKey={(row) => row.id}
+                        emptyIcon={<CreditCard size={32} />}
+                        emptyTitle="No payroll periods"
+                        emptySubtitle={vm.error ?? 'Create a period to start a pay run.'}
+                    />
+                </SectionCard>
 
-                <div style={{ backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead>
-                            <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E5E7EB' }}>
-                                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Period</th>
-                                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Employee</th>
-                                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Gross</th>
-                                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Net</th>
-                                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Status</th>
-                                <th style={{ padding: '16px 24px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colSpan={6} style={{ padding: '64px 24px', textAlign: 'center' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                                        <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            <CreditCard size={36} style={{ color: '#9CA3AF' }} />
-                                        </div>
-                                        <div>
-                                            <p style={{ fontSize: '16px', fontWeight: 600, color: '#374151', margin: 0 }}>No payroll records yet</p>
-                                            <p style={{ fontSize: '14px', color: '#6B7280', margin: '4px 0 0 0' }}>Run your first payroll</p>
-                                        </div>
-                                        <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#1E3A5F', color: 'white', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', marginTop: '8px' }}>
-                                            <Plus size={18} />
-                                            Run Payroll
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                {vm.selectedPeriod && (
+                    <SectionCard title="Payslips">
+                        <DataTable<Payslip>
+                            data={vm.payslips}
+                            columns={payslipColumns}
+                            rowKey={(row) => row.id}
+                            emptyTitle="No payslips yet"
+                            emptySubtitle="Run Generate on the period to build them."
+                        />
+                    </SectionCard>
+                )}
+
+                <Modal
+                    open={showModal}
+                    onClose={() => setShowModal(false)}
+                    title="New payroll period"
+                    footer={
+                        <>
+                            <Button variant="secondary" onClick={() => setShowModal(false)}>
+                                Cancel
+                            </Button>
+                            <Button onClick={handleCreate} loading={vm.busy}>
+                                Create
+                            </Button>
+                        </>
+                    }
+                >
+                    <FormGrid columns={2}>
+                        <Input label="Name" value={form.name} onChange={update('name')} required />
+                        <Input
+                            label="Start date"
+                            type="date"
+                            value={form.start_date}
+                            onChange={update('start_date')}
+                            required
+                        />
+                        <Input
+                            label="End date"
+                            type="date"
+                            value={form.end_date}
+                            onChange={update('end_date')}
+                            required
+                        />
+                    </FormGrid>
+                    <TextArea label="Notes" value={form.notes} onChange={update('notes')} />
+                    {formError && (
+                        <p style={{ color: '#DC2626', fontSize: 13, marginTop: 8 }}>{formError}</p>
+                    )}
+                </Modal>
             </div>
         </DashboardLayout>
     );

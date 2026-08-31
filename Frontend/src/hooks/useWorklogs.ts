@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, WorkEntry } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n';
+import { apiFetch } from '@/hooks/useApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -66,7 +67,7 @@ function getDefaultFormData() {
     break_start_time: '12:00',
     break_end_time: '12:30',
     notes: '',
-    status: 'draft',
+    status: 'draft'
   };
 }
 
@@ -129,12 +130,10 @@ export function useWorklogs() {
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('access_token');
-      const headers = { Authorization: `Bearer ${token}` };
       const [allResponse, pending, unassignedRes] = await Promise.all([
         api.getWorkEntries({ include_past: true, page_size: 9999 }),
         api.getPendingWorkEntries(),
-        fetch(`${API_URL}/projects/planned-days/unassigned_shifts/`, { headers }).then(r =>
+        apiFetch(`/projects/planned-days/unassigned_shifts/`).then(r =>
           r.ok ? r.json() : { results: [] },
         ),
       ]);
@@ -147,7 +146,7 @@ export function useWorklogs() {
           actual_start_datetime: shift.start_time ? `${shift.work_date}T${shift.start_time}:00` : null,
           actual_end_datetime: shift.end_time ? `${shift.work_date}T${shift.end_time}:00` : null,
           calculated_hours: '0.00',
-          break_duration: '0:00',
+          break_duration: '0:00'
         }),
       );
       setWorkLogs([...workEntries, ...unassignedShifts]);
@@ -161,9 +160,7 @@ export function useWorklogs() {
 
   async function loadProjects() {
     try {
-      const response = await fetch(`${API_URL}/projects/projects/`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
-      });
+      const response = await apiFetch(`/projects/projects/`);
       if (response.ok) {
         const data = await response.json();
         setProjects(data.results || data);
@@ -175,9 +172,7 @@ export function useWorklogs() {
 
   async function loadCustomers() {
     try {
-      const response = await fetch(`${API_URL}/customers/customers/`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
-      });
+      const response = await apiFetch(`/customers/customers/`);
       if (response.ok) {
         const data = await response.json();
         setCustomers(
@@ -191,9 +186,7 @@ export function useWorklogs() {
 
   async function loadAllowanceTypes() {
     try {
-      const response = await fetch(`${API_URL}/employees/allowance-types/`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
-      });
+      const response = await apiFetch(`/employees/allowance-types/`);
       if (response.ok) {
         const data = await response.json();
         setAllowanceTypes(data.results || data);
@@ -205,9 +198,7 @@ export function useWorklogs() {
 
   async function loadEmployees() {
     try {
-      const response = await fetch(`${API_URL}/employees/profiles/`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
-      });
+      const response = await apiFetch(`/employees/profiles/`);
       if (response.ok) {
         const data = await response.json();
         setEmployees(Array.isArray(data) ? data : data.results || []);
@@ -224,9 +215,7 @@ export function useWorklogs() {
       return;
     }
     try {
-      const response = await fetch(`${API_URL}/customers/outfolders/?customer=${customerId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
-      });
+      const response = await apiFetch(`/customers/outfolders/?customer=${customerId}`);
       if (response.ok) {
         const data = await response.json();
         const allOutfolders = data.results || data;
@@ -250,12 +239,8 @@ export function useWorklogs() {
       const project = projects.find(p => p.id === projectId);
       if (!project) return;
       const [supervisorsRes, servicesRes] = await Promise.all([
-        fetch(`${API_URL}/customers/worklog-customers/${(project as any).customer}/outfolders/`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
-        }),
-        fetch(`${API_URL}/customers/worklog-customers/${(project as any).customer}/services/`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
-        }),
+        apiFetch(`/customers/worklog-customers/${(project as any).customer}/outfolders/`),
+        apiFetch(`/customers/worklog-customers/${(project as any).customer}/services/`),
       ]);
       if (supervisorsRes.ok) {
         const data = await supervisorsRes.json();
@@ -282,13 +267,12 @@ export function useWorklogs() {
   // ─── Actions ──────────────────────────────────────────
   async function handleStatusChange(logId: string, newStatus: string) {
     try {
-      const response = await fetch(`${API_URL}/worklogs/${logId}/`, {
+      const response = await apiFetch(`/worklogs/${logId}/`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ status: newStatus })
       });
       if (response.ok) {
         await loadWorkLogs();
@@ -416,9 +400,7 @@ export function useWorklogs() {
   async function openEditModal(log: WorkEntry) {
     let freshLog = log;
     try {
-      const response = await fetch(`${API_URL}/worklogs/${log.id}/`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
-      });
+      const response = await apiFetch(`/worklogs/${log.id}/`);
       if (response.ok) freshLog = await response.json();
     } catch {
       // Fall back to cached
@@ -453,7 +435,7 @@ export function useWorklogs() {
       break_start_time: (freshLog as any).break_start_time?.substring(0, 5) || '12:00',
       break_end_time: (freshLog as any).break_end_time?.substring(0, 5) || '12:30',
       notes: (freshLog as any).notes || '',
-      status: freshLog.status || 'draft',
+      status: freshLog.status || 'draft'
     });
 
     if ((freshLog as any).allowances?.length > 0) {
@@ -464,7 +446,7 @@ export function useWorklogs() {
           hours: String(a.hours || ''),
           notes: a.notes || '',
           start_time: a.start_time || '',
-          end_time: a.end_time || '',
+          end_time: a.end_time || ''
         })),
       );
     } else {
@@ -524,21 +506,20 @@ export function useWorklogs() {
             hours: parseFloat(a.hours),
             notes: a.notes,
             start_time: a.start_time || null,
-            end_time: a.end_time || null,
-          })),
+            end_time: a.end_time || null
+          }))
       };
       if (formData.supervisor) payload.supervisor = formData.supervisor;
       if (formData.service) payload.service = formData.service;
 
       const url = editingId ? `${API_URL}/worklogs/${editingId}/` : `${API_URL}/worklogs/`;
       const method = editingId ? 'PATCH' : 'POST';
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload)
       });
 
       if (response.ok) {
@@ -586,7 +567,7 @@ export function useWorklogs() {
     total: workLogs.length,
     pending: workLogs.filter(w => ['pending', 'submitted', 'draft'].includes(w.status)).length,
     approved: workLogs.filter(w => w.status === 'approved').length,
-    rejected: workLogs.filter(w => w.status === 'rejected').length,
+    rejected: workLogs.filter(w => w.status === 'rejected').length
   };
 
   // ─── Return ───────────────────────────────────────────
@@ -641,6 +622,6 @@ export function useWorklogs() {
     openModal, openEditModal,
     addAllowance, updateAllowance, removeAllowance,
     handleSubmit,
-    loadWorkLogs,
+    loadWorkLogs
   };
 }

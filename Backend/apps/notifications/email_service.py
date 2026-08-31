@@ -234,8 +234,8 @@ def send_notification_email_if_enabled(notification) -> bool:
     # Build full action URL
     action_url = notification.action_url
     if action_url and not action_url.startswith('http'):
-        frontend_url = getattr(config, 'frontend_url', 'http://localhost:3000')
-        action_url = f"{frontend_url.rstrip('/')}{action_url}"
+        base_url = (config.frontend_url or 'http://localhost:3000').rstrip('/')
+        action_url = f"{base_url}{action_url}"
     
     # Send email
     email_service = EmailService.from_config()

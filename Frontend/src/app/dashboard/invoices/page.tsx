@@ -5,8 +5,8 @@ import { DashboardLayout } from '@/components/layout/dashboard';
 import { Card, Button, Input } from '@/components/ui';
 import { api, Invoice } from '@/lib/api';
 import { FileText, Download, Eye, Clock, CheckCircle, AlertCircle, DollarSign, X, Gift, Coins, Users, User, Briefcase } from 'lucide-react';
-import * as XLSX from 'xlsx';
 import ExcelJS from 'exceljs';
+import { apiFetch } from '@/hooks/useApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -136,9 +136,7 @@ export default function InvoicesPage() {
 
     async function loadCustomerSurcharges(customerId: string) {
         try {
-            const response = await fetch(`${API_URL}/customers/${customerId}/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-            });
+            const response = await apiFetch(`/customers/${customerId}/`);
             if (response.ok) {
                 const customerData = await response.json();
                 console.log('Customer data for surcharges:', customerData);
@@ -219,8 +217,7 @@ export default function InvoicesPage() {
                 params.append('status', worklogStatusFilter);
             }
 
-            const response = await fetch(url + params.toString(), {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+            const response = await apiFetch(url + params.toString(), {
             });
 
             if (response.ok) {
@@ -262,9 +259,7 @@ export default function InvoicesPage() {
 
 
             // Call the backend export endpoint
-            const response = await fetch(`${API_URL}/worklogs/export/customer/?${params.toString()}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-            });
+            const response = await apiFetch(`/worklogs/export/customer/?${params.toString()}`);
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -302,7 +297,7 @@ export default function InvoicesPage() {
 
 
     // Excel Export - Simple Version (for Employee)
-    function exportExcelForEmployee() {
+    async function exportExcelForEmployee() {
         if (worklogs.length === 0) {
             alert('No worklogs to export. Please select filters first.');
             return;
@@ -320,22 +315,36 @@ export default function InvoicesPage() {
             'Notities': log.description || ''
         }));
 
-        // Create worksheet
-        const ws = XLSX.utils.json_to_sheet(excelData);
+        // Built with exceljs. The `xlsx` package used to do this, but the
+        // npm-published SheetJS carries unpatched prototype-pollution and ReDoS
+        // advisories (GHSA-4r6h-8v6p-xvw6, GHSA-5pgg-2g8v-p4x9) with no fix on
+        // the registry, and exceljs was already a dependency.
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('Uren Overzicht');
 
-        // Set column widths
-        ws['!cols'] = [
-            { wch: 25 }, { wch: 12 }, { wch: 20 }, { wch: 8 },
-            { wch: 8 }, { wch: 8 }, { wch: 12 }, { wch: 30 }
+        sheet.columns = [
+            { header: 'Naam', key: 'Naam', width: 25 },
+            { header: 'Datum', key: 'Datum', width: 12 },
+            { header: 'Project', key: 'Project', width: 20 },
+            { header: 'Start', key: 'Start', width: 8 },
+            { header: 'Einde', key: 'Einde', width: 8 },
+            { header: 'Pauze', key: 'Pauze', width: 8 },
+            { header: 'Totaal Uren', key: 'Totaal Uren', width: 12 },
+            { header: 'Notities', key: 'Notities', width: 30 },
         ];
+        sheet.getRow(1).font = { bold: true };
+        sheet.addRows(excelData);
 
-        // Create workbook
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Uren Overzicht');
-
-        // Download
-        const filename = `Employee_Hours_${new Date().toISOString().split('T')[0]}.xlsx`;
-        XLSX.writeFile(wb, filename);
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Employee_Hours_${new Date().toISOString().split('T')[0]}.xlsx`;
+        link.click();
+        window.URL.revokeObjectURL(url);
         setShowExportModal(false);
     }
 
@@ -350,10 +359,9 @@ export default function InvoicesPage() {
         const [year, week] = weekStart.split('-W').map(Number);
 
         try {
-            const response = await fetch(`${API_URL}/invoices/invoices/generate/`, {
+            const response = await apiFetch(`/invoices/invoices/generate/`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
@@ -387,9 +395,7 @@ export default function InvoicesPage() {
     async function loadFilterData() {
         try {
             // Load all customers - using same endpoint as Work Logs page
-            const customersRes = await fetch(`${API_URL}/customers/customers/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-            });
+            const customersRes = await apiFetch(`/customers/customers/`);
 
             if (customersRes.ok) {
                 const data = await customersRes.json();
@@ -398,9 +404,7 @@ export default function InvoicesPage() {
             }
 
             // Load employees - using users endpoint for better data
-            const employeesRes = await fetch(`${API_URL}/employees/users/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-            });
+            const employeesRes = await apiFetch(`/employees/users/`);
             if (employeesRes.ok) {
                 const data = await employeesRes.json();
                 const empList = Array.isArray(data) ? data : data.results || [];
@@ -422,9 +426,7 @@ export default function InvoicesPage() {
         }
         try {
             // Outfolders are supervisors - same pattern as Work Logs page
-            const res = await fetch(`${API_URL}/customers/outfolders/?customer=${customerId}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-            });
+            const res = await apiFetch(`/customers/outfolders/?customer=${customerId}`);
             if (res.ok) {
                 const data = await res.json();
                 const allOutfolders = data.results || data;
@@ -457,9 +459,7 @@ export default function InvoicesPage() {
     async function loadInvoiceDetail(invoiceId: string) {
         setLoadingDetail(true);
         try {
-            const response = await fetch(`${API_URL}/invoices/invoices/${invoiceId}/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/invoices/invoices/${invoiceId}/`);
             if (response.ok) {
                 const data = await response.json();
                 setSelectedInvoice(data);
@@ -583,7 +583,7 @@ export default function InvoicesPage() {
         paid: 'bg-green-100 text-green-700',
         pending: 'bg-yellow-100 text-yellow-700',
         overdue: 'bg-red-100 text-red-700',
-        draft: 'bg-gray-100 text-gray-700',
+        draft: 'bg-gray-100 text-gray-700'
     };
 
     const totalPending = invoices.filter(i => i.status === 'pending').reduce((sum, i) => sum + (i.total || 0), 0);
@@ -608,7 +608,7 @@ export default function InvoicesPage() {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     flexWrap: 'wrap',
-                    gap: '16px',
+                    gap: '16px'
                 }}>
                     <div>
                         <h1 style={{
@@ -618,7 +618,7 @@ export default function InvoicesPage() {
                             margin: 0,
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '12px',
+                            gap: '12px'
                         }}>
                             <FileText style={{ width: '28px', height: '28px' }} />
                             Outgoing Invoices
@@ -626,7 +626,7 @@ export default function InvoicesPage() {
                         <p style={{
                             fontSize: '15px',
                             color: '#6B7280',
-                            margin: '4px 0 0 0',
+                            margin: '4px 0 0 0'
                         }}>
                             Manage customer invoices and payments
                         </p>
@@ -646,7 +646,7 @@ export default function InvoicesPage() {
                             fontWeight: 600,
                             cursor: 'pointer',
                             boxShadow: '0 4px 12px rgba(30, 58, 95, 0.3)',
-                            transition: 'all 0.2s ease',
+                            transition: 'all 0.2s ease'
                         }}
                     >
                         <Download size={18} />
@@ -664,7 +664,7 @@ export default function InvoicesPage() {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     flexWrap: 'wrap',
-                    gap: '16px',
+                    gap: '16px'
                 }}>
                     {/* Status Tabs */}
                     <div style={{ display: 'flex', gap: '8px' }}>
@@ -681,7 +681,7 @@ export default function InvoicesPage() {
                                     cursor: 'pointer',
                                     transition: 'all 0.2s ease',
                                     backgroundColor: filter === status ? '#1E3A5F' : '#F3F4F6',
-                                    color: filter === status ? 'white' : '#6B7280',
+                                    color: filter === status ? 'white' : '#6B7280'
                                 }}
                             >
                                 {status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
@@ -704,7 +704,7 @@ export default function InvoicesPage() {
                                     fontSize: '14px',
                                     width: '240px',
                                     outline: 'none',
-                                    transition: 'border-color 0.2s',
+                                    transition: 'border-color 0.2s'
                                 }}
                             />
                             <svg
@@ -715,7 +715,7 @@ export default function InvoicesPage() {
                                     transform: 'translateY(-50%)',
                                     color: '#9CA3AF',
                                     width: '18px',
-                                    height: '18px',
+                                    height: '18px'
                                 }}
                                 fill="none"
                                 stroke="currentColor"
@@ -738,7 +738,7 @@ export default function InvoicesPage() {
                                 fontSize: '14px',
                                 fontWeight: 500,
                                 cursor: 'pointer',
-                                transition: 'all 0.2s',
+                                transition: 'all 0.2s'
                             }}
                         >
                             <Briefcase size={16} />
@@ -755,13 +755,13 @@ export default function InvoicesPage() {
                         backgroundColor: 'white',
                         borderRadius: '16px',
                         border: '1px solid #E5E7EB',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
                     }}>
                         <div style={{
                             display: 'grid',
                             gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
                             gap: '20px',
-                            alignItems: 'start',
+                            alignItems: 'start'
                         }}>
                             {/* Customer Filter - Searchable */}
                             <div style={{ position: 'relative' }}>
@@ -774,7 +774,7 @@ export default function InvoicesPage() {
                                         padding: '10px 14px',
                                         backgroundColor: '#EFF6FF',
                                         border: '1px solid #BFDBFE',
-                                        borderRadius: '10px',
+                                        borderRadius: '10px'
                                     }}>
                                         <span style={{ flex: 1, fontSize: '14px', color: '#1E40AF', fontWeight: 500 }}>
                                             {customers.find(c => c.id === selectedCustomer)?.company_name}
@@ -799,7 +799,7 @@ export default function InvoicesPage() {
                                                 borderRadius: '10px',
                                                 border: '1px solid #D1D5DB',
                                                 backgroundColor: '#FAFAFA',
-                                                outline: 'none',
+                                                outline: 'none'
                                             }}
                                         />
                                         {showCustomerDropdown && (
@@ -816,7 +816,7 @@ export default function InvoicesPage() {
                                                     boxShadow: '0 10px 25px rgba(0,0,0,0.12)',
                                                     zIndex: 50,
                                                     maxHeight: '200px',
-                                                    overflowY: 'auto',
+                                                    overflowY: 'auto'
                                                 }}
                                                 onMouseDown={(e) => e.preventDefault()}
                                             >
@@ -836,7 +836,7 @@ export default function InvoicesPage() {
                                                                 padding: '10px 14px',
                                                                 cursor: 'pointer',
                                                                 borderBottom: '1px solid #F3F4F6',
-                                                                fontSize: '14px',
+                                                                fontSize: '14px'
                                                             }}
                                                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#F3F4F6'}
                                                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
@@ -867,7 +867,7 @@ export default function InvoicesPage() {
                                         padding: '10px 14px',
                                         backgroundColor: '#D1FAE5',
                                         border: '1px solid #6EE7B7',
-                                        borderRadius: '10px',
+                                        borderRadius: '10px'
                                     }}>
                                         <span style={{ flex: 1, fontSize: '14px', color: '#065F46', fontWeight: 500 }}>
                                             {supervisors.find(s => s.id === selectedSupervisor)?.full_name}
@@ -895,7 +895,7 @@ export default function InvoicesPage() {
                                                 backgroundColor: selectedCustomer ? '#FAFAFA' : '#F3F4F6',
                                                 outline: 'none',
                                                 opacity: selectedCustomer ? 1 : 0.6,
-                                                cursor: selectedCustomer ? 'text' : 'not-allowed',
+                                                cursor: selectedCustomer ? 'text' : 'not-allowed'
                                             }}
                                         />
                                         {showSupervisorDropdown && selectedCustomer && (
@@ -912,7 +912,7 @@ export default function InvoicesPage() {
                                                     boxShadow: '0 10px 25px rgba(0,0,0,0.12)',
                                                     zIndex: 50,
                                                     maxHeight: '200px',
-                                                    overflowY: 'auto',
+                                                    overflowY: 'auto'
                                                 }}
                                                 onMouseDown={(e) => e.preventDefault()}
                                             >
@@ -931,7 +931,7 @@ export default function InvoicesPage() {
                                                                 padding: '10px 14px',
                                                                 cursor: 'pointer',
                                                                 borderBottom: '1px solid #F3F4F6',
-                                                                fontSize: '14px',
+                                                                fontSize: '14px'
                                                             }}
                                                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#F3F4F6'}
                                                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
@@ -963,7 +963,7 @@ export default function InvoicesPage() {
                                         borderRadius: '10px',
                                         border: '1px solid #D1D5DB',
                                         backgroundColor: '#FAFAFA',
-                                        outline: 'none',
+                                        outline: 'none'
                                     }}
                                 />
                             </div>
@@ -982,7 +982,7 @@ export default function InvoicesPage() {
                                         borderRadius: '10px',
                                         border: '1px solid #D1D5DB',
                                         backgroundColor: '#FAFAFA',
-                                        outline: 'none',
+                                        outline: 'none'
                                     }}
                                 />
                             </div>
@@ -1004,7 +1004,7 @@ export default function InvoicesPage() {
                                             backgroundColor: '#FEE2E2',
                                             border: 'none',
                                             borderRadius: '6px',
-                                            cursor: 'pointer',
+                                            cursor: 'pointer'
                                         }}
                                     >
                                         Clear All
@@ -1027,7 +1027,7 @@ export default function InvoicesPage() {
                                                 fontWeight: 500,
                                                 display: 'inline-flex',
                                                 alignItems: 'center',
-                                                gap: '6px',
+                                                gap: '6px'
                                             }}>
                                                 {emp.full_name}
                                                 <button
@@ -1058,7 +1058,7 @@ export default function InvoicesPage() {
                                         borderRadius: '10px',
                                         border: '1px solid #D1D5DB',
                                         backgroundColor: '#FAFAFA',
-                                        outline: 'none',
+                                        outline: 'none'
                                     }}
                                 />
                                 {showEmployeeDropdown && (
@@ -1074,7 +1074,7 @@ export default function InvoicesPage() {
                                         maxHeight: '250px',
                                         overflowY: 'auto',
                                         zIndex: 100,
-                                        marginTop: '4px',
+                                        marginTop: '4px'
                                     }}>
                                         {(() => {
                                             const filtered = employees.filter(e =>
@@ -1099,7 +1099,7 @@ export default function InvoicesPage() {
                                                                 borderBottom: '1px solid #F3F4F6',
                                                                 fontSize: '14px',
                                                                 color: '#1F2937',
-                                                                backgroundColor: 'white',
+                                                                backgroundColor: 'white'
                                                             }}
                                                             onMouseEnter={(ev) => ev.currentTarget.style.backgroundColor = '#F3F4F6'}
                                                             onMouseLeave={(ev) => ev.currentTarget.style.backgroundColor = 'white'}
@@ -1154,14 +1154,14 @@ export default function InvoicesPage() {
                                             display: 'flex',
                                             alignItems: 'center',
                                             gap: '6px',
-                                            transition: 'all 0.2s',
+                                            transition: 'all 0.2s'
                                         }}
                                     >
                                         <span style={{
                                             width: '8px',
                                             height: '8px',
                                             borderRadius: '50%',
-                                            backgroundColor: worklogStatusFilter === status.key ? 'white' : status.color,
+                                            backgroundColor: worklogStatusFilter === status.key ? 'white' : status.color
                                         }} />
                                         {status.label}
                                     </button>
@@ -1194,7 +1194,7 @@ export default function InvoicesPage() {
                                     cursor: 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '6px',
+                                    gap: '6px'
                                 }}
                             >
                                 <X size={16} />
@@ -1207,7 +1207,7 @@ export default function InvoicesPage() {
                             <div style={{
                                 marginTop: '24px',
                                 paddingTop: '24px',
-                                borderTop: '2px solid #E5E7EB',
+                                borderTop: '2px solid #E5E7EB'
                             }}>
                                 <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#1E3A5F', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     📊 Analytics Summary
@@ -1228,7 +1228,7 @@ export default function InvoicesPage() {
                                             borderRadius: '12px',
                                             border: '1px solid #BFDBFE',
                                             cursor: 'pointer',
-                                            transition: 'all 0.2s',
+                                            transition: 'all 0.2s'
                                         }}
                                         onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
                                         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
@@ -1810,7 +1810,7 @@ export default function InvoicesPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    zIndex: 1000,
+                    zIndex: 1000
                 }}>
                     <div style={{
                         backgroundColor: 'white',
@@ -1818,7 +1818,7 @@ export default function InvoicesPage() {
                         padding: '32px',
                         maxWidth: '500px',
                         width: '90%',
-                        boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
+                        boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)'
                     }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                             <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#1E3A5F', margin: 0 }}>
@@ -1831,7 +1831,7 @@ export default function InvoicesPage() {
                                     backgroundColor: '#F3F4F6',
                                     border: 'none',
                                     borderRadius: '8px',
-                                    cursor: 'pointer',
+                                    cursor: 'pointer'
                                 }}
                             >
                                 <X size={18} style={{ color: '#6B7280' }} />
@@ -1846,7 +1846,7 @@ export default function InvoicesPage() {
                             marginBottom: '24px',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '12px',
+                            gap: '12px'
                         }}>
                             {loadingWorklogs ? (
                                 <>
@@ -1876,7 +1876,7 @@ export default function InvoicesPage() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '12px',
-                                border: `1px solid ${invoiceMessage.type === 'success' ? '#10B981' : '#EF4444'}`,
+                                border: `1px solid ${invoiceMessage.type === 'success' ? '#10B981' : '#EF4444'}`
                             }}>
                                 {invoiceMessage.type === 'success' ? (
                                     <CheckCircle size={20} style={{ color: '#059669' }} />
@@ -1924,7 +1924,7 @@ export default function InvoicesPage() {
                                     borderRadius: '14px',
                                     cursor: worklogs.length > 0 ? 'pointer' : 'not-allowed',
                                     transition: 'all 0.2s',
-                                    textAlign: 'left',
+                                    textAlign: 'left'
                                 }}
                             >
                                 <div style={{
@@ -1934,7 +1934,7 @@ export default function InvoicesPage() {
                                     backgroundColor: 'rgba(255,255,255,0.15)',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'center',
+                                    justifyContent: 'center'
                                 }}>
                                     <Users size={24} style={{ color: 'white' }} />
                                 </div>
@@ -1962,7 +1962,7 @@ export default function InvoicesPage() {
                                     borderRadius: '14px',
                                     cursor: worklogs.length > 0 ? 'pointer' : 'not-allowed',
                                     transition: 'all 0.2s',
-                                    textAlign: 'left',
+                                    textAlign: 'left'
                                 }}
                             >
                                 <div style={{
@@ -1972,7 +1972,7 @@ export default function InvoicesPage() {
                                     backgroundColor: 'rgba(255,255,255,0.15)',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'center',
+                                    justifyContent: 'center'
                                 }}>
                                     <Briefcase size={24} style={{ color: 'white' }} />
                                 </div>
@@ -2000,7 +2000,7 @@ export default function InvoicesPage() {
                                     borderRadius: '14px',
                                     cursor: worklogs.length > 0 ? 'pointer' : 'not-allowed',
                                     transition: 'all 0.2s',
-                                    textAlign: 'left',
+                                    textAlign: 'left'
                                 }}
                             >
                                 <div style={{
@@ -2010,7 +2010,7 @@ export default function InvoicesPage() {
                                     backgroundColor: '#EFF6FF',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'center',
+                                    justifyContent: 'center'
                                 }}>
                                     <User size={24} style={{ color: '#3B82F6' }} />
                                 </div>
@@ -2056,7 +2056,7 @@ export default function InvoicesPage() {
                                     borderRadius: '14px',
                                     cursor: (worklogs.length > 0 && selectedCustomer && weekStart) ? 'pointer' : 'not-allowed',
                                     transition: 'all 0.2s',
-                                    textAlign: 'left',
+                                    textAlign: 'left'
                                 }}
                             >
                                 <div style={{
@@ -2066,7 +2066,7 @@ export default function InvoicesPage() {
                                     backgroundColor: 'rgba(255,255,255,0.15)',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'center',
+                                    justifyContent: 'center'
                                 }}>
                                     <FileText size={24} style={{ color: 'white' }} />
                                 </div>

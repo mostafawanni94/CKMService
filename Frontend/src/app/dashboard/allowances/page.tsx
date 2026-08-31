@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/dashboard';
+import { apiFetch } from '@/hooks/useApi';
 
 // Types
 interface AllowanceType {
@@ -45,7 +46,7 @@ export default function AllowancesPage() {
         code: '',
         base_price: '',
         description: '',
-        is_active: true,
+        is_active: true
     });
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
@@ -59,11 +60,7 @@ export default function AllowancesPage() {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${API_URL}/employees/allowance-types/`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            });
+            const response = await apiFetch(`/employees/allowance-types/`);
             if (!response.ok) throw new Error('Failed to load allowance types');
             const data = await response.json();
             setAllowances(data.results || data || []);
@@ -88,7 +85,7 @@ export default function AllowancesPage() {
     const stats = {
         total: allowances.length,
         active: allowances.filter(a => a.is_active).length,
-        totalValue: allowances.reduce((sum, a) => sum + (parseFloat(a.base_price) || 0), 0),
+        totalValue: allowances.reduce((sum, a) => sum + (parseFloat(a.base_price) || 0), 0)
     };
 
     // Open modal for add/edit
@@ -100,7 +97,7 @@ export default function AllowancesPage() {
                 code: allowance.code,
                 base_price: allowance.base_price,
                 description: allowance.description || '',
-                is_active: allowance.is_active,
+                is_active: allowance.is_active
             });
         } else {
             setEditingAllowance(null);
@@ -109,7 +106,7 @@ export default function AllowancesPage() {
                 code: '',
                 base_price: '0.00',
                 description: '',
-                is_active: true,
+                is_active: true
             });
         }
         setIsModalOpen(true);
@@ -134,13 +131,12 @@ export default function AllowancesPage() {
 
             console.log('Saving allowance to:', url, formData);
 
-            const response = await fetch(url, {
+            const response = await apiFetch(url, {
                 method: editingAllowance ? 'PUT' : 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(formData)
             });
 
             console.log('Response status:', response.status);
@@ -170,11 +166,8 @@ export default function AllowancesPage() {
         if (!confirm('Are you sure you want to delete this allowance type?')) return;
 
         try {
-            const response = await fetch(`${API_URL}/employees/allowance-types/${id}/`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
+            const response = await apiFetch(`/employees/allowance-types/${id}/`, {
+                method: 'DELETE'
             });
 
             if (!response.ok && response.status !== 204) {
@@ -194,13 +187,12 @@ export default function AllowancesPage() {
         if (!allowance) return;
 
         try {
-            const response = await fetch(`${API_URL}/employees/allowance-types/${id}/`, {
+            const response = await apiFetch(`/employees/allowance-types/${id}/`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ is_active: !allowance.is_active }),
+                body: JSON.stringify({ is_active: !allowance.is_active })
             });
 
             if (!response.ok) {
@@ -221,21 +213,21 @@ export default function AllowancesPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    marginBottom: '32px',
+                    marginBottom: '32px'
                 }}>
                     <div>
                         <h1 style={{
                             fontSize: '28px',
                             fontWeight: 700,
                             color: '#1F2937',
-                            margin: 0,
+                            margin: 0
                         }}>
                             Allowance Types
                         </h1>
                         <p style={{
                             fontSize: '15px',
                             color: '#6B7280',
-                            marginTop: '6px',
+                            marginTop: '6px'
                         }}>
                             Manage allowance types that can be assigned to customers
                         </p>
@@ -256,7 +248,7 @@ export default function AllowancesPage() {
                             fontWeight: 600,
                             cursor: 'pointer',
                             boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)',
-                            transition: 'all 0.15s ease',
+                            transition: 'all 0.15s ease'
                         }}
                         onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
                         onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
@@ -271,7 +263,7 @@ export default function AllowancesPage() {
                     display: 'grid',
                     gridTemplateColumns: 'repeat(3, 1fr)',
                     gap: '20px',
-                    marginBottom: '32px',
+                    marginBottom: '32px'
                 }}>
                     <StatCard label="Total Types" value={stats.total} icon={Gift} color="#DC2626" />
                     <StatCard label="Active" value={stats.active} icon={CheckCircle} color="#10B981" />
@@ -283,7 +275,7 @@ export default function AllowancesPage() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '16px',
-                    marginBottom: '24px',
+                    marginBottom: '24px'
                 }}>
                     <div style={{ flex: 1, position: 'relative' }}>
                         <Search size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
@@ -299,7 +291,7 @@ export default function AllowancesPage() {
                                 backgroundColor: 'white',
                                 border: '1px solid #E5E7EB',
                                 borderRadius: '12px',
-                                outline: 'none',
+                                outline: 'none'
                             }}
                         />
                     </div>
@@ -318,7 +310,7 @@ export default function AllowancesPage() {
                                     border: 'none',
                                     borderRadius: '8px',
                                     cursor: 'pointer',
-                                    textTransform: 'capitalize',
+                                    textTransform: 'capitalize'
                                 }}
                             >
                                 {filter}
@@ -341,7 +333,7 @@ export default function AllowancesPage() {
                         fontWeight: 600,
                         color: '#6B7280',
                         textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
+                        letterSpacing: '0.05em'
                     }}>
                         <div>Allowance Name</div>
                         <div>Code</div>
@@ -382,7 +374,7 @@ export default function AllowancesPage() {
                                     padding: '16px 20px',
                                     alignItems: 'center',
                                     borderBottom: index < filteredAllowances.length - 1 ? '1px solid #F3F4F6' : 'none',
-                                    backgroundColor: allowance.is_active ? 'white' : '#FAFAFA',
+                                    backgroundColor: allowance.is_active ? 'white' : '#FAFAFA'
                                 }}
                             >
                                 {/* Name */}
@@ -394,7 +386,7 @@ export default function AllowancesPage() {
                                         backgroundColor: allowance.is_active ? '#FEE2E2' : '#F3F4F6',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        justifyContent: 'center',
+                                        justifyContent: 'center'
                                     }}>
                                         <Gift size={20} color={allowance.is_active ? '#DC2626' : '#9CA3AF'} />
                                     </div>
@@ -423,7 +415,7 @@ export default function AllowancesPage() {
                                         fontWeight: 600,
                                         color: '#059669',
                                         backgroundColor: '#D1FAE5',
-                                        borderRadius: '8px',
+                                        borderRadius: '8px'
                                     }}>
                                         €{parseFloat(allowance.base_price).toFixed(2)}/hr
                                     </span>
@@ -444,7 +436,7 @@ export default function AllowancesPage() {
                                             backgroundColor: allowance.is_active ? '#D1FAE5' : '#F3F4F6',
                                             border: 'none',
                                             borderRadius: '6px',
-                                            cursor: 'pointer',
+                                            cursor: 'pointer'
                                         }}
                                     >
                                         {allowance.is_active ? <CheckCircle size={12} /> : <XCircle size={12} />}
@@ -590,7 +582,7 @@ function StatCard({ label, value, icon: Icon, color, isText }: { label: string; 
             border: '1px solid #E5E7EB',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '16px'
         }}>
             <div style={{
                 width: '48px',
@@ -599,7 +591,7 @@ function StatCard({ label, value, icon: Icon, color, isText }: { label: string; 
                 backgroundColor: `${color}15`,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                justifyContent: 'center'
             }}>
                 <Icon size={24} color={color} />
             </div>

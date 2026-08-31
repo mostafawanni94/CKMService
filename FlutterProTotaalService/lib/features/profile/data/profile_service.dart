@@ -54,7 +54,7 @@ class ProfileService {
   /// Upload document
   Future<Map<String, dynamic>> uploadDocument(String path, String type) async {
     return await _api.uploadFile(
-      '/employees/documents/',
+      '/employees/profiles/upload_document/',
       file: File(path),
       fieldName: 'file',
       fields: {'type': type},

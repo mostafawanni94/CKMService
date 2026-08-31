@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n';
 import { useState, useEffect, useRef } from 'react';
+import { clearTokens, getRole, isAdmin, isFinance, isOperations } from '@/lib/auth';
 import {
     LayoutDashboard,
     Users,
@@ -12,6 +13,7 @@ import {
     FolderKanban,
     Clock,
     Calendar,
+    CalendarDays,
     FileText,
     CreditCard,
     Settings,
@@ -30,8 +32,9 @@ import {
     Briefcase,
     Receipt,
     BarChart3,
-    Wallet,
+    Wallet
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 /* ============================================================================
    FIGMA DESIGN SIDEBAR - Professional Spacing & Typography
@@ -69,33 +72,48 @@ function Sidebar({
         onClose();
     };
 
+    // Navigation is filtered by role. This is presentation only — hiding a link
+    // does not protect the route; the API enforces permissions on every call.
+    const canSeeOperations = isAdmin() || isOperations();
+    const canSeeFinance = isFinance();
+    const canSeeAdminOnly = isAdmin();
+
     const mainNavItems = [
-        { name: t('dashboard'), href: '/dashboard', icon: LayoutDashboard },
-        { name: t('employees'), href: '/dashboard/employees', icon: Users },
-        { name: t('customers'), href: '/dashboard/customers', icon: Building2 },
-        { name: t('projects'), href: '/dashboard/projects', icon: FolderKanban },
-        { name: 'Services', href: '/dashboard/services', icon: CreditCard },
-        { name: t('worklogs'), href: '/dashboard/worklogs', icon: Clock },
-        { name: 'Weekly Board', href: '/dashboard/weekly-board', icon: Calendar },
-        { name: 'Certificates', href: '/dashboard/certificates', icon: Award },
-        { name: 'Allowances', href: '/dashboard/allowances', icon: Gift },
-        { name: 'Contract Types', href: '/dashboard/contract-types', icon: FileText },
-        { name: 'Agencies', href: '/dashboard/agencies', icon: Building2 },
-        { name: 'Day Payment Types', href: '/dashboard/surcharge-types', icon: Clock },
-    ];
+        { name: t('dashboard'), href: '/dashboard', icon: LayoutDashboard, show: true },
+        { name: t('employees'), href: '/dashboard/employees', icon: Users, show: canSeeOperations },
+        { name: t('customers'), href: '/dashboard/customers', icon: Building2, show: canSeeOperations },
+        { name: t('projects'), href: '/dashboard/projects', icon: FolderKanban, show: canSeeOperations },
+        { name: 'Services', href: '/dashboard/services', icon: CreditCard, show: canSeeOperations },
+        { name: t('worklogs'), href: '/dashboard/worklogs', icon: Clock, show: canSeeOperations },
+        { name: 'Weekly Board', href: '/dashboard/weekly-board', icon: Calendar, show: canSeeOperations },
+        { name: 'Certificates', href: '/dashboard/certificates', icon: Award, show: canSeeOperations },
+        { name: 'Allowances', href: '/dashboard/allowances', icon: Gift, show: canSeeAdminOnly },
+        { name: 'Contract Types', href: '/dashboard/contract-types', icon: FileText, show: canSeeAdminOnly },
+        { name: 'Agencies', href: '/dashboard/agencies', icon: Building2, show: canSeeAdminOnly },
+        { name: 'Day Payment Types', href: '/dashboard/surcharge-types', icon: Clock, show: canSeeAdminOnly },
+    ].filter(item => item.show);
+
+    // HR submenu — backed by /api/hr/.
+    const hrItems = [
+        { name: 'Leave Requests', href: '/dashboard/hr/leave-requests', icon: CalendarDays, show: canSeeOperations },
+        { name: 'Attendance', href: '/dashboard/hr/attendance', icon: Clock, show: canSeeOperations },
+        { name: 'Payroll', href: '/dashboard/hr/payroll', icon: CreditCard, show: canSeeFinance },
+        { name: 'Contracts', href: '/dashboard/hr/contracts', icon: FileText, show: canSeeOperations },
+    ].filter(item => item.show);
 
     // Backoffice submenu items
     const invoiceItems = [
-        { name: 'Outgoing Invoices', href: '/dashboard/invoices', icon: FileText },
-        { name: 'Incoming Invoices', href: '/dashboard/incoming-invoices', icon: FileText },
-        { name: 'Agency Invoices', href: '/dashboard/agency-invoices', icon: Building2 },
-    ];
+        { name: 'Outgoing Invoices', href: '/dashboard/invoices', icon: FileText, show: canSeeFinance },
+        { name: 'Incoming Invoices', href: '/dashboard/incoming-invoices', icon: FileText, show: canSeeFinance },
+        { name: 'Agency Invoices', href: '/dashboard/agency-invoices', icon: Building2, show: canSeeFinance },
+    ].filter(item => item.show);
 
     // Finance submenu items
     const financeItems = [
-        { name: 'Expenses', href: '/dashboard/expenses', icon: Receipt },
-        { name: 'Financial Overview', href: '/dashboard/finance', icon: BarChart3 },
-    ];
+        { name: 'Expenses', href: '/dashboard/expenses', icon: Receipt, show: canSeeFinance },
+        { name: 'Financial Overview', href: '/dashboard/finance', icon: BarChart3, show: canSeeFinance },
+        { name: 'Reports', href: '/dashboard/reports', icon: BarChart3, show: canSeeFinance },
+    ].filter(item => item.show);
 
     const toggleSubmenu = (menuName: string) => {
         setExpandedMenus(prev =>
@@ -113,15 +131,128 @@ function Sidebar({
     ];
 
     const handleLogout = () => {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('token');
-        router.push('/login');
+        clearTokens();
+        router.replace('/login');
     };
 
     const sidebarWidth = isCollapsed ? 88 : 300;
 
-    const NavItem = ({ item }: { item: typeof mainNavItems[0] }) => {
+    interface NavEntry {
+        name: string;
+        href: string;
+        icon: LucideIcon;
+    }
+
+    /**
+     * A collapsible group of nav links.
+     *
+     * The Backoffice and Finance groups were ~85 lines of identical inline-styled
+     * markup each; adding HR would have made a third copy. Renders nothing when
+     * `items` is empty, so a role with no entries in a group never sees it.
+     */
+    const SubMenu = ({
+        id,
+        label,
+        icon: Icon,
+        items,
+        activePrefixes,
+    }: {
+        id: string;
+        label: string;
+        icon: LucideIcon;
+        items: NavEntry[];
+        activePrefixes: string[];
+    }) => {
+        if (items.length === 0) return null;
+
+        const isExpanded = expandedMenus.includes(id);
+        const isSectionActive = activePrefixes.some(prefix => pathname.startsWith(prefix));
+        const highlighted = isExpanded || isSectionActive;
+
+        return (
+            <div>
+                <button
+                    onClick={() => toggleSubmenu(id)}
+                    title={isCollapsed ? label : undefined}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: isCollapsed ? '0' : '14px',
+                        width: isCollapsed ? '56px' : '100%',
+                        margin: isCollapsed ? '0 auto' : '0',
+                        padding: isCollapsed ? '12px' : '12px 20px',
+                        justifyContent: isCollapsed ? 'center' : 'flex-start',
+                        borderRadius: '12px',
+                        transition: 'all 0.15s ease',
+                        backgroundColor: highlighted ? '#F3F4F6' : 'transparent',
+                        color: highlighted ? '#1F2937' : '#6B7280',
+                        border: 'none',
+                        cursor: 'pointer',
+                        textDecoration: 'none'
+                    }}
+                    className="hover:bg-gray-100"
+                >
+                    <Icon size={20} strokeWidth={1.5} style={{ flexShrink: 0 }} />
+                    {!isCollapsed && (
+                        <>
+                            <span style={{
+                                fontSize: '14px',
+                                fontWeight: isExpanded ? 600 : 500,
+                                flex: 1,
+                                textAlign: 'left'
+                            }}>
+                                {label}
+                            </span>
+                            <ChevronDown size={14} style={{
+                                transition: 'transform 0.2s',
+                                transform: isExpanded ? 'rotate(180deg)' : 'rotate(0)'
+                            }} />
+                        </>
+                    )}
+                </button>
+
+                {!isCollapsed && isExpanded && (
+                    <div style={{
+                        marginLeft: '20px',
+                        marginTop: '4px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '2px'
+                    }}>
+                        {items.map((subItem) => {
+                            const isSubActive = pathname === subItem.href || pathname.startsWith(subItem.href);
+                            return (
+                                <Link
+                                    key={subItem.href}
+                                    href={subItem.href}
+                                    onClick={handleNavClick}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '12px',
+                                        padding: '8px 16px',
+                                        borderRadius: '10px',
+                                        transition: 'all 0.15s ease',
+                                        backgroundColor: isSubActive ? '#E5E7EB' : 'transparent',
+                                        color: isSubActive ? '#1F2937' : '#6B7280',
+                                        textDecoration: 'none',
+                                        fontSize: '13px',
+                                        fontWeight: isSubActive ? 600 : 500
+                                    }}
+                                    className="hover:bg-gray-100"
+                                >
+                                    <subItem.icon size={16} strokeWidth={1.5} />
+                                    {subItem.name}
+                                </Link>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    const NavItem = ({ item }: { item: { name: string; href: string; icon: LucideIcon } }) => {
         const isActive = pathname === item.href ||
             (item.href !== '/dashboard' && pathname.startsWith(item.href));
 
@@ -143,7 +274,7 @@ function Sidebar({
                     textDecoration: 'none',
                     justifyContent: isCollapsed ? 'center' : 'flex-start',
                     width: isCollapsed ? '56px' : '100%',
-                    margin: isCollapsed ? '0 auto' : '0',
+                    margin: isCollapsed ? '0 auto' : '0'
                 }}
                 className="hover:bg-gray-100"
             >
@@ -156,7 +287,7 @@ function Sidebar({
                     <span style={{
                         fontSize: '15px',
                         fontWeight: isActive ? 600 : 500,
-                        letterSpacing: '-0.01em',
+                        letterSpacing: '-0.01em'
                     }}>
                         {item.name}
                     </span>
@@ -174,7 +305,7 @@ function Sidebar({
                         position: 'fixed',
                         inset: 0,
                         backgroundColor: 'rgba(0,0,0,0.2)',
-                        zIndex: 40,
+                        zIndex: 40
                     }}
                     className="lg:hidden"
                     onClick={onClose}
@@ -198,7 +329,7 @@ function Sidebar({
                     flexDirection: 'column',
                     backgroundColor: '#FFFFFF',
                     borderRight: '1px solid #E5E7EB',
-                    position: 'relative',
+                    position: 'relative'
                 }}>
 
                     {/* User Profile Section */}
@@ -209,7 +340,7 @@ function Sidebar({
                         display: 'flex',
                         alignItems: 'center',
                         gap: isCollapsed ? '0' : '16px',
-                        justifyContent: isCollapsed ? 'center' : 'flex-start',
+                        justifyContent: isCollapsed ? 'center' : 'flex-start'
                     }}>
                         {/* Avatar */}
                         <div style={{
@@ -224,7 +355,7 @@ function Sidebar({
                             fontWeight: 700,
                             fontSize: '18px',
                             flexShrink: 0,
-                            boxShadow: '0 4px 12px rgba(236, 72, 153, 0.3)',
+                            boxShadow: '0 4px 12px rgba(236, 72, 153, 0.3)'
                         }}>
                             AD
                         </div>
@@ -236,7 +367,7 @@ function Sidebar({
                                     color: '#9CA3AF',
                                     textTransform: 'uppercase',
                                     letterSpacing: '0.1em',
-                                    marginBottom: '4px',
+                                    marginBottom: '4px'
                                 }}>
                                     Administrator
                                 </p>
@@ -244,7 +375,7 @@ function Sidebar({
                                     fontSize: '16px',
                                     fontWeight: 600,
                                     color: '#1F2937',
-                                    margin: 0,
+                                    margin: 0
                                 }}>
                                     Admin User
                                 </h3>
@@ -256,7 +387,7 @@ function Sidebar({
                     <nav ref={navRef} style={{
                         flex: 1,
                         overflowY: 'auto',
-                        padding: isCollapsed ? '24px 16px' : '24px 20px',
+                        padding: isCollapsed ? '24px 16px' : '24px 20px'
                     }}>
                         {/* MAIN Section */}
                         <p style={{
@@ -267,184 +398,42 @@ function Sidebar({
                             letterSpacing: '0.12em',
                             marginBottom: '16px',
                             paddingLeft: isCollapsed ? '0' : '20px',
-                            textAlign: isCollapsed ? 'center' : 'left',
+                            textAlign: isCollapsed ? 'center' : 'left'
                         }}>
                             Main
                         </p>
                         <div style={{
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '6px',
+                            gap: '6px'
                         }}>
                             {mainNavItems.map((item) => (
                                 <NavItem key={item.href} item={item} />
                             ))}
 
-                            {/* Backoffice Expandable Menu */}
-                            <div>
-                                <button
-                                    onClick={() => toggleSubmenu('backoffice')}
-                                    title={isCollapsed ? t('invoices') : undefined}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: isCollapsed ? '0' : '16px',
-                                        padding: isCollapsed ? '14px' : '14px 20px',
-                                        borderRadius: '14px',
-                                        transition: 'all 0.15s ease',
-                                        backgroundColor: expandedMenus.includes('backoffice') || pathname.startsWith('/dashboard/invoices') || pathname.startsWith('/dashboard/hr') ? '#F3F4F6' : 'transparent',
-                                        color: expandedMenus.includes('backoffice') || pathname.startsWith('/dashboard/invoices') || pathname.startsWith('/dashboard/hr') ? '#1F2937' : '#6B7280',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        justifyContent: isCollapsed ? 'center' : 'flex-start',
-                                        width: isCollapsed ? '56px' : '100%',
-                                        margin: isCollapsed ? '0 auto' : '0',
-                                    }}
-                                    className="hover:bg-gray-100"
-                                >
-                                    <FileText size={24} strokeWidth={1.5} style={{ flexShrink: 0 }} />
-                                    {!isCollapsed && (
-                                        <>
-                                            <span style={{
-                                                fontSize: '15px',
-                                                fontWeight: expandedMenus.includes('backoffice') ? 600 : 500,
-                                                letterSpacing: '-0.01em',
-                                                flex: 1,
-                                                textAlign: 'left',
-                                            }}>
-                                                {t('invoices')}
-                                            </span>
-                                            <ChevronDown
-                                                size={16}
-                                                style={{
-                                                    transition: 'transform 0.2s ease',
-                                                    transform: expandedMenus.includes('backoffice') ? 'rotate(180deg)' : 'rotate(0)',
-                                                }}
-                                            />
-                                        </>
-                                    )}
-                                </button>
+                            <SubMenu
+                                id="backoffice"
+                                label={t('invoices')}
+                                icon={FileText}
+                                items={invoiceItems}
+                                activePrefixes={['/dashboard/invoices', '/dashboard/incoming-invoices', '/dashboard/agency-invoices']}
+                            />
 
-                                {/* Submenu Items */}
-                                {!isCollapsed && expandedMenus.includes('backoffice') && (
-                                    <div style={{
-                                        marginLeft: '20px',
-                                        marginTop: '4px',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        gap: '2px',
-                                    }}>
-                                        {/* Invoice Items */}
-                                        {invoiceItems.map((subItem) => {
-                                            const isSubActive = pathname === subItem.href || pathname.startsWith(subItem.href);
-                                            return (
-                                                <Link
-                                                    key={subItem.href}
-                                                    href={subItem.href}
-                                                    onClick={handleNavClick}
-                                                    style={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '12px',
-                                                        padding: '8px 16px',
-                                                        borderRadius: '10px',
-                                                        transition: 'all 0.15s ease',
-                                                        backgroundColor: isSubActive ? '#E5E7EB' : 'transparent',
-                                                        color: isSubActive ? '#1F2937' : '#6B7280',
-                                                        textDecoration: 'none',
-                                                        fontSize: '13px',
-                                                        fontWeight: isSubActive ? 600 : 500,
-                                                    }}
-                                                    className="hover:bg-gray-100"
-                                                >
-                                                    <subItem.icon size={16} strokeWidth={1.5} />
-                                                    {subItem.name}
-                                                </Link>
-                                            );
-                                        })}
+                            <SubMenu
+                                id="hr"
+                                label="HR"
+                                icon={CalendarDays}
+                                items={hrItems}
+                                activePrefixes={['/dashboard/hr']}
+                            />
 
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Finance Expandable Menu */}
-                            <div>
-                                <button
-                                    onClick={() => toggleSubmenu('finance')}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '14px',
-                                        width: '100%',
-                                        padding: isCollapsed ? '12px' : '12px 20px',
-                                        justifyContent: isCollapsed ? 'center' : 'flex-start',
-                                        borderRadius: '12px',
-                                        transition: 'all 0.15s ease',
-                                        backgroundColor: expandedMenus.includes('finance') || pathname.startsWith('/dashboard/expenses') || pathname.startsWith('/dashboard/finance') ? '#F3F4F6' : 'transparent',
-                                        color: expandedMenus.includes('finance') || pathname.startsWith('/dashboard/expenses') || pathname.startsWith('/dashboard/finance') ? '#1F2937' : '#6B7280',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        textDecoration: 'none',
-                                    }}
-                                    className="hover:bg-gray-100"
-                                >
-                                    <Wallet size={20} strokeWidth={1.5} />
-                                    {!isCollapsed && (
-                                        <>
-                                            <span style={{
-                                                fontSize: '14px',
-                                                fontWeight: expandedMenus.includes('finance') ? 600 : 500,
-                                                flex: 1,
-                                                textAlign: 'left',
-                                            }}>
-                                                Finance
-                                            </span>
-                                            <ChevronDown size={14} style={{
-                                                transition: 'transform 0.2s',
-                                                transform: expandedMenus.includes('finance') ? 'rotate(180deg)' : 'rotate(0)',
-                                            }} />
-                                        </>
-                                    )}
-                                </button>
-
-                                {!isCollapsed && expandedMenus.includes('finance') && (
-                                    <div style={{
-                                        marginLeft: '20px',
-                                        marginTop: '4px',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        gap: '2px',
-                                    }}>
-                                        {financeItems.map((subItem) => {
-                                            const isSubActive = pathname === subItem.href || pathname.startsWith(subItem.href);
-                                            return (
-                                                <Link
-                                                    key={subItem.href}
-                                                    href={subItem.href}
-                                                    onClick={handleNavClick}
-                                                    style={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '12px',
-                                                        padding: '8px 16px',
-                                                        borderRadius: '10px',
-                                                        transition: 'all 0.15s ease',
-                                                        backgroundColor: isSubActive ? '#E5E7EB' : 'transparent',
-                                                        color: isSubActive ? '#1F2937' : '#6B7280',
-                                                        textDecoration: 'none',
-                                                        fontSize: '13px',
-                                                        fontWeight: isSubActive ? 600 : 500,
-                                                    }}
-                                                    className="hover:bg-gray-100"
-                                                >
-                                                    <subItem.icon size={16} strokeWidth={1.5} />
-                                                    {subItem.name}
-                                                </Link>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                            </div>
+                            <SubMenu
+                                id="finance"
+                                label="Finance"
+                                icon={Wallet}
+                                items={financeItems}
+                                activePrefixes={['/dashboard/expenses', '/dashboard/finance', '/dashboard/reports']}
+                            />
                         </div>
                         <div style={{ marginTop: '32px' }}>
                             <p style={{
@@ -455,14 +444,14 @@ function Sidebar({
                                 letterSpacing: '0.12em',
                                 marginBottom: '16px',
                                 paddingLeft: isCollapsed ? '0' : '20px',
-                                textAlign: isCollapsed ? 'center' : 'left',
+                                textAlign: isCollapsed ? 'center' : 'left'
                             }}>
                                 Settings
                             </p>
                             <div style={{
                                 display: 'flex',
                                 flexDirection: 'column',
-                                gap: '6px',
+                                gap: '6px'
                             }}>
                                 {settingsNavItems.map((item) => (
                                     <NavItem key={item.href} item={item} />
@@ -475,7 +464,7 @@ function Sidebar({
                     <div style={{
                         flexShrink: 0,
                         borderTop: '1px solid #F3F4F6',
-                        padding: isCollapsed ? '20px 16px' : '20px 20px',
+                        padding: isCollapsed ? '20px 16px' : '20px 20px'
                     }}>
                         {/* Help */}
                         <button
@@ -492,7 +481,7 @@ function Sidebar({
                                 cursor: 'pointer',
                                 width: isCollapsed ? '56px' : '100%',
                                 margin: isCollapsed ? '0 auto 8px' : '0 0 8px 0',
-                                justifyContent: isCollapsed ? 'center' : 'flex-start',
+                                justifyContent: isCollapsed ? 'center' : 'flex-start'
                             }}
                             className="hover:bg-gray-100"
                             title={isCollapsed ? "Help" : undefined}
@@ -519,7 +508,7 @@ function Sidebar({
                                 cursor: 'pointer',
                                 width: isCollapsed ? '56px' : '100%',
                                 margin: isCollapsed ? '0 auto' : '0',
-                                justifyContent: isCollapsed ? 'center' : 'flex-start',
+                                justifyContent: isCollapsed ? 'center' : 'flex-start'
                             }}
                             className="hover:bg-red-50"
                             title={isCollapsed ? "Logout Account" : undefined}
@@ -549,7 +538,7 @@ function Sidebar({
                             color: '#9CA3AF',
                             cursor: 'pointer',
                             boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                            transition: 'all 0.15s ease',
+                            transition: 'all 0.15s ease'
                         }}
                         className="hidden lg:flex hover:border-gray-300 hover:text-gray-600"
                     >
@@ -601,7 +590,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '0 32px',
-            flexShrink: 0,
+            flexShrink: 0
         }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <button
@@ -613,7 +602,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                         background: 'none',
                         border: 'none',
                         cursor: 'pointer',
-                        borderRadius: '8px',
+                        borderRadius: '8px'
                     }}
                 >
                     <Menu size={24} />
@@ -622,7 +611,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                     fontSize: '18px',
                     fontWeight: 600,
                     color: '#1F2937',
-                    margin: 0,
+                    margin: 0
                 }}>
                     {t('adminDashboard')}
                 </h1>
@@ -643,7 +632,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                             background: 'none',
                             border: 'none',
                             cursor: 'pointer',
-                            borderRadius: '8px',
+                            borderRadius: '8px'
                         }}
                         className="hover:bg-gray-100"
                     >
@@ -653,7 +642,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                             size={14}
                             style={{
                                 transition: 'transform 0.15s ease',
-                                transform: langMenuOpen ? 'rotate(180deg)' : 'rotate(0)',
+                                transform: langMenuOpen ? 'rotate(180deg)' : 'rotate(0)'
                             }}
                         />
                     </button>
@@ -671,7 +660,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                                 boxShadow: '0 10px 40px rgba(0,0,0,0.12)',
                                 border: '1px solid #F3F4F6',
                                 padding: '8px 0',
-                                zIndex: 50,
+                                zIndex: 50
                             }}
                             onClick={(e) => e.stopPropagation()}
                         >
@@ -690,7 +679,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                                         background: 'none',
                                         border: 'none',
                                         cursor: 'pointer',
-                                        textAlign: 'left',
+                                        textAlign: 'left'
                                     }}
                                     className="hover:bg-gray-50"
                                 >
@@ -715,7 +704,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                         cursor: 'pointer',
                         borderRadius: '8px',
                         display: 'flex',
-                        alignItems: 'center',
+                        alignItems: 'center'
                     }}
                     className="hover:bg-gray-100"
                 >
@@ -727,7 +716,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                         width: '8px',
                         height: '8px',
                         backgroundColor: '#EF4444',
-                        borderRadius: '50%',
+                        borderRadius: '50%'
                     }} />
                 </Link>
 
@@ -743,7 +732,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                     color: 'white',
                     fontWeight: 600,
                     fontSize: '14px',
-                    boxShadow: '0 4px 12px rgba(236, 72, 153, 0.3)',
+                    boxShadow: '0 4px 12px rgba(236, 72, 153, 0.3)'
                 }}>
                     AD
                 </div>
@@ -780,13 +769,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     flexDirection: 'column',
                     transition: 'all 0.3s ease',
                     [isRTL ? 'marginRight' : 'marginLeft']: `${sidebarWidth + gapBetweenSidebarAndContent}px`,
-                    [isRTL ? 'marginLeft' : 'marginRight']: '32px',
+                    [isRTL ? 'marginLeft' : 'marginRight']: '32px'
                 }}
             >
                 <Header onMenuClick={() => setSidebarOpen(true)} />
                 <main id="main-content" style={{
                     flex: 1,
-                    padding: '32px 0',
+                    padding: '32px 0'
                 }}>
                     {children}
                 </main>

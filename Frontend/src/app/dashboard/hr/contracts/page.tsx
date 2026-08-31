@@ -1,133 +1,132 @@
+/**
+ * Contracts — every employee contract with its expiry state.
+ *
+ * Backed by /api/employees/profiles/contracts/, which aggregates the
+ * per-employee contract history the platform already recorded.
+ */
 'use client';
 
-import { useEffect, useState } from 'react';
+import { FileText, Download } from 'lucide-react';
+
 import { DashboardLayout } from '@/components/layout/dashboard';
-import { FileText, Plus, Search, Eye, Edit2 } from 'lucide-react';
+import {
+    DataTable, PageHeader, SearchBar, SectionCard,
+    Select, StatCard, StatusBadge,
+} from '@/components/ui/shared';
+import { useContracts, type ContractRow } from '@/hooks/useHr';
+import styles from '../page.module.css';
+
+const STATUS_OPTIONS = [
+    { value: 'all', label: 'All statuses' },
+    { value: 'active', label: 'Active' },
+    { value: 'expiring', label: 'Expiring (60 days)' },
+    { value: 'expired', label: 'Expired' },
+];
 
 export default function HRContractsPage() {
-    const [contracts, setContracts] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [search, setSearch] = useState('');
-    const [filter, setFilter] = useState('all');
+    const vm = useContracts();
 
-    useEffect(() => {
-        setLoading(false);
-        setContracts([]);
-    }, []);
-
-    if (loading) {
-        return (
-            <DashboardLayout>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px' }}>
-                    <div style={{ width: '40px', height: '40px', border: '3px solid #E5E7EB', borderTopColor: '#1E3A5F', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-                </div>
-            </DashboardLayout>
-        );
-    }
+    const columns = [
+        {
+            key: 'employee_name',
+            header: 'Employee',
+            render: (row: ContractRow) => row.employee_name || '—',
+        },
+        {
+            key: 'effective_from',
+            header: 'From',
+            render: (row: ContractRow) => row.effective_from,
+        },
+        {
+            key: 'effective_to',
+            header: 'To',
+            render: (row: ContractRow) => row.effective_to ?? 'Open-ended',
+        },
+        {
+            key: 'hourly_rate',
+            header: 'Rate',
+            align: 'right' as const,
+            render: (row: ContractRow) => `€ ${Number(row.hourly_rate || 0).toFixed(2)}`,
+        },
+        {
+            key: 'status',
+            header: 'Status',
+            render: (row: ContractRow) => (
+                <StatusBadge
+                    status={row.status}
+                    label={
+                        row.status === 'expiring' && row.days_remaining !== null
+                            ? `Expiring in ${row.days_remaining}d`
+                            : undefined
+                    }
+                />
+            ),
+        },
+        {
+            key: 'document',
+            header: '',
+            render: (row: ContractRow) =>
+                row.contract_document ? (
+                    <a
+                        href={row.contract_document}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 6,
+                            color: '#1E3A5F', fontSize: 13, fontWeight: 600,
+                            textDecoration: 'none',
+                        }}
+                    >
+                        <Download size={14} /> Document
+                    </a>
+                ) : (
+                    <span style={{ color: '#94A3B8', fontSize: 13 }}>—</span>
+                ),
+        },
+    ];
 
     return (
         <DashboardLayout>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-                    <div>
-                        <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1E3A5F', margin: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <FileText style={{ width: '28px', height: '28px' }} />
-                            Contracts
-                        </h1>
-                        <p style={{ fontSize: '15px', color: '#6B7280', margin: '4px 0 0 0' }}>Manage employee contracts</p>
-                    </div>
-                    <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#1E3A5F', color: 'white', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(30, 58, 95, 0.3)' }}>
-                        <Plus size={18} />
-                        New Contract
-                    </button>
+            <div className={styles.container}>
+                <PageHeader
+                    title="Contracts"
+                    subtitle="Employee contracts and upcoming expiries"
+                />
+
+                <div className={styles.statRow}>
+                    <StatCard label="Total" value={vm.counts.total} />
+                    <StatCard label="Active" value={vm.counts.active} />
+                    <StatCard label="Expiring" value={vm.counts.expiring} />
+                    <StatCard label="Expired" value={vm.counts.expired} />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                    <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px 24px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <FileText size={24} style={{ color: '#3B82F6' }} />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Total Contracts</p>
-                            <p style={{ fontSize: '24px', fontWeight: 700, color: '#1E3A5F', margin: 0 }}>{contracts.length}</p>
-                        </div>
-                    </div>
-                    <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px 24px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <FileText size={24} style={{ color: '#059669' }} />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Active</p>
-                            <p style={{ fontSize: '24px', fontWeight: 700, color: '#059669', margin: 0 }}>0</p>
-                        </div>
-                    </div>
-                    <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px 24px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <FileText size={24} style={{ color: '#D97706' }} />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Expiring Soon</p>
-                            <p style={{ fontSize: '24px', fontWeight: 700, color: '#D97706', margin: 0 }}>0</p>
-                        </div>
-                    </div>
-                    <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px 24px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <FileText size={24} style={{ color: '#DC2626' }} />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Expired</p>
-                            <p style={{ fontSize: '24px', fontWeight: 700, color: '#DC2626', margin: 0 }}>0</p>
-                        </div>
-                    </div>
+                <div className={styles.filterRow}>
+                    <SearchBar
+                        value={vm.searchQuery}
+                        onChange={vm.setSearchQuery}
+                        placeholder="Search employee..."
+                        style={{ flex: 1, minWidth: 240 }}
+                    />
+                    <Select
+                        value={vm.statusFilter}
+                        onChange={vm.setStatusFilter}
+                        options={STATUS_OPTIONS}
+                    />
                 </div>
 
-                <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '16px 24px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                        {['all', 'active', 'expiring', 'expired'].map((status) => (
-                            <button key={status} onClick={() => setFilter(status)} style={{ padding: '10px 20px', borderRadius: '10px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', backgroundColor: filter === status ? '#1E3A5F' : '#F3F4F6', color: filter === status ? 'white' : '#6B7280' }}>
-                                {status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
-                            </button>
-                        ))}
-                    </div>
-                    <div style={{ position: 'relative' }}>
-                        <input placeholder="Search contracts..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ padding: '10px 16px 10px 40px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '14px', width: '240px' }} />
-                        <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
-                    </div>
-                </div>
-
-                <div style={{ backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead>
-                            <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E5E7EB' }}>
-                                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Contract #</th>
-                                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Employee</th>
-                                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Type</th>
-                                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>End Date</th>
-                                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Status</th>
-                                <th style={{ padding: '16px 24px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colSpan={6} style={{ padding: '64px 24px', textAlign: 'center' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                                        <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            <FileText size={36} style={{ color: '#9CA3AF' }} />
-                                        </div>
-                                        <div>
-                                            <p style={{ fontSize: '16px', fontWeight: 600, color: '#374151', margin: 0 }}>No contracts yet</p>
-                                            <p style={{ fontSize: '14px', color: '#6B7280', margin: '4px 0 0 0' }}>Create your first contract</p>
-                                        </div>
-                                        <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#1E3A5F', color: 'white', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', marginTop: '8px' }}>
-                                            <Plus size={18} />
-                                            New Contract
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <SectionCard>
+                    <DataTable<ContractRow>
+                        data={vm.contracts}
+                        columns={columns}
+                        loading={vm.loading}
+                        rowKey={(row) => row.id}
+                        emptyIcon={<FileText size={32} />}
+                        emptyTitle="No contracts"
+                        emptySubtitle={
+                            vm.error ?? 'Upload a contract from an employee profile to see it here.'
+                        }
+                    />
+                </SectionCard>
             </div>
         </DashboardLayout>
     );

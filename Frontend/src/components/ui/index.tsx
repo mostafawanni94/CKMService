@@ -33,13 +33,13 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             secondary: { backgroundColor: '#f3f4f6', color: '#374151', borderColor: '#e5e7eb' },
             outline: { backgroundColor: '#ffffff', color: '#374151', borderColor: '#d1d5db' },
             ghost: { backgroundColor: 'transparent', color: '#374151', borderColor: 'transparent' },
-            danger: { backgroundColor: '#dc2626', color: '#ffffff', borderColor: 'transparent' },
+            danger: { backgroundColor: '#dc2626', color: '#ffffff', borderColor: 'transparent' }
         };
 
         const sizeStyles: Record<string, React.CSSProperties> = {
             sm: { height: '36px', padding: '0 14px', fontSize: '13px' },
             md: { height: '44px', padding: '0 18px', fontSize: '14px' },
-            lg: { height: '52px', padding: '0 24px', fontSize: '15px' },
+            lg: { height: '52px', padding: '0 24px', fontSize: '15px' }
         };
 
         return (
@@ -258,7 +258,7 @@ export const Badge = ({ className, variant = 'default', style, ...props }: Badge
         success: { backgroundColor: '#dcfce7', color: '#166534' },
         warning: { backgroundColor: '#fef3c7', color: '#92400e' },
         danger: { backgroundColor: '#fee2e2', color: '#991b1b' },
-        secondary: { backgroundColor: '#f3f4f6', color: '#4b5563' },
+        secondary: { backgroundColor: '#f3f4f6', color: '#4b5563' }
     };
 
     return (
@@ -381,7 +381,7 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
             info: { backgroundColor: '#eff6ff', borderColor: '#bfdbfe', color: '#1e40af' },
             success: { backgroundColor: '#f0fdf4', borderColor: '#bbf7d0', color: '#166534' },
             warning: { backgroundColor: '#fefce8', borderColor: '#fef08a', color: '#854d0e' },
-            danger: { backgroundColor: '#fef2f2', borderColor: '#fecaca', color: '#991b1b' },
+            danger: { backgroundColor: '#fef2f2', borderColor: '#fecaca', color: '#991b1b' }
         };
 
         return (

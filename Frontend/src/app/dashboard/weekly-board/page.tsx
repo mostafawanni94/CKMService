@@ -16,7 +16,7 @@ import {
     GripVertical,
     Edit2,
     Filter,
-    X,
+    X
 } from 'lucide-react';
 import {
     startOfWeek,
@@ -28,8 +28,9 @@ import {
     isSameDay,
     isToday as isTodayFn,
     getISOWeek,
-    getISOWeekYear,
+    getISOWeekYear
 } from 'date-fns';
+import { apiFetch } from '@/hooks/useApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -59,7 +60,7 @@ const STATUS_CONFIG: Record<string, { bg: string; text: string; border: string; 
     confirmed: { bg: '#EFF6FF', text: '#2563EB', border: '#3B82F6', label: 'Confirmed' },
     in_progress: { bg: '#FFF7ED', text: '#EA580C', border: '#F97316', label: 'In Progress' },
     cancelled: { bg: '#FEF2F2', text: '#DC2626', border: '#EF4444', label: 'Cancelled' },
-    no_show: { bg: '#FEF2F2', text: '#DC2626', border: '#EF4444', label: 'No Show' },
+    no_show: { bg: '#FEF2F2', text: '#DC2626', border: '#EF4444', label: 'No Show' }
 };
 
 function getStatusStyle(status: string) {
@@ -82,7 +83,7 @@ function formatTime(isoString?: string | null): string {
 function WorkLogCard({
     entry,
     onEdit,
-    onDragStart,
+    onDragStart
 }: {
     entry: WorkEntry;
     onEdit: (entry: WorkEntry) => void;
@@ -109,7 +110,7 @@ function WorkLogCard({
                 padding: '12px 14px',
                 cursor: 'grab',
                 transition: 'box-shadow 0.15s ease, transform 0.15s ease',
-                position: 'relative',
+                position: 'relative'
             }}
             className="weekly-board-card"
             onMouseEnter={(e) => {
@@ -136,7 +137,7 @@ function WorkLogCard({
                         backgroundColor: statusStyle.bg,
                         color: statusStyle.text,
                         textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
+                        letterSpacing: '0.05em'
                     }}>
                         {statusStyle.label}
                     </span>
@@ -150,7 +151,7 @@ function WorkLogCard({
                             borderRadius: '6px',
                             color: '#9CA3AF',
                             display: 'flex',
-                            alignItems: 'center',
+                            alignItems: 'center'
                         }}
                         className="hover:bg-gray-100"
                         title="Edit work log"
@@ -168,7 +169,7 @@ function WorkLogCard({
                 margin: '0 0 4px',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
-                textOverflow: 'ellipsis',
+                textOverflow: 'ellipsis'
             }}>
                 {entry.employee_name || 'Unassigned'}
             </p>
@@ -180,7 +181,7 @@ function WorkLogCard({
                 margin: '0 0 8px',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
-                textOverflow: 'ellipsis',
+                textOverflow: 'ellipsis'
             }}>
                 {entry.project_name}
                 {entry.customer_name ? ` · ${entry.customer_name}` : ''}
@@ -204,14 +205,14 @@ function WorkLogCard({
                     height: '5px',
                     backgroundColor: '#F3F4F6',
                     borderRadius: '3px',
-                    overflow: 'hidden',
+                    overflow: 'hidden'
                 }}>
                     <div style={{
                         height: '100%',
                         width: `${progressPercent}%`,
                         backgroundColor: progressPercent >= 100 ? '#059669' : progressPercent >= 50 ? '#3B82F6' : '#F59E0B',
                         borderRadius: '3px',
-                        transition: 'width 0.3s ease',
+                        transition: 'width 0.3s ease'
                     }} />
                 </div>
             </div>
@@ -231,7 +232,7 @@ function DayColumn({
     onDrop,
     dragOverDate,
     onDragOver,
-    onDragLeave,
+    onDragLeave
 }: {
     date: Date;
     entries: WorkEntry[];
@@ -272,14 +273,14 @@ function DayColumn({
                         ? '1.5px solid #3B82F6'
                         : '1px solid #E5E7EB',
                 overflow: 'hidden',
-                transition: 'all 0.2s ease',
+                transition: 'all 0.2s ease'
             }}
         >
             {/* Day header */}
             <div style={{
                 padding: '12px 14px',
                 borderBottom: '1px solid #F3F4F6',
-                backgroundColor: isToday ? '#EFF6FF' : '#F9FAFB',
+                backgroundColor: isToday ? '#EFF6FF' : '#F9FAFB'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
@@ -289,7 +290,7 @@ function DayColumn({
                             color: isToday ? '#2563EB' : '#9CA3AF',
                             textTransform: 'uppercase',
                             letterSpacing: '0.05em',
-                            margin: 0,
+                            margin: 0
                         }}>
                             {format(date, 'EEE')}
                         </p>
@@ -298,7 +299,7 @@ function DayColumn({
                             fontWeight: 700,
                             color: isToday ? '#2563EB' : '#1F2937',
                             margin: '2px 0 0',
-                            lineHeight: 1,
+                            lineHeight: 1
                         }}>
                             {format(date, 'd')}
                         </p>
@@ -322,7 +323,7 @@ function DayColumn({
                 flexDirection: 'column',
                 gap: '8px',
                 overflowY: 'auto',
-                minHeight: '200px',
+                minHeight: '200px'
             }}>
                 {entries.length === 0 && (
                     <div style={{
@@ -332,7 +333,7 @@ function DayColumn({
                         justifyContent: 'center',
                         color: '#D1D5DB',
                         fontSize: '12px',
-                        fontStyle: 'italic',
+                        fontStyle: 'italic'
                     }}>
                         No work logs
                     </div>
@@ -365,7 +366,7 @@ function DayColumn({
                         fontSize: '12px',
                         fontWeight: 500,
                         cursor: 'pointer',
-                        transition: 'all 0.15s ease',
+                        transition: 'all 0.15s ease'
                     }}
                     className="hover:bg-gray-50 hover:border-gray-400 hover:text-gray-600"
                 >
@@ -427,7 +428,7 @@ export default function WeeklyBoardPage() {
                 include_past: true,
                 page_size: 200,
                 week_year: year,
-                week_number: week,
+                week_number: week
             });
             setWorkLogs(response.results || []);
         } catch (err) {
@@ -439,14 +440,12 @@ export default function WeeklyBoardPage() {
 
     const loadEmployees = useCallback(async () => {
         try {
-            const response = await fetch(`${API_URL}/employees/profiles/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/employees/profiles/`);
             if (response.ok) {
                 const data = await response.json();
                 setEmployees((data.results || data).map((e: any) => ({
                     id: e.id,
-                    full_name: e.full_name,
+                    full_name: e.full_name
                 })));
             }
         } catch (err) {
@@ -456,14 +455,12 @@ export default function WeeklyBoardPage() {
 
     const loadCustomers = useCallback(async () => {
         try {
-            const response = await fetch(`${API_URL}/customers/customers/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/customers/customers/`);
             if (response.ok) {
                 const data = await response.json();
                 setCustomers((data.results || data).map((c: any) => ({
                     id: c.id,
-                    company_name: c.company_name,
+                    company_name: c.company_name
                 })));
             }
         } catch (err) {
@@ -552,13 +549,12 @@ export default function WeeklyBoardPage() {
         );
 
         try {
-            const response = await fetch(`${API_URL}/worklogs/entries/${entryId}/`, {
+            const response = await apiFetch(`/worklogs/entries/${entryId}/`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ work_date: newDateStr }),
+                body: JSON.stringify({ work_date: newDateStr })
             });
 
             if (!response.ok) {
@@ -642,7 +638,7 @@ export default function WeeklyBoardPage() {
                     justifyContent: 'space-between',
                     marginBottom: '24px',
                     flexWrap: 'wrap',
-                    gap: '16px',
+                    gap: '16px'
                 }}>
                     <div>
                         <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: 0 }}>
@@ -668,7 +664,7 @@ export default function WeeklyBoardPage() {
                                 fontWeight: 500,
                                 color: activeFilterCount > 0 ? '#2563EB' : '#374151',
                                 cursor: 'pointer',
-                                transition: 'all 0.15s ease',
+                                transition: 'all 0.15s ease'
                             }}
                             className="hover:bg-gray-50"
                         >
@@ -685,7 +681,7 @@ export default function WeeklyBoardPage() {
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     fontSize: '11px',
-                                    fontWeight: 700,
+                                    fontWeight: 700
                                 }}>
                                     {activeFilterCount}
                                 </span>
@@ -703,7 +699,7 @@ export default function WeeklyBoardPage() {
                                 borderRadius: '10px',
                                 fontSize: '14px',
                                 fontWeight: 600,
-                                cursor: 'pointer',
+                                cursor: 'pointer'
                             }}
                         >
                             Refresh
@@ -722,7 +718,7 @@ export default function WeeklyBoardPage() {
                         borderRadius: '12px',
                         border: '1px solid #E5E7EB',
                         flexWrap: 'wrap',
-                        alignItems: 'flex-end',
+                        alignItems: 'flex-end'
                     }}>
                         {/* Employee filter (multi-select) */}
                         <div style={{ position: 'relative', minWidth: '280px', flex: 1 }}>
@@ -737,7 +733,7 @@ export default function WeeklyBoardPage() {
                                     display: 'flex',
                                     flexWrap: 'wrap',
                                     gap: '6px',
-                                    marginBottom: '8px',
+                                    marginBottom: '8px'
                                 }}>
                                     {selectedEmployeeNames.map(emp => (
                                         <span
@@ -752,7 +748,7 @@ export default function WeeklyBoardPage() {
                                                 borderRadius: '16px',
                                                 fontSize: '12px',
                                                 fontWeight: 500,
-                                                color: '#1D4ED8',
+                                                color: '#1D4ED8'
                                             }}
                                         >
                                             {emp.full_name}
@@ -765,7 +761,7 @@ export default function WeeklyBoardPage() {
                                                     color: '#60A5FA',
                                                     padding: '0',
                                                     display: 'flex',
-                                                    alignItems: 'center',
+                                                    alignItems: 'center'
                                                 }}
                                             >
                                                 <X size={12} />
@@ -781,7 +777,7 @@ export default function WeeklyBoardPage() {
                                             border: 'none',
                                             cursor: 'pointer',
                                             padding: '4px 6px',
-                                            fontWeight: 500,
+                                            fontWeight: 500
                                         }}
                                     >
                                         Clear all
@@ -803,7 +799,7 @@ export default function WeeklyBoardPage() {
                                         borderRadius: '8px',
                                         border: '1px solid #D1D5DB',
                                         fontSize: '13px',
-                                        outline: 'none',
+                                        outline: 'none'
                                     }}
                                 />
                             </div>
@@ -820,7 +816,7 @@ export default function WeeklyBoardPage() {
                                     zIndex: 20,
                                     maxHeight: '220px',
                                     overflowY: 'auto',
-                                    marginTop: '4px',
+                                    marginTop: '4px'
                                 }}>
                                     {filteredEmployeeOptions.map((emp) => (
                                         <button
@@ -840,7 +836,7 @@ export default function WeeklyBoardPage() {
                                                 color: '#374151',
                                                 background: 'none',
                                                 border: 'none',
-                                                cursor: 'pointer',
+                                                cursor: 'pointer'
                                             }}
                                             className="hover:bg-gray-50"
                                         >
@@ -853,7 +849,7 @@ export default function WeeklyBoardPage() {
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
                                                 flexShrink: 0,
-                                                backgroundColor: 'white',
+                                                backgroundColor: 'white'
                                             }}>
                                             </span>
                                             {emp.full_name}
@@ -888,7 +884,7 @@ export default function WeeklyBoardPage() {
                                         borderRadius: '8px',
                                         border: '1px solid #D1D5DB',
                                         fontSize: '13px',
-                                        outline: 'none',
+                                        outline: 'none'
                                     }}
                                 />
                                 {filterCustomer && (
@@ -904,7 +900,7 @@ export default function WeeklyBoardPage() {
                                             cursor: 'pointer',
                                             color: '#9CA3AF',
                                             padding: '2px',
-                                            display: 'flex',
+                                            display: 'flex'
                                         }}
                                     >
                                         <X size={14} />
@@ -924,7 +920,7 @@ export default function WeeklyBoardPage() {
                                     zIndex: 20,
                                     maxHeight: '200px',
                                     overflowY: 'auto',
-                                    marginTop: '4px',
+                                    marginTop: '4px'
                                 }}>
                                     {filteredCustomerOptions.map((cust) => (
                                         <button
@@ -943,7 +939,7 @@ export default function WeeklyBoardPage() {
                                                 color: '#374151',
                                                 background: cust.id === filterCustomer ? '#EFF6FF' : 'none',
                                                 border: 'none',
-                                                cursor: 'pointer',
+                                                cursor: 'pointer'
                                             }}
                                             className="hover:bg-gray-50"
                                         >
@@ -977,7 +973,7 @@ export default function WeeklyBoardPage() {
                                     fontWeight: 500,
                                     color: '#EF4444',
                                     cursor: 'pointer',
-                                    alignSelf: 'flex-end',
+                                    alignSelf: 'flex-end'
                                 }}
                                 className="hover:bg-red-50"
                             >
@@ -996,7 +992,7 @@ export default function WeeklyBoardPage() {
                     padding: '14px 20px',
                     backgroundColor: '#FFFFFF',
                     borderRadius: '12px',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid #E5E7EB'
                 }}>
                     <button
                         onClick={goToPreviousWeek}
@@ -1011,7 +1007,7 @@ export default function WeeklyBoardPage() {
                             fontSize: '13px',
                             fontWeight: 500,
                             color: '#374151',
-                            cursor: 'pointer',
+                            cursor: 'pointer'
                         }}
                         className="hover:bg-gray-100"
                     >
@@ -1041,7 +1037,7 @@ export default function WeeklyBoardPage() {
                                 fontSize: '12px',
                                 fontWeight: 600,
                                 color: '#2563EB',
-                                cursor: 'pointer',
+                                cursor: 'pointer'
                             }}
                             className="hover:bg-blue-100"
                         >
@@ -1062,7 +1058,7 @@ export default function WeeklyBoardPage() {
                             fontSize: '13px',
                             fontWeight: 500,
                             color: '#374151',
-                            cursor: 'pointer',
+                            cursor: 'pointer'
                         }}
                         className="hover:bg-gray-100"
                     >
@@ -1076,7 +1072,7 @@ export default function WeeklyBoardPage() {
                     display: 'flex',
                     gap: '16px',
                     marginBottom: '20px',
-                    flexWrap: 'wrap',
+                    flexWrap: 'wrap'
                 }}>
                     {[
                         { label: 'Total Logs', value: filteredLogs.length, color: '#3B82F6', bg: '#EFF6FF' },
@@ -1092,7 +1088,7 @@ export default function WeeklyBoardPage() {
                             borderRadius: '10px',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '12px',
+                            gap: '12px'
                         }}>
                             <div>
                                 <p style={{ fontSize: '11px', color: '#6B7280', margin: 0, fontWeight: 500 }}>{stat.label}</p>
@@ -1112,7 +1108,7 @@ export default function WeeklyBoardPage() {
                         justifyContent: 'center',
                         padding: '80px 0',
                         color: '#6B7280',
-                        fontSize: '14px',
+                        fontSize: '14px'
                     }}>
                         <div style={{
                             width: '24px',
@@ -1121,7 +1117,7 @@ export default function WeeklyBoardPage() {
                             borderTopColor: '#3B82F6',
                             borderRadius: '50%',
                             animation: 'spin 0.8s linear infinite',
-                            marginRight: '12px',
+                            marginRight: '12px'
                         }} />
                         Loading work logs...
                     </div>
@@ -1135,7 +1131,7 @@ export default function WeeklyBoardPage() {
                         borderRadius: '10px',
                         color: '#DC2626',
                         fontSize: '14px',
-                        marginBottom: '20px',
+                        marginBottom: '20px'
                     }}>
                         {error}
                     </div>
@@ -1147,7 +1143,7 @@ export default function WeeklyBoardPage() {
                         display: 'flex',
                         gap: '12px',
                         overflowX: 'auto',
-                        paddingBottom: '8px',
+                        paddingBottom: '8px'
                     }}>
                         {weekDates.map((date) => {
                             const dateStr = format(date, 'yyyy-MM-dd');

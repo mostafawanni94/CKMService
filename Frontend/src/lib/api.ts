@@ -1,4 +1,13 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+/**
+ * Typed, domain-specific API methods.
+ *
+ * This class used to keep its own base URL, its own token cache and its own
+ * `fetch` — a third convention alongside `useApi` and the now-deleted
+ * `api-config`. It delegates to `apiFetch` now, so a 401 raised by any of these
+ * methods gets the same transparent refresh as the rest of the dashboard.
+ */
+import { apiFetch, readApiError } from '@/hooks/useApi';
+import { clearTokens, getAccessToken, setTokens } from '@/lib/auth';
 
 interface RequestOptions {
     method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -7,58 +16,33 @@ interface RequestOptions {
 }
 
 class ApiClient {
-    private baseUrl: string;
-    private token: string | null = null;
-
-    constructor(baseUrl: string) {
-        this.baseUrl = baseUrl;
-        // Auto-load token from localStorage if available (client-side only)
-        if (typeof window !== 'undefined') {
-            this.token = localStorage.getItem('access_token');
-        }
-    }
-
+    /** @deprecated Tokens are owned by `@/lib/auth`; prefer `setTokens` there. */
     setToken(token: string | null) {
-        this.token = token;
-        if (typeof window !== 'undefined') {
-            if (token) {
-                localStorage.setItem('access_token', token);
-            } else {
-                localStorage.removeItem('access_token');
-            }
+        if (token) {
+            setTokens(token);
+        } else {
+            clearTokens();
         }
     }
 
     getToken() {
-        return this.token;
+        return getAccessToken();
     }
 
     isAuthenticated() {
-        return !!this.token;
+        return !!getAccessToken();
     }
 
     private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
         const { method = 'GET', body, headers = {} } = options;
 
-        const requestHeaders: Record<string, string> = {
-            'Content-Type': 'application/json',
-            ...headers,
-        };
-
-        if (this.token) {
-            requestHeaders['Authorization'] = `Bearer ${this.token}`;
-        }
-
-        const response = await fetch(`${this.baseUrl}${endpoint}`, {
+        const response = await apiFetch(endpoint, {
             method,
-            headers: requestHeaders,
-            body: body ? JSON.stringify(body) : undefined,
+            headers,
+            body: body ? JSON.stringify(body) : undefined
         });
 
-        if (!response.ok) {
-            const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-            throw new Error(error.detail || error.message || 'Request failed');
-        }
+        if (!response.ok) throw new Error(await readApiError(response));
 
         // Handle 204 No Content (DELETE success) - return empty object
         if (response.status === 204 || response.headers.get('content-length') === '0') {
@@ -77,9 +61,10 @@ class ApiClient {
     async login(email: string, password: string) {
         const data = await this.request<{ access: string; refresh: string }>('/auth/token/', {
             method: 'POST',
-            body: { email, password },
+            body: { email, password }
         });
-        this.token = data.access;
+        // Persist both tokens here so no caller can forget the refresh token.
+        setTokens(data.access, data.refresh);
         return data;
     }
 
@@ -99,14 +84,14 @@ class ApiClient {
     async approveEmployee(id: string, data: ApprovalData) {
         return this.request<Employee>(`/employees/profiles/${id}/approve/`, {
             method: 'POST',
-            body: data as unknown as Record<string, unknown>,
+            body: data as unknown as Record<string, unknown>
         });
     }
 
     async rejectEmployee(id: string, reason: string) {
         return this.request<Employee>(`/employees/profiles/${id}/reject/`, {
             method: 'POST',
-            body: { reason },
+            body: { reason }
         });
     }
 
@@ -159,14 +144,14 @@ class ApiClient {
     async createWorkEntry(data: Partial<WorkEntry>) {
         return this.request<WorkEntry>('/worklogs/entries/', {
             method: 'POST',
-            body: data as unknown as Record<string, unknown>,
+            body: data as unknown as Record<string, unknown>
         });
     }
 
     async updateWorkEntry(id: string, data: Partial<WorkEntry>) {
         return this.request<WorkEntry>(`/worklogs/entries/${id}/`, {
             method: 'PATCH',
-            body: data as unknown as Record<string, unknown>,
+            body: data as unknown as Record<string, unknown>
         });
     }
 
@@ -177,20 +162,20 @@ class ApiClient {
     async approveWorkEntry(id: string, data?: { adjusted_hours?: number; admin_notes?: string }) {
         return this.request<WorkEntry>(`/worklogs/entries/${id}/approve/`, {
             method: 'POST',
-            body: data as unknown as Record<string, unknown>,
+            body: data as unknown as Record<string, unknown>
         });
     }
 
     async rejectWorkEntry(id: string, reason: string) {
         return this.request<WorkEntry>(`/worklogs/entries/${id}/reject/`, {
             method: 'POST',
-            body: { reason },
+            body: { reason }
         });
     }
 
     async deleteWorkEntry(id: string) {
         return this.request<void>(`/worklogs/entries/${id}/`, {
-            method: 'DELETE',
+            method: 'DELETE'
         });
     }
 
@@ -206,20 +191,20 @@ class ApiClient {
     async approveWorkLog(id: string, data?: { adjusted_hours?: number; admin_notes?: string }) {
         return this.request<WorkLog>(`/worklogs/${id}/approve/`, {
             method: 'POST',
-            body: data as unknown as Record<string, unknown>,
+            body: data as unknown as Record<string, unknown>
         });
     }
 
     async rejectWorkLog(id: string, reason: string) {
         return this.request<WorkLog>(`/worklogs/${id}/reject/`, {
             method: 'POST',
-            body: { reason },
+            body: { reason }
         });
     }
 
     async deleteWorkLog(id: string) {
         return this.request<void>(`/worklogs/${id}/`, {
-            method: 'DELETE',
+            method: 'DELETE'
         });
     }
 
@@ -235,7 +220,7 @@ class ApiClient {
     async rejectAdvance(id: string, reason: string) {
         return this.request<Advance>(`/wallet/advances/${id}/reject/`, {
             method: 'POST',
-            body: { reason },
+            body: { reason }
         });
     }
 
@@ -247,7 +232,7 @@ class ApiClient {
     async generateInvoice(customerId: string, weekYear: number, weekNumber: number) {
         return this.request<Invoice>('/invoices/invoices/generate/', {
             method: 'POST',
-            body: { customer_id: customerId, week_year: weekYear, week_number: weekNumber },
+            body: { customer_id: customerId, week_year: weekYear, week_number: weekNumber }
         });
     }
 
@@ -256,12 +241,12 @@ class ApiClient {
         return {
             pendingEmployees: (await this.getPendingEmployees()).length,
             pendingWorkLogs: (await this.getPendingWorkLogs()).length,
-            pendingAdvances: (await this.getPendingAdvances()).length,
+            pendingAdvances: (await this.getPendingAdvances()).length
         };
     }
 }
 
-export const api = new ApiClient(API_BASE_URL);
+export const api = new ApiClient();
 
 // Types
 export interface PaginatedResponse<T> {

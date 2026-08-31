@@ -7,6 +7,7 @@ import { Card, Button, Badge, Input } from '@/components/ui';
 import { api, Employee } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n';
 import { Users, UserCheck, UserX, Search, Eye, Plus, X, Mail, Phone, Copy, MessageCircle, CheckCircle, AlertCircle, MapPin, Calendar, CreditCard, Globe, FileText, Edit, Save, Trash2, AlertTriangle, ChevronDown, Download } from 'lucide-react';
+import { apiFetch, readApiError } from '@/hooks/useApi';
 
 // Comprehensive list of nationalities with country flags
 const NATIONALITIES = [
@@ -171,7 +172,7 @@ export default function EmployeesPage() {
         email: '',
         password: '',
         first_name: '',
-        last_name: '',
+        last_name: ''
     });
     const [editForm, setEditForm] = useState<EditEmployeeForm>({
         first_name: '',
@@ -194,7 +195,7 @@ export default function EmployeesPage() {
         contract_phase: '',
         contract_start_date: '',
         contract_end_date: '',
-        hourly_rate: '',
+        hourly_rate: ''
     });
 
     // Nationality dropdown state
@@ -249,19 +250,18 @@ export default function EmployeesPage() {
         setCreateError(null);
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/users/`, {
+            const response = await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/users/`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     email: createForm.email,
                     password: createForm.password,
                     first_name: createForm.first_name,
                     last_name: createForm.last_name,
-                    role: 'employee',
-                }),
+                    role: 'employee'
+                })
             });
 
             const data = await response.json();
@@ -276,7 +276,7 @@ export default function EmployeesPage() {
             setCreatedEmployee({
                 email: createForm.email,
                 password: createForm.password,
-                name: `${createForm.first_name} ${createForm.last_name}`,
+                name: `${createForm.first_name} ${createForm.last_name}`
             });
 
             // Close create modal and open share modal
@@ -315,7 +315,7 @@ export default function EmployeesPage() {
             await api.approveEmployee(id, {
                 contract_phase: 'phase_a',
                 contract_start_date: new Date().toISOString().split('T')[0],
-                contract_end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                contract_end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
             });
             await loadEmployees();
         } catch (err) {
@@ -357,7 +357,7 @@ export default function EmployeesPage() {
             contract_phase: emp.contract_phase || '',
             contract_start_date: emp.contract_start_date || '',
             contract_end_date: emp.contract_end_date || '',
-            hourly_rate: emp.hourly_rate?.toString() || '',
+            hourly_rate: emp.hourly_rate?.toString() || ''
         });
         setShowEditModal(true);
         setShowViewModal(false);
@@ -368,11 +368,10 @@ export default function EmployeesPage() {
         if (!selectedEmployee) return;
         setSaving(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${selectedEmployee.id}/`, {
+            const response = await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${selectedEmployee.id}/`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     first_name: editForm.first_name,
@@ -395,14 +394,11 @@ export default function EmployeesPage() {
                     contract_phase: editForm.contract_phase,
                     contract_start_date: editForm.contract_start_date || null,
                     contract_end_date: editForm.contract_end_date || null,
-                    hourly_rate: editForm.hourly_rate ? parseFloat(editForm.hourly_rate) : null,
-                }),
+                    hourly_rate: editForm.hourly_rate ? parseFloat(editForm.hourly_rate) : null
+                })
             });
 
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.detail || 'Failed to update profile');
-            }
+            if (!response.ok) throw new Error(await readApiError(response));
 
             setShowEditModal(false);
             await loadEmployees();
@@ -423,18 +419,14 @@ export default function EmployeesPage() {
         if (!selectedEmployee) return;
         setDeleting(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${selectedEmployee.id}/soft_delete/`, {
+            const response = await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${selectedEmployee.id}/soft_delete/`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
+                    'Content-Type': 'application/json'
+                }
             });
 
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.detail || data.error || 'Failed to delete employee');
-            }
+            if (!response.ok) throw new Error(await readApiError(response));
 
             setShowDeleteModal(false);
             setSelectedEmployee(null);
@@ -461,7 +453,7 @@ export default function EmployeesPage() {
         pending: 'bg-yellow-100 text-yellow-700',
         incomplete: 'bg-gray-100 text-gray-700',
         rejected: 'bg-red-100 text-red-700',
-        suspended: 'bg-gray-200 text-gray-600',
+        suspended: 'bg-gray-200 text-gray-600'
     };
 
     return (
@@ -549,7 +541,7 @@ export default function EmployeesPage() {
                     borderRadius: '12px',
                     border: '1px solid #E5E7EB',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                    overflow: 'hidden',
+                    overflow: 'hidden'
                 }}>
                     {/* Filters and Search */}
                     <div style={{
@@ -558,7 +550,7 @@ export default function EmployeesPage() {
                         flexWrap: 'wrap',
                         gap: '16px',
                         alignItems: 'center',
-                        justifyContent: 'space-between',
+                        justifyContent: 'space-between'
                     }}>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                             {['all', 'approved', 'pending', 'incomplete', 'rejected', 'suspended'].map((status) => {
@@ -568,7 +560,7 @@ export default function EmployeesPage() {
                                     pending: pendingEmployees.length,
                                     incomplete: employees.filter(e => e.status === 'incomplete').length,
                                     rejected: employees.filter(e => e.status === 'rejected').length,
-                                    suspended: employees.filter(e => e.status === 'suspended').length,
+                                    suspended: employees.filter(e => e.status === 'suspended').length
                                 };
                                 const count = statusCounts[status as keyof typeof statusCounts] || 0;
                                 const isPending = status === 'pending';
@@ -618,7 +610,7 @@ export default function EmployeesPage() {
                                             boxShadow: isActive ? '0 4px 12px rgba(30, 58, 95, 0.25)' : 'none',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            gap: '8px',
+                                            gap: '8px'
                                         }}
                                     >
                                         {label}
@@ -629,7 +621,7 @@ export default function EmployeesPage() {
                                                 fontSize: '11px',
                                                 fontWeight: 700,
                                                 backgroundColor: badgeBg,
-                                                color: isActive ? 'white' : textColor,
+                                                color: isActive ? 'white' : textColor
                                             }}>
                                                 {count}
                                             </span>
@@ -641,7 +633,7 @@ export default function EmployeesPage() {
                         <div style={{
                             position: 'relative',
                             display: 'flex',
-                            alignItems: 'center',
+                            alignItems: 'center'
                         }}>
                             <Search style={{
                                 position: 'absolute',
@@ -649,7 +641,7 @@ export default function EmployeesPage() {
                                 width: '18px',
                                 height: '18px',
                                 color: '#9CA3AF',
-                                pointerEvents: 'none',
+                                pointerEvents: 'none'
                             }} />
                             <input
                                 type="text"
@@ -666,7 +658,7 @@ export default function EmployeesPage() {
                                     border: '1px solid #E5E7EB',
                                     backgroundColor: '#F9FAFB',
                                     outline: 'none',
-                                    transition: 'all 0.2s',
+                                    transition: 'all 0.2s'
                                 }}
                                 onFocus={(e) => {
                                     e.target.style.borderColor = '#1E3A5F';
@@ -761,7 +753,7 @@ export default function EmployeesPage() {
                                                                 border: '1px solid #E5E7EB',
                                                                 borderRadius: '8px',
                                                                 cursor: 'pointer',
-                                                                transition: 'all 0.2s',
+                                                                transition: 'all 0.2s'
                                                             }}
                                                         >
                                                             <Eye style={{ width: '14px', height: '14px' }} />
@@ -773,10 +765,7 @@ export default function EmployeesPage() {
                                                                 setShowExtractModal(true);
                                                                 setLoadingDocs(true);
                                                                 try {
-                                                                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${emp.id}/available_documents/`, {
-                                                                        headers: {
-                                                                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                                                                        },
+                                                                    const response = await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${emp.id}/available_documents/`, {
                                                                     });
                                                                     if (response.ok) {
                                                                         const docs = await response.json();
@@ -801,7 +790,7 @@ export default function EmployeesPage() {
                                                                 border: '1px solid #BFDBFE',
                                                                 borderRadius: '8px',
                                                                 cursor: 'pointer',
-                                                                transition: 'all 0.2s',
+                                                                transition: 'all 0.2s'
                                                             }}
                                                         >
                                                             <Download style={{ width: '14px', height: '14px' }} />
@@ -821,7 +810,7 @@ export default function EmployeesPage() {
                                                                 border: '1px solid #FECACA',
                                                                 borderRadius: '8px',
                                                                 cursor: 'pointer',
-                                                                transition: 'all 0.2s',
+                                                                transition: 'all 0.2s'
                                                             }}
                                                         >
                                                             <Trash2 style={{ width: '14px', height: '14px' }} />
@@ -1173,7 +1162,7 @@ export default function EmployeesPage() {
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         gap: '8px',
-                                        color: copied ? '#16A34A' : '#374151',
+                                        color: copied ? '#16A34A' : '#374151'
                                     }}
                                 >
                                     {copied ? (
@@ -1197,7 +1186,7 @@ export default function EmployeesPage() {
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        gap: '8px',
+                                        gap: '8px'
                                     }}
                                 >
                                     <MessageCircle style={{ width: '18px', height: '18px' }} /> Share via WhatsApp
@@ -1212,7 +1201,7 @@ export default function EmployeesPage() {
                                         fontSize: '14px',
                                         fontWeight: 500,
                                         color: '#6B7280',
-                                        cursor: 'pointer',
+                                        cursor: 'pointer'
                                     }}
                                 >
                                     Done
@@ -1605,7 +1594,7 @@ export default function EmployeesPage() {
                                                         borderRadius: '8px',
                                                         backgroundColor: '#FFFFFF',
                                                         cursor: 'pointer',
-                                                        fontSize: '14px',
+                                                        fontSize: '14px'
                                                     }}
                                                 >
                                                     <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1634,7 +1623,7 @@ export default function EmployeesPage() {
                                                         border: '1px solid #E5E7EB',
                                                         borderRadius: '8px',
                                                         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                                                        zIndex: 9999,
+                                                        zIndex: 9999
                                                     }}>
                                                         {/* Search Input */}
                                                         <div style={{ padding: '8px', borderBottom: '1px solid #E5E7EB' }}>
@@ -1652,7 +1641,7 @@ export default function EmployeesPage() {
                                                                         border: '1px solid #E5E7EB',
                                                                         borderRadius: '6px',
                                                                         fontSize: '13px',
-                                                                        outline: 'none',
+                                                                        outline: 'none'
                                                                     }}
                                                                     onClick={(e) => e.stopPropagation()}
                                                                 />
@@ -1678,7 +1667,7 @@ export default function EmployeesPage() {
                                                                             gap: '10px',
                                                                             cursor: 'pointer',
                                                                             backgroundColor: editForm.nationality === nationality.name ? '#EFF6FF' : 'transparent',
-                                                                            borderLeft: editForm.nationality === nationality.name ? '3px solid #2563EB' : '3px solid transparent',
+                                                                            borderLeft: editForm.nationality === nationality.name ? '3px solid #2563EB' : '3px solid transparent'
                                                                         }}
                                                                         onMouseEnter={(e) => {
                                                                             if (editForm.nationality !== nationality.name) {
@@ -1977,7 +1966,7 @@ export default function EmployeesPage() {
                                                         backgroundColor: doc.available ? '#FFFFFF' : '#F9FAFB',
                                                         cursor: doc.available ? 'pointer' : 'not-allowed',
                                                         opacity: doc.available ? 1 : 0.5,
-                                                        transition: 'all 0.2s',
+                                                        transition: 'all 0.2s'
                                                     }}
                                                 >
                                                     <input
@@ -2022,13 +2011,12 @@ export default function EmployeesPage() {
                                     onClick={async () => {
                                         setExporting(true);
                                         try {
-                                            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${extractEmployee.id}/export_documents/`, {
+                                            const response = await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/employees/profiles/${extractEmployee.id}/export_documents/`, {
                                                 method: 'POST',
                                                 headers: {
-                                                    'Content-Type': 'application/json',
-                                                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                                    'Content-Type': 'application/json'
                                                 },
-                                                body: JSON.stringify({ document_types: selectedDocuments }),
+                                                body: JSON.stringify({ document_types: selectedDocuments })
                                             });
                                             if (response.ok) {
                                                 const blob = await response.blob();
@@ -2067,7 +2055,7 @@ export default function EmployeesPage() {
                                         fontSize: '14px',
                                         fontWeight: 600,
                                         cursor: exporting ? 'not-allowed' : 'pointer',
-                                        opacity: exporting ? 0.7 : 1,
+                                        opacity: exporting ? 0.7 : 1
                                     }}
                                 >
                                     <Download style={{ width: '16px', height: '16px' }} />

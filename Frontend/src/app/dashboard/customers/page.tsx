@@ -6,6 +6,7 @@ import { Button, Input } from '@/components/ui';
 import { api, Customer } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n';
 import { Building2, Plus, X, Search, MapPin, Phone, Mail, FileText, Users, Globe, Eye, Trash2, Edit, Save, Upload, ImageIcon, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { apiFetch, readApiError } from '@/hooks/useApi';
 
 
 
@@ -37,7 +38,7 @@ export default function CustomersPage() {
         btw_number: '',
         kvk_number: '',
         g_rekening: '',
-        is_active: true,
+        is_active: true
     });
     const [editLogo, setEditLogo] = useState<File | null>(null);
     const [editLogoPreview, setEditLogoPreview] = useState<string | null>(null);
@@ -50,13 +51,9 @@ export default function CustomersPage() {
         setLoading(true);
         setError(null);
         try {
-            const token = localStorage.getItem('access_token');
-            const response = await fetch(
+            const response = await apiFetch(
                 `${process.env.NEXT_PUBLIC_API_URL || '/api'}/customers/customers/?page=${page}&page_size=${pageSize}`,
                 {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
                 }
             );
             if (!response.ok) throw new Error('Failed to load customers');
@@ -86,7 +83,7 @@ export default function CustomersPage() {
             btw_number: (customer as any).btw_number || '',
             kvk_number: (customer as any).kvk_number || '',
             g_rekening: (customer as any).g_rekening || '',
-            is_active: customer.is_active ?? true,
+            is_active: customer.is_active ?? true
         });
         setEditing(false);
         setShowViewModal(true);
@@ -108,18 +105,12 @@ export default function CustomersPage() {
             if (editForm.g_rekening) formData.append('g_rekening', editForm.g_rekening);
             if (editLogo) formData.append('logo', editLogo);
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/customers/customers/${selectedCustomer.id}/`, {
+            const response = await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/customers/customers/${selectedCustomer.id}/`, {
                 method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-                body: formData,
+                body: formData
             });
 
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.detail || 'Failed to update customer');
-            }
+            if (!response.ok) throw new Error(await readApiError(response));
 
             setShowViewModal(false);
             setEditLogo(null);
@@ -136,11 +127,8 @@ export default function CustomersPage() {
         if (!selectedCustomer) return;
         setDeleting(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/customers/customers/${selectedCustomer.id}/`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
+            const response = await apiFetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/customers/customers/${selectedCustomer.id}/`, {
+                method: 'DELETE'
             });
 
             if (!response.ok) {
@@ -170,7 +158,7 @@ export default function CustomersPage() {
     const stats = {
         total: customers.length,
         active: customers.filter(c => c.is_active).length,
-        inactive: customers.filter(c => !c.is_active).length,
+        inactive: customers.filter(c => !c.is_active).length
     };
 
     return (
@@ -255,7 +243,7 @@ export default function CustomersPage() {
                     backgroundColor: 'white',
                     borderRadius: '12px',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                    overflow: 'hidden',
+                    overflow: 'hidden'
                 }}>
                     {/* Filters and Search */}
                     <div style={{
@@ -264,7 +252,7 @@ export default function CustomersPage() {
                         flexWrap: 'wrap',
                         gap: '16px',
                         alignItems: 'center',
-                        justifyContent: 'space-between',
+                        justifyContent: 'space-between'
                     }}>
                         <div style={{ display: 'flex', gap: '8px' }}>
                             {(['all', 'active', 'inactive'] as const).map((status) => (
@@ -281,7 +269,7 @@ export default function CustomersPage() {
                                         color: filter === status ? '#FFFFFF' : '#4B5563',
                                         border: 'none',
                                         cursor: 'pointer',
-                                        boxShadow: filter === status ? '0 4px 12px rgba(30, 58, 95, 0.25)' : 'none',
+                                        boxShadow: filter === status ? '0 4px 12px rgba(30, 58, 95, 0.25)' : 'none'
                                     }}
                                 >
                                     {status === 'all' ? 'All' :
@@ -292,7 +280,7 @@ export default function CustomersPage() {
                         <div style={{
                             position: 'relative',
                             display: 'flex',
-                            alignItems: 'center',
+                            alignItems: 'center'
                         }}>
                             <Search style={{
                                 position: 'absolute',
@@ -300,7 +288,7 @@ export default function CustomersPage() {
                                 width: '18px',
                                 height: '18px',
                                 color: '#9CA3AF',
-                                pointerEvents: 'none',
+                                pointerEvents: 'none'
                             }} />
                             <input
                                 type="text"
@@ -317,7 +305,7 @@ export default function CustomersPage() {
                                     border: '1px solid #E5E7EB',
                                     backgroundColor: '#F9FAFB',
                                     outline: 'none',
-                                    transition: 'all 0.2s',
+                                    transition: 'all 0.2s'
                                 }}
                                 onFocus={(e) => {
                                     e.target.style.borderColor = '#1E3A5F';
@@ -424,7 +412,7 @@ export default function CustomersPage() {
                                                             border: '1px solid #E5E7EB',
                                                             borderRadius: '8px',
                                                             cursor: 'pointer',
-                                                            transition: 'all 0.2s',
+                                                            transition: 'all 0.2s'
                                                         }}
                                                     >
                                                         <Eye style={{ width: '14px', height: '14px' }} />
@@ -447,7 +435,7 @@ export default function CustomersPage() {
                                                             border: '1px solid #FECACA',
                                                             borderRadius: '8px',
                                                             cursor: 'pointer',
-                                                            transition: 'all 0.2s',
+                                                            transition: 'all 0.2s'
                                                         }}
                                                     >
                                                         <Trash2 style={{ width: '14px', height: '14px' }} />

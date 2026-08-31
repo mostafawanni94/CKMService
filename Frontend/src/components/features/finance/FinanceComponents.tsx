@@ -6,7 +6,7 @@
 import React from 'react';
 import {
   ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown,
-  Euro, BarChart3, PieChart,
+  Euro, BarChart3, PieChart
 } from 'lucide-react';
 import { StatCard, SectionCard } from '@/components/ui/shared';
 import { colors, spacing, radius, fontSize, fontWeight, presets } from '@/styles/tokens';

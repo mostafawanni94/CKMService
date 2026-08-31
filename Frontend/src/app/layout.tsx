@@ -6,22 +6,22 @@ import { Providers } from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  subsets: ["latin"]
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  subsets: ["latin"]
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.ckmservices.nl"),
   title: "CKM Services",
-  description: "Professional cleaning and organizing services. Reliable, flexible, and with attention to detail.",
+  description: "Professional cleaning and organizing services. Reliable, flexible, and with attention to detail."
 };
 
 export default function RootLayout({
-  children,
+  children
 }: Readonly<{
   children: React.ReactNode;
 }>) {

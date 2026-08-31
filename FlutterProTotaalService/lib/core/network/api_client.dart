@@ -2,9 +2,13 @@
 /// 
 /// Handles all HTTP communication with the backend.
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:http/http.dart' as http;
+
+import '../config/api_config.dart';
 import '../storage/secure_storage.dart';
 
 /// API Exception for handling errors
@@ -29,25 +33,102 @@ class ApiResponse<T> {
   ApiResponse.error(this.error) : data = null, success = false;
 }
 
+/// Raised when the refresh token is gone or rejected and the user has to sign
+/// in again. Listen for this to route back to the login screen.
+class SessionExpiredException extends ApiException {
+  SessionExpiredException()
+      : super('Session expired. Please sign in again.', statusCode: 401);
+}
+
 /// Main API Client
 class ApiClient {
-  // For Android Emulator: 10.0.2.2 maps to host machine's localhost
-  // For iOS Simulator: use localhost or 127.0.0.1
-  // For real device: use your Mac's IP address (e.g., 192.168.x.x)
-  // TODO: For production, use _prodBaseUrl. For development with real device, use your Mac's IP.
-  // Your Mac's current IP: 192.168.2.40 (run `ipconfig getifaddr en0` to check)
-  static String get _devBaseUrl {
-    // For iOS Simulator, use localhost. For Android emulator, use 10.0.2.2.
-    return 'http://127.0.0.1:8000/api';
-  }
-  static const String _prodBaseUrl = 'https://api.prototaalservice.nl/api';
-  
+  /// Base URL comes from --dart-define=API_BASE_URL; see [ApiConfig].
   final String baseUrl;
   final SecureStorage _storage;
-  
+
+  /// Invoked once when the session cannot be renewed, so the app can sign out.
+  static void Function()? onSessionExpired;
+
+  /// Guards against a burst of concurrent 401s each firing its own refresh.
+  static Future<bool>? _inFlightRefresh;
+
   ApiClient({String? baseUrl, SecureStorage? storage})
-      : baseUrl = baseUrl ?? _devBaseUrl,
+      : baseUrl = baseUrl ?? ApiConfig.baseUrl,
         _storage = storage ?? SecureStorage();
+
+  /// Exchange the refresh token for a new access token.
+  ///
+  /// Access tokens are short-lived now (one hour by default), so this runs
+  /// routinely. Previously `AuthService.refreshToken()` existed but nothing
+  /// ever called it, and the app simply broke when the token aged out.
+  Future<bool> _refreshAccessToken() async {
+    // Coalesce: if a refresh is already running, await that one.
+    final pending = _inFlightRefresh;
+    if (pending != null) return pending;
+
+    final completer = Completer<bool>();
+    _inFlightRefresh = completer.future;
+    try {
+      final refresh = await _storage.getRefreshToken();
+      if (refresh == null || refresh.isEmpty) {
+        completer.complete(false);
+        return false;
+      }
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/token/refresh/'),
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+        body: jsonEncode({'refresh': refresh}),
+      );
+
+      if (response.statusCode != 200) {
+        completer.complete(false);
+        return false;
+      }
+
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      final access = body['access'] as String?;
+      if (access == null) {
+        completer.complete(false);
+        return false;
+      }
+      await _storage.saveAccessToken(access);
+
+      // ROTATE_REFRESH_TOKENS is on server-side, so a new refresh token comes
+      // back with the response and the old one is blacklisted. Store it or the
+      // next refresh will present a revoked token.
+      final rotated = body['refresh'] as String?;
+      if (rotated != null && rotated.isNotEmpty) {
+        await _storage.saveRefreshToken(rotated);
+      }
+
+      completer.complete(true);
+      return true;
+    } catch (_) {
+      completer.complete(false);
+      return false;
+    } finally {
+      _inFlightRefresh = null;
+    }
+  }
+
+  /// Run [send], and if it comes back 401, refresh once and run it again.
+  Future<dynamic> _withRefresh(
+    Future<http.Response> Function() send, {
+    bool requireAuth = true,
+  }) async {
+    var response = await send();
+    if (response.statusCode == 401 && requireAuth) {
+      if (await _refreshAccessToken()) {
+        response = await send();
+      } else {
+        await _storage.clearAll();
+        onSessionExpired?.call();
+        throw SessionExpiredException();
+      }
+    }
+    return _handleResponse(response);
+  }
 
   /// Get authorization headers
   Future<Map<String, String>> _getHeaders({bool requireAuth = true}) async {
@@ -107,65 +188,70 @@ class ApiClient {
   }
 
   /// GET request
-  Future<dynamic> get(String endpoint, {bool requireAuth = true}) async {
-    final headers = await _getHeaders(requireAuth: requireAuth);
-    final response = await http.get(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: headers,
+  Future<dynamic> get(String endpoint, {bool requireAuth = true}) {
+    return _withRefresh(
+      () async => http.get(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: await _getHeaders(requireAuth: requireAuth),
+      ),
+      requireAuth: requireAuth,
     );
-    return _handleResponse(response);
   }
 
   /// POST request
   Future<dynamic> post(String endpoint, {
     Map<String, dynamic>? body,
     bool requireAuth = true,
-  }) async {
-    final headers = await _getHeaders(requireAuth: requireAuth);
-    final response = await http.post(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: headers,
-      body: body != null ? jsonEncode(body) : null,
+  }) {
+    return _withRefresh(
+      () async => http.post(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: await _getHeaders(requireAuth: requireAuth),
+        body: body != null ? jsonEncode(body) : null,
+      ),
+      requireAuth: requireAuth,
     );
-    return _handleResponse(response);
   }
 
   /// PUT request
   Future<dynamic> put(String endpoint, {
     Map<String, dynamic>? body,
     bool requireAuth = true,
-  }) async {
-    final headers = await _getHeaders(requireAuth: requireAuth);
-    final response = await http.put(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: headers,
-      body: body != null ? jsonEncode(body) : null,
+  }) {
+    return _withRefresh(
+      () async => http.put(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: await _getHeaders(requireAuth: requireAuth),
+        body: body != null ? jsonEncode(body) : null,
+      ),
+      requireAuth: requireAuth,
     );
-    return _handleResponse(response);
   }
 
   /// PATCH request
   Future<dynamic> patch(String endpoint, {
     Map<String, dynamic>? body,
     bool requireAuth = true,
-  }) async {
-    final headers = await _getHeaders(requireAuth: requireAuth);
-    final response = await http.patch(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: headers,
-      body: body != null ? jsonEncode(body) : null,
+  }) {
+    return _withRefresh(
+      () async => http.patch(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: await _getHeaders(requireAuth: requireAuth),
+        body: body != null ? jsonEncode(body) : null,
+      ),
+      requireAuth: requireAuth,
     );
-    return _handleResponse(response);
   }
 
   /// DELETE request
-  Future<dynamic> delete(String endpoint, {bool requireAuth = true}) async {
-    final headers = await _getHeaders(requireAuth: requireAuth);
-    final response = await http.delete(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: headers,
+  Future<dynamic> delete(String endpoint, {bool requireAuth = true}) {
+    return _withRefresh(
+      () async => http.delete(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: await _getHeaders(requireAuth: requireAuth),
+      ),
+      requireAuth: requireAuth,
     );
-    return _handleResponse(response);
   }
 
   /// Upload file with multipart
@@ -174,12 +260,7 @@ class ApiClient {
     required String fieldName,
     Map<String, String>? fields,
   }) async {
-    final token = await _storage.getAccessToken();
     final request = http.MultipartRequest('POST', Uri.parse('$baseUrl$endpoint'));
-    
-    if (token != null) {
-      request.headers['Authorization'] = 'Bearer $token';
-    }
 
     request.files.add(await http.MultipartFile.fromPath(fieldName, file.path));
     
@@ -187,9 +268,7 @@ class ApiClient {
       request.fields.addAll(fields);
     }
 
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-    return _handleResponse(response);
+    return _sendMultipart(request);
   }
 
   /// PATCH with files (multipart form data)
@@ -197,12 +276,7 @@ class ApiClient {
     Map<String, String>? fields,
     Map<String, File>? files,
   }) async {
-    final token = await _storage.getAccessToken();
     final request = http.MultipartRequest('PATCH', Uri.parse('$baseUrl$endpoint'));
-    
-    if (token != null) {
-      request.headers['Authorization'] = 'Bearer $token';
-    }
 
     // Add text fields
     if (fields != null) {
@@ -216,8 +290,35 @@ class ApiClient {
       }
     }
 
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
+    return _sendMultipart(request);
+  }
+
+  /// Send a multipart request, refreshing the token once on a 401.
+  ///
+  /// A `MultipartRequest` cannot be replayed after `send()`, so the caller's
+  /// request is rebuilt from its own fields and files for the retry.
+  Future<dynamic> _sendMultipart(http.MultipartRequest request) async {
+    Future<http.Response> fire() async {
+      final replay = http.MultipartRequest(request.method, request.url)
+        ..fields.addAll(request.fields)
+        ..files.addAll(request.files);
+      final token = await _storage.getAccessToken();
+      if (token != null) {
+        replay.headers['Authorization'] = 'Bearer $token';
+      }
+      return http.Response.fromStream(await replay.send());
+    }
+
+    var response = await fire();
+    if (response.statusCode == 401) {
+      if (await _refreshAccessToken()) {
+        response = await fire();
+      } else {
+        await _storage.clearAll();
+        onSessionExpired?.call();
+        throw SessionExpiredException();
+      }
+    }
     return _handleResponse(response);
   }
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { ArrowLeft, Plus, Gift, Trash2, Coffee, User, Building2, Briefcase, MapPin, Clock, FileText, AlertCircle } from 'lucide-react';
+import { apiFetch } from '@/hooks/useApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -113,8 +114,6 @@ export default function AddWorkLogPage() {
     const [showSupervisorDropdown, setShowSupervisorDropdown] = useState(false);
     const [showServiceDropdown, setShowServiceDropdown] = useState(false);
 
-    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-    const headers = { 'Authorization': `Bearer ${token}` };
 
     // Toggle employee selection (add/remove from array)
     const toggleEmployee = (empId: string) => {
@@ -196,10 +195,10 @@ export default function AddWorkLogPage() {
 
         try {
             const [empRes, custRes, projRes, allowRes] = await Promise.all([
-                fetch(`${API_URL}/employees/profiles/`, { headers }),
-                fetch(`${API_URL}/customers/customers/`, { headers }),
-                fetch(`${API_URL}/projects/projects/`, { headers }),
-                fetch(`${API_URL}/employees/allowance-types/`, { headers }),
+                apiFetch(`/employees/profiles/`),
+                apiFetch(`/customers/customers/`),
+                apiFetch(`/projects/projects/`),
+                apiFetch(`/employees/allowance-types/`),
             ]);
 
             if (empRes.ok) {
@@ -207,7 +206,7 @@ export default function AddWorkLogPage() {
                 const list = Array.isArray(data) ? data : (data.results || []);
                 setEmployees(list.map((e: any) => ({
                     id: e.id,
-                    full_name: e.full_name || `${e.first_name} ${e.last_name}`,
+                    full_name: e.full_name || `${e.first_name} ${e.last_name}`
                 })));
             }
 
@@ -216,7 +215,7 @@ export default function AddWorkLogPage() {
                 const list = Array.isArray(data) ? data : (data.results || []);
                 setCustomers(list.map((c: any) => ({
                     id: c.id,
-                    company_name: c.company_name || c.name,
+                    company_name: c.company_name || c.name
                 })));
             }
 
@@ -247,26 +246,26 @@ export default function AddWorkLogPage() {
 
         try {
             // Load supervisors from project detail API
-            const projRes = await fetch(`${API_URL}/projects/projects/${projectId}/`, { headers });
+            const projRes = await apiFetch(`/projects/projects/${projectId}/`);
             if (projRes.ok) {
                 const projData = await projRes.json();
                 const sups = (projData.supervisors_list || []).map((s: any) => ({
                     id: s.id,
-                    full_name: s.company_name || `${s.first_name || ''} ${s.last_name || ''}`.trim() || 'Unknown',
+                    full_name: s.company_name || `${s.first_name || ''} ${s.last_name || ''}`.trim() || 'Unknown'
                 }));
                 setSupervisors(sups);
             }
 
             // Load services from customer (from service_rates)
             if (customerId) {
-                const custRes = await fetch(`${API_URL}/customers/customers/${customerId}/`, { headers });
+                const custRes = await apiFetch(`/customers/customers/${customerId}/`);
                 if (custRes.ok) {
                     const customerData = await custRes.json();
                     // Customer API returns service_rates with service info
                     if (customerData.service_rates && customerData.service_rates.length > 0) {
                         setServices(customerData.service_rates.map((sr: any) => ({
                             id: sr.service,
-                            name: sr.service_name,
+                            name: sr.service_name
                         })));
                     }
                 }
@@ -365,7 +364,7 @@ export default function AddWorkLogPage() {
             hours: '',
             notes: '',
             start_time: '',
-            end_time: '',
+            end_time: ''
         }]);
     }
 
@@ -464,10 +463,10 @@ export default function AddWorkLogPage() {
                     end_datetime: endDatetime,
                     breaks: breaks.filter(b => b.start && b.end).map(b => ({
                         start: b.start + ':00',
-                        end: b.end + ':00',
+                        end: b.end + ':00'
                     })),
                     location_override: location,
-                    notes: notes,
+                    notes: notes
                 };
 
                 if (supervisor) payload.supervisor = supervisor;
@@ -480,17 +479,16 @@ export default function AddWorkLogPage() {
                         hours: parseFloat(a.hours) || 0,
                         notes: a.notes || '',
                         start_time: a.start_time ? a.start_time + ':00' : null,
-                        end_time: a.end_time ? a.end_time + ':00' : null,
+                        end_time: a.end_time ? a.end_time + ':00' : null
                     }));
                 }
 
-                const response = await fetch(`${API_URL}/worklogs/`, {
+                const response = await apiFetch(`/worklogs/`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(payload),
+                    body: JSON.stringify(payload)
                 });
 
                 if (response.ok) {
@@ -909,7 +907,7 @@ export default function AddWorkLogPage() {
                                                 cursor: 'pointer',
                                                 display: 'flex',
                                                 alignItems: 'center',
-                                                gap: '4px',
+                                                gap: '4px'
                                             }}
                                         >
                                             ↩ Reset to: {originalLocation.length > 30 ? originalLocation.substring(0, 30) + '...' : originalLocation}
@@ -999,7 +997,7 @@ export default function AddWorkLogPage() {
                                         style={{
                                             display: 'flex', alignItems: 'center', gap: '6px',
                                             padding: '8px 14px', backgroundColor: '#D97706', color: 'white',
-                                            border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer',
+                                            border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer'
                                         }}
                                     >
                                         <Plus size={14} />
@@ -1162,7 +1160,7 @@ export default function AddWorkLogPage() {
                                 style={{
                                     display: 'flex', alignItems: 'center', gap: '6px',
                                     padding: '10px 18px', backgroundColor: '#8B5CF6', color: 'white',
-                                    border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer',
+                                    border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer'
                                 }}
                             >
                                 <Plus size={16} />
@@ -1294,7 +1292,7 @@ export default function AddWorkLogPage() {
                             style={{
                                 padding: '14px 28px', backgroundColor: '#F3F4F6', color: '#374151',
                                 border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: 600,
-                                cursor: 'pointer',
+                                cursor: 'pointer'
                             }}
                         >
                             Cancel
@@ -1308,7 +1306,7 @@ export default function AddWorkLogPage() {
                                 color: 'white',
                                 border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: 600,
                                 cursor: (saving || Object.keys(errors).some(k => k.startsWith('break_'))) ? 'not-allowed' : 'pointer',
-                                opacity: saving ? 0.7 : 1,
+                                opacity: saving ? 0.7 : 1
                             }}
                         >
                             {saving ? 'Creating...' : 'Create Work Log'}
@@ -1326,7 +1324,7 @@ const labelStyle: React.CSSProperties = {
     fontSize: '14px',
     fontWeight: 500,
     marginBottom: '8px',
-    color: '#374151',
+    color: '#374151'
 };
 
 const inputStyle: React.CSSProperties = {
@@ -1337,14 +1335,14 @@ const inputStyle: React.CSSProperties = {
     borderRadius: '10px',
     outline: 'none',
     backgroundColor: 'white',
-    transition: 'border-color 0.2s',
+    transition: 'border-color 0.2s'
 };
 
 const errorStyle: React.CSSProperties = {
     display: 'block',
     fontSize: '12px',
     color: '#EF4444',
-    marginTop: '4px',
+    marginTop: '4px'
 };
 
 const dropdownStyle: React.CSSProperties = {
@@ -1359,7 +1357,7 @@ const dropdownStyle: React.CSSProperties = {
     borderRadius: '10px',
     boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
     zIndex: 1000,
-    marginTop: '4px',
+    marginTop: '4px'
 };
 
 const dropdownItemStyle: React.CSSProperties = {
@@ -1368,5 +1366,5 @@ const dropdownItemStyle: React.CSSProperties = {
     transition: 'background-color 0.15s',
     borderBottom: '1px solid #F3F4F6',
     color: '#111827',
-    fontSize: '14px',
+    fontSize: '14px'
 };

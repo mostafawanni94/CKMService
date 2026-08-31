@@ -15,7 +15,7 @@ const DEFAULT_AGENCY: Agency = {
   contact_name: '', contact_email: '', contact_phone: '',
   kvk_number: '', btw_number: '', iban: '',
   street_name: '', house_number: '', house_number_addition: '',
-  postcode: '', city: '', country: 'Netherlands',
+  postcode: '', city: '', country: 'Netherlands'
 };
 
 export interface SurchargeState {
@@ -108,7 +108,7 @@ export function useAgencyDetail() {
         .map(([typeId, val]) => ({
           surcharge_type_id: parseInt(typeId),
           percentage: val.percentage,
-          is_enabled: true,
+          is_enabled: true
         }));
 
       const payload = { ...formData, surcharges };
@@ -134,7 +134,7 @@ export function useAgencyDetail() {
       const data = await apiMutate('/invoices/agency-invoices/generate/', 'POST', {
         agency_id: parseInt(params.id as string),
         period_start: generatePeriodStart,
-        period_end: generatePeriodEnd,
+        period_end: generatePeriodEnd
       });
       alert('Invoice generated successfully!');
       setShowGenerateModal(false);
@@ -163,6 +163,6 @@ export function useAgencyDetail() {
     generatePeriodEnd, setGeneratePeriodEnd,
     generating, handleGenerateInvoice,
     // Router
-    params,
+    params
   };
 }

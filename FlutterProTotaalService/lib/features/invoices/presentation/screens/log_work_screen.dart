@@ -89,7 +89,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
       }
       
       // Check if employee can add allowances (from profile)
-      final profileResponse = await _api.get('/employees/me/');
+      final profileResponse = await _api.get('/employees/profiles/me/');
       if (profileResponse != null) {
         _canAddAllowances = profileResponse['can_add_allowances'] ?? false;
       }

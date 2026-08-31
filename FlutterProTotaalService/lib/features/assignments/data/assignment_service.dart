@@ -59,7 +59,7 @@ class AssignmentService {
 
   /// Get my assignments (employee sees only location, no client/project)
   Future<List<WorkAssignmentModel>> getMyAssignments() async {
-    final response = await _api.get('/employees/my-assignments/');
+    final response = await _api.get('/employees/profiles/my_assignments/');
     final results = response['results'] as List? ?? [];
     return results.map((a) => WorkAssignmentModel.fromJson(a)).toList();
   }

@@ -4,6 +4,7 @@ Employee Serializers.
 Comprehensive serializers with validation for employee management.
 """
 
+from django.db import transaction
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -354,16 +355,38 @@ class EmployeeProfileDetailSerializer(serializers.ModelSerializer):
             'updated_by', 'deleted_at', 'deleted_by', 'is_deleted'
         ]
     
+    def validate_user_email(self, value):
+        """
+        Reject an address already used by a different account.
+
+        Without this the assignment below hit the DB uniqueness constraint and
+        surfaced as an IntegrityError — an HTML 500 page rather than a field
+        error the form could display.
+        """
+        if not value:
+            return value
+
+        existing = User.objects.filter(email__iexact=value)
+        if self.instance and self.instance.user_id:
+            existing = existing.exclude(pk=self.instance.user_id)
+        if existing.exists():
+            raise serializers.ValidationError(
+                'Another account already uses this email address.'
+            )
+        return value
+
     def update(self, instance, validated_data):
-        """Handle user_email update separately."""
+        """Apply the login email change, if one was supplied, alongside the profile."""
         user_email = validated_data.pop('user_email', None)
-        
-        if user_email and instance.user:
-            # Only admin can change email - check is handled by view permissions
-            instance.user.email = user_email
-            instance.user.save()
-        
-        return super().update(instance, validated_data)
+
+        # One transaction: a failure updating the profile must not leave the
+        # login email changed.
+        with transaction.atomic():
+            if user_email and instance.user:
+                # Only an admin reaches this serializer; the view enforces that.
+                instance.user.email = user_email
+                instance.user.save(update_fields=['email', 'updated_at'])
+            return super().update(instance, validated_data)
     
     def _get_file_url(self, obj, field_name):
         """Helper to get full URL for a file field."""
@@ -423,7 +446,7 @@ class EmployeeProfileCompletionSerializer(serializers.ModelSerializer):
             'document_type_name', 'document_number', 'document_expiry_date',
             'id_document_front', 'id_document_back', 'id_document_pdf',
             # Contact
-            'phone_number', 'address', 'postcode', 'city',
+            'phone_number', 'street_address', 'postcode', 'city',
             # Financial
             'iban', 'nationality',
             # Driver

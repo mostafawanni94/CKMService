@@ -11,7 +11,7 @@ import { ArrowLeft, Save, Building2, Users, FileText, Percent } from 'lucide-rea
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { TabBar, Button, LoadingSpinner } from '@/components/ui/shared';
 import {
-  OverviewTab, EmployeesTab, BillingTab, SurchargesSection, GenerateInvoiceModal,
+  OverviewTab, EmployeesTab, BillingTab, SurchargesSection, GenerateInvoiceModal
 } from '@/components/features/agencies/AgencyComponents';
 import { useAgencyDetail } from '@/hooks/useAgencyDetail';
 import styles from './page.module.css';

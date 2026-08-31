@@ -25,19 +25,9 @@ from .portal_serializers import (
 # PERMISSION
 # =============================================================================
 
-class IsCustomerUser(permissions.BasePermission):
-    """
-    Only allow authenticated users with role='customer' and a linked customer.
-    """
-    message = 'Only customer portal users can access this endpoint.'
-    
-    def has_permission(self, request, view):
-        return (
-            request.user
-            and request.user.is_authenticated
-            and request.user.role == 'customer'
-            and request.user.customer is not None
-        )
+# Canonical definition lives in apps.core.permissions.
+from apps.core.permissions import IsCustomerUser  # noqa: F401,E402
+IsCustomerUser.message = 'Only customer portal users can access this endpoint.'
 
 
 # =============================================================================

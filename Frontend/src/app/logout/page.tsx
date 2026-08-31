@@ -2,19 +2,15 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api';
+import { clearTokens } from '@/lib/auth';
 
 export default function LogoutPage() {
     const router = useRouter();
 
     useEffect(() => {
-        // Clear tokens
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        api.setToken(null);
-
-        // Redirect to login
-        router.push('/login');
+        // Clears both tokens, the legacy key names, and the session cookie.
+        clearTokens();
+        router.replace('/login');
     }, [router]);
 
     return (

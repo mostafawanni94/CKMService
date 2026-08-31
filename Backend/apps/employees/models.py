@@ -122,6 +122,19 @@ class User(AbstractUser):
     def is_customer(self):
         return self.role == self.Role.CUSTOMER
 
+    @property
+    def is_finance(self):
+        return self.role == self.Role.FINANCE
+
+    @property
+    def is_operations(self):
+        return self.role == self.Role.OPERATIONS
+
+    @property
+    def is_back_office(self):
+        """Any internal role that may use the admin dashboard."""
+        return self.role in (self.Role.ADMIN, self.Role.FINANCE, self.Role.OPERATIONS)
+
 
 # =============================================================================
 # EMPLOYEE PROFILE

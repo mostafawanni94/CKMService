@@ -27,7 +27,7 @@ const SLIDES: Slide[] = [
     description:
       'Every space requires a different approach. Whether you are looking for deep cleaning, regular cleaning support, or storage and organization assistance, we begin by understanding your situation first.',
     cta1: { label: { en: 'Tell Us What You Need', nl: 'Vertel Ons Wat U Nodig Heeft' }, href: '#contact' },
-    cta2: { label: { en: 'Learn More →', nl: 'Meer Informatie →' }, href: '#about' },
+    cta2: { label: { en: 'Learn More →', nl: 'Meer Informatie →' }, href: '#about' }
   },
   {
     image: '/images/hero-industrial.png',
@@ -36,7 +36,7 @@ const SLIDES: Slide[] = [
     description:
       'Some spaces require more than a standard cleaning routine. We first learn about the condition of the space, your priorities, and the areas that require the most attention.',
     cta1: { label: { en: 'Request More Information', nl: 'Meer Informatie Aanvragen' }, href: '#contact' },
-    cta2: { label: { en: 'Our Services →', nl: 'Onze Diensten →' }, href: '#services' },
+    cta2: { label: { en: 'Our Services →', nl: 'Onze Diensten →' }, href: '#services' }
   },
   {
     image: '/images/hero-storage.png',
@@ -45,7 +45,7 @@ const SLIDES: Slide[] = [
     description:
       'Organized spaces create clarity, efficiency, and peace of mind. We begin by understanding what challenges you are currently facing and explore practical solutions.',
     cta1: { label: { en: "Let's Discuss Your Situation", nl: 'Laten We Uw Situatie Bespreken' }, href: '#contact' },
-    cta2: { label: { en: 'Our Process →', nl: 'Ons Proces →' }, href: '#process' },
+    cta2: { label: { en: 'Our Process →', nl: 'Ons Proces →' }, href: '#process' }
   },
 ];
 
@@ -55,27 +55,27 @@ const SERVICES = [
     title: { en: 'Deep Cleaning Support', nl: 'Dieptereiniging Ondersteuning' },
     description: {
       en: 'Some spaces require more than a standard cleaning routine.\n\nDeep cleaning can be helpful after renovations, relocations, long periods of use, seasonal changes, or when a space simply needs a complete refresh.\n\nInstead of assuming what is needed, we first learn more about the condition of the space, your priorities, and the areas that require the most attention.\n\nThis allows us to create a practical and focused approach based on your situation.',
-      nl: 'Sommige ruimtes vereisen meer dan een standaard schoonmaakroutine.\n\nDieptereiniging kan nuttig zijn na renovaties, verhuizingen, langdurig gebruik, seizoenswisselingen, of wanneer een ruimte simpelweg een volledige opfrisbeurt nodig heeft.\n\nIn plaats van aan te nemen wat er nodig is, leren we eerst meer over de staat van de ruimte, uw prioriteiten en de gebieden die de meeste aandacht vereisen.\n\nHierdoor kunnen we een praktische en gerichte aanpak creëren op basis van uw situatie.',
+      nl: 'Sommige ruimtes vereisen meer dan een standaard schoonmaakroutine.\n\nDieptereiniging kan nuttig zijn na renovaties, verhuizingen, langdurig gebruik, seizoenswisselingen, of wanneer een ruimte simpelweg een volledige opfrisbeurt nodig heeft.\n\nIn plaats van aan te nemen wat er nodig is, leren we eerst meer over de staat van de ruimte, uw prioriteiten en de gebieden die de meeste aandacht vereisen.\n\nHierdoor kunnen we een praktische en gerichte aanpak creëren op basis van uw situatie.'
     },
-    image: '/images/hero-industrial.png',
+    image: '/images/hero-industrial.png'
   },
   {
     icon: '🔄',
     title: { en: 'Regular Cleaning Services', nl: 'Reguliere Schoonmaakdiensten' },
     description: {
       en: 'Every property operates differently, which is why flexibility matters.\n\nSome clients prefer weekly support, others need occasional maintenance or customized scheduling based on their environment and daily operations.\n\nWe work with you to understand what level of support makes the most sense and how we can help maintain a clean, comfortable, and organized space over time.',
-      nl: 'Elk pand werkt anders, daarom is flexibiliteit belangrijk.\n\nSommige klanten geven de voorkeur aan wekelijkse ondersteuning, anderen hebben af en toe onderhoud nodig of een aangepaste planning op basis van hun omgeving en dagelijkse werkzaamheden.\n\nWij werken met u samen om te begrijpen welk niveau van ondersteuning het meest logisch is en hoe we kunnen helpen een schone, comfortabele en georganiseerde ruimte te onderhouden.',
+      nl: 'Elk pand werkt anders, daarom is flexibiliteit belangrijk.\n\nSommige klanten geven de voorkeur aan wekelijkse ondersteuning, anderen hebben af en toe onderhoud nodig of een aangepaste planning op basis van hun omgeving en dagelijkse werkzaamheden.\n\nWij werken met u samen om te begrijpen welk niveau van ondersteuning het meest logisch is en hoe we kunnen helpen een schone, comfortabele en georganiseerde ruimte te onderhouden.'
     },
-    image: '/images/hero-office.png',
+    image: '/images/hero-office.png'
   },
   {
     icon: '📦',
     title: { en: 'Storage & Organization Assistance', nl: 'Opslag & Organisatie Ondersteuning' },
     description: {
       en: 'Organized spaces create clarity, efficiency, and peace of mind.\n\nWhether you need temporary storage support, assistance organizing materials, or help creating a more functional environment, we begin by understanding what challenges you are currently facing.\n\nFrom there, we explore practical solutions that support your workflow, space, and overall needs.',
-      nl: 'Georganiseerde ruimtes creëren helderheid, efficiëntie en gemoedsrust.\n\nOf u nu tijdelijke opslagondersteuning nodig heeft, hulp bij het organiseren van materialen, of hulp bij het creëren van een functionelere omgeving, we beginnen met het begrijpen van de uitdagingen waar u momenteel mee te maken heeft.\n\nVan daaruit verkennen we praktische oplossingen die uw workflow, ruimte en algehele behoeften ondersteunen.',
+      nl: 'Georganiseerde ruimtes creëren helderheid, efficiëntie en gemoedsrust.\n\nOf u nu tijdelijke opslagondersteuning nodig heeft, hulp bij het organiseren van materialen, of hulp bij het creëren van een functionelere omgeving, we beginnen met het begrijpen van de uitdagingen waar u momenteel mee te maken heeft.\n\nVan daaruit verkennen we praktische oplossingen die uw workflow, ruimte en algehele behoeften ondersteunen.'
     },
-    image: '/images/hero-storage.png',
+    image: '/images/hero-storage.png'
   },
 ];
 
@@ -85,48 +85,48 @@ const WHY_CARDS = [
     title: { en: 'Needs-First Approach', nl: 'Behoeften Voorop' },
     desc: {
       en: 'We focus on understanding your needs before recommending solutions',
-      nl: 'Wij richten ons op het begrijpen van uw behoeften voordat we oplossingen aanbevelen',
-    },
+      nl: 'Wij richten ons op het begrijpen van uw behoeften voordat we oplossingen aanbevelen'
+    }
   },
   {
     icon: '💬',
     title: { en: 'Reliable Communication', nl: 'Betrouwbare Communicatie' },
     desc: {
       en: 'Reliable communication and professional service you can count on',
-      nl: 'Betrouwbare communicatie en professionele dienstverlening waar u op kunt rekenen',
-    },
+      nl: 'Betrouwbare communicatie en professionele dienstverlening waar u op kunt rekenen'
+    }
   },
   {
     icon: '⚙️',
     title: { en: 'Flexible Support', nl: 'Flexibele Ondersteuning' },
     desc: {
       en: 'Flexible support based on your schedule and situation',
-      nl: 'Flexibele ondersteuning op basis van uw planning en situatie',
-    },
+      nl: 'Flexibele ondersteuning op basis van uw planning en situatie'
+    }
   },
   {
     icon: '🔍',
     title: { en: 'Attention to Detail', nl: 'Aandacht voor Detail' },
     desc: {
       en: 'Attention to detail and consistent quality in every project',
-      nl: 'Aandacht voor detail en consistente kwaliteit in elk project',
-    },
+      nl: 'Aandacht voor detail en consistente kwaliteit in elk project'
+    }
   },
   {
     icon: '✅',
     title: { en: 'Practical Solutions', nl: 'Praktische Oplossingen' },
     desc: {
       en: 'Practical solutions instead of unnecessary services',
-      nl: 'Praktische oplossingen in plaats van onnodige diensten',
-    },
+      nl: 'Praktische oplossingen in plaats van onnodige diensten'
+    }
   },
   {
     icon: '🤝',
     title: { en: 'Professional & Respectful', nl: 'Professioneel & Respectvol' },
     desc: {
       en: 'A professional and respectful approach to every space',
-      nl: 'Een professionele en respectvolle benadering van elke ruimte',
-    },
+      nl: 'Een professionele en respectvolle benadering van elke ruimte'
+    }
   },
 ];
 
@@ -136,36 +136,36 @@ const PROCESS_STEPS = [
     title: { en: 'Tell Us About Your Situation', nl: 'Vertel Ons Over Uw Situatie' },
     desc: {
       en: 'Share details about your space, needs, or current challenges.',
-      nl: 'Deel details over uw ruimte, behoeften of huidige uitdagingen.',
+      nl: 'Deel details over uw ruimte, behoeften of huidige uitdagingen.'
     },
-    icon: '💬',
+    icon: '💬'
   },
   {
     step: 2,
     title: { en: 'We Review Your Needs', nl: 'Wij Beoordelen Uw Behoeften' },
     desc: {
       en: 'We assess the information you provide and determine what type of support may be most suitable.',
-      nl: 'Wij beoordelen de informatie die u verstrekt en bepalen welk type ondersteuning het meest geschikt is.',
+      nl: 'Wij beoordelen de informatie die u verstrekt en bepalen welk type ondersteuning het meest geschikt is.'
     },
-    icon: '🔍',
+    icon: '🔍'
   },
   {
     step: 3,
     title: { en: 'Customized Recommendation', nl: 'Advies Op Maat' },
     desc: {
       en: 'Based on your situation, we discuss practical options and next steps.',
-      nl: 'Op basis van uw situatie bespreken we praktische opties en volgende stappen.',
+      nl: 'Op basis van uw situatie bespreken we praktische opties en volgende stappen.'
     },
-    icon: '📋',
+    icon: '📋'
   },
   {
     step: 4,
     title: { en: 'Professional Support', nl: 'Professionele Ondersteuning' },
     desc: {
       en: 'Once everything is clear, we move forward with a service plan that fits your needs.',
-      nl: 'Zodra alles duidelijk is, gaan we verder met een serviceplan dat past bij uw behoeften.',
+      nl: 'Zodra alles duidelijk is, gaan we verder met een serviceplan dat past bij uw behoeften.'
     },
-    icon: '✅',
+    icon: '✅'
   },
 ];
 
@@ -174,36 +174,36 @@ const FAQS = [
     q: { en: 'Do you only work with businesses?', nl: 'Werken jullie alleen met bedrijven?' },
     a: {
       en: 'No. We can support both residential and commercial clients depending on the situation and service required.',
-      nl: 'Nee. Wij kunnen zowel particuliere als zakelijke klanten ondersteunen, afhankelijk van de situatie en de gewenste dienst.',
-    },
+      nl: 'Nee. Wij kunnen zowel particuliere als zakelijke klanten ondersteunen, afhankelijk van de situatie en de gewenste dienst.'
+    }
   },
   {
     q: { en: 'Do you offer customized cleaning plans?', nl: 'Bieden jullie aangepaste schoonmaakplannen aan?' },
     a: {
       en: 'Yes. We understand that every space and client has different needs, which is why we focus on flexible and situation-based support.',
-      nl: 'Ja. Wij begrijpen dat elke ruimte en klant andere behoeften heeft, daarom richten wij ons op flexibele en situatiegebonden ondersteuning.',
-    },
+      nl: 'Ja. Wij begrijpen dat elke ruimte en klant andere behoeften heeft, daarom richten wij ons op flexibele en situatiegebonden ondersteuning.'
+    }
   },
   {
     q: { en: 'How do we get started?', nl: 'Hoe beginnen we?' },
     a: {
       en: 'Simply contact us and share some information about your situation. From there, we will review your needs and discuss possible next steps.',
-      nl: 'Neem gewoon contact met ons op en deel wat informatie over uw situatie. Van daaruit beoordelen wij uw behoeften en bespreken we mogelijke vervolgstappen.',
-    },
+      nl: 'Neem gewoon contact met ons op en deel wat informatie over uw situatie. Van daaruit beoordelen wij uw behoeften en bespreken we mogelijke vervolgstappen.'
+    }
   },
   {
     q: { en: 'Do you provide one-time services?', nl: 'Bieden jullie eenmalige diensten aan?' },
     a: {
       en: 'Yes. Depending on your needs, we can discuss both one-time and recurring support options.',
-      nl: 'Ja. Afhankelijk van uw behoeften kunnen we zowel eenmalige als terugkerende ondersteuningsopties bespreken.',
-    },
+      nl: 'Ja. Afhankelijk van uw behoeften kunnen we zowel eenmalige als terugkerende ondersteuningsopties bespreken.'
+    }
   },
   {
     q: { en: 'What areas do you serve?', nl: 'Welke gebieden bedienen jullie?' },
     a: {
       en: 'We are based in Rotterdam and work with clients in surrounding areas as well.',
-      nl: 'Wij zijn gevestigd in Rotterdam en werken ook met klanten in de omliggende gebieden.',
-    },
+      nl: 'Wij zijn gevestigd in Rotterdam en werken ook met klanten in de omliggende gebieden.'
+    }
   },
 ];
 
@@ -263,7 +263,7 @@ const T = {
     footerLocation: 'Based in Rotterdam',
     quickLinks: 'Quick Links',
     ourServicesFooter: 'Our Services',
-    contactInfo: 'Contact Info',
+    contactInfo: 'Contact Info'
   },
   nl: {
     home: 'Home',
@@ -320,8 +320,8 @@ const T = {
     footerLocation: 'Gevestigd in Rotterdam',
     quickLinks: 'Snelle Links',
     ourServicesFooter: 'Onze Diensten',
-    contactInfo: 'Contactgegevens',
-  },
+    contactInfo: 'Contactgegevens'
+  }
 };
 
 /* ─────────────────────── HOOKS ─────────────────────── */
@@ -374,7 +374,7 @@ export default function Home() {
     email: '',
     phone: '',
     serviceType: '',
-    message: '',
+    message: ''
   });
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);

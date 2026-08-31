@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/dashboard';
+import { apiFetch } from '@/hooks/useApi';
 
 // Types
 interface ContractType {
@@ -54,7 +55,7 @@ export default function ContractTypesPage() {
         requires_agency: false,
         default_duration_months: null as number | null,
         default_hours_type: '',
-        sort_order: 0,
+        sort_order: 0
     });
 
     // Load contract types from API
@@ -67,11 +68,7 @@ export default function ContractTypesPage() {
             setIsLoading(true);
             setLoadError(null);
             const API_URL = '/api';
-            const response = await fetch(`${API_URL}/employees/contract-types/`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            });
+            const response = await apiFetch(`/employees/contract-types/`);
             if (response.ok) {
                 const data = await response.json();
                 // Handle both array and paginated response
@@ -108,7 +105,7 @@ export default function ContractTypesPage() {
         total: contractTypes.length,
         active: contractTypes.filter(c => c.is_active).length,
         withAgency: contractTypes.filter(c => c.requires_agency).length,
-        withEndDate: contractTypes.filter(c => c.requires_end_date).length,
+        withEndDate: contractTypes.filter(c => c.requires_end_date).length
     };
 
     // Open modal for add/edit
@@ -124,7 +121,7 @@ export default function ContractTypesPage() {
                 requires_agency: contractType.requires_agency,
                 default_duration_months: contractType.default_duration_months,
                 default_hours_type: contractType.default_hours_type,
-                sort_order: contractType.sort_order,
+                sort_order: contractType.sort_order
             });
         } else {
             setEditingType(null);
@@ -137,7 +134,7 @@ export default function ContractTypesPage() {
                 requires_agency: false,
                 default_duration_months: null,
                 default_hours_type: '',
-                sort_order: contractTypes.length + 1,
+                sort_order: contractTypes.length + 1
             });
         }
         setIsModalOpen(true);
@@ -152,13 +149,12 @@ export default function ContractTypesPage() {
                 : `${API_URL}/employees/contract-types/`;
             const method = editingType ? 'PUT' : 'POST';
 
-            const response = await fetch(url, {
+            const response = await apiFetch(url, {
                 method,
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(formData)
             });
 
             if (response.ok) {
@@ -176,11 +172,8 @@ export default function ContractTypesPage() {
 
         try {
             const API_URL = '/api';
-            const response = await fetch(`${API_URL}/employees/contract-types/${id}/`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
+            const response = await apiFetch(`/employees/contract-types/${id}/`, {
+                method: 'DELETE'
             });
 
             if (response.ok) {
@@ -195,13 +188,12 @@ export default function ContractTypesPage() {
     const toggleActive = async (type: ContractType) => {
         try {
             const API_URL = '/api';
-            const response = await fetch(`${API_URL}/employees/contract-types/${type.id}/`, {
+            const response = await apiFetch(`/employees/contract-types/${type.id}/`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ is_active: !type.is_active }),
+                body: JSON.stringify({ is_active: !type.is_active })
             });
 
             if (response.ok) {
@@ -220,21 +212,21 @@ export default function ContractTypesPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    marginBottom: '32px',
+                    marginBottom: '32px'
                 }}>
                     <div>
                         <h1 style={{
                             fontSize: '28px',
                             fontWeight: 700,
                             color: '#1F2937',
-                            margin: 0,
+                            margin: 0
                         }}>
                             Contract Types (NL)
                         </h1>
                         <p style={{
                             fontSize: '15px',
                             color: '#6B7280',
-                            marginTop: '6px',
+                            marginTop: '6px'
                         }}>
                             Manage Dutch employment contract types for employees
                         </p>
@@ -255,7 +247,7 @@ export default function ContractTypesPage() {
                             fontWeight: 600,
                             cursor: 'pointer',
                             boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-                            transition: 'all 0.15s ease',
+                            transition: 'all 0.15s ease'
                         }}
                         onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
                         onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
@@ -270,7 +262,7 @@ export default function ContractTypesPage() {
                     display: 'grid',
                     gridTemplateColumns: 'repeat(4, 1fr)',
                     gap: '20px',
-                    marginBottom: '32px',
+                    marginBottom: '32px'
                 }}>
                     <StatCard label="Total Types" value={stats.total} icon={FileText} color="#6366F1" />
                     <StatCard label="Active" value={stats.active} icon={CheckCircle} color="#10B981" />
@@ -283,7 +275,7 @@ export default function ContractTypesPage() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '16px',
-                    marginBottom: '24px',
+                    marginBottom: '24px'
                 }}>
                     {/* Search */}
                     <div style={{ flex: 1, position: 'relative' }}>
@@ -294,7 +286,7 @@ export default function ContractTypesPage() {
                                 left: '14px',
                                 top: '50%',
                                 transform: 'translateY(-50%)',
-                                color: '#9CA3AF',
+                                color: '#9CA3AF'
                             }}
                         />
                         <input
@@ -309,7 +301,7 @@ export default function ContractTypesPage() {
                                 backgroundColor: 'white',
                                 border: '1px solid #E5E7EB',
                                 borderRadius: '12px',
-                                outline: 'none',
+                                outline: 'none'
                             }}
                         />
                     </div>
@@ -320,7 +312,7 @@ export default function ContractTypesPage() {
                         gap: '8px',
                         backgroundColor: '#F3F4F6',
                         padding: '4px',
-                        borderRadius: '10px',
+                        borderRadius: '10px'
                     }}>
                         {(['all', 'active', 'inactive'] as const).map((filter) => (
                             <button
@@ -336,7 +328,7 @@ export default function ContractTypesPage() {
                                     borderRadius: '8px',
                                     cursor: 'pointer',
                                     transition: 'all 0.15s ease',
-                                    textTransform: 'capitalize',
+                                    textTransform: 'capitalize'
                                 }}
                             >
                                 {filter}
@@ -350,7 +342,7 @@ export default function ContractTypesPage() {
                     backgroundColor: 'white',
                     borderRadius: '16px',
                     border: '1px solid #E5E7EB',
-                    overflow: 'hidden',
+                    overflow: 'hidden'
                 }}>
                     {/* Table Header */}
                     <div style={{
@@ -364,7 +356,7 @@ export default function ContractTypesPage() {
                         fontWeight: 600,
                         color: '#6B7280',
                         textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
+                        letterSpacing: '0.05em'
                     }}>
                         <div>Contract Type</div>
                         <div>Code</div>
@@ -399,7 +391,7 @@ export default function ContractTypesPage() {
                                     padding: '16px 20px',
                                     alignItems: 'center',
                                     borderBottom: index < filteredTypes.length - 1 ? '1px solid #F3F4F6' : 'none',
-                                    backgroundColor: type.is_active ? 'white' : '#FAFAFA',
+                                    backgroundColor: type.is_active ? 'white' : '#FAFAFA'
                                 }}
                             >
                                 {/* Name */}
@@ -411,7 +403,7 @@ export default function ContractTypesPage() {
                                         backgroundColor: type.is_active ? '#EEF2FF' : '#F3F4F6',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        justifyContent: 'center',
+                                        justifyContent: 'center'
                                     }}>
                                         <FileText size={20} color={type.is_active ? '#6366F1' : '#9CA3AF'} />
                                     </div>
@@ -419,7 +411,7 @@ export default function ContractTypesPage() {
                                         <p style={{
                                             fontWeight: 600,
                                             color: type.is_active ? '#1F2937' : '#9CA3AF',
-                                            fontSize: '14px',
+                                            fontSize: '14px'
                                         }}>
                                             {type.name}
                                         </p>
@@ -430,7 +422,7 @@ export default function ContractTypesPage() {
                                                 gap: '4px',
                                                 fontSize: '11px',
                                                 color: '#6B7280',
-                                                marginTop: '2px',
+                                                marginTop: '2px'
                                             }}>
                                                 <Clock size={10} />
                                                 {type.default_duration_months} months default
@@ -447,7 +439,7 @@ export default function ContractTypesPage() {
                                     fontFamily: 'monospace',
                                     color: '#6366F1',
                                     backgroundColor: '#EEF2FF',
-                                    borderRadius: '6px',
+                                    borderRadius: '6px'
                                 }}>
                                     {type.code}
                                 </span>
@@ -458,7 +450,7 @@ export default function ContractTypesPage() {
                                     color: '#6B7280',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
+                                    whiteSpace: 'nowrap'
                                 }}>
                                     {type.description || 'No description'}
                                 </p>
@@ -478,7 +470,7 @@ export default function ContractTypesPage() {
                                             backgroundColor: type.is_active ? '#D1FAE5' : '#F3F4F6',
                                             border: 'none',
                                             borderRadius: '6px',
-                                            cursor: 'pointer',
+                                            cursor: 'pointer'
                                         }}
                                     >
                                         {type.is_active ? <CheckCircle size={12} /> : <XCircle size={12} />}
@@ -498,7 +490,7 @@ export default function ContractTypesPage() {
                                             fontWeight: 500,
                                             color: '#D97706',
                                             backgroundColor: '#FEF3C7',
-                                            borderRadius: '6px',
+                                            borderRadius: '6px'
                                         }}>
                                             <Calendar size={12} />
                                             Required
@@ -520,7 +512,7 @@ export default function ContractTypesPage() {
                                             fontWeight: 500,
                                             color: '#7C3AED',
                                             backgroundColor: '#EDE9FE',
-                                            borderRadius: '6px',
+                                            borderRadius: '6px'
                                         }}>
                                             <Building2 size={12} />
                                             Required
@@ -535,7 +527,7 @@ export default function ContractTypesPage() {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    gap: '4px',
+                                    gap: '4px'
                                 }}>
                                     <button
                                         onClick={() => openModal(type)}
@@ -545,7 +537,7 @@ export default function ContractTypesPage() {
                                             backgroundColor: 'transparent',
                                             border: 'none',
                                             borderRadius: '6px',
-                                            cursor: 'pointer',
+                                            cursor: 'pointer'
                                         }}
                                         title="Edit"
                                     >
@@ -559,7 +551,7 @@ export default function ContractTypesPage() {
                                             backgroundColor: 'transparent',
                                             border: 'none',
                                             borderRadius: '6px',
-                                            cursor: 'pointer',
+                                            cursor: 'pointer'
                                         }}
                                         title="Delete"
                                     >
@@ -581,7 +573,7 @@ export default function ContractTypesPage() {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            zIndex: 100,
+                            zIndex: 100
                         }}
                         onClick={() => setIsModalOpen(false)}
                     >
@@ -593,7 +585,7 @@ export default function ContractTypesPage() {
                                 maxWidth: '560px',
                                 maxHeight: '90vh',
                                 overflow: 'auto',
-                                boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
+                                boxShadow: '0 25px 50px rgba(0,0,0,0.25)'
                             }}
                             onClick={(e) => e.stopPropagation()}
                         >
@@ -601,20 +593,20 @@ export default function ContractTypesPage() {
                             <div style={{
                                 padding: '24px 24px 0',
                                 borderBottom: '1px solid #F3F4F6',
-                                paddingBottom: '20px',
+                                paddingBottom: '20px'
                             }}>
                                 <h2 style={{
                                     fontSize: '20px',
                                     fontWeight: 700,
                                     color: '#1F2937',
-                                    margin: 0,
+                                    margin: 0
                                 }}>
                                     {editingType ? 'Edit Contract Type' : 'Add Contract Type'}
                                 </h2>
                                 <p style={{
                                     fontSize: '14px',
                                     color: '#6B7280',
-                                    marginTop: '4px',
+                                    marginTop: '4px'
                                 }}>
                                     {editingType
                                         ? 'Update the contract type details'
@@ -665,7 +657,7 @@ export default function ContractTypesPage() {
                                     display: 'grid',
                                     gridTemplateColumns: '1fr 1fr',
                                     gap: '12px',
-                                    marginBottom: '20px',
+                                    marginBottom: '20px'
                                 }}>
                                     <ToggleOption
                                         label="Is Active"
@@ -738,7 +730,7 @@ export default function ContractTypesPage() {
                                             backgroundColor: '#F3F4F6',
                                             border: 'none',
                                             borderRadius: '10px',
-                                            cursor: 'pointer',
+                                            cursor: 'pointer'
                                         }}
                                     >
                                         Cancel
@@ -754,7 +746,7 @@ export default function ContractTypesPage() {
                                             backgroundColor: (formData.name.trim() && formData.code.trim()) ? '#3B82F6' : '#D1D5DB',
                                             border: 'none',
                                             borderRadius: '10px',
-                                            cursor: (formData.name.trim() && formData.code.trim()) ? 'pointer' : 'not-allowed',
+                                            cursor: (formData.name.trim() && formData.code.trim()) ? 'pointer' : 'not-allowed'
                                         }}
                                     >
                                         {editingType ? 'Save Changes' : 'Create Contract Type'}
@@ -775,7 +767,7 @@ const labelStyle: React.CSSProperties = {
     fontSize: '14px',
     fontWeight: 500,
     marginBottom: '8px',
-    color: '#374151',
+    color: '#374151'
 };
 
 const inputStyle: React.CSSProperties = {
@@ -784,7 +776,7 @@ const inputStyle: React.CSSProperties = {
     fontSize: '14px',
     border: '1px solid #E5E7EB',
     borderRadius: '10px',
-    outline: 'none',
+    outline: 'none'
 };
 
 // Stat Card Component
@@ -799,12 +791,12 @@ function StatCard({ label, value, icon: Icon, color }: {
             backgroundColor: 'white',
             borderRadius: '16px',
             padding: '20px',
-            border: '1px solid #E5E7EB',
+            border: '1px solid #E5E7EB'
         }}>
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
+                justifyContent: 'space-between'
             }}>
                 <div>
                     <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '6px' }}>{label}</p>
@@ -817,7 +809,7 @@ function StatCard({ label, value, icon: Icon, color }: {
                     backgroundColor: `${color}15`,
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    justifyContent: 'center'
                 }}>
                     <Icon size={24} color={color} />
                 </div>
@@ -842,7 +834,7 @@ function ToggleOption({ label, description, checked, onChange }: {
                 border: `1px solid ${checked ? '#3B82F6' : '#E5E7EB'}`,
                 borderRadius: '12px',
                 cursor: 'pointer',
-                transition: 'all 0.15s ease',
+                transition: 'all 0.15s ease'
             }}
         >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -858,7 +850,7 @@ function ToggleOption({ label, description, checked, onChange }: {
                     border: `2px solid ${checked ? '#3B82F6' : '#D1D5DB'}`,
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    justifyContent: 'center'
                 }}>
                     {checked && <CheckCircle size={14} color="white" />}
                 </div>

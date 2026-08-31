@@ -18,7 +18,7 @@ import {
     FolderKanban,
     Settings,
     Calendar,
-    Activity,
+    Activity
 } from 'lucide-react';
 import Link from 'next/link';
 

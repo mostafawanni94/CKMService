@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/dashboard';
+import { apiFetch } from '@/hooks/useApi';
 
 // Types
 interface SurchargeType {
@@ -96,11 +97,7 @@ export default function SurchargeTypesPage() {
     const fetchSurchargeTypes = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch(`${API_URL}/employees/surcharge-types/`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            });
+            const response = await apiFetch(`/employees/surcharge-types/`);
             if (response.ok) {
                 const data = await response.json();
                 const types = Array.isArray(data) ? data : (data.results || []);
@@ -132,7 +129,7 @@ export default function SurchargeTypesPage() {
         total: typesList.length,
         active: typesList.filter(c => c.is_active).length,
         weekend: typesList.filter(c => c.category === 'weekend').length,
-        nightShift: typesList.filter(c => c.category === 'night_shift').length,
+        nightShift: typesList.filter(c => c.category === 'night_shift').length
     };
 
     // Get category info
@@ -164,7 +161,7 @@ export default function SurchargeTypesPage() {
                 is_active: type.is_active,
                 sort_order: type.sort_order,
                 weekend_start_day: weekendStartDay,
-                weekend_end_day: weekendEndDay,
+                weekend_end_day: weekendEndDay
             });
         } else {
             setEditingType(null);
@@ -180,7 +177,7 @@ export default function SurchargeTypesPage() {
                 is_active: true,
                 sort_order: typesList.length + 1,
                 weekend_start_day: 4,
-                weekend_end_day: 0,
+                weekend_end_day: 0
             });
         }
         setIsModalOpen(true);
@@ -225,18 +222,17 @@ export default function SurchargeTypesPage() {
                 specific_dates: (formData.category === 'holiday' || formData.category === 'custom') ? formData.specific_dates : [],
                 min_hours_threshold: formData.min_hours_threshold ? parseFloat(String(formData.min_hours_threshold)) : null,
                 is_active: formData.is_active,
-                sort_order: formData.sort_order,
+                sort_order: formData.sort_order
             };
 
             console.log('Saving surcharge type:', { url, method, payload });
 
-            const response = await fetch(url, {
+            const response = await apiFetch(url, {
                 method,
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(payload)
             });
 
             const data = await response.json();
@@ -260,11 +256,8 @@ export default function SurchargeTypesPage() {
         if (!confirm('Are you sure you want to delete this surcharge type?')) return;
 
         try {
-            const response = await fetch(`${API_URL}/employees/surcharge-types/${id}/`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
+            const response = await apiFetch(`/employees/surcharge-types/${id}/`, {
+                method: 'DELETE'
             });
 
             if (response.ok) {
@@ -278,13 +271,12 @@ export default function SurchargeTypesPage() {
     // Toggle active status
     const toggleActive = async (type: SurchargeType) => {
         try {
-            const response = await fetch(`${API_URL}/employees/surcharge-types/${type.id}/`, {
+            const response = await apiFetch(`/employees/surcharge-types/${type.id}/`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ is_active: !type.is_active }),
+                body: JSON.stringify({ is_active: !type.is_active })
             });
 
             if (response.ok) {
@@ -329,21 +321,21 @@ export default function SurchargeTypesPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    marginBottom: '32px',
+                    marginBottom: '32px'
                 }}>
                     <div>
                         <h1 style={{
                             fontSize: '28px',
                             fontWeight: 700,
                             color: '#1F2937',
-                            margin: 0,
+                            margin: 0
                         }}>
                             Day Payment Types
                         </h1>
                         <p style={{
                             fontSize: '15px',
                             color: '#6B7280',
-                            marginTop: '6px',
+                            marginTop: '6px'
                         }}>
                             Manage surcharge types for weekends, nights, and holidays
                         </p>
@@ -364,7 +356,7 @@ export default function SurchargeTypesPage() {
                             fontWeight: 600,
                             cursor: 'pointer',
                             boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)',
-                            transition: 'all 0.15s ease',
+                            transition: 'all 0.15s ease'
                         }}
                         onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
                         onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
@@ -379,7 +371,7 @@ export default function SurchargeTypesPage() {
                     display: 'grid',
                     gridTemplateColumns: 'repeat(4, 1fr)',
                     gap: '20px',
-                    marginBottom: '32px',
+                    marginBottom: '32px'
                 }}>
                     <StatCard label="Total Types" value={stats.total} icon={Clock} color="#8B5CF6" />
                     <StatCard label="Active" value={stats.active} icon={CheckCircle} color="#10B981" />
@@ -392,7 +384,7 @@ export default function SurchargeTypesPage() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '16px',
-                    marginBottom: '24px',
+                    marginBottom: '24px'
                 }}>
                     {/* Search */}
                     <div style={{ flex: 1, position: 'relative' }}>
@@ -403,7 +395,7 @@ export default function SurchargeTypesPage() {
                                 left: '14px',
                                 top: '50%',
                                 transform: 'translateY(-50%)',
-                                color: '#9CA3AF',
+                                color: '#9CA3AF'
                             }}
                         />
                         <input
@@ -418,7 +410,7 @@ export default function SurchargeTypesPage() {
                                 backgroundColor: 'white',
                                 border: '1px solid #E5E7EB',
                                 borderRadius: '12px',
-                                outline: 'none',
+                                outline: 'none'
                             }}
                         />
                     </div>
@@ -429,7 +421,7 @@ export default function SurchargeTypesPage() {
                         gap: '8px',
                         backgroundColor: '#F3F4F6',
                         padding: '4px',
-                        borderRadius: '10px',
+                        borderRadius: '10px'
                     }}>
                         {(['all', 'active', 'inactive'] as const).map((filter) => (
                             <button
@@ -445,7 +437,7 @@ export default function SurchargeTypesPage() {
                                     borderRadius: '8px',
                                     cursor: 'pointer',
                                     transition: 'all 0.15s ease',
-                                    textTransform: 'capitalize',
+                                    textTransform: 'capitalize'
                                 }}
                             >
                                 {filter}
@@ -459,7 +451,7 @@ export default function SurchargeTypesPage() {
                     backgroundColor: 'white',
                     borderRadius: '16px',
                     border: '1px solid #E5E7EB',
-                    overflow: 'hidden',
+                    overflow: 'hidden'
                 }}>
                     {/* Table Header */}
                     <div style={{
@@ -473,7 +465,7 @@ export default function SurchargeTypesPage() {
                         fontWeight: 600,
                         color: '#6B7280',
                         textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
+                        letterSpacing: '0.05em'
                     }}>
                         <div>Surcharge Type</div>
                         <div>Category</div>
@@ -510,7 +502,7 @@ export default function SurchargeTypesPage() {
                                         padding: '16px 20px',
                                         alignItems: 'center',
                                         borderBottom: index < filteredTypes.length - 1 ? '1px solid #F3F4F6' : 'none',
-                                        backgroundColor: type.is_active ? 'white' : '#FAFAFA',
+                                        backgroundColor: type.is_active ? 'white' : '#FAFAFA'
                                     }}
                                 >
                                     {/* Name */}
@@ -522,7 +514,7 @@ export default function SurchargeTypesPage() {
                                             backgroundColor: type.is_active ? `${cat.color}15` : '#F3F4F6',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            justifyContent: 'center',
+                                            justifyContent: 'center'
                                         }}>
                                             <CatIcon size={20} color={type.is_active ? cat.color : '#9CA3AF'} />
                                         </div>
@@ -530,7 +522,7 @@ export default function SurchargeTypesPage() {
                                             <p style={{
                                                 fontWeight: 600,
                                                 color: type.is_active ? '#1F2937' : '#9CA3AF',
-                                                fontSize: '14px',
+                                                fontSize: '14px'
                                             }}>
                                                 {type.name}
                                             </p>
@@ -552,7 +544,7 @@ export default function SurchargeTypesPage() {
                                         fontWeight: 500,
                                         color: cat.color,
                                         backgroundColor: `${cat.color}15`,
-                                        borderRadius: '6px',
+                                        borderRadius: '6px'
                                     }}>
                                         <CatIcon size={12} />
                                         {cat.label}
@@ -592,7 +584,7 @@ export default function SurchargeTypesPage() {
                                                 backgroundColor: type.is_active ? '#D1FAE5' : '#F3F4F6',
                                                 border: 'none',
                                                 borderRadius: '6px',
-                                                cursor: 'pointer',
+                                                cursor: 'pointer'
                                             }}
                                         >
                                             {type.is_active ? <CheckCircle size={12} /> : <XCircle size={12} />}
@@ -605,7 +597,7 @@ export default function SurchargeTypesPage() {
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        gap: '4px',
+                                        gap: '4px'
                                     }}>
                                         <button
                                             onClick={() => openModal(type)}
@@ -615,7 +607,7 @@ export default function SurchargeTypesPage() {
                                                 backgroundColor: 'transparent',
                                                 border: 'none',
                                                 borderRadius: '6px',
-                                                cursor: 'pointer',
+                                                cursor: 'pointer'
                                             }}
                                             title="Edit"
                                         >
@@ -629,7 +621,7 @@ export default function SurchargeTypesPage() {
                                                 backgroundColor: 'transparent',
                                                 border: 'none',
                                                 borderRadius: '6px',
-                                                cursor: 'pointer',
+                                                cursor: 'pointer'
                                             }}
                                             title="Delete"
                                         >
@@ -652,7 +644,7 @@ export default function SurchargeTypesPage() {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            zIndex: 100,
+                            zIndex: 100
                         }}
                         onClick={() => setIsModalOpen(false)}
                     >
@@ -664,7 +656,7 @@ export default function SurchargeTypesPage() {
                                 maxWidth: '640px',
                                 maxHeight: '90vh',
                                 overflow: 'auto',
-                                boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
+                                boxShadow: '0 25px 50px rgba(0,0,0,0.25)'
                             }}
                             onClick={(e) => e.stopPropagation()}
                         >
@@ -672,20 +664,20 @@ export default function SurchargeTypesPage() {
                             <div style={{
                                 padding: '24px 24px 0',
                                 borderBottom: '1px solid #F3F4F6',
-                                paddingBottom: '20px',
+                                paddingBottom: '20px'
                             }}>
                                 <h2 style={{
                                     fontSize: '20px',
                                     fontWeight: 700,
                                     color: '#1F2937',
-                                    margin: 0,
+                                    margin: 0
                                 }}>
                                     {editingType ? 'Edit Surcharge Type' : 'Add Surcharge Type'}
                                 </h2>
                                 <p style={{
                                     fontSize: '14px',
                                     color: '#6B7280',
-                                    marginTop: '4px',
+                                    marginTop: '4px'
                                 }}>
                                     {editingType
                                         ? 'Update the surcharge type details'
@@ -729,14 +721,14 @@ export default function SurchargeTypesPage() {
                                                         border: isSelected ? `2px solid ${cat.color}` : '2px solid #E5E7EB',
                                                         backgroundColor: isSelected ? `${cat.color}12` : 'white',
                                                         cursor: 'pointer',
-                                                        transition: 'all 0.15s ease',
+                                                        transition: 'all 0.15s ease'
                                                     }}
                                                 >
                                                     <CatIcon size={22} color={isSelected ? cat.color : '#9CA3AF'} />
                                                     <span style={{
                                                         fontSize: '12px',
                                                         fontWeight: isSelected ? 600 : 500,
-                                                        color: isSelected ? cat.color : '#6B7280',
+                                                        color: isSelected ? cat.color : '#6B7280'
                                                     }}>
                                                         {cat.label}
                                                     </span>
@@ -765,7 +757,7 @@ export default function SurchargeTypesPage() {
                                         backgroundColor: '#FFFBEB',
                                         borderRadius: '14px',
                                         border: '1px solid #FDE68A',
-                                        marginBottom: '20px',
+                                        marginBottom: '20px'
                                     }}>
                                         <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#92400E', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                             <Sun size={18} color="#F59E0B" /> Weekend Window
@@ -838,7 +830,7 @@ export default function SurchargeTypesPage() {
                                                                 fontWeight: 600,
                                                                 color: isInWeekend ? 'white' : isPartialStart || isPartialEnd ? '#92400E' : '#9CA3AF',
                                                                 background: isInWeekend ? '#F59E0B' : isPartialStart ? 'linear-gradient(90deg, #FEF3C7 50%, #F59E0B 50%)' : isPartialEnd ? 'linear-gradient(90deg, #F59E0B 50%, #FEF3C7 50%)' : '#FEF3C7',
-                                                                borderRight: i < 6 ? '1px solid #FDE68A' : 'none',
+                                                                borderRight: i < 6 ? '1px solid #FDE68A' : 'none'
                                                             }}
                                                         >
                                                             {day}
@@ -872,7 +864,7 @@ export default function SurchargeTypesPage() {
                                         backgroundColor: '#EFF6FF',
                                         borderRadius: '14px',
                                         border: '1px solid #BFDBFE',
-                                        marginBottom: '20px',
+                                        marginBottom: '20px'
                                     }}>
                                         <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#1E40AF', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                             <Moon size={18} color="#3B82F6" /> Night Shift Configuration
@@ -913,7 +905,7 @@ export default function SurchargeTypesPage() {
                                                         border: formData.days_of_week.includes(i) ? '1px solid #3B82F6' : '1px solid #E5E7EB',
                                                         borderRadius: '8px',
                                                         cursor: 'pointer',
-                                                        transition: 'all 0.15s ease',
+                                                        transition: 'all 0.15s ease'
                                                     }}
                                                 >
                                                     {day}
@@ -933,7 +925,7 @@ export default function SurchargeTypesPage() {
                                         backgroundColor: '#ECFDF5',
                                         borderRadius: '14px',
                                         border: '1px solid #A7F3D0',
-                                        marginBottom: '20px',
+                                        marginBottom: '20px'
                                     }}>
                                         <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#065F46', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                             <Star size={18} color="#10B981" /> Holiday Configuration
@@ -981,7 +973,7 @@ export default function SurchargeTypesPage() {
                                         <div style={{
                                             display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px',
                                             maxHeight: '200px', overflowY: 'auto', padding: '12px',
-                                            backgroundColor: 'white', borderRadius: '10px', border: '1px solid #A7F3D0',
+                                            backgroundColor: 'white', borderRadius: '10px', border: '1px solid #A7F3D0'
                                         }}>
                                             {NL_PUBLIC_HOLIDAYS.map(holiday => (
                                                 <label
@@ -989,7 +981,7 @@ export default function SurchargeTypesPage() {
                                                     style={{
                                                         display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
                                                         padding: '6px 8px', borderRadius: '6px',
-                                                        backgroundColor: formData.specific_dates.includes(holiday.date) ? '#D1FAE5' : 'transparent',
+                                                        backgroundColor: formData.specific_dates.includes(holiday.date) ? '#D1FAE5' : 'transparent'
                                                     }}
                                                 >
                                                     <input
@@ -1066,7 +1058,7 @@ export default function SurchargeTypesPage() {
                                         backgroundColor: '#FEF2F2',
                                         borderRadius: '14px',
                                         border: '1px solid #FECACA',
-                                        marginBottom: '20px',
+                                        marginBottom: '20px'
                                     }}>
                                         <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#991B1B', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                             <Hourglass size={18} color="#EF4444" /> Overtime Configuration
@@ -1106,7 +1098,7 @@ export default function SurchargeTypesPage() {
                                                         border: formData.days_of_week.includes(i) ? '1px solid #EF4444' : '1px solid #E5E7EB',
                                                         borderRadius: '8px',
                                                         cursor: 'pointer',
-                                                        transition: 'all 0.15s ease',
+                                                        transition: 'all 0.15s ease'
                                                     }}
                                                 >
                                                     {day}
@@ -1123,7 +1115,7 @@ export default function SurchargeTypesPage() {
                                         backgroundColor: '#F5F3FF',
                                         borderRadius: '14px',
                                         border: '1px solid #DDD6FE',
-                                        marginBottom: '20px',
+                                        marginBottom: '20px'
                                     }}>
                                         <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#5B21B6', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                             <Calendar size={18} color="#8B5CF6" /> Custom Configuration
@@ -1146,7 +1138,7 @@ export default function SurchargeTypesPage() {
                                                     color: formData.days_of_week.includes(i) ? 'white' : '#6B7280',
                                                     backgroundColor: formData.days_of_week.includes(i) ? '#8B5CF6' : 'white',
                                                     border: formData.days_of_week.includes(i) ? '1px solid #8B5CF6' : '1px solid #E5E7EB',
-                                                    borderRadius: '8px', cursor: 'pointer', transition: 'all 0.15s ease',
+                                                    borderRadius: '8px', cursor: 'pointer', transition: 'all 0.15s ease'
                                                 }}>{day}</button>
                                             ))}
                                         </div>
@@ -1193,7 +1185,7 @@ export default function SurchargeTypesPage() {
                                             backgroundColor: '#F3F4F6',
                                             border: 'none',
                                             borderRadius: '10px',
-                                            cursor: 'pointer',
+                                            cursor: 'pointer'
                                         }}
                                     >
                                         Cancel
@@ -1209,7 +1201,7 @@ export default function SurchargeTypesPage() {
                                             backgroundColor: formData.name.trim() ? '#8B5CF6' : '#D1D5DB',
                                             border: 'none',
                                             borderRadius: '10px',
-                                            cursor: formData.name.trim() ? 'pointer' : 'not-allowed',
+                                            cursor: formData.name.trim() ? 'pointer' : 'not-allowed'
                                         }}
                                     >
                                         {editingType ? 'Save Changes' : 'Create Surcharge Type'}
@@ -1230,7 +1222,7 @@ const labelStyle: React.CSSProperties = {
     fontSize: '14px',
     fontWeight: 500,
     marginBottom: '8px',
-    color: '#374151',
+    color: '#374151'
 };
 
 const inputStyle: React.CSSProperties = {
@@ -1239,7 +1231,7 @@ const inputStyle: React.CSSProperties = {
     fontSize: '14px',
     border: '1px solid #E5E7EB',
     borderRadius: '10px',
-    outline: 'none',
+    outline: 'none'
 };
 
 // Stat Card Component
@@ -1254,12 +1246,12 @@ function StatCard({ label, value, icon: Icon, color }: {
             backgroundColor: 'white',
             borderRadius: '16px',
             padding: '20px',
-            border: '1px solid #E5E7EB',
+            border: '1px solid #E5E7EB'
         }}>
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
+                justifyContent: 'space-between'
             }}>
                 <div>
                     <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '6px' }}>{label}</p>
@@ -1272,7 +1264,7 @@ function StatCard({ label, value, icon: Icon, color }: {
                     backgroundColor: `${color}15`,
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    justifyContent: 'center'
                 }}>
                     <Icon size={24} color={color} />
                 </div>
@@ -1297,19 +1289,19 @@ function ToggleOption({ label, description, checked, onChange }: {
                 border: `1px solid ${checked ? '#8B5CF6' : '#E5E7EB'}`,
                 borderRadius: '12px',
                 cursor: 'pointer',
-                transition: 'all 0.15s ease',
+                transition: 'all 0.15s ease'
             }}
         >
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
+                justifyContent: 'space-between'
             }}>
                 <div>
                     <p style={{
                         fontSize: '14px',
                         fontWeight: 500,
-                        color: checked ? '#8B5CF6' : '#374151',
+                        color: checked ? '#8B5CF6' : '#374151'
                     }}>{label}</p>
                     <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>{description}</p>
                 </div>
@@ -1321,7 +1313,7 @@ function ToggleOption({ label, description, checked, onChange }: {
                     border: checked ? 'none' : '2px solid #D1D5DB',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    justifyContent: 'center'
                 }}>
                     {checked && <CheckCircle size={14} color="white" />}
                 </div>

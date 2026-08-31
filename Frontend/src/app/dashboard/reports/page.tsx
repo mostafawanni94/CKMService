@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { Card, Button, Input } from '@/components/ui';
 import { BarChart3, Users, Clock, DollarSign, Download, Calendar, Filter, TrendingUp, Building2 } from 'lucide-react';
+import { apiFetch } from '@/hooks/useApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -61,9 +62,7 @@ export default function ReportsPage() {
 
     async function loadEmployees() {
         try {
-            const response = await fetch(`${API_URL}/employees/profiles/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/employees/profiles/`);
             if (response.ok) {
                 const data = await response.json();
                 setEmployees(data.results || data);
@@ -75,9 +74,7 @@ export default function ReportsPage() {
 
     async function loadProjects() {
         try {
-            const response = await fetch(`${API_URL}/projects/projects/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/projects/projects/`);
             if (response.ok) {
                 const data = await response.json();
                 setProjects(data.results || data);
@@ -91,9 +88,7 @@ export default function ReportsPage() {
         setLoading(true);
         try {
             // For now, we'll calculate from work logs
-            const response = await fetch(`${API_URL}/worklogs/?work_date_after=${dateFrom}&work_date_before=${dateTo}&status=approved`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/worklogs/?work_date_after=${dateFrom}&work_date_before=${dateTo}&status=approved`);
 
             if (response.ok) {
                 const data = await response.json();
@@ -109,7 +104,7 @@ export default function ReportsPage() {
                             employee_name: log.employee_name || 'Unknown',
                             total_hours: 0,
                             total_earnings: 0,
-                            approved_logs: 0,
+                            approved_logs: 0
                         });
                     }
                     const emp = employeeMap.get(key)!;
@@ -131,7 +126,7 @@ export default function ReportsPage() {
                             project_name: log.project_name || 'Unknown',
                             customer_name: '',
                             total_hours: 0,
-                            employee_count: 0,
+                            employee_count: 0
                         });
                         projectEmployees.set(key, new Set());
                     }

@@ -60,12 +60,12 @@ export const DOCUMENT_TYPES = [
 const ICON_BG_COLORS: Record<string, string> = {
   'bg-blue-50': '#EFF6FF', 'bg-green-50': '#F0FDF4', 'bg-amber-50': '#FFFBEB',
   'bg-purple-50': '#FAF5FF', 'bg-indigo-50': '#EEF2FF', 'bg-orange-50': '#FFF7ED',
-  'bg-teal-50': '#F0FDFA',
+  'bg-teal-50': '#F0FDFA'
 };
 const ICON_TEXT_COLORS: Record<string, string> = {
   'text-blue-600': '#2563EB', 'text-green-600': '#16A34A', 'text-amber-600': '#D97706',
   'text-purple-600': '#9333EA', 'text-indigo-600': '#4F46E5', 'text-orange-600': '#EA580C',
-  'text-teal-600': '#0D9488',
+  'text-teal-600': '#0D9488'
 };
 
 interface CardProps {
@@ -82,12 +82,12 @@ export function Card({ title, icon: Icon, iconColor, iconBg, badge, children }: 
     <div style={{ backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E5E7EB' }}>
       <div style={{
         padding: '20px 24px', borderBottom: '1px solid #E5E7EB',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
             padding: '10px', backgroundColor: ICON_BG_COLORS[iconBg] || '#EFF6FF',
-            borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center'
           }}>
             <Icon style={{ width: '20px', height: '20px', color: ICON_TEXT_COLORS[iconColor] || '#2563EB' }} />
           </div>
@@ -115,11 +115,11 @@ interface FieldProps {
 
 const fieldLabelStyle = {
   display: 'block' as const, fontSize: '12px', fontWeight: 600,
-  color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' as const,
+  color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' as const
 };
 const fieldInputStyle = {
   width: '100%', padding: '12px 16px', backgroundColor: '#F9FAFB',
-  border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '14px', outline: 'none',
+  border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '14px', outline: 'none'
 };
 
 export function Field({ label, value, editing, onChange, type = 'text', options = [], optionLabels = {}, optionObjects = [] }: FieldProps) {

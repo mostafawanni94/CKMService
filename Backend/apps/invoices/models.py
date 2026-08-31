@@ -944,3 +944,130 @@ class AgencyInvoiceLine(BaseModel):
         self.total = self.base_amount + self.surcharge_amount
         super().save(*args, **kwargs)
 
+
+
+# =============================================================================
+# INCOMING (SUPPLIER / PURCHASE) INVOICES
+# =============================================================================
+
+class IncomingInvoice(BaseModel):
+    """
+    An invoice *received* from a supplier or subcontractor.
+
+    Distinct from ``apps.expenses.Expense``: an expense is money already spent
+    and booked, whereas an incoming invoice is a payable with its own document
+    number, due date and payment lifecycle. Marking one paid can optionally
+    book a matching Expense so the finance overview stays complete.
+    """
+
+    class Status(models.TextChoices):
+        DRAFT = 'draft', 'Draft'
+        PENDING = 'pending', 'Pending Payment'
+        PAID = 'paid', 'Paid'
+        OVERDUE = 'overdue', 'Overdue'
+        DISPUTED = 'disputed', 'Disputed'
+        CANCELLED = 'cancelled', 'Cancelled'
+
+    invoice_number = models.CharField(
+        max_length=100,
+        verbose_name="Invoice Number",
+        help_text="The number as printed on the supplier's invoice.",
+    )
+    vendor_name = models.CharField(max_length=200, verbose_name="Vendor Name")
+    vendor_vat_number = models.CharField(
+        max_length=50, blank=True, default='', verbose_name="Vendor VAT Number"
+    )
+    agency = models.ForeignKey(
+        'employees.Agency',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='incoming_invoices',
+        verbose_name="Agency",
+        help_text="Set when the supplier is one of the employment agencies.",
+    )
+
+    description = models.TextField(blank=True, default='', verbose_name="Description")
+    category = models.ForeignKey(
+        'expenses.ExpenseCategory',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='incoming_invoices',
+        verbose_name="Category",
+    )
+
+    invoice_date = models.DateField(verbose_name="Invoice Date")
+    due_date = models.DateField(null=True, blank=True, verbose_name="Due Date")
+    paid_date = models.DateField(null=True, blank=True, verbose_name="Paid Date")
+
+    subtotal = models.DecimalField(
+        max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="Subtotal"
+    )
+    vat_rate = models.DecimalField(
+        max_digits=5, decimal_places=2, default=Decimal('21.00'), verbose_name="VAT Rate (%)"
+    )
+    vat_amount = models.DecimalField(
+        max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="VAT Amount"
+    )
+    total = models.DecimalField(
+        max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="Total"
+    )
+
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.PENDING,
+        db_index=True, verbose_name="Status",
+    )
+    document = models.FileField(
+        upload_to='incoming_invoices/%Y/%m/',
+        null=True, blank=True,
+        verbose_name="Document",
+        help_text="Scan or PDF of the received invoice.",
+    )
+    notes = models.TextField(blank=True, default='', verbose_name="Notes")
+
+    class Meta:
+        verbose_name = 'Incoming Invoice'
+        verbose_name_plural = 'Incoming Invoices'
+        ordering = ['-invoice_date', '-created_at']
+        indexes = [
+            models.Index(fields=['status', 'due_date']),
+            models.Index(fields=['vendor_name']),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['vendor_name', 'invoice_number'],
+                condition=models.Q(is_deleted=False),
+                name='invoices_incominginvoice_unique_per_vendor',
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.vendor_name} — {self.invoice_number}"
+
+    @property
+    def is_overdue(self):
+        from django.utils import timezone
+        return bool(
+            self.due_date
+            and self.status in (self.Status.PENDING, self.Status.OVERDUE)
+            and self.due_date < timezone.localdate()
+        )
+
+    @property
+    def days_until_due(self):
+        from django.utils import timezone
+        if not self.due_date:
+            return None
+        return (self.due_date - timezone.localdate()).days
+
+    def recalculate_totals(self):
+        """Derive VAT and total from subtotal and rate."""
+        self.vat_amount = (self.subtotal * self.vat_rate / Decimal('100')).quantize(Decimal('0.01'))
+        self.total = self.subtotal + self.vat_amount
+        return self
+
+    def save(self, *args, **kwargs):
+        self.recalculate_totals()
+        # Keep the stored status honest so list filters and dashboards agree.
+        if self.is_overdue and self.status == self.Status.PENDING:
+            self.status = self.Status.OVERDUE
+        super().save(*args, **kwargs)

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/dashboard';
+import { apiFetch } from '@/hooks/useApi';
 
 // Types
 interface Gratuity {
@@ -73,7 +74,7 @@ export default function GratuitiesPage() {
         amount: '',
         date_received: new Date().toISOString().split('T')[0],
         date_work_done: '',
-        notes: '',
+        notes: ''
     });
 
     useEffect(() => {
@@ -90,8 +91,7 @@ export default function GratuitiesPage() {
             if (filterCustomer) params.append('customer', filterCustomer);
             if (params.toString()) url += `?${params.toString()}`;
 
-            const response = await fetch(url, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+            const response = await apiFetch(url, {
             });
             if (response.ok) {
                 const data = await response.json();
@@ -106,9 +106,7 @@ export default function GratuitiesPage() {
 
     async function fetchCustomers() {
         try {
-            const response = await fetch(`${API_URL}/customers/customers/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/customers/customers/`);
             if (response.ok) {
                 const data = await response.json();
                 setCustomers(data.results || data);
@@ -120,9 +118,7 @@ export default function GratuitiesPage() {
 
     async function fetchEmployees() {
         try {
-            const response = await fetch(`${API_URL}/employees/profiles/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/employees/profiles/`);
             if (response.ok) {
                 const data = await response.json();
                 setEmployees(data.results || data);
@@ -154,7 +150,7 @@ export default function GratuitiesPage() {
                 amount: gratuity.amount,
                 date_received: gratuity.date_received,
                 date_work_done: gratuity.date_work_done || '',
-                notes: gratuity.notes,
+                notes: gratuity.notes
             });
         } else {
             setEditingId(null);
@@ -164,7 +160,7 @@ export default function GratuitiesPage() {
                 amount: '',
                 date_received: new Date().toISOString().split('T')[0],
                 date_work_done: '',
-                notes: '',
+                notes: ''
             });
         }
         setShowModal(true);
@@ -185,16 +181,15 @@ export default function GratuitiesPage() {
                 amount: formData.amount,
                 date_received: formData.date_received,
                 date_work_done: formData.date_work_done || null,
-                notes: formData.notes,
+                notes: formData.notes
             };
 
-            const response = await fetch(url, {
+            const response = await apiFetch(url, {
                 method,
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(payload)
             });
 
             if (response.ok) {
@@ -215,9 +210,8 @@ export default function GratuitiesPage() {
         if (!confirm('Are you sure you want to delete this gratuity?')) return;
 
         try {
-            const response = await fetch(`${API_URL}/customers/gratuities/${id}/`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+            const response = await apiFetch(`/customers/gratuities/${id}/`, {
+                method: 'DELETE'
             });
 
             if (response.ok) {
@@ -233,13 +227,12 @@ export default function GratuitiesPage() {
     // Mark as paid
     async function markAsPaid(id: number) {
         try {
-            const response = await fetch(`${API_URL}/customers/gratuities/${id}/mark_paid/`, {
+            const response = await apiFetch(`/customers/gratuities/${id}/mark_paid/`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ paid_date: new Date().toISOString().split('T')[0] }),
+                body: JSON.stringify({ paid_date: new Date().toISOString().split('T')[0] })
             });
 
             if (response.ok) {
@@ -286,7 +279,7 @@ export default function GratuitiesPage() {
                             borderRadius: '10px',
                             fontSize: '14px',
                             fontWeight: 600,
-                            cursor: 'pointer',
+                            cursor: 'pointer'
                         }}
                     >
                         <Plus size={18} />
@@ -317,7 +310,7 @@ export default function GratuitiesPage() {
                                 border: '1px solid #E5E7EB',
                                 borderRadius: '10px',
                                 fontSize: '14px',
-                                outline: 'none',
+                                outline: 'none'
                             }}
                         />
                     </div>
@@ -330,7 +323,7 @@ export default function GratuitiesPage() {
                             borderRadius: '10px',
                             fontSize: '14px',
                             outline: 'none',
-                            backgroundColor: 'white',
+                            backgroundColor: 'white'
                         }}
                     >
                         <option value="">All Status</option>
@@ -346,7 +339,7 @@ export default function GratuitiesPage() {
                             borderRadius: '10px',
                             fontSize: '14px',
                             outline: 'none',
-                            backgroundColor: 'white',
+                            backgroundColor: 'white'
                         }}
                     >
                         <option value="">All Customers</option>
@@ -414,7 +407,7 @@ export default function GratuitiesPage() {
                                                     borderRadius: '20px',
                                                     fontSize: '12px',
                                                     fontWeight: 600,
-                                                    cursor: 'pointer',
+                                                    cursor: 'pointer'
                                                 }}
                                             >
                                                 <Clock size={14} />
@@ -430,7 +423,7 @@ export default function GratuitiesPage() {
                                                 color: '#059669',
                                                 borderRadius: '20px',
                                                 fontSize: '12px',
-                                                fontWeight: 600,
+                                                fontWeight: 600
                                             }}>
                                                 <CheckCircle size={14} />
                                                 Paid
@@ -475,7 +468,7 @@ export default function GratuitiesPage() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        zIndex: 1000,
+                        zIndex: 1000
                     }}
                     onClick={() => setShowModal(false)}
                 >
@@ -487,7 +480,7 @@ export default function GratuitiesPage() {
                             maxWidth: '500px',
                             width: '100%',
                             maxHeight: '90vh',
-                            overflow: 'auto',
+                            overflow: 'auto'
                         }}
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -592,7 +585,7 @@ export default function GratuitiesPage() {
                                     borderRadius: '10px',
                                     fontSize: '14px',
                                     fontWeight: 600,
-                                    cursor: 'pointer',
+                                    cursor: 'pointer'
                                 }}
                             >
                                 Cancel
@@ -610,7 +603,7 @@ export default function GratuitiesPage() {
                                     fontSize: '14px',
                                     fontWeight: 600,
                                     cursor: saving ? 'not-allowed' : 'pointer',
-                                    opacity: saving ? 0.7 : 1,
+                                    opacity: saving ? 0.7 : 1
                                 }}
                             >
                                 {saving ? 'Saving...' : (editingId ? 'Update' : 'Create')}
@@ -631,11 +624,11 @@ const thStyle: React.CSSProperties = {
     fontWeight: 600,
     color: '#6B7280',
     textTransform: 'uppercase',
-    letterSpacing: '0.5px',
+    letterSpacing: '0.5px'
 };
 
 const tdStyle: React.CSSProperties = {
-    padding: '16px',
+    padding: '16px'
 };
 
 const labelStyle: React.CSSProperties = {
@@ -643,7 +636,7 @@ const labelStyle: React.CSSProperties = {
     fontSize: '14px',
     fontWeight: 500,
     marginBottom: '8px',
-    color: '#374151',
+    color: '#374151'
 };
 
 const inputStyle: React.CSSProperties = {
@@ -652,7 +645,7 @@ const inputStyle: React.CSSProperties = {
     fontSize: '14px',
     border: '1px solid #E5E7EB',
     borderRadius: '10px',
-    outline: 'none',
+    outline: 'none'
 };
 
 // Stat Card Component
@@ -670,7 +663,7 @@ function StatCard({ label, value, icon: Icon, color }: {
             padding: '24px',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '16px'
         }}>
             <div style={{
                 width: '48px',
@@ -679,7 +672,7 @@ function StatCard({ label, value, icon: Icon, color }: {
                 backgroundColor: `${color}15`,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                justifyContent: 'center'
             }}>
                 <Icon size={24} style={{ color }} />
             </div>

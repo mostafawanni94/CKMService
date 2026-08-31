@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.employees.views import IsAdmin
+from apps.core.permissions import IsAdmin
 from apps.employees.models import EmployeeProfile
 from .models import Project, ProjectAssignment, ProjectShiftTemplate, ProjectPlannedDay
 from .serializers import (

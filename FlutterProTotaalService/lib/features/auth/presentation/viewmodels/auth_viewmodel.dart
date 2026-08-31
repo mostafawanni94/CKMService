@@ -5,6 +5,8 @@
 import 'package:flutter/foundation.dart';
 import '../../data/auth_service.dart';
 import '../../../../core/network/api_client.dart';
+import 'dart:async';
+import '../../../../core/services/fcm_service.dart';
 
 /// Authentication state
 enum AuthState {
@@ -90,6 +92,9 @@ class AuthViewModel extends ChangeNotifier {
       _user = await _authService.login(email, password);
       _state = _getStateForUser(_user!);
       notifyListeners();
+      // The device-token endpoint is authenticated, so registration has to
+      // wait until we hold a token. Failure here must not fail the login.
+      unawaited(fcmService.onUserLogin());
       return true;
     } on ApiException catch (e) {
       // Clean error from API - keep state as unauthenticated to prevent page rebuild
@@ -138,8 +143,23 @@ class AuthViewModel extends ChangeNotifier {
 
   /// Logout
   Future<void> logout() async {
+    // Retire the push token first, while the access token is still valid.
+    await fcmService.onUserLogout();
     await _authService.logout();
     _user = null;
+    _state = AuthState.unauthenticated;
+    notifyListeners();
+  }
+
+  /// Drop local session state after the API reported the session is gone.
+  ///
+  /// Wired to [ApiClient.onSessionExpired] so an unrecoverable 401 anywhere in
+  /// the app returns the user to the login screen instead of leaving them on a
+  /// screen that silently fails to load.
+  void handleSessionExpired() {
+    if (_state == AuthState.unauthenticated) return;
+    _user = null;
+    _error = 'Your session has expired. Please sign in again.';
     _state = AuthState.unauthenticated;
     notifyListeners();
   }

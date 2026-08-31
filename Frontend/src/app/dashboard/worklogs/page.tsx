@@ -46,7 +46,7 @@ export default function WorkLogsPage() {
         handleStatusChange, handleApprove, handleReject, handleDelete,
         openModal, openEditModal,
         addAllowance, updateAllowance, removeAllowance,
-        handleSubmit, loadWorkLogs,
+        handleSubmit, loadWorkLogs
     } = vm;
 
     return (
@@ -72,7 +72,7 @@ export default function WorkLogsPage() {
                                 borderRadius: '10px',
                                 fontSize: '14px',
                                 fontWeight: 600,
-                                cursor: 'pointer',
+                                cursor: 'pointer'
                             }}
                         >
                             <Plus size={18} />
@@ -88,7 +88,7 @@ export default function WorkLogsPage() {
                                 borderRadius: '10px',
                                 fontSize: '14px',
                                 fontWeight: 600,
-                                cursor: 'pointer',
+                                cursor: 'pointer'
                             }}
                         >
                             Refresh
@@ -112,7 +112,7 @@ export default function WorkLogsPage() {
                             borderRadius: '12px',
                             border: filterStatuses.length === 0 ? '2px solid #2563eb' : '1px solid #dbeafe',
                             cursor: 'pointer',
-                            transition: 'all 0.2s',
+                            transition: 'all 0.2s'
                         }}
                     >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -134,7 +134,7 @@ export default function WorkLogsPage() {
                             borderRadius: '12px',
                             border: filterStatuses.includes('pending') && filterStatuses.length === 1 ? '2px solid #ca8a04' : '1px solid #fde68a',
                             cursor: 'pointer',
-                            transition: 'all 0.2s',
+                            transition: 'all 0.2s'
                         }}
                     >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -156,7 +156,7 @@ export default function WorkLogsPage() {
                             borderRadius: '12px',
                             border: filterStatuses.includes('approved') && filterStatuses.length === 1 ? '2px solid #16a34a' : '1px solid #bbf7d0',
                             cursor: 'pointer',
-                            transition: 'all 0.2s',
+                            transition: 'all 0.2s'
                         }}
                     >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -178,7 +178,7 @@ export default function WorkLogsPage() {
                             borderRadius: '12px',
                             border: filterStatuses.includes('rejected') && filterStatuses.length === 1 ? '2px solid #dc2626' : '1px solid #fecaca',
                             cursor: 'pointer',
-                            transition: 'all 0.2s',
+                            transition: 'all 0.2s'
                         }}
                     >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -199,7 +199,7 @@ export default function WorkLogsPage() {
                     borderRadius: '12px',
                     border: '1px solid #E5E7EB',
                     padding: '16px',
-                    marginBottom: '24px',
+                    marginBottom: '24px'
                 }}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', gap: '8px' }}>
@@ -219,7 +219,7 @@ export default function WorkLogsPage() {
                                         color: filter === status ? '#FFFFFF' : '#4B5563',
                                         border: 'none',
                                         cursor: 'pointer',
-                                        boxShadow: filter === status ? '0 4px 12px rgba(30, 58, 95, 0.25)' : 'none',
+                                        boxShadow: filter === status ? '0 4px 12px rgba(30, 58, 95, 0.25)' : 'none'
                                     }}
                                 >
                                     {status === 'pending' ? 'Pending Approval' : 'All Work Logs'}
@@ -229,7 +229,7 @@ export default function WorkLogsPage() {
                         <div style={{
                             position: 'relative',
                             display: 'flex',
-                            alignItems: 'center',
+                            alignItems: 'center'
                         }}>
                             <Search style={{
                                 position: 'absolute',
@@ -237,7 +237,7 @@ export default function WorkLogsPage() {
                                 width: '18px',
                                 height: '18px',
                                 color: '#9CA3AF',
-                                pointerEvents: 'none',
+                                pointerEvents: 'none'
                             }} />
                             <input
                                 type="text"
@@ -254,7 +254,7 @@ export default function WorkLogsPage() {
                                     border: '1px solid #E5E7EB',
                                     backgroundColor: '#F9FAFB',
                                     outline: 'none',
-                                    transition: 'all 0.2s',
+                                    transition: 'all 0.2s'
                                 }}
                             />
                         </div>
@@ -272,7 +272,7 @@ export default function WorkLogsPage() {
                                 cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '6px',
+                                gap: '6px'
                             }}
                         >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -290,13 +290,13 @@ export default function WorkLogsPage() {
                             backgroundColor: 'white',
                             borderRadius: '16px',
                             border: '1px solid #E5E7EB',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
                         }}>
                             <div style={{
                                 display: 'grid',
                                 gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
                                 gap: '20px',
-                                alignItems: 'start',
+                                alignItems: 'start'
                             }}>
                                 {/* Customer Filter - Searchable */}
                                 <div style={{ position: 'relative' }}>
@@ -309,7 +309,7 @@ export default function WorkLogsPage() {
                                             padding: '10px 14px',
                                             backgroundColor: '#EFF6FF',
                                             border: '1px solid #BFDBFE',
-                                            borderRadius: '10px',
+                                            borderRadius: '10px'
                                         }}>
                                             <span style={{ flex: 1, fontSize: '14px', color: '#1E40AF', fontWeight: 500 }}>
                                                 {customers.find(c => c.id === filterCustomer)?.company_name}
@@ -334,7 +334,7 @@ export default function WorkLogsPage() {
                                                     borderRadius: '10px',
                                                     border: '1px solid #D1D5DB',
                                                     backgroundColor: '#FAFAFA',
-                                                    outline: 'none',
+                                                    outline: 'none'
                                                 }}
                                             />
                                             {showCustomerDropdown && (
@@ -351,7 +351,7 @@ export default function WorkLogsPage() {
                                                         boxShadow: '0 10px 25px rgba(0,0,0,0.12)',
                                                         zIndex: 50,
                                                         maxHeight: '200px',
-                                                        overflowY: 'auto',
+                                                        overflowY: 'auto'
                                                     }}
                                                     onMouseDown={(e) => e.preventDefault()}
                                                 >
@@ -371,7 +371,7 @@ export default function WorkLogsPage() {
                                                                     padding: '10px 14px',
                                                                     cursor: 'pointer',
                                                                     borderBottom: '1px solid #F3F4F6',
-                                                                    fontSize: '14px',
+                                                                    fontSize: '14px'
                                                                 }}
                                                                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#F3F4F6'}
                                                                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
@@ -402,7 +402,7 @@ export default function WorkLogsPage() {
                                             padding: '10px 14px',
                                             backgroundColor: '#D1FAE5',
                                             border: '1px solid #6EE7B7',
-                                            borderRadius: '10px',
+                                            borderRadius: '10px'
                                         }}>
                                             <span style={{ flex: 1, fontSize: '14px', color: '#065F46', fontWeight: 500 }}>
                                                 {filterSupervisors.find(s => s.id === filterSupervisor)?.full_name}
@@ -430,7 +430,7 @@ export default function WorkLogsPage() {
                                                     backgroundColor: filterCustomer ? '#FAFAFA' : '#F3F4F6',
                                                     outline: 'none',
                                                     opacity: filterCustomer ? 1 : 0.6,
-                                                    cursor: filterCustomer ? 'text' : 'not-allowed',
+                                                    cursor: filterCustomer ? 'text' : 'not-allowed'
                                                 }}
                                             />
                                             {showSupervisorDropdown && filterCustomer && (
@@ -447,7 +447,7 @@ export default function WorkLogsPage() {
                                                         boxShadow: '0 10px 25px rgba(0,0,0,0.12)',
                                                         zIndex: 50,
                                                         maxHeight: '200px',
-                                                        overflowY: 'auto',
+                                                        overflowY: 'auto'
                                                     }}
                                                     onMouseDown={(e) => e.preventDefault()}
                                                 >
@@ -466,7 +466,7 @@ export default function WorkLogsPage() {
                                                                     padding: '10px 14px',
                                                                     cursor: 'pointer',
                                                                     borderBottom: '1px solid #F3F4F6',
-                                                                    fontSize: '14px',
+                                                                    fontSize: '14px'
                                                                 }}
                                                                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#F3F4F6'}
                                                                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
@@ -498,7 +498,7 @@ export default function WorkLogsPage() {
                                             borderRadius: '10px',
                                             border: '1px solid #D1D5DB',
                                             backgroundColor: '#FAFAFA',
-                                            outline: 'none',
+                                            outline: 'none'
                                         }}
                                     />
                                 </div>
@@ -517,7 +517,7 @@ export default function WorkLogsPage() {
                                             borderRadius: '10px',
                                             border: '1px solid #D1D5DB',
                                             backgroundColor: '#FAFAFA',
-                                            outline: 'none',
+                                            outline: 'none'
                                         }}
                                     />
                                 </div>
@@ -536,7 +536,7 @@ export default function WorkLogsPage() {
                                             borderRadius: '10px',
                                             border: '1px solid #D1D5DB',
                                             backgroundColor: '#FAFAFA',
-                                            outline: 'none',
+                                            outline: 'none'
                                         }}
                                     />
                                 </div>
@@ -555,7 +555,7 @@ export default function WorkLogsPage() {
                                             borderRadius: '10px',
                                             border: '1px solid #D1D5DB',
                                             backgroundColor: '#FAFAFA',
-                                            outline: 'none',
+                                            outline: 'none'
                                         }}
                                     />
                                 </div>
@@ -577,7 +577,7 @@ export default function WorkLogsPage() {
                                                 backgroundColor: '#FEE2E2',
                                                 border: 'none',
                                                 borderRadius: '6px',
-                                                cursor: 'pointer',
+                                                cursor: 'pointer'
                                             }}
                                         >
                                             Clear All
@@ -600,7 +600,7 @@ export default function WorkLogsPage() {
                                                     border: '1px solid #BFDBFE',
                                                     borderRadius: '20px',
                                                     fontSize: '13px',
-                                                    color: '#1D4ED8',
+                                                    color: '#1D4ED8'
                                                 }}>
                                                     {emp.full_name}
                                                     <button
@@ -611,7 +611,7 @@ export default function WorkLogsPage() {
                                                             cursor: 'pointer',
                                                             padding: '0',
                                                             display: 'flex',
-                                                            color: '#3B82F6',
+                                                            color: '#3B82F6'
                                                         }}
                                                     >
                                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -640,7 +640,7 @@ export default function WorkLogsPage() {
                                             borderRadius: '10px',
                                             border: '1px solid #D1D5DB',
                                             backgroundColor: '#FAFAFA',
-                                            outline: 'none',
+                                            outline: 'none'
                                         }}
                                     />
                                     {showEmployeeDropdown && (
@@ -656,7 +656,7 @@ export default function WorkLogsPage() {
                                             maxHeight: '200px',
                                             overflowY: 'auto',
                                             zIndex: 100,
-                                            marginTop: '4px',
+                                            marginTop: '4px'
                                         }}>
                                             {/* All option */}
                                             <div
@@ -670,7 +670,7 @@ export default function WorkLogsPage() {
                                                     cursor: 'pointer',
                                                     fontWeight: 600,
                                                     backgroundColor: filterEmployees.length === 0 ? '#EFF6FF' : 'white',
-                                                    borderBottom: '1px solid #F3F4F6',
+                                                    borderBottom: '1px solid #F3F4F6'
                                                 }}
                                             >
                                                 All Employees
@@ -692,7 +692,7 @@ export default function WorkLogsPage() {
                                                             display: 'flex',
                                                             alignItems: 'center',
                                                             justifyContent: 'space-between',
-                                                            backgroundColor: filterEmployees.includes(emp.id) ? '#EFF6FF' : 'white',
+                                                            backgroundColor: filterEmployees.includes(emp.id) ? '#EFF6FF' : 'white'
                                                         }}
                                                     >
                                                         {emp.full_name}
@@ -730,7 +730,7 @@ export default function WorkLogsPage() {
                                                 backgroundColor: '#FEE2E2',
                                                 border: 'none',
                                                 borderRadius: '6px',
-                                                cursor: 'pointer',
+                                                cursor: 'pointer'
                                             }}
                                         >
                                             Clear
@@ -764,7 +764,7 @@ export default function WorkLogsPage() {
                                                 fontSize: '13px',
                                                 fontWeight: filterStatuses.includes(statusOption.value) ? 600 : 400,
                                                 color: filterStatuses.includes(statusOption.value) ? statusOption.color : '#6B7280',
-                                                transition: 'all 0.2s',
+                                                transition: 'all 0.2s'
                                             }}
                                         >
                                             <input
@@ -783,7 +783,7 @@ export default function WorkLogsPage() {
                                                 width: '8px',
                                                 height: '8px',
                                                 borderRadius: '50%',
-                                                backgroundColor: statusOption.color,
+                                                backgroundColor: statusOption.color
                                             }} />
                                             {statusOption.label}
                                         </label>
@@ -813,7 +813,7 @@ export default function WorkLogsPage() {
                                         backgroundColor: 'white',
                                         border: '1px solid #FECACA',
                                         borderRadius: '8px',
-                                        cursor: 'pointer',
+                                        cursor: 'pointer'
                                     }}
                                 >
                                     Clear All Filters
@@ -832,7 +832,7 @@ export default function WorkLogsPage() {
                         marginBottom: '16px',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'space-between',
+                        justifyContent: 'space-between'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <input
@@ -852,7 +852,7 @@ export default function WorkLogsPage() {
                                     color: '#94A3B8',
                                     fontSize: '14px',
                                     cursor: 'pointer',
-                                    textDecoration: 'underline',
+                                    textDecoration: 'underline'
                                 }}
                             >
                                 Clear selection
@@ -872,7 +872,7 @@ export default function WorkLogsPage() {
                                     borderRadius: '8px',
                                     fontSize: '14px',
                                     fontWeight: 600,
-                                    cursor: 'pointer',
+                                    cursor: 'pointer'
                                 }}
                             >
                                 <Check size={16} />
@@ -891,7 +891,7 @@ export default function WorkLogsPage() {
                                     borderRadius: '8px',
                                     fontSize: '14px',
                                     fontWeight: 600,
-                                    cursor: 'pointer',
+                                    cursor: 'pointer'
                                 }}
                             >
                                 <Trash2 size={16} />
@@ -906,7 +906,7 @@ export default function WorkLogsPage() {
                     backgroundColor: 'white',
                     borderRadius: '12px',
                     border: '1px solid #E5E7EB',
-                    overflow: 'hidden',
+                    overflow: 'hidden'
                 }}>
                     {loading ? (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '256px' }}>
@@ -976,7 +976,7 @@ export default function WorkLogsPage() {
                                                                 color: 'white',
                                                                 fontSize: '12px',
                                                                 fontWeight: 600,
-                                                                flexShrink: 0,
+                                                                flexShrink: 0
                                                             }}>
                                                                 {log.employee_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || 'EE'}
                                                             </div>
@@ -992,7 +992,7 @@ export default function WorkLogsPage() {
                                                                 height: '6px',
                                                                 borderRadius: '50%',
                                                                 backgroundColor: '#3B82F6',
-                                                                flexShrink: 0,
+                                                                flexShrink: 0
                                                             }} />
                                                             <span style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={log.customer_name || '-'}>
                                                                 {log.customer_name && log.customer_name.length > 20 ? log.customer_name.substring(0, 20) + '...' : (log.customer_name || '-')}
@@ -1014,7 +1014,7 @@ export default function WorkLogsPage() {
                                                                     color: 'white',
                                                                     borderRadius: '4px',
                                                                     fontSize: '9px',
-                                                                    fontWeight: 600,
+                                                                    fontWeight: 600
                                                                 }}>
                                                                     📅 {log.shift_name}
                                                                 </span>
@@ -1037,7 +1037,7 @@ export default function WorkLogsPage() {
                                                                     color: '#A5B4FC',
                                                                     borderRadius: '4px',
                                                                     fontSize: '10px',
-                                                                    fontWeight: 500,
+                                                                    fontWeight: 500
                                                                 }}>
                                                                     🌙 {(log as any).hours_breakdown.night_hours}h night
                                                                 </span>
@@ -1052,7 +1052,7 @@ export default function WorkLogsPage() {
                                                                     color: '#92400E',
                                                                     borderRadius: '4px',
                                                                     fontSize: '10px',
-                                                                    fontWeight: 500,
+                                                                    fontWeight: 500
                                                                 }}>
                                                                     📅 {(log as any).hours_breakdown.saturday_hours}h Sat
                                                                 </span>
@@ -1067,7 +1067,7 @@ export default function WorkLogsPage() {
                                                                     color: '#C2410C',
                                                                     borderRadius: '4px',
                                                                     fontSize: '10px',
-                                                                    fontWeight: 500,
+                                                                    fontWeight: 500
                                                                 }}>
                                                                     🔶 {(log as any).hours_breakdown.sunday_hours}h Sun
                                                                 </span>
@@ -1082,7 +1082,7 @@ export default function WorkLogsPage() {
                                                                     color: '#991B1B',
                                                                     borderRadius: '4px',
                                                                     fontSize: '10px',
-                                                                    fontWeight: 500,
+                                                                    fontWeight: 500
                                                                 }}>
                                                                     🎉 {(log as any).hours_breakdown.holiday_hours}h Holiday
                                                                 </span>
@@ -1101,7 +1101,7 @@ export default function WorkLogsPage() {
                                                                             color: '#DC2626',
                                                                             borderRadius: '4px',
                                                                             fontSize: '10px',
-                                                                            fontWeight: 500,
+                                                                            fontWeight: 500
                                                                         }}>
                                                                             ⏰ {overtime.hours}h Overwerk
                                                                         </span>
@@ -1126,7 +1126,7 @@ export default function WorkLogsPage() {
                                                                         color: '#A5B4FC',
                                                                         borderRadius: '6px',
                                                                         fontSize: '11px',
-                                                                        fontWeight: 500,
+                                                                        fontWeight: 500
                                                                     }}>
                                                                         🌙 {s.name} +{s.percentage}%
                                                                     </span>
@@ -1142,7 +1142,7 @@ export default function WorkLogsPage() {
                                                                         color: '#4F46E5',
                                                                         borderRadius: '6px',
                                                                         fontSize: '11px',
-                                                                        fontWeight: 500,
+                                                                        fontWeight: 500
                                                                     }}>
                                                                         <Gift size={10} />
                                                                         {a.allowance_name || a.custom_allowance_name}
@@ -1154,7 +1154,7 @@ export default function WorkLogsPage() {
                                                                         backgroundColor: '#F3F4F6',
                                                                         color: '#6B7280',
                                                                         borderRadius: '6px',
-                                                                        fontSize: '11px',
+                                                                        fontSize: '11px'
                                                                     }}>
                                                                         +{(log as any).allowances.length - 2}
                                                                     </span>
@@ -1176,7 +1176,7 @@ export default function WorkLogsPage() {
                                                                     backgroundColor: '#059669',
                                                                     padding: '6px 12px',
                                                                     borderRadius: '8px',
-                                                                    display: 'inline-block',
+                                                                    display: 'inline-block'
                                                                 }}>
                                                                     €{parseFloat((log as any).calculated_price).toFixed(2)}
                                                                 </span>
@@ -1189,7 +1189,7 @@ export default function WorkLogsPage() {
                                                                                 color: '#7C3AED',
                                                                                 backgroundColor: '#EDE9FE',
                                                                                 padding: '2px 6px',
-                                                                                borderRadius: '4px',
+                                                                                borderRadius: '4px'
                                                                             }}>
                                                                                 {s.name} +{s.percentage}%
                                                                             </span>
@@ -1232,7 +1232,7 @@ export default function WorkLogsPage() {
                                                                                             log.status === 'in_progress' ? '#2563EB' :
                                                                                                 log.status === 'planned' ? '#3B82F6' :
                                                                                                     log.status === 'confirmed' ? '#4F46E5' :
-                                                                                                        log.status === 'cancelled' ? '#6B7280' : '#6B7280',
+                                                                                                        log.status === 'cancelled' ? '#6B7280' : '#6B7280'
                                                             }}
                                                         >
                                                             <span style={{
@@ -1249,7 +1249,7 @@ export default function WorkLogsPage() {
                                                                                             log.status === 'in_progress' ? '#2563EB' :
                                                                                                 log.status === 'planned' ? '#3B82F6' :
                                                                                                     log.status === 'confirmed' ? '#4F46E5' :
-                                                                                                        log.status === 'cancelled' ? '#6B7280' : '#6B7280',
+                                                                                                        log.status === 'cancelled' ? '#6B7280' : '#6B7280'
                                                             }} />
                                                             {log.status === 'no_show' ? 'No Show' : log.status === 'in_progress' ? 'In Progress' : log.status.charAt(0).toUpperCase() + log.status.slice(1)}
                                                         </span>
@@ -1270,7 +1270,7 @@ export default function WorkLogsPage() {
                                                                     backgroundColor: 'white',
                                                                     border: '1px solid #E5E7EB',
                                                                     borderRadius: '8px',
-                                                                    cursor: 'pointer',
+                                                                    cursor: 'pointer'
                                                                 }}
                                                             >
                                                                 <Edit2 style={{ width: '14px', height: '14px' }} />
@@ -1291,7 +1291,7 @@ export default function WorkLogsPage() {
                                                                     backgroundColor: 'white',
                                                                     border: '1px solid #FECACA',
                                                                     borderRadius: '8px',
-                                                                    cursor: 'pointer',
+                                                                    cursor: 'pointer'
                                                                 }}
                                                             >
                                                                 <Trash2 style={{ width: '14px', height: '14px' }} />
@@ -1313,7 +1313,7 @@ export default function WorkLogsPage() {
                                     padding: '20px 24px',
                                     background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)',
                                     borderRadius: '12px',
-                                    border: '1px solid #BAE6FD',
+                                    border: '1px solid #BAE6FD'
                                 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
                                         {/* Left Section - TOTALS badge and hours info */}
@@ -1327,7 +1327,7 @@ export default function WorkLogsPage() {
                                                 borderRadius: '8px',
                                                 fontSize: '12px',
                                                 fontWeight: 700,
-                                                letterSpacing: '0.5px',
+                                                letterSpacing: '0.5px'
                                             }}>
                                                 TOTALS
                                             </span>
@@ -1342,7 +1342,7 @@ export default function WorkLogsPage() {
                                                     backgroundColor: 'white',
                                                     padding: '6px 14px',
                                                     borderRadius: '8px',
-                                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
                                                 }}>
                                                     {filteredLogs.reduce((sum, log) => sum + (parseFloat(String(log.calculated_hours)) || 0), 0).toFixed(2)}h
                                                 </span>
@@ -1364,7 +1364,7 @@ export default function WorkLogsPage() {
                                                             color: '#FDE68A',
                                                             borderRadius: '8px',
                                                             fontSize: '12px',
-                                                            fontWeight: 600,
+                                                            fontWeight: 600
                                                         }}>
                                                             🌙 {totalNightHours.toFixed(0)}h night
                                                         </span>
@@ -1405,7 +1405,7 @@ export default function WorkLogsPage() {
                                                                     data.category === 'overtime' ? '#DC2626' : '#991B1B',
                                                         borderRadius: '8px',
                                                         fontSize: '12px',
-                                                        fontWeight: 600,
+                                                        fontWeight: 600
                                                     }}>
                                                         {name} {data.hours}h
                                                     </span>
@@ -1440,7 +1440,7 @@ export default function WorkLogsPage() {
                                                 color: 'white',
                                                 backgroundColor: '#059669',
                                                 padding: '8px 16px',
-                                                borderRadius: '8px',
+                                                borderRadius: '8px'
                                             }}>
                                                 €{filteredLogs.reduce((sum, log) => {
                                                     const surcharges = (log as any).surcharges_breakdown;
@@ -1471,7 +1471,7 @@ export default function WorkLogsPage() {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            zIndex: 1000,
+                            zIndex: 1000
                         }}
                         onClick={() => setShowModal(false)}
                     >
@@ -1483,7 +1483,7 @@ export default function WorkLogsPage() {
                                 maxWidth: '600px',
                                 width: '100%',
                                 maxHeight: '90vh',
-                                overflow: 'auto',
+                                overflow: 'auto'
                             }}
                             onClick={(e) => e.stopPropagation()}
                         >
@@ -1525,7 +1525,7 @@ export default function WorkLogsPage() {
                                             border: '1px solid #E5E7EB',
                                             borderRadius: '8px',
                                             boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                                            zIndex: 1000,
+                                            zIndex: 1000
                                         }}>
                                             {employees
                                                 .filter(emp => emp.full_name.toLowerCase().includes(employeeSearch.toLowerCase()))
@@ -1541,7 +1541,7 @@ export default function WorkLogsPage() {
                                                             padding: '10px 14px',
                                                             cursor: 'pointer',
                                                             backgroundColor: formData.employee === emp.id ? '#EFF6FF' : 'white',
-                                                            borderBottom: '1px solid #F3F4F6',
+                                                            borderBottom: '1px solid #F3F4F6'
                                                         }}
                                                         onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#F9FAFB')}
                                                         onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = formData.employee === emp.id ? '#EFF6FF' : 'white')}
@@ -1707,7 +1707,7 @@ export default function WorkLogsPage() {
                                     padding: '20px',
                                     backgroundColor: '#F9FAFB',
                                     borderRadius: '12px',
-                                    border: '1px solid #E5E7EB',
+                                    border: '1px solid #E5E7EB'
                                 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1728,7 +1728,7 @@ export default function WorkLogsPage() {
                                                 borderRadius: '8px',
                                                 fontSize: '13px',
                                                 fontWeight: 500,
-                                                cursor: 'pointer',
+                                                cursor: 'pointer'
                                             }}
                                         >
                                             <Plus size={14} />
@@ -1747,7 +1747,7 @@ export default function WorkLogsPage() {
                                                     padding: '16px',
                                                     backgroundColor: 'white',
                                                     borderRadius: '10px',
-                                                    border: '1px solid #E5E7EB',
+                                                    border: '1px solid #E5E7EB'
                                                 }}>
                                                     <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
                                                         <div style={{ flex: 2 }}>
@@ -1869,7 +1869,7 @@ export default function WorkLogsPage() {
                                         borderRadius: '10px',
                                         fontSize: '14px',
                                         fontWeight: 600,
-                                        cursor: 'pointer',
+                                        cursor: 'pointer'
                                     }}
                                 >
                                     Cancel
@@ -1887,7 +1887,7 @@ export default function WorkLogsPage() {
                                         fontSize: '14px',
                                         fontWeight: 600,
                                         cursor: saving ? 'not-allowed' : 'pointer',
-                                        opacity: saving ? 0.7 : 1,
+                                        opacity: saving ? 0.7 : 1
                                     }}
                                 >
                                     {saving ? 'Saving...' : (editingId ? 'Save Changes' : 'Create Work Log')}
@@ -1907,7 +1907,7 @@ const labelStyle: React.CSSProperties = {
     fontSize: '14px',
     fontWeight: 500,
     marginBottom: '8px',
-    color: '#374151',
+    color: '#374151'
 };
 
 const inputStyle: React.CSSProperties = {
@@ -1917,6 +1917,6 @@ const inputStyle: React.CSSProperties = {
     border: '1px solid #E5E7EB',
     borderRadius: '10px',
     outline: 'none',
-    backgroundColor: 'white',
+    backgroundColor: 'white'
 };
 

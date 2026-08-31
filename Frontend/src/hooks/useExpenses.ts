@@ -30,7 +30,7 @@ const DEFAULT_FORM: ExpenseForm = {
   expense_date: new Date().toISOString().split('T')[0],
   payment_method: 'bank_transfer', is_paid: true, paid_date: '',
   reference_number: '', is_recurring: false, recurring_frequency: '',
-  notes: '', status: 'approved',
+  notes: '', status: 'approved'
 };
 
 export function useExpenses() {
@@ -94,7 +94,7 @@ export function useExpenses() {
       is_recurring: expense.is_recurring,
       recurring_frequency: expense.recurring_frequency,
       notes: '',
-      status: expense.status,
+      status: expense.status
     });
     setReceiptFile(null);
     setShowModal(true);
@@ -171,6 +171,6 @@ export function useExpenses() {
     receiptFile, setReceiptFile, saving,
     // Actions
     openCreate, openEdit, handleSave, handleDelete, handleExport,
-    refetch: fetchExpenses,
+    refetch: fetchExpenses
   };
 }

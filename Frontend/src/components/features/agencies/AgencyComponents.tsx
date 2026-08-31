@@ -6,11 +6,11 @@
 import React from 'react';
 import {
   Building2, Phone, MapPin, Hash, Users, FileText, Percent,
-  Plus, CheckCircle, Clock, Euro, Sun, Moon, Star, Calendar,
+  Plus, CheckCircle, Clock, Euro, Sun, Moon, Star, Calendar
 } from 'lucide-react';
 import {
   SectionCard, Input, Select, TextArea, FormGrid,
-  DataTable, StatusBadge, StatCard, EmptyState, Button, Modal,
+  DataTable, StatusBadge, StatCard, EmptyState, Button, Modal
 } from '@/components/ui/shared';
 import type { Column } from '@/components/ui/shared';
 import { colors, spacing, fontSize, fontWeight, presets } from '@/styles/tokens';
@@ -110,14 +110,14 @@ export function EmployeesTab({ employees, loading, agencyName }: EmployeesTabPro
   const columns: Column<AgencyEmployee>[] = [
     {
       key: 'name', header: 'Name',
-      render: (e) => <span style={{ fontWeight: fontWeight.bold }}>{e.first_name} {e.last_name}</span>,
+      render: (e) => <span style={{ fontWeight: fontWeight.bold }}>{e.first_name} {e.last_name}</span>
     },
     { key: 'email', header: 'Email', render: (e) => <span className={styles.mutedText}>{e.user_email}</span> },
     { key: 'phone', header: 'Phone', render: (e) => <span className={styles.mutedText}>{e.phone_number}</span> },
     { key: 'status', header: 'Status', render: (e) => <StatusBadge status={e.status} /> },
     {
       key: 'rate', header: 'Hourly Rate',
-      render: (e) => <span style={{ fontWeight: fontWeight.semibold }}>€{e.hourly_rate || '—'}</span>,
+      render: (e) => <span style={{ fontWeight: fontWeight.semibold }}>€{e.hourly_rate || '—'}</span>
     },
   ];
 
@@ -182,7 +182,7 @@ export function BillingTab({ invoices, loading, onGenerate, onRowClick }: Billin
 const invoiceColumns: Column<AgencyInvoice>[] = [
   {
     key: 'number', header: 'Invoice #',
-    render: (inv) => <span style={{ fontWeight: fontWeight.bold, color: colors.primary }}>{inv.invoice_number}</span>,
+    render: (inv) => <span style={{ fontWeight: fontWeight.bold, color: colors.primary }}>{inv.invoice_number}</span>
   },
   { key: 'period', header: 'Period', render: (inv) => <span className={styles.mutedText}>{inv.period_start} → {inv.period_end}</span> },
   { key: 'hours', header: 'Hours', render: (inv) => <span style={{ fontWeight: fontWeight.semibold }}>{parseFloat(inv.total_hours).toFixed(1)}h</span> },
@@ -194,7 +194,7 @@ const invoiceColumns: Column<AgencyInvoice>[] = [
       <span style={{ fontWeight: fontWeight.semibold, color: parseFloat(inv.amount_due) <= 0 ? colors.success : colors.danger }}>
         €{parseFloat(inv.amount_paid).toFixed(2)}
       </span>
-    ),
+    )
   },
 ];
 
@@ -209,10 +209,10 @@ interface SurchargesSectionProps {
 }
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
-  weekend: Sun, night_shift: Moon, holiday: Star, custom: Calendar,
+  weekend: Sun, night_shift: Moon, holiday: Star, custom: Calendar
 };
 const CATEGORY_COLORS: Record<string, string> = {
-  weekend: '#F59E0B', night_shift: '#3B82F6', holiday: '#10B981', custom: '#8B5CF6',
+  weekend: '#F59E0B', night_shift: '#3B82F6', holiday: '#10B981', custom: '#8B5CF6'
 };
 
 export function SurchargesSection({ hasEnabled, onToggle, types, selected, setSelected }: SurchargesSectionProps) {
@@ -256,13 +256,13 @@ export function SurchargesSection({ hasEnabled, onToggle, types, selected, setSe
                     return (
                       <div key={type.id} className={styles.surchargeCard} style={{
                         borderColor: state.enabled ? color : colors.border,
-                        background: state.enabled ? `${color}08` : '#FAFAFA',
+                        background: state.enabled ? `${color}08` : '#FAFAFA'
                       }}>
                         <label className={styles.checkboxLabel}>
                           <input type="checkbox" checked={state.enabled}
                             onChange={e => setSelected(prev => ({
                               ...prev,
-                              [type.id]: { ...prev[type.id], enabled: e.target.checked, percentage: prev[type.id]?.percentage || 0 },
+                              [type.id]: { ...prev[type.id], enabled: e.target.checked, percentage: prev[type.id]?.percentage || 0 }
                             }))} />
                           <span style={{ fontWeight: fontWeight.semibold }}>{type.name}</span>
                         </label>
@@ -272,7 +272,7 @@ export function SurchargesSection({ hasEnabled, onToggle, types, selected, setSe
                               className={styles.percentageInput}
                               onChange={e => setSelected(prev => ({
                                 ...prev,
-                                [type.id]: { ...prev[type.id], percentage: parseFloat(e.target.value) || 0 },
+                                [type.id]: { ...prev[type.id], percentage: parseFloat(e.target.value) || 0 }
                               }))} />
                             <span className={styles.mutedText}>%</span>
                           </div>
@@ -304,7 +304,7 @@ interface GenerateModalProps {
 }
 
 export function GenerateInvoiceModal({
-  open, onClose, periodStart, periodEnd, setPeriodStart, setPeriodEnd, onGenerate, generating,
+  open, onClose, periodStart, periodEnd, setPeriodStart, setPeriodEnd, onGenerate, generating
 }: GenerateModalProps) {
   return (
     <Modal open={open} onClose={onClose} title="Generate Agency Invoice" width="440px" footer={

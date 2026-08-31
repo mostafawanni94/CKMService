@@ -6,6 +6,7 @@ import { Card, Button } from '@/components/ui';
 import { api, Project, Customer } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n'
 import { FolderKanban, Plus, MapPin, Users, Calendar, Eye, Search, X, Building2, UserCircle, Check, LayoutGrid, List } from 'lucide-react';
+import { apiFetch, readApiError } from '@/hooks/useApi';
 
 interface Supervisor {
     id: string;
@@ -42,7 +43,7 @@ export default function ProjectsPage() {
         customer: '',
         location: '',
         description: '',
-        supervisors: [],
+        supervisors: []
     });
     const [customerSupervisors, setCustomerSupervisors] = useState<Supervisor[]>([]);
     const [loadingSupervisors, setLoadingSupervisors] = useState(false);
@@ -77,12 +78,8 @@ export default function ProjectsPage() {
     async function searchCustomers(searchTerm: string, reset = false) {
         setLoadingCustomers(true);
         try {
-            const token = localStorage.getItem('access_token');
             const searchParam = searchTerm ? `&search=${encodeURIComponent(searchTerm)}` : '';
-            const response = await fetch(
-                `${API_URL}/customers/customers/?page_size=15${searchParam}`,
-                { headers: { 'Authorization': `Bearer ${token}` } }
-            );
+            const response = await apiFetch(`/customers/customers/?page_size=15${searchParam}`);
             if (response.ok) {
                 const data = await response.json();
                 setCustomers(data.results || []);
@@ -100,9 +97,7 @@ export default function ProjectsPage() {
         if (!customerNextPage || loadingCustomers) return;
         setLoadingCustomers(true);
         try {
-            const token = localStorage.getItem('access_token');
-            const response = await fetch(customerNextPage, {
-                headers: { 'Authorization': `Bearer ${token}` }
+            const response = await apiFetch(customerNextPage, {
             });
             if (response.ok) {
                 const data = await response.json();
@@ -130,12 +125,9 @@ export default function ProjectsPage() {
         setError(null);
         try {
             // Get first 15 customers initially
-            const token = localStorage.getItem('access_token');
             const [projectsRes, customersRes] = await Promise.all([
                 api.getProjects(),
-                fetch(`${API_URL}/customers/customers/?page_size=15`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                }).then(res => res.json())
+                apiFetch(`/customers/customers/?page_size=15`).then(res => res.json())
             ]);
             setProjects(projectsRes.results || []);
             setCustomers(customersRes.results || []);
@@ -150,11 +142,7 @@ export default function ProjectsPage() {
     async function loadCustomerSupervisors(customerId: string) {
         setLoadingSupervisors(true);
         try {
-            const response = await fetch(`${API_URL}/customers/customers/${customerId}/`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            });
+            const response = await apiFetch(`/customers/customers/${customerId}/`);
             if (response.ok) {
                 const data = await response.json();
                 setCustomerSupervisors(data.outfolders || []);
@@ -172,7 +160,7 @@ export default function ProjectsPage() {
             ...f,
             supervisors: f.supervisors.includes(supervisorId)
                 ? f.supervisors.filter(id => id !== supervisorId)
-                : [...f.supervisors, supervisorId],
+                : [...f.supervisors, supervisorId]
         }));
     }
 
@@ -180,11 +168,10 @@ export default function ProjectsPage() {
         e.preventDefault();
         setCreating(true);
         try {
-            const response = await fetch(`${API_URL}/projects/projects/`, {
+            const response = await apiFetch(`/projects/projects/`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     name: createForm.name,
@@ -193,14 +180,11 @@ export default function ProjectsPage() {
                     description: createForm.description || '',
                     status: 'active',
                     outfolder: createForm.supervisors.length > 0 ? createForm.supervisors[0] : null,
-                    supervisors: createForm.supervisors,
-                }),
+                    supervisors: createForm.supervisors
+                })
             });
 
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.detail || data.name?.[0] || 'Failed to create project');
-            }
+            if (!response.ok) throw new Error(await readApiError(response));
 
             setShowCreateModal(false);
             setCreateForm({ name: '', customer: '', location: '', description: '', supervisors: [] });
@@ -227,7 +211,7 @@ export default function ProjectsPage() {
     const stats = {
         total: projects.length,
         active: projects.filter(p => p.status === 'active').length,
-        completed: projects.filter(p => p.status === 'completed').length,
+        completed: projects.filter(p => p.status === 'completed').length
     };
 
     return (
@@ -250,7 +234,7 @@ export default function ProjectsPage() {
                                 borderRadius: '10px',
                                 fontSize: '14px',
                                 fontWeight: 600,
-                                cursor: 'pointer',
+                                cursor: 'pointer'
                             }}
                         >
                             Refresh
@@ -268,7 +252,7 @@ export default function ProjectsPage() {
                                 borderRadius: '10px',
                                 fontSize: '14px',
                                 fontWeight: 600,
-                                cursor: 'pointer',
+                                cursor: 'pointer'
                             }}
                         >
                             <Plus style={{ width: '16px', height: '16px' }} />
@@ -345,7 +329,7 @@ export default function ProjectsPage() {
                     border: '1px solid #E5E7EB',
                     marginBottom: '24px',
                     flexWrap: 'wrap',
-                    gap: '12px',
+                    gap: '12px'
                 }}>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                         {/* Status Filter */}
@@ -361,7 +345,7 @@ export default function ProjectsPage() {
                                     borderRadius: '8px',
                                     fontSize: '14px',
                                     fontWeight: 500,
-                                    cursor: 'pointer',
+                                    cursor: 'pointer'
                                 }}
                             >
                                 {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -384,7 +368,7 @@ export default function ProjectsPage() {
                                     color: selectedCustomers.length > 0 ? '#2563EB' : '#374151',
                                     cursor: 'pointer',
                                     minWidth: '180px',
-                                    justifyContent: 'space-between',
+                                    justifyContent: 'space-between'
                                 }}
                             >
                                 <span>
@@ -409,7 +393,7 @@ export default function ProjectsPage() {
                                     border: '1px solid #E5E7EB',
                                     boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
                                     zIndex: 100,
-                                    overflow: 'hidden',
+                                    overflow: 'hidden'
                                 }}>
                                     {/* Search Input */}
                                     <div style={{ padding: '12px', borderBottom: '1px solid #E5E7EB' }}>
@@ -427,7 +411,7 @@ export default function ProjectsPage() {
                                                     border: '1px solid #E5E7EB',
                                                     borderRadius: '8px',
                                                     fontSize: '13px',
-                                                    outline: 'none',
+                                                    outline: 'none'
                                                 }}
                                             />
                                         </div>
@@ -469,7 +453,7 @@ export default function ProjectsPage() {
                                                     padding: '10px 12px',
                                                     cursor: 'pointer',
                                                     backgroundColor: selectedCustomers.includes(customer.id) ? '#EFF6FF' : 'transparent',
-                                                    borderLeft: selectedCustomers.includes(customer.id) ? '3px solid #2563EB' : '3px solid transparent',
+                                                    borderLeft: selectedCustomers.includes(customer.id) ? '3px solid #2563EB' : '3px solid transparent'
                                                 }}
                                             >
                                                 <div style={{
@@ -481,7 +465,7 @@ export default function ProjectsPage() {
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
-                                                    flexShrink: 0,
+                                                    flexShrink: 0
                                                 }}>
                                                     {selectedCustomers.includes(customer.id) && (
                                                         <Check style={{ width: '12px', height: '12px', color: 'white' }} />
@@ -537,7 +521,7 @@ export default function ProjectsPage() {
                                     cursor: 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    boxShadow: viewMode === 'grid' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                                    boxShadow: viewMode === 'grid' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
                                 }}
                             >
                                 <LayoutGrid style={{ width: '16px', height: '16px', color: viewMode === 'grid' ? '#1E3A5F' : '#6B7280' }} />
@@ -552,7 +536,7 @@ export default function ProjectsPage() {
                                     cursor: 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    boxShadow: viewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                                    boxShadow: viewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
                                 }}
                             >
                                 <List style={{ width: '16px', height: '16px', color: viewMode === 'list' ? '#1E3A5F' : '#6B7280' }} />
@@ -573,7 +557,7 @@ export default function ProjectsPage() {
                                     borderRadius: '8px',
                                     fontSize: '14px',
                                     outline: 'none',
-                                    width: '200px',
+                                    width: '200px'
                                 }}
                             />
                         </div>
@@ -627,7 +611,7 @@ export default function ProjectsPage() {
                                 borderRadius: '10px',
                                 fontSize: '14px',
                                 fontWeight: 600,
-                                cursor: 'pointer',
+                                cursor: 'pointer'
                             }}
                         >
                             <Plus style={{ width: '16px', height: '16px' }} />
@@ -645,7 +629,7 @@ export default function ProjectsPage() {
                                     borderRadius: '16px',
                                     border: '1px solid #E5E7EB',
                                     padding: '20px',
-                                    transition: 'all 0.2s',
+                                    transition: 'all 0.2s'
                                 }}
                             >
                                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
@@ -658,7 +642,7 @@ export default function ProjectsPage() {
                                         fontSize: '12px',
                                         fontWeight: 600,
                                         backgroundColor: project.status === 'active' ? '#DCFCE7' : '#F3F4F6',
-                                        color: project.status === 'active' ? '#16A34A' : '#6B7280',
+                                        color: project.status === 'active' ? '#16A34A' : '#6B7280'
                                     }}>
                                         {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
                                     </span>
@@ -690,7 +674,7 @@ export default function ProjectsPage() {
                                             borderRadius: '8px',
                                             fontSize: '13px',
                                             fontWeight: 500,
-                                            cursor: 'pointer',
+                                            cursor: 'pointer'
                                         }}
                                     >
                                         <Eye style={{ width: '14px', height: '14px' }} />
@@ -714,7 +698,7 @@ export default function ProjectsPage() {
                             fontSize: '12px',
                             fontWeight: 600,
                             color: '#6B7280',
-                            textTransform: 'uppercase',
+                            textTransform: 'uppercase'
                         }}>
                             <span>Project</span>
                             <span>Customer</span>
@@ -733,7 +717,7 @@ export default function ProjectsPage() {
                                     gap: '16px',
                                     padding: '16px 20px',
                                     borderBottom: idx < filteredProjects.length - 1 ? '1px solid #F3F4F6' : 'none',
-                                    alignItems: 'center',
+                                    alignItems: 'center'
                                 }}
                             >
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -754,7 +738,7 @@ export default function ProjectsPage() {
                                     fontSize: '12px',
                                     fontWeight: 600,
                                     backgroundColor: project.status === 'active' ? '#DCFCE7' : '#F3F4F6',
-                                    color: project.status === 'active' ? '#16A34A' : '#6B7280',
+                                    color: project.status === 'active' ? '#16A34A' : '#6B7280'
                                 }}>
                                     {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
                                 </span>
@@ -768,7 +752,7 @@ export default function ProjectsPage() {
                                         borderRadius: '6px',
                                         fontSize: '13px',
                                         fontWeight: 500,
-                                        cursor: 'pointer',
+                                        cursor: 'pointer'
                                     }}
                                 >
                                     View
@@ -787,7 +771,7 @@ export default function ProjectsPage() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        padding: '16px',
+                        padding: '16px'
                     }}>
                         <div
                             style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)' }}
@@ -802,7 +786,7 @@ export default function ProjectsPage() {
                             width: '100%',
                             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
                             maxHeight: '90vh',
-                            overflowY: 'auto',
+                            overflowY: 'auto'
                         }}>
                             <button
                                 onClick={() => setShowCreateModal(false)}
@@ -814,7 +798,7 @@ export default function ProjectsPage() {
                                     border: 'none',
                                     cursor: 'pointer',
                                     color: '#9CA3AF',
-                                    padding: '4px',
+                                    padding: '4px'
                                 }}
                             >
                                 <X style={{ width: '20', height: '20' }} />
@@ -845,7 +829,7 @@ export default function ProjectsPage() {
                                                 borderRadius: '10px',
                                                 fontSize: '14px',
                                                 outline: 'none',
-                                                cursor: 'pointer',
+                                                cursor: 'pointer'
                                             }}
                                         >
                                             <option value="">Select a customer...</option>
@@ -886,7 +870,7 @@ export default function ProjectsPage() {
                                                                 border: createForm.supervisors.includes(supervisor.id) ? '2px solid #2563EB' : '1px solid #E5E7EB',
                                                                 borderRadius: '10px',
                                                                 cursor: 'pointer',
-                                                                transition: 'all 0.15s',
+                                                                transition: 'all 0.15s'
                                                             }}
                                                         >
                                                             <div style={{
@@ -897,7 +881,7 @@ export default function ProjectsPage() {
                                                                 border: createForm.supervisors.includes(supervisor.id) ? 'none' : '2px solid #D1D5DB',
                                                                 display: 'flex',
                                                                 alignItems: 'center',
-                                                                justifyContent: 'center',
+                                                                justifyContent: 'center'
                                                             }}>
                                                                 {createForm.supervisors.includes(supervisor.id) && (
                                                                     <Check style={{ width: '14px', height: '14px', color: 'white' }} />
@@ -942,7 +926,7 @@ export default function ProjectsPage() {
                                                 border: '1px solid #E5E7EB',
                                                 borderRadius: '10px',
                                                 fontSize: '14px',
-                                                outline: 'none',
+                                                outline: 'none'
                                             }}
                                         />
                                     </div>
@@ -964,7 +948,7 @@ export default function ProjectsPage() {
                                                 border: '1px solid #E5E7EB',
                                                 borderRadius: '10px',
                                                 fontSize: '14px',
-                                                outline: 'none',
+                                                outline: 'none'
                                             }}
                                         />
                                     </div>
@@ -986,7 +970,7 @@ export default function ProjectsPage() {
                                                 borderRadius: '10px',
                                                 fontSize: '14px',
                                                 outline: 'none',
-                                                resize: 'vertical',
+                                                resize: 'vertical'
                                             }}
                                         />
                                     </div>
@@ -1004,7 +988,7 @@ export default function ProjectsPage() {
                                                 borderRadius: '10px',
                                                 fontSize: '14px',
                                                 fontWeight: 600,
-                                                cursor: 'pointer',
+                                                cursor: 'pointer'
                                             }}
                                         >
                                             Cancel
@@ -1026,7 +1010,7 @@ export default function ProjectsPage() {
                                                 fontSize: '14px',
                                                 fontWeight: 600,
                                                 cursor: creating ? 'not-allowed' : 'pointer',
-                                                opacity: creating ? 0.7 : 1,
+                                                opacity: creating ? 0.7 : 1
                                             }}
                                         >
                                             <Plus style={{ width: '16px', height: '16px' }} />

@@ -68,9 +68,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Database
+# Database — the suffixed patterns matter: `*.sqlite3` alone does not cover
+# a backup named db.sqlite3.bak-something, which would commit real data.
 *.sqlite3
+*.sqlite3.*
 *.db
+*.db.*
 
 # Media uploads (if large)
 media/

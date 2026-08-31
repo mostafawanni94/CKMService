@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { Button } from '@/components/ui';
+import { apiFetch, readApiError } from '@/hooks/useApi';
 
 // Types
 interface CertificateType {
@@ -56,7 +57,7 @@ export default function ServicesPage() {
         code: '',
         description: '',
         is_active: true,
-        required_certificates: [] as number[],
+        required_certificates: [] as number[]
     });
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
@@ -71,11 +72,7 @@ export default function ServicesPage() {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${API_URL}/customers/services/`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            });
+            const response = await apiFetch(`/customers/services/`);
             if (!response.ok) throw new Error('Failed to load services');
             const data = await response.json();
             setServices(data.results || data || []);
@@ -88,11 +85,7 @@ export default function ServicesPage() {
 
     async function loadCertificateTypes() {
         try {
-            const response = await fetch(`${API_URL}/certificates/types/`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            });
+            const response = await apiFetch(`/certificates/types/`);
             if (response.ok) {
                 const data = await response.json();
                 setCertificateTypes(data.results || data || []);
@@ -117,7 +110,7 @@ export default function ServicesPage() {
     const stats = {
         total: services.length,
         active: services.filter(s => s.is_active).length,
-        inactive: services.filter(s => !s.is_active).length,
+        inactive: services.filter(s => !s.is_active).length
     };
 
     // Toggle Form
@@ -140,7 +133,7 @@ export default function ServicesPage() {
             code: service.code,
             description: service.description,
             is_active: service.is_active,
-            required_certificates: service.required_certificates || [],
+            required_certificates: service.required_certificates || []
         });
         setShowAddForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -161,19 +154,15 @@ export default function ServicesPage() {
 
             const method = editingId ? 'PUT' : 'POST';
 
-            const response = await fetch(url, {
+            const response = await apiFetch(url, {
                 method,
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(formData)
             });
 
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.detail || 'Failed to save service');
-            }
+            if (!response.ok) throw new Error(await readApiError(response));
 
             await loadServices();
             setShowAddForm(false);
@@ -191,11 +180,8 @@ export default function ServicesPage() {
         if (!confirm('Are you sure you want to delete this service?')) return;
 
         try {
-            const response = await fetch(`${API_URL}/customers/services/${id}/`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
+            const response = await apiFetch(`/customers/services/${id}/`, {
+                method: 'DELETE'
             });
 
             if (!response.ok && response.status !== 204) {
@@ -211,13 +197,12 @@ export default function ServicesPage() {
     // Toggle Active Status
     const toggleActive = async (service: Service) => {
         try {
-            const response = await fetch(`${API_URL}/customers/services/${service.id}/`, {
+            const response = await apiFetch(`/customers/services/${service.id}/`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ is_active: !service.is_active }),
+                body: JSON.stringify({ is_active: !service.is_active })
             });
 
             if (response.ok) {
@@ -236,7 +221,7 @@ export default function ServicesPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    marginBottom: '32px',
+                    marginBottom: '32px'
                 }}>
                     <div>
                         <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1F2937', margin: 0 }}>
@@ -262,7 +247,7 @@ export default function ServicesPage() {
                             fontWeight: 600,
                             cursor: 'pointer',
                             boxShadow: showAddForm ? 'none' : '0 4px 12px rgba(59, 130, 246, 0.3)',
-                            transition: 'all 0.2s ease',
+                            transition: 'all 0.2s ease'
                         }}
                     >
                         {showAddForm ? <X size={18} /> : <Plus size={18} />}
@@ -275,7 +260,7 @@ export default function ServicesPage() {
                     display: 'grid',
                     gridTemplateColumns: 'repeat(3, 1fr)',
                     gap: '20px',
-                    marginBottom: '32px',
+                    marginBottom: '32px'
                 }}>
                     <StatCard label="Total Services" value={stats.total} icon={CreditCard} color="#6366F1" />
                     <StatCard label="Active Services" value={stats.active} icon={CheckCircle} color="#10B981" />
@@ -379,7 +364,7 @@ export default function ServicesPage() {
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     gap: '6px',
-                                                    transition: 'all 0.15s ease',
+                                                    transition: 'all 0.15s ease'
                                                 }}
                                             >
                                                 {isSelected && <CheckCircle size={14} color="#3B82F6" />}
@@ -428,12 +413,12 @@ export default function ServicesPage() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '16px',
-                    marginBottom: '24px',
+                    marginBottom: '24px'
                 }}>
                     {/* Search */}
                     <div style={{
                         flex: 1,
-                        position: 'relative',
+                        position: 'relative'
                     }}>
                         <Search
                             size={18}
@@ -442,7 +427,7 @@ export default function ServicesPage() {
                                 left: '14px',
                                 top: '50%',
                                 transform: 'translateY(-50%)',
-                                color: '#9CA3AF',
+                                color: '#9CA3AF'
                             }}
                         />
                         <input
@@ -458,7 +443,7 @@ export default function ServicesPage() {
                                 border: '1px solid #E5E7EB',
                                 borderRadius: '12px',
                                 outline: 'none',
-                                transition: 'border-color 0.15s ease',
+                                transition: 'border-color 0.15s ease'
                             }}
                             onFocus={(e) => e.target.style.borderColor = '#3B82F6'}
                             onBlur={(e) => e.target.style.borderColor = '#E5E7EB'}
@@ -472,7 +457,7 @@ export default function ServicesPage() {
                         backgroundColor: 'white',
                         padding: '4px',
                         borderRadius: '12px',
-                        border: '1px solid #E5E7EB',
+                        border: '1px solid #E5E7EB'
                     }}>
                         {(['all', 'active', 'inactive'] as const).map((filter) => (
                             <button
@@ -488,7 +473,7 @@ export default function ServicesPage() {
                                     borderRadius: '8px',
                                     cursor: 'pointer',
                                     transition: 'all 0.15s ease',
-                                    textTransform: 'capitalize',
+                                    textTransform: 'capitalize'
                                 }}
                             >
                                 {filter}
@@ -517,7 +502,7 @@ export default function ServicesPage() {
                         fontWeight: 600,
                         color: '#6B7280',
                         textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
+                        letterSpacing: '0.05em'
                     }}>
                         <div></div>
                         <div>Service Name</div>
@@ -553,7 +538,7 @@ export default function ServicesPage() {
                                     alignItems: 'center',
                                     borderBottom: index < filteredServices.length - 1 ? '1px solid #F3F4F6' : 'none',
                                     backgroundColor: service.is_active ? 'white' : '#FAFAFA',
-                                    transition: 'background-color 0.15s ease',
+                                    transition: 'background-color 0.15s ease'
                                 }}
                             >
                                 {/* Icon */}
@@ -570,14 +555,14 @@ export default function ServicesPage() {
                                         backgroundColor: service.is_active ? '#EFF6FF' : '#F3F4F6',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        justifyContent: 'center',
+                                        justifyContent: 'center'
                                     }}>
                                         <CreditCard size={18} color={service.is_active ? '#3B82F6' : '#9CA3AF'} />
                                     </div>
                                     <p style={{
                                         fontWeight: 600,
                                         color: service.is_active ? '#1F2937' : '#9CA3AF',
-                                        fontSize: '14px',
+                                        fontSize: '14px'
                                     }}>
                                         {service.name}
                                     </p>
@@ -610,7 +595,7 @@ export default function ServicesPage() {
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                         whiteSpace: 'nowrap',
-                                        marginBottom: service.required_certificates_detail?.length ? '6px' : 0,
+                                        marginBottom: service.required_certificates_detail?.length ? '6px' : 0
                                     }}>
                                         {service.description || '-'}
                                     </p>
@@ -625,7 +610,7 @@ export default function ServicesPage() {
                                                         color: '#7C3AED',
                                                         backgroundColor: '#F3E8FF',
                                                         padding: '2px 6px',
-                                                        borderRadius: '4px',
+                                                        borderRadius: '4px'
                                                     }}
                                                 >
                                                     {cert.name}
@@ -664,7 +649,7 @@ export default function ServicesPage() {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    gap: '4px',
+                                    gap: '4px'
                                 }}>
                                     <button
                                         onClick={() => startEditing(service)}
@@ -674,7 +659,7 @@ export default function ServicesPage() {
                                             backgroundColor: 'transparent',
                                             border: 'none',
                                             borderRadius: '6px',
-                                            cursor: 'pointer',
+                                            cursor: 'pointer'
                                         }}
                                         title="Edit"
                                     >
@@ -688,7 +673,7 @@ export default function ServicesPage() {
                                             backgroundColor: 'transparent',
                                             border: 'none',
                                             borderRadius: '6px',
-                                            cursor: 'pointer',
+                                            cursor: 'pointer'
                                         }}
                                         title="Delete"
                                     >
@@ -757,7 +742,7 @@ function StatCard({ label, value, icon: Icon, color }: {
                 backgroundColor: `${color}15`,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                justifyContent: 'center'
             }}>
                 <Icon size={24} color={color} />
             </div>

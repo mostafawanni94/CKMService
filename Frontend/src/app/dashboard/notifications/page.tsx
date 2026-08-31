@@ -20,6 +20,7 @@ import {
     Filter,
     RefreshCw
 } from 'lucide-react';
+import { apiFetch } from '@/hooks/useApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -55,14 +56,14 @@ const typeConfig: Record<string, { icon: React.ElementType; color: string; bg: s
     warning: { icon: AlertTriangle, color: '#F59E0B', bg: '#FEF3C7' },
     alert: { icon: AlertCircle, color: '#EF4444', bg: '#FEE2E2' },
     info: { icon: Info, color: '#3B82F6', bg: '#DBEAFE' },
-    system: { icon: Bell, color: '#6B7280', bg: '#F3F4F6' },
+    system: { icon: Bell, color: '#6B7280', bg: '#F3F4F6' }
 };
 
 const priorityConfig: Record<string, { label: string; color: string; bg: string }> = {
     urgent: { label: 'Urgent', color: '#DC2626', bg: '#FEE2E2' },
     high: { label: 'High', color: '#F59E0B', bg: '#FEF3C7' },
     normal: { label: 'Normal', color: '#3B82F6', bg: '#DBEAFE' },
-    low: { label: 'Low', color: '#6B7280', bg: '#F3F4F6' },
+    low: { label: 'Low', color: '#6B7280', bg: '#F3F4F6' }
 };
 
 const categoryTabs = [
@@ -98,8 +99,7 @@ export default function NotificationsPage() {
         }
         try {
             const fetchUrl = url || `${API_URL}/notifications/notifications/?page_size=20`;
-            const response = await fetch(fetchUrl, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+            const response = await apiFetch(fetchUrl, {
             });
             if (response.ok) {
                 const data = await response.json();
@@ -120,9 +120,8 @@ export default function NotificationsPage() {
 
     async function markAsRead(id: string) {
         try {
-            await fetch(`${API_URL}/notifications/notifications/${id}/mark_read/`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+            await apiFetch(`/notifications/notifications/${id}/mark_read/`, {
+                method: 'POST'
             });
             setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
         } catch (err) {
@@ -132,9 +131,8 @@ export default function NotificationsPage() {
 
     async function markAllAsRead() {
         try {
-            await fetch(`${API_URL}/notifications/notifications/mark_all_read/`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+            await apiFetch(`/notifications/notifications/mark_all_read/`, {
+                method: 'POST'
             });
             setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
         } catch (err) {
@@ -163,9 +161,8 @@ export default function NotificationsPage() {
         try {
             await Promise.all(
                 Array.from(selectedIds).map(id =>
-                    fetch(`${API_URL}/notifications/notifications/${id}/mark_read/`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+                    apiFetch(`/notifications/notifications/${id}/mark_read/`, {
+                        method: 'POST'
                     })
                 )
             );
@@ -183,9 +180,8 @@ export default function NotificationsPage() {
         try {
             await Promise.all(
                 Array.from(selectedIds).map(id =>
-                    fetch(`${API_URL}/notifications/notifications/${id}/`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+                    apiFetch(`/notifications/notifications/${id}/`, {
+                        method: 'DELETE'
                     })
                 )
             );
@@ -226,7 +222,7 @@ export default function NotificationsPage() {
     const stats = {
         total: notifications.length,
         unread: unreadCount,
-        read: notifications.length - unreadCount,
+        read: notifications.length - unreadCount
     };
 
     return (
@@ -237,7 +233,7 @@ export default function NotificationsPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    marginBottom: '32px',
+                    marginBottom: '32px'
                 }}>
                     <div>
                         <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1F2937', margin: 0 }}>
@@ -262,7 +258,7 @@ export default function NotificationsPage() {
                                 borderRadius: '12px',
                                 fontSize: '14px',
                                 fontWeight: 500,
-                                cursor: 'pointer',
+                                cursor: 'pointer'
                             }}
                         >
                             <RefreshCw size={16} />
@@ -283,7 +279,7 @@ export default function NotificationsPage() {
                                     fontSize: '14px',
                                     fontWeight: 600,
                                     cursor: 'pointer',
-                                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
                                 }}
                             >
                                 <CheckCheck size={18} />
@@ -298,7 +294,7 @@ export default function NotificationsPage() {
                     display: 'grid',
                     gridTemplateColumns: 'repeat(3, 1fr)',
                     gap: '20px',
-                    marginBottom: '32px',
+                    marginBottom: '32px'
                 }}>
                     <StatCard label="Total" value={stats.total} icon={Bell} color="#6366F1" />
                     <StatCard label="Unread" value={stats.unread} icon={AlertCircle} color="#F59E0B" />
@@ -311,7 +307,7 @@ export default function NotificationsPage() {
                     borderRadius: '16px',
                     border: '1px solid #E5E7EB',
                     padding: '20px 24px',
-                    marginBottom: '24px',
+                    marginBottom: '24px'
                 }}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
                         {categoryTabs.map(tab => {
@@ -334,7 +330,7 @@ export default function NotificationsPage() {
                                         fontSize: '13px',
                                         fontWeight: 600,
                                         cursor: 'pointer',
-                                        transition: 'all 0.15s ease',
+                                        transition: 'all 0.15s ease'
                                     }}
                                 >
                                     <span>{tab.icon}</span>
@@ -344,7 +340,7 @@ export default function NotificationsPage() {
                                             padding: '2px 8px',
                                             backgroundColor: categoryFilter === tab.key ? 'rgba(255,255,255,0.2)' : '#E5E7EB',
                                             borderRadius: '12px',
-                                            fontSize: '11px',
+                                            fontSize: '11px'
                                         }}>
                                             {count}
                                         </span>
@@ -366,7 +362,7 @@ export default function NotificationsPage() {
                                 borderRadius: '8px',
                                 fontSize: '13px',
                                 fontWeight: 600,
-                                cursor: 'pointer',
+                                cursor: 'pointer'
                             }}
                         >
                             All ({notifications.length})
@@ -381,7 +377,7 @@ export default function NotificationsPage() {
                                 borderRadius: '8px',
                                 fontSize: '13px',
                                 fontWeight: 600,
-                                cursor: 'pointer',
+                                cursor: 'pointer'
                             }}
                         >
                             Unread ({unreadCount})
@@ -394,7 +390,7 @@ export default function NotificationsPage() {
                     backgroundColor: 'white',
                     borderRadius: '16px',
                     border: '1px solid #E5E7EB',
-                    overflow: 'hidden',
+                    overflow: 'hidden'
                 }}>
                     {/* Bulk Action Bar */}
                     <div style={{
@@ -403,7 +399,7 @@ export default function NotificationsPage() {
                         gap: '16px',
                         padding: '16px 24px',
                         borderBottom: '1px solid #E5E7EB',
-                        backgroundColor: '#F9FAFB',
+                        backgroundColor: '#F9FAFB'
                     }}>
                         <input
                             type="checkbox"
@@ -429,7 +425,7 @@ export default function NotificationsPage() {
                                         borderRadius: '8px',
                                         fontSize: '13px',
                                         fontWeight: 600,
-                                        cursor: 'pointer',
+                                        cursor: 'pointer'
                                     }}
                                 >
                                     <Check size={14} />
@@ -448,7 +444,7 @@ export default function NotificationsPage() {
                                         borderRadius: '8px',
                                         fontSize: '13px',
                                         fontWeight: 600,
-                                        cursor: 'pointer',
+                                        cursor: 'pointer'
                                     }}
                                 >
                                     <Trash2 size={14} />
@@ -467,7 +463,7 @@ export default function NotificationsPage() {
                                 border: '3px solid #E5E7EB',
                                 borderTopColor: '#3B82F6',
                                 borderRadius: '50%',
-                                animation: 'spin 1s linear infinite',
+                                animation: 'spin 1s linear infinite'
                             }} />
                         </div>
                     ) : filteredNotifications.length === 0 ? (
@@ -480,7 +476,7 @@ export default function NotificationsPage() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                margin: '0 auto 20px',
+                                margin: '0 auto 20px'
                             }}>
                                 <Bell size={36} color="#D1D5DB" />
                             </div>
@@ -512,7 +508,7 @@ export default function NotificationsPage() {
                                                 : !notification.is_read
                                                     ? '#FAFBFF'
                                                     : 'white',
-                                            transition: 'background-color 0.15s ease',
+                                            transition: 'background-color 0.15s ease'
                                         }}
                                     >
                                         <input
@@ -530,7 +526,7 @@ export default function NotificationsPage() {
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            flexShrink: 0,
+                                            flexShrink: 0
                                         }}>
                                             <IconComponent size={22} color={config.color} />
                                         </div>
@@ -545,7 +541,7 @@ export default function NotificationsPage() {
                                                         borderRadius: '6px',
                                                         color: priority.color,
                                                         backgroundColor: priority.bg,
-                                                        textTransform: 'uppercase',
+                                                        textTransform: 'uppercase'
                                                     }}>
                                                         {priority.label}
                                                     </span>
@@ -555,7 +551,7 @@ export default function NotificationsPage() {
                                                 fontSize: '15px',
                                                 fontWeight: notification.is_read ? 500 : 600,
                                                 color: '#1F2937',
-                                                margin: '0 0 4px',
+                                                margin: '0 0 4px'
                                             }}>
                                                 {notification.title}
                                             </h4>
@@ -563,7 +559,7 @@ export default function NotificationsPage() {
                                                 fontSize: '14px',
                                                 color: '#6B7280',
                                                 margin: 0,
-                                                lineHeight: '1.5',
+                                                lineHeight: '1.5'
                                             }}>
                                                 {notification.message}
                                             </p>
@@ -576,7 +572,7 @@ export default function NotificationsPage() {
                                                         fontSize: '13px',
                                                         fontWeight: 600,
                                                         color: '#3B82F6',
-                                                        textDecoration: 'none',
+                                                        textDecoration: 'none'
                                                     }}
                                                 >
                                                     View Details →
@@ -594,7 +590,7 @@ export default function NotificationsPage() {
                                                         width: '8px',
                                                         height: '8px',
                                                         borderRadius: '50%',
-                                                        backgroundColor: '#3B82F6',
+                                                        backgroundColor: '#3B82F6'
                                                     }} />
                                                     <button
                                                         onClick={() => markAsRead(notification.id)}
@@ -603,7 +599,7 @@ export default function NotificationsPage() {
                                                             backgroundColor: '#F3F4F6',
                                                             border: 'none',
                                                             borderRadius: '8px',
-                                                            cursor: 'pointer',
+                                                            cursor: 'pointer'
                                                         }}
                                                         title="Mark as read"
                                                     >
@@ -630,7 +626,7 @@ export default function NotificationsPage() {
                                             borderRadius: '10px',
                                             fontSize: '14px',
                                             fontWeight: 600,
-                                            cursor: loadingMore ? 'not-allowed' : 'pointer',
+                                            cursor: loadingMore ? 'not-allowed' : 'pointer'
                                         }}
                                     >
                                         {loadingMore ? 'Loading...' : `Load More (${notifications.length} of ${totalCount})`}
@@ -666,7 +662,7 @@ function StatCard({ label, value, icon: Icon, color }: {
             padding: '24px',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '16px'
         }}>
             <div style={{
                 width: '52px',
@@ -675,7 +671,7 @@ function StatCard({ label, value, icon: Icon, color }: {
                 backgroundColor: `${color}15`,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                justifyContent: 'center'
             }}>
                 <Icon size={26} color={color} />
             </div>

@@ -1,25 +1,33 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
+import { hasSession } from '@/lib/auth';
 import { LogIn, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
-export default function LoginPage() {
+function LoginForm() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const nextPath = searchParams.get('next') || '/dashboard';
+    const reason = searchParams.get('reason');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(
+        reason === 'expired' ? 'Your session has expired. Please sign in again.'
+            : reason === 'forbidden' ? 'This account does not have dashboard access.'
+                : null
+    );
 
     useEffect(() => {
-        const token = localStorage.getItem('access_token');
-        if (token) {
-            api.setToken(token);
-            router.push('/dashboard');
+        // A lingering session sends the user straight through. `hasSession`
+        // also covers the case where only the refresh token survives.
+        if (hasSession()) {
+            router.replace(nextPath);
         }
-    }, [router]);
+    }, [router, nextPath]);
 
     async function handleLogin(e: React.FormEvent) {
         e.preventDefault();
@@ -27,10 +35,9 @@ export default function LoginPage() {
         setError(null);
 
         try {
-            const { access, refresh } = await api.login(email, password);
-            localStorage.setItem('access_token', access);
-            localStorage.setItem('refresh_token', refresh);
-            router.push('/dashboard');
+            // api.login persists both tokens and the session cookie.
+            await api.login(email, password);
+            router.replace(nextPath);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Login failed. Please check your credentials.');
         } finally {
@@ -247,5 +254,37 @@ export default function LoginPage() {
                 }
             `}</style>
         </div>
+    );
+}
+
+/**
+ * `useSearchParams` opts a route into client-side rendering, so the form is
+ * wrapped in its own Suspense boundary. Without it the production build fails
+ * to prerender /login.
+ */
+export default function LoginPage() {
+    return (
+        <Suspense
+            fallback={
+                <div style={{
+                    minHeight: '100vh',
+                    backgroundColor: '#1E3A5F',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
+                    <div style={{
+                        width: '40px',
+                        height: '40px',
+                        border: '4px solid rgba(255,255,255,0.3)',
+                        borderTopColor: '#ffffff',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite'
+                    }} />
+                </div>
+            }
+        >
+            <LoginForm />
+        </Suspense>
     );
 }

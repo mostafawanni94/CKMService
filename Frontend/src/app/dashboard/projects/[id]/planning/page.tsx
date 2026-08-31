@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { ArrowLeft, Plus, X, Clock, Trash2, Calendar, Users, Check, Search, ChevronLeft, ChevronRight, Edit2, Save, Filter, Eye } from 'lucide-react';
+import { apiFetch } from '@/hooks/useApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -118,8 +119,6 @@ export default function PlanningPage() {
     const [showFilterBar, setShowFilterBar] = useState(false);
 
 
-    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-    const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
     // Build calendar for year
     const getYearCalendar = () => {
@@ -150,9 +149,9 @@ export default function PlanningPage() {
     async function loadData() {
         try {
             const [projRes, calRes, empRes] = await Promise.all([
-                fetch(`${API_URL}/projects/projects/${projectId}/`, { headers }),
-                fetch(`${API_URL}/worklogs/entries/calendar/?project=${projectId}&year=${currentYear}${filterEmployees.length > 0 ? '&employee=' + filterEmployees.join(',') : ''}`, { headers }),
-                fetch(`${API_URL}/employees/profiles/`, { headers }),
+                apiFetch(`/projects/projects/${projectId}/`),
+                apiFetch(`/worklogs/entries/calendar/?project=${projectId}&year=${currentYear}${filterEmployees.length > 0 ? '&employee=' + filterEmployees.join(',') : ''}`),
+                apiFetch(`/employees/profiles/`),
             ]);
 
             if (projRes.ok) {
@@ -162,7 +161,7 @@ export default function PlanningPage() {
                 // Extract supervisors from project
                 const sups = (projData.supervisors_list || []).map((s: any) => ({
                     id: s.id,
-                    full_name: s.company_name || `${s.first_name || ''} ${s.last_name || ''}`.trim() || 'Unknown',
+                    full_name: s.company_name || `${s.first_name || ''} ${s.last_name || ''}`.trim() || 'Unknown'
                 }));
                 setSupervisors(sups);
 
@@ -180,13 +179,13 @@ export default function PlanningPage() {
 
                 // Load services from customer
                 if (projData.customer) {
-                    const custRes = await fetch(`${API_URL}/customers/customers/${projData.customer}/`, { headers });
+                    const custRes = await apiFetch(`/customers/customers/${projData.customer}/`);
                     if (custRes.ok) {
                         const customerData = await custRes.json();
                         if (customerData.service_rates && customerData.service_rates.length > 0) {
                             setServices(customerData.service_rates.map((sr: any) => ({
                                 id: sr.service,
-                                name: sr.service_name,
+                                name: sr.service_name
                             })));
                         }
                     }
@@ -211,10 +210,7 @@ export default function PlanningPage() {
     async function loadDayEntries(dateStr: string) {
         setLoadingDayEntries(true);
         try {
-            const res = await fetch(
-                `${API_URL}/worklogs/entries/?project=${projectId}&work_date=${dateStr}&include_past=true&page_size=100`,
-                { headers }
-            );
+            const res = await apiFetch(`/worklogs/entries/?project=${projectId}&work_date=${dateStr}&include_past=true&page_size=100`);
             if (res.ok) {
                 const data = await res.json();
                 setDayEntries(Array.isArray(data) ? data : data.results || []);
@@ -230,7 +226,7 @@ export default function PlanningPage() {
     async function searchEmployees(query: string) {
         if (query.length < 2) return;
         try {
-            const res = await fetch(`${API_URL}/employees/profiles/?search=${encodeURIComponent(query)}&limit=20`, { headers });
+            const res = await apiFetch(`/employees/profiles/?search=${encodeURIComponent(query)}&limit=20`);
             if (res.ok) {
                 const data = await res.json();
                 setEmployees(Array.isArray(data) ? data : data.results || []);
@@ -384,16 +380,15 @@ export default function PlanningPage() {
                 dates: dates,
                 employee_ids: selectedEmployees,
                 start_time: startTime + ':00',
-                end_time: endTime + ':00',
+                end_time: endTime + ':00'
             };
             if (selectedSupervisor) payload.supervisor = selectedSupervisor;
             if (selectedService) payload.service = parseInt(selectedService, 10);
             if (shiftLocation) payload.location_override = shiftLocation;
 
-            const bulkRes = await fetch(`${API_URL}/worklogs/entries/bulk_create/`, {
+            const bulkRes = await apiFetch(`/worklogs/entries/bulk_create/`, {
                 method: 'POST',
-                headers,
-                body: JSON.stringify(payload),
+                body: JSON.stringify(payload)
             });
 
             const result = await bulkRes.json();
@@ -426,7 +421,7 @@ export default function PlanningPage() {
         if (!confirm('Delete this work entry?')) return;
 
         try {
-            await fetch(`${API_URL}/worklogs/entries/${entryId}/`, { method: 'DELETE', headers });
+            await apiFetch(`/worklogs/entries/${entryId}/`, { method: 'DELETE' });
             loadData();
             // Remove from day entries view
             setDayEntries(prev => prev.filter(e => e.id !== entryId));
@@ -448,7 +443,7 @@ export default function PlanningPage() {
         setBulkDeleting(true);
         try {
             const deletePromises = Array.from(selectedShiftIds).map(entryId =>
-                fetch(`${API_URL}/worklogs/entries/${entryId}/`, { method: 'DELETE', headers })
+                apiFetch(`/worklogs/entries/${entryId}/`, { method: 'DELETE' })
             );
             await Promise.all(deletePromises);
             setSelectedShiftIds(new Set());
@@ -507,13 +502,12 @@ export default function PlanningPage() {
         try {
             setSaving(true);
 
-            const response = await fetch(`${API_URL}/worklogs/entries/${editingEntry.id}/`, {
+            const response = await apiFetch(`/worklogs/entries/${editingEntry.id}/`, {
                 method: 'PATCH',
-                headers,
                 body: JSON.stringify({
                     planned_start_time: editStartTime + ':00',
-                    planned_end_time: editEndTime + ':00',
-                }),
+                    planned_end_time: editEndTime + ':00'
+                })
             });
 
             if (!response.ok) {
@@ -543,13 +537,12 @@ export default function PlanningPage() {
                 dates: [viewingDate],
                 employee_ids: quickAddEmployees,
                 start_time: quickAddStart + ':00',
-                end_time: quickAddEnd + ':00',
+                end_time: quickAddEnd + ':00'
             };
 
-            const res = await fetch(`${API_URL}/worklogs/entries/bulk_create/`, {
+            const res = await apiFetch(`/worklogs/entries/bulk_create/`, {
                 method: 'POST',
-                headers,
-                body: JSON.stringify(payload),
+                body: JSON.stringify(payload)
             });
 
             if (!res.ok) throw new Error('Failed to create entries');
@@ -588,9 +581,8 @@ export default function PlanningPage() {
                 status: 'planned'
             };
 
-            const res = await fetch(`${API_URL}/worklogs/entries/`, {
+            const res = await apiFetch(`/worklogs/entries/`, {
                 method: 'POST',
-                headers,
                 body: JSON.stringify(payload)
             });
 
@@ -614,7 +606,7 @@ export default function PlanningPage() {
         if (!confirm(`Remove ${employeeName} from this date?`)) return;
 
         try {
-            await fetch(`${API_URL}/worklogs/entries/${entryId}/`, { method: 'DELETE', headers });
+            await apiFetch(`/worklogs/entries/${entryId}/`, { method: 'DELETE' });
             loadData();
             if (viewingDate) loadDayEntries(viewingDate);
         } catch (err) {
@@ -801,7 +793,7 @@ export default function PlanningPage() {
                             fontWeight: 500,
                             color: filterEmployees.length > 0 ? '#1D4ED8' : '#374151',
                             cursor: 'pointer',
-                            transition: 'all 0.15s ease',
+                            transition: 'all 0.15s ease'
                         }}
                     >
                         <Filter size={15} />
@@ -813,7 +805,7 @@ export default function PlanningPage() {
                                 borderRadius: '10px',
                                 padding: '1px 8px',
                                 fontSize: '11px',
-                                fontWeight: 700,
+                                fontWeight: 700
                             }}>
                                 {filterEmployees.length}
                             </span>
@@ -828,7 +820,7 @@ export default function PlanningPage() {
                                 background: 'white',
                                 borderRadius: '12px',
                                 border: '1px solid #E5E7EB',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
                             }}
                         >
                             <label style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '8px', display: 'block' }}>
@@ -854,7 +846,7 @@ export default function PlanningPage() {
                                                     borderRadius: '16px',
                                                     fontSize: '12px',
                                                     fontWeight: 500,
-                                                    color: '#1D4ED8',
+                                                    color: '#1D4ED8'
                                                 }}
                                             >
                                                 {emp ? getEmployeeName(emp) : empId}
@@ -892,7 +884,7 @@ export default function PlanningPage() {
                                         border: '1px solid #D1D5DB',
                                         fontSize: '13px',
                                         outline: 'none',
-                                        maxWidth: '360px',
+                                        maxWidth: '360px'
                                     }}
                                 />
                             </div>
@@ -907,7 +899,7 @@ export default function PlanningPage() {
                                     boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
                                     maxHeight: '220px',
                                     overflowY: 'auto',
-                                    maxWidth: '360px',
+                                    maxWidth: '360px'
                                 }}>
                                     {employees
                                         .filter(e => {
@@ -932,7 +924,7 @@ export default function PlanningPage() {
                                                     color: '#374151',
                                                     background: 'none',
                                                     border: 'none',
-                                                    cursor: 'pointer',
+                                                    cursor: 'pointer'
                                                 }}
                                                 className="hover:bg-gray-50"
                                             >
@@ -940,7 +932,7 @@ export default function PlanningPage() {
                                                     width: '16px', height: '16px', borderRadius: '4px',
                                                     border: '1.5px solid #D1D5DB', display: 'flex',
                                                     alignItems: 'center', justifyContent: 'center',
-                                                    flexShrink: 0, backgroundColor: 'white',
+                                                    flexShrink: 0, backgroundColor: 'white'
                                                 }} />
                                                 {getEmployeeName(emp)}
                                             </button>
@@ -989,7 +981,7 @@ export default function PlanningPage() {
                                     flex: 1, padding: '8px', border: 'none', borderRadius: '8px', cursor: 'pointer',
                                     fontWeight: 600, fontSize: '12px',
                                     background: calendarMode === 'select' ? '#10B981' : '#F3F4F6',
-                                    color: calendarMode === 'select' ? 'white' : '#374151',
+                                    color: calendarMode === 'select' ? 'white' : '#374151'
                                 }}
                             >
                                 ✏️ Select Mode
@@ -1000,7 +992,7 @@ export default function PlanningPage() {
                                     flex: 1, padding: '8px', border: 'none', borderRadius: '8px', cursor: 'pointer',
                                     fontWeight: 600, fontSize: '12px',
                                     background: calendarMode === 'view' ? '#6366F1' : '#F3F4F6',
-                                    color: calendarMode === 'view' ? 'white' : '#374151',
+                                    color: calendarMode === 'view' ? 'white' : '#374151'
                                 }}
                             >
                                 👁️ View Mode
@@ -1038,7 +1030,7 @@ export default function PlanningPage() {
                                     flex: 1, padding: '10px', border: 'none', borderRadius: '8px', cursor: 'pointer',
                                     fontWeight: 500, fontSize: '13px',
                                     background: selectionMode === 'calendar' ? '#3B82F6' : '#F3F4F6',
-                                    color: selectionMode === 'calendar' ? 'white' : '#374151',
+                                    color: selectionMode === 'calendar' ? 'white' : '#374151'
                                 }}
                             >
                                 📅 Click Calendar Days
@@ -1049,7 +1041,7 @@ export default function PlanningPage() {
                                     flex: 1, padding: '10px', border: 'none', borderRadius: '8px', cursor: 'pointer',
                                     fontWeight: 500, fontSize: '13px',
                                     background: selectionMode === 'pattern' ? '#3B82F6' : '#F3F4F6',
-                                    color: selectionMode === 'pattern' ? 'white' : '#374151',
+                                    color: selectionMode === 'pattern' ? 'white' : '#374151'
                                 }}
                             >
                                 🔢 Enter Day Numbers
@@ -1116,7 +1108,7 @@ export default function PlanningPage() {
                                                     padding: '8px 4px', border: 'none', borderRadius: '6px',
                                                     fontSize: '12px', fontWeight: 500, cursor: 'pointer',
                                                     background: selectedMonths.includes(idx) ? '#3B82F6' : '#F3F4F6',
-                                                    color: selectedMonths.includes(idx) ? 'white' : '#374151',
+                                                    color: selectedMonths.includes(idx) ? 'white' : '#374151'
                                                 }}
                                             >
                                                 {month.slice(0, 3)}
@@ -1196,7 +1188,7 @@ export default function PlanningPage() {
                                                         color: hasEntries && !isSelected ? 'white' : '#374151',
                                                         fontWeight: 500,
                                                         transition: 'all 0.1s',
-                                                        position: 'relative',
+                                                        position: 'relative'
                                                     }}
                                                     title={`${date.toDateString()}${hasEntries ? ` - ${count} entries (click ℹ️ to view)` : ''}${isSelected ? ' (selected)' : ''}`}
                                                 >
@@ -1219,7 +1211,7 @@ export default function PlanningPage() {
                                                                 alignItems: 'center',
                                                                 justifyContent: 'center',
                                                                 cursor: 'pointer',
-                                                                border: '1px solid white',
+                                                                border: '1px solid white'
                                                             }}
                                                             title="Click to view entries"
                                                         >
@@ -1402,7 +1394,7 @@ export default function PlanningPage() {
                                                         padding: '10px 14px',
                                                         cursor: 'pointer',
                                                         fontSize: '14px',
-                                                        borderBottom: '1px solid #F3F4F6',
+                                                        borderBottom: '1px solid #F3F4F6'
                                                     }}
                                                     onMouseEnter={e => (e.target as HTMLElement).style.background = '#F3F4F6'}
                                                     onMouseLeave={e => (e.target as HTMLElement).style.background = 'white'}
@@ -1450,7 +1442,7 @@ export default function PlanningPage() {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    gap: '8px',
+                                    gap: '8px'
                                 }}
                             >
                                 {saving ? (
@@ -1482,7 +1474,7 @@ export default function PlanningPage() {
                                         padding: '8px 16px', backgroundColor: '#DC2626', color: 'white',
                                         border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
                                         cursor: bulkDeleting ? 'not-allowed' : 'pointer',
-                                        opacity: bulkDeleting ? 0.7 : 1,
+                                        opacity: bulkDeleting ? 0.7 : 1
                                     }}
                                 >
                                     <Trash2 size={14} />
@@ -1537,7 +1529,7 @@ export default function PlanningPage() {
                                     {paginatedDates.map(item => (
                                         <tr key={item.date} style={{
                                             borderBottom: '1px solid #F3F4F6',
-                                            backgroundColor: selectedShiftIds.has(item.date) ? '#EFF6FF' : 'transparent',
+                                            backgroundColor: selectedShiftIds.has(item.date) ? '#EFF6FF' : 'transparent'
                                         }}>
                                             <td style={{ padding: '14px 12px' }}>
                                                 <input

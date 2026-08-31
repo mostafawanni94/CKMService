@@ -1,6 +1,10 @@
-/// Employee-Specific Serializers - Data Isolation
-/// 
-/// These serializers hide business details from employees.
+"""
+Employee-specific serializers — data isolation.
+
+These serializers deliberately hide business details from employees: an
+assignment exposes where and when, never which customer or what the job is
+worth.
+"""
 
 from rest_framework import serializers
 from apps.projects.models import ProjectAssignment
@@ -8,34 +12,46 @@ from apps.projects.models import ProjectAssignment
 
 class EmployeeAssignmentSerializer(serializers.ModelSerializer):
     """
-    Serializer for employee view of assignments.
-    Shows ONLY location and time - NO client/project business details.
+    An assignment as the employee sees it: where and when, nothing else.
+
+    Deliberately omits the customer, the project name, rates and any other
+    commercial detail — the employee app must not leak who the work is for.
+
+    The field list here had drifted from the models (it referenced
+    `project.address`, `date_from`, `expected_start_time` and an `instructions`
+    field, none of which exist) and the module carried Dart-style `///`
+    comments, so importing it raised SyntaxError. Nothing could call it.
     """
-    location_address = serializers.CharField(source='project.address')
-    location_city = serializers.CharField(source='project.city')
-    date = serializers.DateField(source='date_from')
+
+    location_address = serializers.CharField(source='project.location_address', read_only=True)
+    location_postcode = serializers.CharField(source='project.location_postcode', read_only=True)
+    location_city = serializers.CharField(source='project.location_city', read_only=True)
+    location = serializers.CharField(source='project.location', read_only=True)
     date_range = serializers.SerializerMethodField()
-    expected_start_time = serializers.TimeField(format='%H:%M')
-    expected_end_time = serializers.TimeField(format='%H:%M')
-    
+
     class Meta:
         model = ProjectAssignment
         fields = [
             'id',
+            'location',
             'location_address',
-            'location_city', 
-            'date',
+            'location_postcode',
+            'location_city',
+            'start_date',
+            'end_date',
             'date_range',
-            'expected_start_time',
-            'expected_end_time',
-            'instructions',  # General instructions only
-            'status',
+            'role',
+            'assignment_type',
+            'is_active',
         ]
-    
+
     def get_date_range(self, obj):
-        if obj.date_from == obj.date_to:
+        """A short human label, or None for a single-day assignment."""
+        if not obj.start_date:
             return None
-        return f"{obj.date_from.strftime('%d/%m')} - {obj.date_to.strftime('%d/%m')}"
+        if obj.end_date is None or obj.start_date == obj.end_date:
+            return None
+        return f"{obj.start_date.strftime('%d/%m')} - {obj.end_date.strftime('%d/%m')}"
 
 
 class NotificationPreferencesSerializer(serializers.Serializer):

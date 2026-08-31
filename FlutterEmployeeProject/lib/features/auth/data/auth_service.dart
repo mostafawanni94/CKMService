@@ -18,6 +18,9 @@ class AuthService extends ChangeNotifier {
   
   /// Initialize — check if already logged in
   Future<void> init() async {
+    // An unrecoverable 401 anywhere in the app now returns the user to the
+    // login screen instead of leaving them on a screen that silently fails.
+    ApiClient.onSessionExpired = handleSessionExpired;
     await _api.init();
     _isLoggedIn = _api.isLoggedIn;
     
@@ -75,6 +78,15 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
   
+  /// Drop local session state after the API reported the session is gone.
+  void handleSessionExpired() {
+    if (!_isLoggedIn) return;
+    _isLoggedIn = false;
+    _userProfile = null;
+    _error = 'Your session has expired. Please sign in again.';
+    notifyListeners();
+  }
+
   /// Clear error
   void clearError() {
     _error = null;

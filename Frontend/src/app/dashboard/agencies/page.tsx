@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/dashboard';
+import { apiFetch } from '@/hooks/useApi';
 
 // Types
 interface Agency {
@@ -51,11 +52,7 @@ export default function AgenciesPage() {
         try {
             setIsLoading(true);
             const params = showDeleted ? '?include_deleted=true' : '';
-            const response = await fetch(`${API_URL}/employees/agencies/${params}`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            });
+            const response = await apiFetch(`/employees/agencies/${params}`);
             if (response.ok) {
                 const data = await response.json();
                 const agencyList = Array.isArray(data) ? data : (data.results || []);
@@ -88,7 +85,7 @@ export default function AgenciesPage() {
         total: agencyList.filter(a => !a.is_deleted).length,
         active: agencyList.filter(a => a.is_active && !a.is_deleted).length,
         deleted: agencyList.filter(a => a.is_deleted).length,
-        totalEmployees: agencyList.filter(a => !a.is_deleted).reduce((sum, a) => sum + (a.employee_count || 0), 0),
+        totalEmployees: agencyList.filter(a => !a.is_deleted).reduce((sum, a) => sum + (a.employee_count || 0), 0)
     };
 
     // Navigate to create page
@@ -110,11 +107,8 @@ export default function AgenciesPage() {
         if (!confirm('Are you sure you want to delete this agency? This will soft delete it.')) return;
 
         try {
-            const response = await fetch(`${API_URL}/employees/agencies/${agency.id}/`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
+            const response = await apiFetch(`/employees/agencies/${agency.id}/`, {
+                method: 'DELETE'
             });
 
             if (response.ok) {
@@ -128,11 +122,8 @@ export default function AgenciesPage() {
     // Restore agency
     const restoreAgency = async (agency: Agency) => {
         try {
-            const response = await fetch(`${API_URL}/employees/agencies/${agency.id}/restore/`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
+            const response = await apiFetch(`/employees/agencies/${agency.id}/restore/`, {
+                method: 'POST'
             });
 
             if (response.ok) {
@@ -146,13 +137,12 @@ export default function AgenciesPage() {
     // Toggle active status
     const toggleActive = async (agency: Agency) => {
         try {
-            const response = await fetch(`${API_URL}/employees/agencies/${agency.id}/`, {
+            const response = await apiFetch(`/employees/agencies/${agency.id}/`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ is_active: !agency.is_active }),
+                body: JSON.stringify({ is_active: !agency.is_active })
             });
 
             if (response.ok) {
@@ -171,21 +161,21 @@ export default function AgenciesPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    marginBottom: '32px',
+                    marginBottom: '32px'
                 }}>
                     <div>
                         <h1 style={{
                             fontSize: '28px',
                             fontWeight: 700,
                             color: '#1F2937',
-                            margin: 0,
+                            margin: 0
                         }}>
                             Agencies (Uitzendbureaus)
                         </h1>
                         <p style={{
                             fontSize: '15px',
                             color: '#6B7280',
-                            marginTop: '6px',
+                            marginTop: '6px'
                         }}>
                             Manage employment agencies and billing rates
                         </p>
@@ -206,7 +196,7 @@ export default function AgenciesPage() {
                             fontWeight: 600,
                             cursor: 'pointer',
                             boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)',
-                            transition: 'all 0.15s ease',
+                            transition: 'all 0.15s ease'
                         }}
                         onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
                         onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
@@ -221,7 +211,7 @@ export default function AgenciesPage() {
                     display: 'grid',
                     gridTemplateColumns: 'repeat(4, 1fr)',
                     gap: '20px',
-                    marginBottom: '32px',
+                    marginBottom: '32px'
                 }}>
                     <StatCard label="Total Agencies" value={stats.total} icon={Building2} color="#7C3AED" />
                     <StatCard label="Active" value={stats.active} icon={CheckCircle} color="#10B981" />
@@ -234,7 +224,7 @@ export default function AgenciesPage() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '16px',
-                    marginBottom: '24px',
+                    marginBottom: '24px'
                 }}>
                     {/* Search */}
                     <div style={{ flex: 1, position: 'relative' }}>
@@ -245,7 +235,7 @@ export default function AgenciesPage() {
                                 left: '14px',
                                 top: '50%',
                                 transform: 'translateY(-50%)',
-                                color: '#9CA3AF',
+                                color: '#9CA3AF'
                             }}
                         />
                         <input
@@ -260,7 +250,7 @@ export default function AgenciesPage() {
                                 backgroundColor: 'white',
                                 border: '1px solid #E5E7EB',
                                 borderRadius: '12px',
-                                outline: 'none',
+                                outline: 'none'
                             }}
                         />
                     </div>
@@ -272,7 +262,7 @@ export default function AgenciesPage() {
                         gap: '8px',
                         cursor: 'pointer',
                         fontSize: '14px',
-                        color: '#6B7280',
+                        color: '#6B7280'
                     }}>
                         <input
                             type="checkbox"
@@ -289,7 +279,7 @@ export default function AgenciesPage() {
                         gap: '8px',
                         backgroundColor: '#F3F4F6',
                         padding: '4px',
-                        borderRadius: '10px',
+                        borderRadius: '10px'
                     }}>
                         {(['all', 'active', 'inactive'] as const).map((filter) => (
                             <button
@@ -305,7 +295,7 @@ export default function AgenciesPage() {
                                     borderRadius: '8px',
                                     cursor: 'pointer',
                                     transition: 'all 0.15s ease',
-                                    textTransform: 'capitalize',
+                                    textTransform: 'capitalize'
                                 }}
                             >
                                 {filter}
@@ -319,7 +309,7 @@ export default function AgenciesPage() {
                     backgroundColor: 'white',
                     borderRadius: '16px',
                     border: '1px solid #E5E7EB',
-                    overflow: 'hidden',
+                    overflow: 'hidden'
                 }}>
                     {/* Table Header */}
                     <div style={{
@@ -333,7 +323,7 @@ export default function AgenciesPage() {
                         fontWeight: 600,
                         color: '#6B7280',
                         textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
+                        letterSpacing: '0.05em'
                     }}>
                         <div>Agency</div>
                         <div>Code</div>
@@ -372,7 +362,7 @@ export default function AgenciesPage() {
                                     backgroundColor: agency.is_deleted ? '#FEF2F2' : agency.is_active ? 'white' : '#FAFAFA',
                                     opacity: agency.is_deleted ? 0.7 : 1,
                                     cursor: agency.is_deleted ? 'default' : 'pointer',
-                                    transition: 'background-color 0.15s ease',
+                                    transition: 'background-color 0.15s ease'
                                 }}
                                 onMouseOver={(e) => {
                                     if (!agency.is_deleted) e.currentTarget.style.backgroundColor = '#F9FAFB';
@@ -390,7 +380,7 @@ export default function AgenciesPage() {
                                         backgroundColor: agency.is_deleted ? '#FEE2E2' : agency.is_active ? '#F3E8FF' : '#F3F4F6',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        justifyContent: 'center',
+                                        justifyContent: 'center'
                                     }}>
                                         <Building2 size={20} color={agency.is_deleted ? '#EF4444' : agency.is_active ? '#7C3AED' : '#9CA3AF'} />
                                     </div>
@@ -399,7 +389,7 @@ export default function AgenciesPage() {
                                             fontWeight: 600,
                                             color: agency.is_deleted ? '#EF4444' : agency.is_active ? '#1F2937' : '#9CA3AF',
                                             fontSize: '14px',
-                                            textDecoration: agency.is_deleted ? 'line-through' : 'none',
+                                            textDecoration: agency.is_deleted ? 'line-through' : 'none'
                                         }}>
                                             {agency.name}
                                         </p>
@@ -409,7 +399,7 @@ export default function AgenciesPage() {
                                                 alignItems: 'center',
                                                 fontSize: '11px',
                                                 color: '#7C3AED',
-                                                marginTop: '2px',
+                                                marginTop: '2px'
                                             }}>
                                                 Has surcharges
                                             </span>
@@ -425,7 +415,7 @@ export default function AgenciesPage() {
                                     fontFamily: 'monospace',
                                     color: '#7C3AED',
                                     backgroundColor: '#F3E8FF',
-                                    borderRadius: '6px',
+                                    borderRadius: '6px'
                                 }}>
                                     {agency.code}
                                 </span>
@@ -436,7 +426,7 @@ export default function AgenciesPage() {
                                     color: '#6B7280',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
+                                    whiteSpace: 'nowrap'
                                 }}>
                                     {agency.description || 'No description'}
                                 </p>
@@ -453,7 +443,7 @@ export default function AgenciesPage() {
                                             fontWeight: 600,
                                             color: '#059669',
                                             backgroundColor: '#D1FAE5',
-                                            borderRadius: '6px',
+                                            borderRadius: '6px'
                                         }}>
                                             <Euro size={12} />
                                             {Number(agency.base_hourly_rate ?? 0).toFixed(2)}
@@ -475,7 +465,7 @@ export default function AgenciesPage() {
                                             fontWeight: 500,
                                             color: '#DC2626',
                                             backgroundColor: '#FEE2E2',
-                                            borderRadius: '6px',
+                                            borderRadius: '6px'
                                         }}>
                                             <XCircle size={12} />
                                             Deleted
@@ -494,7 +484,7 @@ export default function AgenciesPage() {
                                                 backgroundColor: agency.is_active ? '#D1FAE5' : '#F3F4F6',
                                                 border: 'none',
                                                 borderRadius: '6px',
-                                                cursor: 'pointer',
+                                                cursor: 'pointer'
                                             }}
                                         >
                                             {agency.is_active ? <CheckCircle size={12} /> : <XCircle size={12} />}
@@ -514,7 +504,7 @@ export default function AgenciesPage() {
                                         fontWeight: 500,
                                         color: '#3B82F6',
                                         backgroundColor: '#EFF6FF',
-                                        borderRadius: '6px',
+                                        borderRadius: '6px'
                                     }}>
                                         <Users size={12} />
                                         {agency.employee_count || 0}
@@ -526,7 +516,7 @@ export default function AgenciesPage() {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    gap: '4px',
+                                    gap: '4px'
                                 }} onClick={(e) => e.stopPropagation()}>
                                     {agency.is_deleted ? (
                                         <button
@@ -537,7 +527,7 @@ export default function AgenciesPage() {
                                                 backgroundColor: 'transparent',
                                                 border: 'none',
                                                 borderRadius: '6px',
-                                                cursor: 'pointer',
+                                                cursor: 'pointer'
                                             }}
                                             title="Restore"
                                         >
@@ -553,7 +543,7 @@ export default function AgenciesPage() {
                                                     backgroundColor: 'transparent',
                                                     border: 'none',
                                                     borderRadius: '6px',
-                                                    cursor: 'pointer',
+                                                    cursor: 'pointer'
                                                 }}
                                                 title="Edit"
                                             >
@@ -567,7 +557,7 @@ export default function AgenciesPage() {
                                                     backgroundColor: 'transparent',
                                                     border: 'none',
                                                     borderRadius: '6px',
-                                                    cursor: (agency.employee_count || 0) > 0 ? 'not-allowed' : 'pointer',
+                                                    cursor: (agency.employee_count || 0) > 0 ? 'not-allowed' : 'pointer'
                                                 }}
                                                 title={(agency.employee_count || 0) > 0 ? 'Cannot delete - has employees' : 'Delete'}
                                                 disabled={(agency.employee_count || 0) > 0}
@@ -598,12 +588,12 @@ function StatCard({ label, value, icon: Icon, color }: {
             backgroundColor: 'white',
             borderRadius: '16px',
             padding: '20px',
-            border: '1px solid #E5E7EB',
+            border: '1px solid #E5E7EB'
         }}>
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
+                justifyContent: 'space-between'
             }}>
                 <div>
                     <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '6px' }}>{label}</p>
@@ -616,7 +606,7 @@ function StatCard({ label, value, icon: Icon, color }: {
                     backgroundColor: `${color}15`,
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    justifyContent: 'center'
                 }}>
                     <Icon size={24} color={color} />
                 </div>

@@ -1414,7 +1414,15 @@ class WorkEntry(BaseModel):
         # Ensure project is set from shift template if not already
         if self.shift_template and not self.project_id:
             self.project = self.shift_template.project
-        
+
+        # Billing week used to be derived only inside submit()/approve(), so any
+        # entry created another way (admin, import, bulk_create, a direct API
+        # POST that lands already-approved) kept NULL week fields — and invoice
+        # generation filters on exactly those fields, so the work was silently
+        # left off the invoice. Derive it on every save instead.
+        if self.actual_start_datetime:
+            self._calculate_billing_week()
+
         super().save(*args, **kwargs)
 
 

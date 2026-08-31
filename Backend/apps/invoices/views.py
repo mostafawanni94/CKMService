@@ -1,22 +1,26 @@
 """Invoice API Views."""
 from datetime import datetime, timedelta
 from decimal import Decimal
+from django.db.models import Sum
+from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from apps.employees.views import IsAdmin
+from apps.core.permissions import IsAdmin, IsFinanceStaff
 from apps.employees.models import Agency
 from apps.worklogs.models import WorkEntry
 from .models import (
     Invoice, InvoiceLine, InvoiceCost, CostType, ProjectRate,
-    AgencyInvoice, AgencyInvoiceLine,
+    AgencyInvoice, AgencyInvoiceLine, IncomingInvoice,
 )
 from .serializers import (
     InvoiceListSerializer, InvoiceDetailSerializer, InvoiceGenerateSerializer,
     CostTypeSerializer, ProjectRateSerializer, InvoiceLineSerializer, InvoiceCostSerializer,
     AgencyInvoiceListSerializer, AgencyInvoiceDetailSerializer,
     AgencyInvoiceGenerateSerializer, AgencyInvoicePaymentSerializer,
+    IncomingInvoiceSerializer,
 )
 
 
@@ -445,3 +449,157 @@ class AgencyInvoiceViewSet(viewsets.ModelViewSet):
             'invoice': AgencyInvoiceDetailSerializer(invoice).data
         })
 
+
+
+# =============================================================================
+# INCOMING INVOICES
+# =============================================================================
+
+class IncomingInvoiceViewSet(viewsets.ModelViewSet):
+    """
+    Supplier / purchase invoices.
+
+    Finance and admin only — these are payables, not employee-facing data.
+    """
+
+    queryset = (
+        IncomingInvoice.objects.filter(is_deleted=False)
+        .select_related('agency', 'category')
+    )
+    serializer_class = IncomingInvoiceSerializer
+    permission_classes = [IsFinanceStaff]
+    filterset_fields = ['status', 'agency', 'category', 'vendor_name']
+    search_fields = ['invoice_number', 'vendor_name', 'description']
+    ordering_fields = ['invoice_date', 'due_date', 'total', 'created_at']
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+    @action(detail=True, methods=['post'])
+    def mark_paid(self, request, pk=None):
+        """Mark an incoming invoice as paid."""
+        invoice = self.get_object()
+        if invoice.status == IncomingInvoice.Status.PAID:
+            return Response(
+                {'detail': 'This invoice is already marked paid.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        paid_date = request.data.get('paid_date') or timezone.localdate()
+        invoice.status = IncomingInvoice.Status.PAID
+        invoice.paid_date = paid_date
+        invoice.updated_by = request.user
+        invoice.save()
+        return Response(self.get_serializer(invoice).data)
+
+    @action(detail=False, methods=['get'])
+    def summary(self, request):
+        """Totals for the dashboard header cards."""
+        qs = self.filter_queryset(self.get_queryset())
+        today = timezone.localdate()
+        pending = qs.filter(status=IncomingInvoice.Status.PENDING)
+        overdue = qs.filter(
+            status__in=[IncomingInvoice.Status.PENDING, IncomingInvoice.Status.OVERDUE],
+            due_date__lt=today,
+        )
+        paid = qs.filter(status=IncomingInvoice.Status.PAID)
+        def agg(queryset):
+            # Serialised as a string: the JSON renderer turns a bare Decimal
+            # into a float, so €302.50 came back as 302.5 while every other
+            # money field in the API is a two-decimal string.
+            total = queryset.aggregate(t=Sum('total'))['t'] or Decimal('0.00')
+            return f"{total.quantize(Decimal('0.01'))}"
+        return Response({
+            'total_count': qs.count(),
+            'pending_count': pending.count(),
+            'pending_total': agg(pending),
+            'overdue_count': overdue.count(),
+            'overdue_total': agg(overdue),
+            'paid_count': paid.count(),
+            'paid_total': agg(paid),
+        })
+
+
+# =============================================================================
+# EMPLOYEE EARNINGS
+# =============================================================================
+
+class PendingEarningsView(viewsets.ViewSet):
+    """
+    What the signed-in employee has earned but not yet been paid for.
+
+    GET /api/invoices/pending-earnings/
+
+    "Pending" means a work entry that has been submitted or approved but is not
+    yet carried by a paid payslip. The mobile app shows this as the running
+    total on the earnings screen.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        from apps.employees.models import EmployeeProfile
+        from apps.hr.models import Payslip
+
+        profile = EmployeeProfile.objects.filter(user=request.user).first()
+        if profile is None:
+            return Response({
+                'submitted_count': 0, 'submitted_hours': '0.00', 'submitted_amount': '0.00',
+                'approved_count': 0, 'approved_hours': '0.00', 'approved_amount': '0.00',
+                'total_pending_amount': '0.00', 'currency': 'EUR', 'results': [],
+            })
+
+        paid_entry_ids = set(
+            Payslip.objects.filter(
+                employee=profile, status=Payslip.Status.PAID, is_deleted=False,
+            ).values_list('lines__work_entry_id', flat=True)
+        )
+        paid_entry_ids.discard(None)
+
+        entries = (
+            WorkEntry.objects.filter(
+                employee=profile,
+                status__in=[WorkEntry.Status.SUBMITTED, WorkEntry.Status.APPROVED],
+            )
+            .exclude(id__in=paid_entry_ids)
+            .select_related('project', 'service')
+            .order_by('-work_date')
+        )
+
+        buckets = {
+            WorkEntry.Status.SUBMITTED: {'count': 0, 'hours': Decimal('0'), 'amount': Decimal('0')},
+            WorkEntry.Status.APPROVED: {'count': 0, 'hours': Decimal('0'), 'amount': Decimal('0')},
+        }
+        results = []
+        for entry in entries:
+            hours = Decimal(str(entry.calculated_hours or 0))
+            amount = entry.calculated_employee_payment or Decimal('0')
+            bucket = buckets[entry.status]
+            bucket['count'] += 1
+            bucket['hours'] += hours
+            bucket['amount'] += amount
+            results.append({
+                'id': str(entry.id),
+                'work_date': entry.work_date,
+                'status': entry.status,
+                'project': str(entry.project) if entry.project else None,
+                'service': str(entry.service) if entry.service else None,
+                'hours': f'{hours:.2f}',
+                'estimated_earnings': f'{amount:.2f}',
+            })
+
+        submitted = buckets[WorkEntry.Status.SUBMITTED]
+        approved = buckets[WorkEntry.Status.APPROVED]
+        return Response({
+            'submitted_count': submitted['count'],
+            'submitted_hours': f"{submitted['hours']:.2f}",
+            'submitted_amount': f"{submitted['amount']:.2f}",
+            'approved_count': approved['count'],
+            'approved_hours': f"{approved['hours']:.2f}",
+            'approved_amount': f"{approved['amount']:.2f}",
+            'total_pending_amount': f"{submitted['amount'] + approved['amount']:.2f}",
+            'currency': 'EUR',
+            'results': results,
+        })

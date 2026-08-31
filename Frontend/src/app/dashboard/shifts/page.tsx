@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { Button } from '@/components/ui';
 import { Calendar, Clock, MapPin, User, Building2, Phone, Mail, Plus, Check, X, AlertCircle, Search, Filter } from 'lucide-react';
+import { apiFetch } from '@/hooks/useApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -89,7 +90,7 @@ export default function ShiftsPage() {
         location_notes: '',
         supervisor_phone: '',
         supervisor_email: '',
-        special_instructions: '',
+        special_instructions: ''
     });
 
     // Search
@@ -108,9 +109,7 @@ export default function ShiftsPage() {
     async function loadShifts() {
         setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/worklogs/shifts/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/worklogs/shifts/`);
             if (response.ok) {
                 const data = await response.json();
                 setShifts(data.results || data);
@@ -123,9 +122,7 @@ export default function ShiftsPage() {
 
     async function loadPendingShifts() {
         try {
-            const response = await fetch(`${API_URL}/worklogs/shifts/pending/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/worklogs/shifts/pending/`);
             if (response.ok) {
                 const data = await response.json();
                 setPendingShifts(data);
@@ -137,9 +134,7 @@ export default function ShiftsPage() {
 
     async function loadEmployees() {
         try {
-            const response = await fetch(`${API_URL}/employees/profiles/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/employees/profiles/`);
             if (response.ok) {
                 const data = await response.json();
                 setEmployees((data.results || data).map((e: any) => ({ id: e.id, full_name: e.full_name })));
@@ -151,9 +146,7 @@ export default function ShiftsPage() {
 
     async function loadProjects() {
         try {
-            const response = await fetch(`${API_URL}/projects/projects/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/projects/projects/`);
             if (response.ok) {
                 const data = await response.json();
                 setProjects((data.results || data).map((p: any) => ({
@@ -170,9 +163,7 @@ export default function ShiftsPage() {
 
     async function loadCustomers() {
         try {
-            const response = await fetch(`${API_URL}/customers/customers/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/customers/customers/`);
             if (response.ok) {
                 const data = await response.json();
                 setCustomers((data.results || data).map((c: any) => ({ id: c.id, company_name: c.company_name })));
@@ -190,9 +181,7 @@ export default function ShiftsPage() {
         }
         try {
             // Load supervisors from project detail API
-            const projRes = await fetch(`${API_URL}/projects/projects/${projectId}/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const projRes = await apiFetch(`/projects/projects/${projectId}/`);
             if (projRes.ok) {
                 const projData = await projRes.json();
                 // Map supervisors_list to match expected format
@@ -207,9 +196,7 @@ export default function ShiftsPage() {
 
             // Load services from customer
             if (customerId) {
-                const svcRes = await fetch(`${API_URL}/customers/worklog-customers/${customerId}/services/`, {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-                });
+                const svcRes = await apiFetch(`/customers/worklog-customers/${customerId}/services/`);
                 if (svcRes.ok) {
                     const data = await svcRes.json();
                     setServices(data);
@@ -248,16 +235,15 @@ export default function ShiftsPage() {
                         location_notes: formData.location_notes,
                         supervisor_phone: formData.supervisor_phone,
                         supervisor_email: formData.supervisor_email,
-                        special_instructions: formData.special_instructions,
+                        special_instructions: formData.special_instructions
                     };
 
-                    const response = await fetch(`${API_URL}/worklogs/shifts/`, {
+                    const response = await apiFetch(`/worklogs/shifts/`, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                            'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(payload),
+                        body: JSON.stringify(payload)
                     });
                     return response;
                 })
@@ -281,9 +267,8 @@ export default function ShiftsPage() {
 
     async function handleApprove(shiftId: string) {
         try {
-            const response = await fetch(`${API_URL}/worklogs/shifts/${shiftId}/approve/`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+            const response = await apiFetch(`/worklogs/shifts/${shiftId}/approve/`, {
+                method: 'POST'
             });
             if (response.ok) {
                 loadShifts();
@@ -302,13 +287,12 @@ export default function ShiftsPage() {
         if (!reason) return;
 
         try {
-            const response = await fetch(`${API_URL}/worklogs/shifts/${shiftId}/reject/`, {
+            const response = await apiFetch(`/worklogs/shifts/${shiftId}/reject/`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ reason }),
+                body: JSON.stringify({ reason })
             });
             if (response.ok) {
                 loadShifts();
@@ -334,7 +318,7 @@ export default function ShiftsPage() {
             location_notes: '',
             supervisor_phone: '',
             supervisor_email: '',
-            special_instructions: '',
+            special_instructions: ''
         });
         setEmployeeSearch('');
         setSupervisors([]);
@@ -361,7 +345,7 @@ export default function ShiftsPage() {
         approved: { bg: '#D1FAE5', text: '#065F46' },
         rejected: { bg: '#FEE2E2', text: '#991B1B' },
         missed: { bg: '#F3F4F6', text: '#6B7280' },
-        cancelled: { bg: '#F3F4F6', text: '#6B7280' },
+        cancelled: { bg: '#F3F4F6', text: '#6B7280' }
     };
 
     const inputStyle = {
@@ -370,7 +354,7 @@ export default function ShiftsPage() {
         fontSize: '14px',
         border: '1px solid #E5E7EB',
         borderRadius: '8px',
-        outline: 'none',
+        outline: 'none'
     };
 
     const labelStyle = {
@@ -378,7 +362,7 @@ export default function ShiftsPage() {
         fontSize: '13px',
         fontWeight: 600 as const,
         color: '#374151',
-        marginBottom: '6px',
+        marginBottom: '6px'
     };
 
     return (
@@ -407,7 +391,7 @@ export default function ShiftsPage() {
                             border: 'none',
                             cursor: 'pointer',
                             backgroundColor: activeTab === 'all' ? '#1E3A5F' : '#F3F4F6',
-                            color: activeTab === 'all' ? 'white' : '#374151',
+                            color: activeTab === 'all' ? 'white' : '#374151'
                         }}
                     >
                         All Shifts ({shifts.length})
@@ -422,7 +406,7 @@ export default function ShiftsPage() {
                             border: 'none',
                             cursor: 'pointer',
                             backgroundColor: activeTab === 'pending' ? '#F59E0B' : '#F3F4F6',
-                            color: activeTab === 'pending' ? 'white' : '#374151',
+                            color: activeTab === 'pending' ? 'white' : '#374151'
                         }}
                     >
                         Pending Approval ({pendingShifts.length})
@@ -493,7 +477,7 @@ export default function ShiftsPage() {
                                                 fontSize: '12px',
                                                 fontWeight: 600,
                                                 backgroundColor: statusColors[shift.status]?.bg || '#F3F4F6',
-                                                color: statusColors[shift.status]?.text || '#6B7280',
+                                                color: statusColors[shift.status]?.text || '#6B7280'
                                             }}>
                                                 {shift.status_display}
                                             </span>
@@ -529,7 +513,7 @@ export default function ShiftsPage() {
                         style={{
                             position: 'fixed', inset: 0, zIndex: 50,
                             backgroundColor: 'rgba(0,0,0,0.5)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center'
                         }}
                         onClick={() => setShowModal(false)}
                     >
@@ -541,7 +525,7 @@ export default function ShiftsPage() {
                                 width: '100%',
                                 maxWidth: '600px',
                                 maxHeight: '90vh',
-                                overflow: 'auto',
+                                overflow: 'auto'
                             }}
                             onClick={(e) => e.stopPropagation()}
                         >
@@ -639,7 +623,7 @@ export default function ShiftsPage() {
                                     <div style={{
                                         maxHeight: '200px', overflowY: 'auto',
                                         border: '1px solid #E5E7EB', borderRadius: '8px',
-                                        backgroundColor: '#F9FAFB',
+                                        backgroundColor: '#F9FAFB'
                                     }}>
                                         {employees
                                             .filter(emp => emp.full_name.toLowerCase().includes(employeeSearch.toLowerCase()))
@@ -665,7 +649,7 @@ export default function ShiftsPage() {
                                                             display: 'flex', alignItems: 'center', gap: '10px',
                                                             padding: '10px 14px', cursor: 'pointer',
                                                             backgroundColor: isSelected ? '#EFF6FF' : 'transparent',
-                                                            borderBottom: '1px solid #E5E7EB',
+                                                            borderBottom: '1px solid #E5E7EB'
                                                         }}
                                                     >
                                                         <div style={{
@@ -673,7 +657,7 @@ export default function ShiftsPage() {
                                                             borderRadius: '4px',
                                                             border: isSelected ? 'none' : '2px solid #D1D5DB',
                                                             backgroundColor: isSelected ? '#1E3A5F' : 'white',
-                                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                            display: 'flex', alignItems: 'center', justifyContent: 'center'
                                                         }}>
                                                             {isSelected && <Check size={14} color="white" />}
                                                         </div>

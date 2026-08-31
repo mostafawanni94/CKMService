@@ -6,6 +6,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Customer } from '@/lib/api';
+import { apiFetch, readApiError } from '@/hooks/useApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -74,13 +75,13 @@ const DEFAULT_EDIT_FORM = {
   company_name: '', city: '', postcode: '', address: '',
   street_name: '', house_number: '', house_number_addition: '',
   country: '', website: '', iban: '', btw_number: '', kvk_number: '',
-  g_rekening: '', is_active: true,
+  g_rekening: '', is_active: true
 };
 
 const DEFAULT_OUTFOLDER: Outfolder = {
   first_name: '', last_name: '', company_name: '', notes: '',
   is_active: true,
-  contacts: [{ contact_type: 'phone', value: '', label: '', is_primary: false }],
+  contacts: [{ contact_type: 'phone', value: '', label: '', is_primary: false }]
 };
 
 const DEFAULT_PORTAL_FORM = { email: '', password: '', first_name: '', last_name: '' };
@@ -154,9 +155,6 @@ export function useCustomerDetail() {
   const [creatingPortalUser, setCreatingPortalUser] = useState(false);
   const [portalUserError, setPortalUserError] = useState<string | null>(null);
 
-  // ─── Auth header helper ───────────────────────────────
-  const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('access_token')}` });
-
   // ─── Loaders ──────────────────────────────────────────
   useEffect(() => {
     loadCustomer();
@@ -169,7 +167,7 @@ export function useCustomerDetail() {
   async function loadCustomer() {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/customers/customers/${params.id}/`, { headers: authHeaders() });
+      const response = await apiFetch(`/customers/customers/${params.id}/`);
       if (!response.ok) throw new Error('Customer not found');
       const data = await response.json();
       setCustomer(data);
@@ -178,30 +176,30 @@ export function useCustomerDetail() {
         address: data.address || '', street_name: data.street_name || '', house_number: data.house_number || '',
         house_number_addition: data.house_number_addition || '', country: data.country || 'Netherlands',
         website: data.website || '', iban: data.iban || '', btw_number: data.btw_number || '',
-        kvk_number: data.kvk_number || '', g_rekening: data.g_rekening || '', is_active: data.is_active ?? true,
+        kvk_number: data.kvk_number || '', g_rekening: data.g_rekening || '', is_active: data.is_active ?? true
       });
 
       // Surcharges
       setHasSurcharges(data.has_surcharges || false);
       if (data.surcharges?.length) setSelectedSurcharges(data.surcharges.map((s: any) => ({
         surcharge_type: s.surcharge_type, surcharge_type_name: s.surcharge_type_name,
-        percentage: parseFloat(s.percentage) || 25, is_enabled: s.is_enabled,
+        percentage: parseFloat(s.percentage) || 25, is_enabled: s.is_enabled
       })));
       setHasServiceSurcharges(data.has_service_surcharges || false);
       if (data.service_surcharges?.length) setSelectedServiceSurcharges(data.service_surcharges.map((s: any) => ({
         surcharge_type: s.surcharge_type, surcharge_type_name: s.surcharge_type_name,
-        percentage: parseFloat(s.percentage) || 25, is_enabled: s.is_enabled,
+        percentage: parseFloat(s.percentage) || 25, is_enabled: s.is_enabled
       })));
       setHasAllowanceSurcharges(data.has_allowance_surcharges || false);
       if (data.allowance_surcharges?.length) setSelectedAllowanceSurcharges(data.allowance_surcharges.map((s: any) => ({
         surcharge_type: s.surcharge_type, surcharge_type_name: s.surcharge_type_name,
-        percentage: parseFloat(s.percentage) || 25, is_enabled: s.is_enabled,
+        percentage: parseFloat(s.percentage) || 25, is_enabled: s.is_enabled
       })));
 
       // Service rates
       if (data.service_rates?.length) {
         const rates = data.service_rates.map((sr: any) => ({
-          service_id: sr.service, service_name: sr.service_name, price: parseFloat(sr.price) || 0, is_active: sr.is_active,
+          service_id: sr.service, service_name: sr.service_name, price: parseFloat(sr.price) || 0, is_active: sr.is_active
         }));
         setServiceRates(rates);
         setOriginalServiceRates(rates.filter((r: any) => r.is_active).map((r: any) => ({ service_id: r.service_id, price: r.price })));
@@ -211,7 +209,7 @@ export function useCustomerDetail() {
       if (data.allowances?.length) setCustomerAllowances(data.allowances.map((a: any) => ({
         id: a.id, allowance_type: a.allowance_type, allowance_type_name: a.allowance_type_name,
         custom_name: a.custom_name || a.allowance_type_name || '', price: parseFloat(a.price) || 0,
-        is_enabled: a.is_enabled ?? true, apply_surcharges: a.apply_surcharges ?? false,
+        is_enabled: a.is_enabled ?? true, apply_surcharges: a.apply_surcharges ?? false
       })));
 
       // Contacts
@@ -244,35 +242,35 @@ export function useCustomerDetail() {
 
   async function loadSurchargeTypes() {
     try {
-      const r = await fetch(`${API_URL}/employees/surcharge-types/`, { headers: authHeaders() });
+      const r = await apiFetch(`/employees/surcharge-types/`);
       if (r.ok) { const d = await r.json(); setSurchargeTypes(d.results || d); }
     } catch { console.error('Failed to load surcharge types'); }
   }
 
   async function loadServices() {
     try {
-      const r = await fetch(`${API_URL}/customers/services/`, { headers: authHeaders() });
+      const r = await apiFetch(`/customers/services/`);
       if (r.ok) { const d = await r.json(); setAvailableServices(d.results || d); }
     } catch { console.error('Failed to load services'); }
   }
 
   async function loadAllowanceTypes() {
     try {
-      const r = await fetch(`${API_URL}/employees/allowance-types/`, { headers: authHeaders() });
+      const r = await apiFetch(`/employees/allowance-types/`);
       if (r.ok) { const d = await r.json(); setAvailableAllowances(d.results || d); }
     } catch { console.error('Failed to load allowance types'); }
   }
 
   async function loadContractHistory() {
     try {
-      const r = await fetch(`${API_URL}/customers/customers/${params.id}/contract_history/`, { headers: authHeaders() });
+      const r = await apiFetch(`/customers/customers/${params.id}/contract_history/`);
       if (r.ok) setContractHistory(await r.json());
     } catch { console.error('Failed to load contract history'); }
   }
 
   async function loadPortalUsers() {
     try {
-      const r = await fetch(`${API_URL}/employees/customer-users/?customer=${params.id}`, { headers: authHeaders() });
+      const r = await apiFetch(`/employees/customer-users/?customer=${params.id}`);
       if (r.ok) setPortalUsers(await r.json());
     } catch { console.error('Failed to load portal users'); }
   }
@@ -357,7 +355,7 @@ export function useCustomerDetail() {
       setCustomerAllowances([...customerAllowances, {
         allowance_type: allowanceId, allowance_type_name: allowance?.name || '', allowance_type_code: allowance?.code || '',
         custom_name: allowance?.name || '', custom_price: undefined, price: parseFloat(allowance?.base_price || '0'),
-        is_enabled: true, apply_surcharges: true, enabled_surcharges_ids: [],
+        is_enabled: true, apply_surcharges: true, enabled_surcharges_ids: []
       }]);
     }
   }
@@ -383,7 +381,7 @@ export function useCustomerDetail() {
 
   function addCustomAllowance() {
     setCustomerAllowances([...customerAllowances, {
-      allowance_type: undefined, custom_name: '', custom_code: '', price: 0, is_enabled: true, apply_surcharges: false,
+      allowance_type: undefined, custom_name: '', custom_code: '', price: 0, is_enabled: true, apply_surcharges: false
     }]);
   }
 
@@ -419,30 +417,30 @@ export function useCustomerDetail() {
     if (!newOutfolder.first_name.trim() || !newOutfolder.last_name.trim()) { alert('First name and last name are required'); return; }
     try {
       if (editingOutfolderId) {
-        const r = await fetch(`${API_URL}/customers/outfolders/${editingOutfolderId}/`, {
-          method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify({ first_name: newOutfolder.first_name, last_name: newOutfolder.last_name, company_name: newOutfolder.company_name, notes: newOutfolder.notes, is_active: true }),
+        const r = await apiFetch(`/customers/outfolders/${editingOutfolderId}/`, {
+          method: 'PATCH', 
+          body: JSON.stringify({ first_name: newOutfolder.first_name, last_name: newOutfolder.last_name, company_name: newOutfolder.company_name, notes: newOutfolder.notes, is_active: true })
         });
         if (!r.ok) throw new Error('Failed to update supervisor');
         for (const c of newOutfolder.contacts) {
-          if (c.value.trim() && !c.id) await fetch(`${API_URL}/customers/outfolders/${editingOutfolderId}/add_contact/`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
-            body: JSON.stringify({ contact_type: c.contact_type, value: c.value, label: c.label || '', is_primary: c.is_primary }),
+          if (c.value.trim() && !c.id) await apiFetch(`/customers/outfolders/${editingOutfolderId}/add_contact/`, {
+            method: 'POST', 
+            body: JSON.stringify({ contact_type: c.contact_type, value: c.value, label: c.label || '', is_primary: c.is_primary })
           });
         }
         setEditingOutfolderId(null);
         alert('Supervisor updated successfully!');
       } else {
-        const r = await fetch(`${API_URL}/customers/outfolders/`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify({ customer: params.id, first_name: newOutfolder.first_name, last_name: newOutfolder.last_name, company_name: newOutfolder.company_name || customer?.company_name || '', notes: newOutfolder.notes, is_active: true }),
+        const r = await apiFetch(`/customers/outfolders/`, {
+          method: 'POST', 
+          body: JSON.stringify({ customer: params.id, first_name: newOutfolder.first_name, last_name: newOutfolder.last_name, company_name: newOutfolder.company_name || customer?.company_name || '', notes: newOutfolder.notes, is_active: true })
         });
-        if (!r.ok) { const e = await r.json(); throw new Error(e.detail || 'Failed to create supervisor'); }
+        if (!r.ok) throw new Error(await readApiError(r));
         const created = await r.json();
         for (const c of newOutfolder.contacts) {
-          if (c.value.trim()) await fetch(`${API_URL}/customers/outfolders/${created.id}/add_contact/`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
-            body: JSON.stringify({ contact_type: c.contact_type, value: c.value, label: c.label || '', is_primary: c.is_primary }),
+          if (c.value.trim()) await apiFetch(`/customers/outfolders/${created.id}/add_contact/`, {
+            method: 'POST', 
+            body: JSON.stringify({ contact_type: c.contact_type, value: c.value, label: c.label || '', is_primary: c.is_primary })
           });
         }
         setShowAddOutfolder(false);
@@ -456,7 +454,7 @@ export function useCustomerDetail() {
   async function removeOutfolder(outfolderId: string) {
     if (!confirm('Are you sure you want to remove this supervisor?')) return;
     try {
-      const r = await fetch(`${API_URL}/customers/outfolders/${outfolderId}/`, { method: 'DELETE', headers: authHeaders() });
+      const r = await apiFetch(`/customers/outfolders/${outfolderId}/`, { method: 'DELETE', });
       if (!r.ok) throw new Error('Failed to delete');
       await loadCustomer();
     } catch { alert('Failed to remove supervisor'); }
@@ -470,8 +468,8 @@ export function useCustomerDetail() {
       const fd = new FormData();
       fd.append('contract_document', newContractFile);
       fd.append('effective_from', newContractEffectiveFrom || new Date().toISOString().split('T')[0]);
-      const r = await fetch(`${API_URL}/customers/customers/${params.id}/upload_contract/`, { method: 'POST', headers: authHeaders(), body: fd });
-      if (!r.ok) { const d = await r.json(); throw new Error(d.error || 'Upload failed'); }
+      const r = await apiFetch(`/customers/customers/${params.id}/upload_contract/`, { method: 'POST', body: fd });
+      if (!r.ok) throw new Error(await readApiError(r));
       await loadContractHistory();
       setShowContractUploadModal(false); setNewContractFile(null); setNewContractRate(''); setNewContractEffectiveFrom('');
       if (pendingSave) { setPendingSave(false); handleSave(); }
@@ -511,12 +509,12 @@ export function useCustomerDetail() {
       if (editForm.g_rekening) fd.append('g_rekening', editForm.g_rekening);
       if (logo) fd.append('logo', logo);
 
-      const r = await fetch(`${API_URL}/customers/customers/${params.id}/`, { method: 'PATCH', headers: authHeaders(), body: fd });
+      const r = await apiFetch(`/customers/customers/${params.id}/`, { method: 'PATCH', body: fd });
       if (!r.ok) throw new Error('Failed to save');
 
       // Billing JSON call
-      await fetch(`${API_URL}/customers/customers/${params.id}/`, {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      await apiFetch(`/customers/customers/${params.id}/`, {
+        method: 'PATCH', 
         body: JSON.stringify({
           has_surcharges: hasSurcharges,
           surcharges: selectedSurcharges.filter(s => s.is_enabled).map(s => ({ surcharge_type: s.surcharge_type, percentage: s.percentage, is_enabled: true })),
@@ -527,34 +525,34 @@ export function useCustomerDetail() {
           service_rates: serviceRates.filter(sr => sr.is_active).map(sr => ({ service_id: sr.service_id, price: sr.price, is_active: true })),
           allowances: customerAllowances.filter(a => a.custom_name?.trim() || a.allowance_type).map(a => ({
             id: a.id, allowance_type: a.allowance_type || null, custom_name: a.custom_name, custom_code: a.custom_code || '',
-            price: a.price, is_enabled: a.is_enabled, apply_surcharges: a.apply_surcharges,
-          })),
-        }),
+            price: a.price, is_enabled: a.is_enabled, apply_surcharges: a.apply_surcharges
+          }))
+        })
       });
 
       // Contacts
       for (const c of newCustomerContacts) {
-        if (c.value.trim()) await fetch(`${API_URL}/customers/customers/${params.id}/add_contact/`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify({ contact_type: c.contact_type, value: c.value, label: 'company', is_primary: c.is_primary }),
+        if (c.value.trim()) await apiFetch(`/customers/customers/${params.id}/add_contact/`, {
+          method: 'POST', 
+          body: JSON.stringify({ contact_type: c.contact_type, value: c.value, label: 'company', is_primary: c.is_primary })
         });
       }
       for (const c of newManagerContacts) {
-        if (c.value.trim()) await fetch(`${API_URL}/customers/customers/${params.id}/add_contact/`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify({ contact_type: c.contact_type, value: c.value, label: 'manager', is_primary: c.is_primary }),
+        if (c.value.trim()) await apiFetch(`/customers/customers/${params.id}/add_contact/`, {
+          method: 'POST', 
+          body: JSON.stringify({ contact_type: c.contact_type, value: c.value, label: 'manager', is_primary: c.is_primary })
         });
       }
 
       // HR email
       if (hrEmail.trim()) {
         if (existingHrContactId) {
-          await fetch(`${API_URL}/customers/contacts/${existingHrContactId}/`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ value: hrEmail.trim() }) });
+          await apiFetch(`/customers/contacts/${existingHrContactId}/`, { method: 'PATCH',  body: JSON.stringify({ value: hrEmail.trim() }) });
         } else {
-          await fetch(`${API_URL}/customers/customers/${params.id}/add_contact/`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ contact_type: 'email', value: hrEmail.trim(), label: 'hr', is_primary: false }) });
+          await apiFetch(`/customers/customers/${params.id}/add_contact/`, { method: 'POST',  body: JSON.stringify({ contact_type: 'email', value: hrEmail.trim(), label: 'hr', is_primary: false }) });
         }
       } else if (existingHrContactId) {
-        await fetch(`${API_URL}/customers/contacts/${existingHrContactId}/`, { method: 'DELETE', headers: authHeaders() });
+        await apiFetch(`/customers/contacts/${existingHrContactId}/`, { method: 'DELETE', });
       }
 
       setLogo(null);
@@ -568,7 +566,7 @@ export function useCustomerDetail() {
   async function handleDelete() {
     setDeleting(true);
     try {
-      const r = await fetch(`${API_URL}/customers/customers/${params.id}/`, { method: 'DELETE', headers: authHeaders() });
+      const r = await apiFetch(`/customers/customers/${params.id}/`, { method: 'DELETE', });
       if (!r.ok) throw new Error('Failed to delete');
       router.push('/dashboard/customers');
     } catch { alert('Failed to delete customer'); setDeleting(false); }
@@ -646,6 +644,6 @@ export function useCustomerDetail() {
     inputStyle, labelStyle,
 
     // Actions
-    handleSave, handleDelete,
+    handleSave, handleDelete
   };
 }

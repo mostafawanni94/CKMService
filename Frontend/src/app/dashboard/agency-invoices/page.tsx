@@ -8,7 +8,7 @@ import { FileText, Eye } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import {
   PageHeader, SectionCard, SearchBar, Select, Button,
-  DataTable, StatusBadge, Pagination,
+  DataTable, StatusBadge, Pagination
 } from '@/components/ui/shared';
 import type { Column } from '@/components/ui/shared';
 import { useAgencyInvoices } from '@/hooks/useAgencyInvoices';
@@ -32,7 +32,7 @@ export default function AgencyInvoicesPage() {
   const columns: Column<AgencyInvoice>[] = [
     {
       key: 'number', header: 'Invoice #',
-      render: (inv) => <span style={{ fontWeight: fontWeight.bold, color: colors.primary }}>{inv.invoice_number}</span>,
+      render: (inv) => <span style={{ fontWeight: fontWeight.bold, color: colors.primary }}>{inv.invoice_number}</span>
     },
     {
       key: 'agency', header: 'Agency',
@@ -41,24 +41,24 @@ export default function AgencyInvoicesPage() {
           <div style={{ fontWeight: fontWeight.semibold }}>{inv.agency_name}</div>
           <div className={styles.mutedText}>{inv.agency_code}</div>
         </div>
-      ),
+      )
     },
     {
       key: 'period', header: 'Period',
-      render: (inv) => <span className={styles.mutedText}>{inv.period_start} → {inv.period_end}</span>,
+      render: (inv) => <span className={styles.mutedText}>{inv.period_start} → {inv.period_end}</span>
     },
     { key: 'hours', header: 'Hours', render: (inv) => <span>{parseFloat(inv.total_hours).toFixed(1)}h</span> },
     {
       key: 'total', header: 'Total', align: 'right',
-      render: (inv) => <span style={{ fontWeight: fontWeight.bold }}>€{parseFloat(inv.total).toFixed(2)}</span>,
+      render: (inv) => <span style={{ fontWeight: fontWeight.bold }}>€{parseFloat(inv.total).toFixed(2)}</span>
     },
     {
       key: 'paid', header: 'Paid', align: 'right',
-      render: (inv) => <span className={styles.successText}>€{parseFloat(inv.amount_paid).toFixed(2)}</span>,
+      render: (inv) => <span className={styles.successText}>€{parseFloat(inv.amount_paid).toFixed(2)}</span>
     },
     {
       key: 'status', header: 'Status',
-      render: (inv) => <StatusBadge status={inv.status} label={inv.status_display} />,
+      render: (inv) => <StatusBadge status={inv.status} label={inv.status_display} />
     },
     {
       key: 'actions', header: '',
@@ -66,7 +66,7 @@ export default function AgencyInvoicesPage() {
         <Button variant="ghost" size="sm" icon={<Eye size={14} />} onClick={() => router.push(`/dashboard/agencies/${inv.agency}`)}>
           View
         </Button>
-      ),
+      )
     },
   ];
 

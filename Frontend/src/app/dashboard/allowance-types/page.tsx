@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/dashboard';
+import { apiFetch } from '@/hooks/useApi';
 
 // Types
 interface AllowanceType {
@@ -45,7 +46,7 @@ export default function AllowanceTypesPage() {
         base_price: '0.00',
         description: '',
         is_active: true,
-        sort_order: 0,
+        sort_order: 0
     });
 
     useEffect(() => {
@@ -54,9 +55,7 @@ export default function AllowanceTypesPage() {
 
     async function fetchAllowanceTypes() {
         try {
-            const response = await fetch(`${API_URL}/employees/allowance-types/`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-            });
+            const response = await apiFetch(`/employees/allowance-types/`);
             if (response.ok) {
                 const data = await response.json();
                 // Handle both paginated {results: [...]} and direct array responses
@@ -89,7 +88,7 @@ export default function AllowanceTypesPage() {
                 base_price: type.base_price,
                 description: type.description,
                 is_active: type.is_active,
-                sort_order: type.sort_order,
+                sort_order: type.sort_order
             });
         } else {
             setEditingId(null);
@@ -99,7 +98,7 @@ export default function AllowanceTypesPage() {
                 base_price: '0.00',
                 description: '',
                 is_active: true,
-                sort_order: allowanceTypes.length,
+                sort_order: allowanceTypes.length
             });
         }
         setShowModal(true);
@@ -114,13 +113,12 @@ export default function AllowanceTypesPage() {
                 : `${API_URL}/employees/allowance-types/`;
             const method = editingId ? 'PUT' : 'POST';
 
-            const response = await fetch(url, {
+            const response = await apiFetch(url, {
                 method,
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(formData)
             });
 
             if (response.ok) {
@@ -141,9 +139,8 @@ export default function AllowanceTypesPage() {
         if (!confirm('Are you sure you want to delete this allowance type?')) return;
 
         try {
-            const response = await fetch(`${API_URL}/employees/allowance-types/${id}/`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+            const response = await apiFetch(`/employees/allowance-types/${id}/`, {
+                method: 'DELETE'
             });
 
             if (response.ok) {
@@ -159,13 +156,12 @@ export default function AllowanceTypesPage() {
     // Toggle active status
     async function toggleActive(type: AllowanceType) {
         try {
-            const response = await fetch(`${API_URL}/employees/allowance-types/${type.id}/`, {
+            const response = await apiFetch(`/employees/allowance-types/${type.id}/`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ is_active: !type.is_active }),
+                body: JSON.stringify({ is_active: !type.is_active })
             });
 
             if (response.ok) {
@@ -212,7 +208,7 @@ export default function AllowanceTypesPage() {
                             borderRadius: '10px',
                             fontSize: '14px',
                             fontWeight: 600,
-                            cursor: 'pointer',
+                            cursor: 'pointer'
                         }}
                     >
                         <Plus size={18} />
@@ -241,7 +237,7 @@ export default function AllowanceTypesPage() {
                             border: '1px solid #E5E7EB',
                             borderRadius: '10px',
                             fontSize: '14px',
-                            outline: 'none',
+                            outline: 'none'
                         }}
                     />
                 </div>
@@ -296,7 +292,7 @@ export default function AllowanceTypesPage() {
                                                 borderRadius: '20px',
                                                 fontSize: '12px',
                                                 fontWeight: 600,
-                                                cursor: 'pointer',
+                                                cursor: 'pointer'
                                             }}
                                         >
                                             {type.is_active ? <CheckCircle size={14} /> : <XCircle size={14} />}
@@ -341,7 +337,7 @@ export default function AllowanceTypesPage() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        zIndex: 1000,
+                        zIndex: 1000
                     }}
                     onClick={() => setShowModal(false)}
                 >
@@ -353,7 +349,7 @@ export default function AllowanceTypesPage() {
                             maxWidth: '500px',
                             width: '100%',
                             maxHeight: '90vh',
-                            overflow: 'auto',
+                            overflow: 'auto'
                         }}
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -423,7 +419,7 @@ export default function AllowanceTypesPage() {
                                     padding: '16px',
                                     backgroundColor: formData.is_active ? '#D1FAE5' : '#F3F4F6',
                                     borderRadius: '10px',
-                                    cursor: 'pointer',
+                                    cursor: 'pointer'
                                 }}
                             >
                                 <span style={{ fontWeight: 500, color: '#374151' }}>Active</span>
@@ -433,7 +429,7 @@ export default function AllowanceTypesPage() {
                                     backgroundColor: formData.is_active ? '#059669' : '#D1D5DB',
                                     borderRadius: '12px',
                                     position: 'relative',
-                                    transition: 'background-color 0.2s',
+                                    transition: 'background-color 0.2s'
                                 }}>
                                     <div style={{
                                         position: 'absolute',
@@ -443,7 +439,7 @@ export default function AllowanceTypesPage() {
                                         height: '20px',
                                         backgroundColor: 'white',
                                         borderRadius: '50%',
-                                        transition: 'left 0.2s',
+                                        transition: 'left 0.2s'
                                     }} />
                                 </div>
                             </div>
@@ -462,7 +458,7 @@ export default function AllowanceTypesPage() {
                                     borderRadius: '10px',
                                     fontSize: '14px',
                                     fontWeight: 600,
-                                    cursor: 'pointer',
+                                    cursor: 'pointer'
                                 }}
                             >
                                 Cancel
@@ -480,7 +476,7 @@ export default function AllowanceTypesPage() {
                                     fontSize: '14px',
                                     fontWeight: 600,
                                     cursor: saving ? 'not-allowed' : 'pointer',
-                                    opacity: saving ? 0.7 : 1,
+                                    opacity: saving ? 0.7 : 1
                                 }}
                             >
                                 {saving ? 'Saving...' : (editingId ? 'Update' : 'Create')}
@@ -501,11 +497,11 @@ const thStyle: React.CSSProperties = {
     fontWeight: 600,
     color: '#6B7280',
     textTransform: 'uppercase',
-    letterSpacing: '0.5px',
+    letterSpacing: '0.5px'
 };
 
 const tdStyle: React.CSSProperties = {
-    padding: '16px',
+    padding: '16px'
 };
 
 const labelStyle: React.CSSProperties = {
@@ -513,7 +509,7 @@ const labelStyle: React.CSSProperties = {
     fontSize: '14px',
     fontWeight: 500,
     marginBottom: '8px',
-    color: '#374151',
+    color: '#374151'
 };
 
 const inputStyle: React.CSSProperties = {
@@ -522,7 +518,7 @@ const inputStyle: React.CSSProperties = {
     fontSize: '14px',
     border: '1px solid #E5E7EB',
     borderRadius: '10px',
-    outline: 'none',
+    outline: 'none'
 };
 
 // Stat Card Component
@@ -540,7 +536,7 @@ function StatCard({ label, value, icon: Icon, color }: {
             padding: '24px',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '16px'
         }}>
             <div style={{
                 width: '48px',
@@ -549,7 +545,7 @@ function StatCard({ label, value, icon: Icon, color }: {
                 backgroundColor: `${color}15`,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                justifyContent: 'center'
             }}>
                 <Icon size={24} style={{ color }} />
             </div>

@@ -14,7 +14,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.employees.views import IsAdmin
+from apps.core.permissions import IsAdmin
 from .models import ExpenseCategory, Expense, IncomeRecord
 from .serializers import (
     ExpenseCategorySerializer, ExpenseListSerializer,

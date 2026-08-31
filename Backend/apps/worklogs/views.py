@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from django.db.models import Q
 from django.db import models
 
-from apps.employees.views import IsAdmin, IsAdminOrSelf
+from apps.core.permissions import IsAdmin, IsAdminOrSelf
 from apps.employees.models import EmployeeProfile
 from apps.core.pagination import LargePagination
 from .models import Shift, WorkEntry, WorkEntryPhoto

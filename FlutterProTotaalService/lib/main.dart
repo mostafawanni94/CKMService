@@ -20,15 +20,21 @@ import 'features/invoices/presentation/viewmodels/invoice_viewmodel.dart';
 import 'features/home/presentation/screens/home_screen.dart';
 import 'features/profile/presentation/screens/profile_completion_screen.dart';
 import 'features/profile/presentation/screens/pending_approval_screen.dart';
+import 'core/network/api_client.dart';
+import 'core/services/fcm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Set system UI style
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
   ));
+
+  // Push notifications. This is a no-op (with a debug log) when the Firebase
+  // config files are absent, so it is safe to call unconditionally.
+  await fcmService.initialize();
 
   runApp(const ProTotaalServiceApp());
 }
@@ -41,7 +47,13 @@ class ProTotaalServiceApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LocalizationProvider()),
-        ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(create: (_) {
+          final auth = AuthViewModel();
+          // An unrecoverable 401 anywhere in the app now signs the user out
+          // instead of leaving screens stuck on a silent failure.
+          ApiClient.onSessionExpired = auth.handleSessionExpired;
+          return auth;
+        }),
         ChangeNotifierProvider(create: (_) => WalletViewModel()),
         ChangeNotifierProvider(create: (_) => InvoiceViewModel()),
       ],

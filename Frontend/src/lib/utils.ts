@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 export function formatCurrency(amount: number): string {
     return new Intl.NumberFormat('nl-NL', {
         style: 'currency',
-        currency: 'EUR',
+        currency: 'EUR'
     }).format(amount);
 }
 
@@ -16,7 +16,7 @@ export function formatDate(date: string | Date): string {
     return new Intl.DateTimeFormat('nl-NL', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric',
+        day: 'numeric'
     }).format(new Date(date));
 }
 
@@ -26,7 +26,7 @@ export function formatDateTime(date: string | Date): string {
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit',
+        minute: '2-digit'
     }).format(new Date(date));
 }
 
@@ -42,7 +42,7 @@ export function getStatusColor(status: string): string {
         suspended: 'bg-red-100 text-red-800',
         incomplete: 'bg-orange-100 text-orange-800',
         paid: 'bg-green-100 text-green-800',
-        overdue: 'bg-red-100 text-red-800',
+        overdue: 'bg-red-100 text-red-800'
     };
     return colors[status.toLowerCase()] || 'bg-gray-100 text-gray-800';
 }

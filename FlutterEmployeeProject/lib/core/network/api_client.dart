@@ -1,14 +1,24 @@
 // API Client for Customer Portal
 // Handles JWT authentication, token refresh, and API calls.
 
+import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
+import '../config/api_config.dart';
+
 class ApiClient {
-  // Local testing URL (use Mac IP for physical devices, localhost for simulators)
-  static const String baseUrl = 'http://192.168.2.47:8000/api';
+  /// Base URL comes from --dart-define=API_BASE_URL; see [ApiConfig].
+  static String get baseUrl => ApiConfig.baseUrl;
+
+  /// Invoked when the session cannot be renewed, so the app can sign out.
+  static void Function()? onSessionExpired;
+
+  /// Guards against concurrent 401s each firing their own refresh.
+  static Future<bool>? _inFlightRefresh;
   
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   
@@ -99,6 +109,10 @@ class ApiClient {
       if (refreshed) {
         response = await _makeRequest(method, path, body: body);
       } else {
+        // Clear the dead session so the app does not keep retrying with
+        // credentials the server has already rejected.
+        await logout();
+        onSessionExpired?.call();
         throw ApiException(statusCode: 401, message: 'Session expired. Please login again.');
       }
     }
@@ -137,22 +151,50 @@ class ApiClient {
   }
   
   Future<bool> _refreshAccessToken() async {
+    // Coalesce concurrent refreshes: with ROTATE_REFRESH_TOKENS on, two
+    // parallel refreshes would race and one would present a token the other
+    // had already rotated away.
+    final pending = _inFlightRefresh;
+    if (pending != null) return pending;
+
+    final completer = Completer<bool>();
+    _inFlightRefresh = completer.future;
     try {
+      final refresh = _refreshToken;
+      if (refresh == null || refresh.isEmpty) {
+        completer.complete(false);
+        return false;
+      }
+
       final response = await http.post(
         Uri.parse('$baseUrl/auth/token/refresh/'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'refresh': _refreshToken}),
+        body: jsonEncode({'refresh': refresh}),
       );
-      
+
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        _accessToken = data['access'];
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        _accessToken = data['access'] as String?;
         await _storage.write(key: 'access_token', value: _accessToken);
+
+        // The server rotates refresh tokens and blacklists the old one, so the
+        // replacement must be stored. Without this the *next* refresh presents
+        // a revoked token and the session dies after exactly one renewal.
+        final rotated = data['refresh'] as String?;
+        if (rotated != null && rotated.isNotEmpty) {
+          _refreshToken = rotated;
+          await _storage.write(key: 'refresh_token', value: rotated);
+        }
+
+        completer.complete(true);
         return true;
       }
     } catch (e) {
       debugPrint('Token refresh failed: $e');
+    } finally {
+      _inFlightRefresh = null;
     }
+    if (!completer.isCompleted) completer.complete(false);
     return false;
   }
 }

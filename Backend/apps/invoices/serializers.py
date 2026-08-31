@@ -1,9 +1,11 @@
 """Invoice Serializers."""
 from decimal import Decimal
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 from .models import (
     Invoice, InvoiceLine, InvoiceCost, CostType, ProjectRate,
     InvoiceAllowance, InvoiceGratuity, AgencyInvoice, AgencyInvoiceLine,
+    IncomingInvoice,
 )
 
 
@@ -166,3 +168,47 @@ class AgencyInvoicePaymentSerializer(serializers.Serializer):
     paid_date = serializers.DateField()
     bank_proof = serializers.FileField(required=False)
     notes = serializers.CharField(required=False, allow_blank=True, default='')
+
+
+# =============================================================================
+# INCOMING INVOICES
+# =============================================================================
+
+class IncomingInvoiceSerializer(serializers.ModelSerializer):
+    """Read/write serializer for supplier invoices."""
+
+    agency_name = serializers.CharField(source='agency.name', read_only=True, default=None)
+    category_name = serializers.CharField(source='category.name', read_only=True, default=None)
+    is_overdue = serializers.BooleanField(read_only=True)
+    days_until_due = serializers.IntegerField(read_only=True, allow_null=True)
+
+    class Meta:
+        model = IncomingInvoice
+        fields = [
+            'id', 'invoice_number', 'vendor_name', 'vendor_vat_number',
+            'agency', 'agency_name', 'description', 'category', 'category_name',
+            'invoice_date', 'due_date', 'paid_date',
+            'subtotal', 'vat_rate', 'vat_amount', 'total',
+            'status', 'document', 'notes',
+            'is_overdue', 'days_until_due', 'created_at', 'updated_at',
+        ]
+        # VAT and total are always derived from subtotal x rate.
+        read_only_fields = ['vat_amount', 'total', 'paid_date']
+        # Mirrors the DB UniqueConstraint. Without this the constraint surfaced
+        # as an IntegrityError (HTTP 500) rather than a 400 the client can show.
+        validators = [
+            UniqueTogetherValidator(
+                queryset=IncomingInvoice.objects.filter(is_deleted=False),
+                fields=['vendor_name', 'invoice_number'],
+                message='This vendor already has an invoice with that number.',
+            )
+        ]
+
+    def validate(self, attrs):
+        invoice_date = attrs.get('invoice_date', getattr(self.instance, 'invoice_date', None))
+        due_date = attrs.get('due_date', getattr(self.instance, 'due_date', None))
+        if invoice_date and due_date and due_date < invoice_date:
+            raise serializers.ValidationError(
+                {'due_date': 'Due date cannot be before the invoice date.'}
+            )
+        return attrs

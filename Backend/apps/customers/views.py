@@ -9,7 +9,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from django.utils import timezone
 from django.db.models import Case, When, Value, IntegerField
 
-from apps.employees.views import IsAdmin
+from apps.core.permissions import IsAdmin
 from apps.core.pagination import StandardPagination
 from .models import (
     Customer, CustomerContact, Outfolder, OutfolderContact, Service,

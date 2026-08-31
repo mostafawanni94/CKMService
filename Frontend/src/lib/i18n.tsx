@@ -170,7 +170,7 @@ const en = {
     status: 'Status',
     actions: 'Actions',
     noPendingWorkLogs: 'No pending work logs to approve.',
-    noWorkLogsFound: 'No work logs found.',
+    noWorkLogsFound: 'No work logs found.'
 };
 
 // Arabic translations
@@ -325,7 +325,7 @@ const ar: Translations = {
     status: 'الحالة',
     actions: 'الإجراءات',
     noPendingWorkLogs: 'لا توجد سجلات عمل معلقة للموافقة.',
-    noWorkLogsFound: 'لم يتم العثور على سجلات عمل.',
+    noWorkLogsFound: 'لم يتم العثور على سجلات عمل.'
 };
 
 // Ukrainian translations
@@ -480,7 +480,7 @@ const uk: Translations = {
     status: 'Статус',
     actions: 'Дії',
     noPendingWorkLogs: 'Немає журналів роботи для схвалення.',
-    noWorkLogsFound: 'Журналів роботи не знайдено.',
+    noWorkLogsFound: 'Журналів роботи не знайдено.'
 };
 
 // Russian translations
@@ -635,7 +635,7 @@ const ru: Translations = {
     status: 'Статус',
     actions: 'Действия',
     noPendingWorkLogs: 'Нет журналов работы для одобрения.',
-    noWorkLogsFound: 'Журналы работы не найдены.',
+    noWorkLogsFound: 'Журналы работы не найдены.'
 };
 
 const translations: Record<string, Translations> = { en, ar, uk, ru };

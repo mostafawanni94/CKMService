@@ -1,129 +1,121 @@
+/**
+ * Attendance — derived from approved work entries plus approved leave.
+ *
+ * Nothing is stored for attendance; the backend computes it so it can never
+ * drift out of sync with the worklogs it is derived from.
+ */
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Clock } from 'lucide-react';
+
 import { DashboardLayout } from '@/components/layout/dashboard';
-import { Clock, Plus, Search, Check, X } from 'lucide-react';
+import {
+    DataTable, Input, PageHeader, SearchBar,
+    SectionCard, Select, StatCard, StatusBadge,
+} from '@/components/ui/shared';
+import { useAttendance, type AttendanceRecord } from '@/hooks/useHr';
+import styles from '../page.module.css';
+
+const STATUS_OPTIONS = [
+    { value: 'all', label: 'All statuses' },
+    { value: 'present', label: 'Present' },
+    { value: 'late', label: 'Late' },
+    { value: 'absent', label: 'Absent' },
+    { value: 'leave', label: 'On leave' },
+];
 
 export default function HRAttendancePage() {
-    const [attendance, setAttendance] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [search, setSearch] = useState('');
-    const [filter, setFilter] = useState('all');
+    const vm = useAttendance();
 
-    useEffect(() => {
-        setLoading(false);
-        setAttendance([]);
-    }, []);
-
-    if (loading) {
-        return (
-            <DashboardLayout>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px' }}>
-                    <div style={{ width: '40px', height: '40px', border: '3px solid #E5E7EB', borderTopColor: '#1E3A5F', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-                </div>
-            </DashboardLayout>
-        );
-    }
+    const columns = [
+        {
+            key: 'date',
+            header: 'Date',
+            render: (row: AttendanceRecord) => row.date,
+        },
+        {
+            key: 'employee_name',
+            header: 'Employee',
+            render: (row: AttendanceRecord) => row.employee_name || '—',
+        },
+        {
+            key: 'status',
+            header: 'Status',
+            render: (row: AttendanceRecord) => <StatusBadge status={row.status} />,
+        },
+        {
+            key: 'planned_start',
+            header: 'Planned',
+            render: (row: AttendanceRecord) => row.planned_start?.slice(0, 5) ?? '—',
+        },
+        {
+            key: 'actual_start',
+            header: 'Actual',
+            render: (row: AttendanceRecord) => row.actual_start?.slice(0, 5) ?? '—',
+        },
+        {
+            key: 'minutes_late',
+            header: 'Late',
+            align: 'right' as const,
+            render: (row: AttendanceRecord) =>
+                row.minutes_late > 0 ? `${row.minutes_late} min` : '—',
+        },
+        {
+            key: 'hours',
+            header: 'Hours',
+            align: 'right' as const,
+            render: (row: AttendanceRecord) => Number(row.hours || 0).toFixed(2),
+        },
+        {
+            key: 'leave_type',
+            header: 'Leave type',
+            render: (row: AttendanceRecord) => row.leave_type ?? '—',
+        },
+    ];
 
     return (
         <DashboardLayout>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-                    <div>
-                        <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1E3A5F', margin: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <Clock style={{ width: '28px', height: '28px' }} />
-                            Attendance
-                        </h1>
-                        <p style={{ fontSize: '15px', color: '#6B7280', margin: '4px 0 0 0' }}>Track employee attendance</p>
-                    </div>
-                    <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#1E3A5F', color: 'white', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(30, 58, 95, 0.3)' }}>
-                        <Plus size={18} />
-                        Record Attendance
-                    </button>
+            <div className={styles.container}>
+                <PageHeader
+                    title="Attendance"
+                    subtitle="Derived from work entries and approved leave"
+                />
+
+                <div className={styles.statRow}>
+                    <StatCard label="Records" value={vm.counts.total} />
+                    <StatCard label="Present" value={vm.counts.present} />
+                    <StatCard label="Late" value={vm.counts.late} />
+                    <StatCard label="Absent" value={vm.counts.absent} />
+                    <StatCard label="On leave" value={vm.counts.leave} />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                    <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px 24px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Check size={24} style={{ color: '#059669' }} />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Present Today</p>
-                            <p style={{ fontSize: '24px', fontWeight: 700, color: '#059669', margin: 0 }}>0</p>
-                        </div>
-                    </div>
-                    <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px 24px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <X size={24} style={{ color: '#DC2626' }} />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Absent Today</p>
-                            <p style={{ fontSize: '24px', fontWeight: 700, color: '#DC2626', margin: 0 }}>0</p>
-                        </div>
-                    </div>
-                    <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px 24px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Clock size={24} style={{ color: '#D97706' }} />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Late Today</p>
-                            <p style={{ fontSize: '24px', fontWeight: 700, color: '#D97706', margin: 0 }}>0</p>
-                        </div>
-                    </div>
-                    <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px 24px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Clock size={24} style={{ color: '#3B82F6' }} />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>On Leave</p>
-                            <p style={{ fontSize: '24px', fontWeight: 700, color: '#3B82F6', margin: 0 }}>0</p>
-                        </div>
-                    </div>
+                <div className={styles.filterRow}>
+                    <SearchBar
+                        value={vm.searchQuery}
+                        onChange={vm.setSearchQuery}
+                        placeholder="Search employee..."
+                        style={{ flex: 1, minWidth: 220 }}
+                    />
+                    <Input type="date" value={vm.dateFrom} onChange={vm.setDateFrom} label="From" />
+                    <Input type="date" value={vm.dateTo} onChange={vm.setDateTo} label="To" />
+                    <Select
+                        value={vm.statusFilter}
+                        onChange={vm.setStatusFilter}
+                        options={STATUS_OPTIONS}
+                    />
                 </div>
 
-                <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '16px 24px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                        {['all', 'present', 'absent', 'late'].map((status) => (
-                            <button key={status} onClick={() => setFilter(status)} style={{ padding: '10px 20px', borderRadius: '10px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', backgroundColor: filter === status ? '#1E3A5F' : '#F3F4F6', color: filter === status ? 'white' : '#6B7280' }}>
-                                {status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
-                            </button>
-                        ))}
-                    </div>
-                    <div style={{ position: 'relative' }}>
-                        <input placeholder="Search employees..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ padding: '10px 16px 10px 40px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '14px', width: '240px' }} />
-                        <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
-                    </div>
-                </div>
-
-                <div style={{ backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead>
-                            <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E5E7EB' }}>
-                                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Employee</th>
-                                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Date</th>
-                                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Check In</th>
-                                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Check Out</th>
-                                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Status</th>
-                                <th style={{ padding: '16px 24px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase' }}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colSpan={6} style={{ padding: '64px 24px', textAlign: 'center' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                                        <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            <Clock size={36} style={{ color: '#9CA3AF' }} />
-                                        </div>
-                                        <div>
-                                            <p style={{ fontSize: '16px', fontWeight: 600, color: '#374151', margin: 0 }}>No attendance records yet</p>
-                                            <p style={{ fontSize: '14px', color: '#6B7280', margin: '4px 0 0 0' }}>Start tracking attendance</p>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <SectionCard>
+                    <DataTable<AttendanceRecord>
+                        data={vm.records}
+                        columns={columns}
+                        loading={vm.loading}
+                        rowKey={(row) => `${row.employee}-${row.date}`}
+                        emptyIcon={<Clock size={32} />}
+                        emptyTitle="No attendance in this range"
+                        emptySubtitle={vm.error ?? 'Try widening the date range.'}
+                    />
+                </SectionCard>
             </div>
         </DashboardLayout>
     );

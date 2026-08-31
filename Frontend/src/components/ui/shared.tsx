@@ -31,18 +31,18 @@ const BUTTON_VARIANTS: Record<string, React.CSSProperties> = {
   secondary: { background: colors.white, color: colors.textPrimary, border: `1.5px solid ${colors.border}` },
   danger: { background: colors.danger, color: colors.white, border: 'none' },
   ghost: { background: 'transparent', color: colors.textMuted, border: 'none' },
-  success: { background: colors.success, color: colors.white, border: 'none' },
+  success: { background: colors.success, color: colors.white, border: 'none' }
 };
 
 const BUTTON_SIZES: Record<string, React.CSSProperties> = {
   sm: { padding: '6px 12px', fontSize: fontSize.sm },
   md: { padding: '10px 16px', fontSize: fontSize.md },
-  lg: { padding: '12px 20px', fontSize: fontSize.base },
+  lg: { padding: '12px 20px', fontSize: fontSize.base }
 };
 
 export function Button({
   children, onClick, variant = 'primary', size = 'md',
-  icon, loading, disabled, type = 'button', style,
+  icon, loading, disabled, type = 'button', style
 }: ButtonProps) {
   return (
     <button
@@ -56,7 +56,7 @@ export function Button({
         opacity: disabled ? 0.5 : 1,
         ...BUTTON_VARIANTS[variant],
         ...BUTTON_SIZES[size],
-        ...style,
+        ...style
       }}
     >
       {loading ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : icon}
@@ -85,7 +85,7 @@ interface InputProps {
 
 export function Input({
   label, value, onChange, type = 'text', placeholder,
-  required, disabled, style, min, max, step,
+  required, disabled, style, min, max, step
 }: InputProps) {
   return (
     <div>
@@ -128,7 +128,7 @@ interface SelectProps {
 
 export function Select({
   label, value, onChange, options, placeholder,
-  required, disabled, style,
+  required, disabled, style
 }: SelectProps) {
   return (
     <div>
@@ -195,7 +195,7 @@ export function Badge({ children, color = colors.textSecondary, bg = colors.bgAl
       display: 'inline-flex', alignItems: 'center', gap: '4px',
       padding: '4px 10px', borderRadius: '20px',
       fontSize: fontSize.sm, fontWeight: fontWeight.semibold,
-      color, backgroundColor: bg, ...style,
+      color, backgroundColor: bg, ...style
     }}>
       {children}
     </span>
@@ -217,6 +217,15 @@ export const STATUS_BADGE: Record<string, { color: string; bg: string }> = {
   inactive: { color: '#9CA3AF', bg: '#F3F4F6' },
   incomplete: { color: '#D97706', bg: '#FEF3C7' },
   complete: { color: colors.success, bg: colors.successBg },
+  // Attendance states (HR)
+  present: { color: colors.success, bg: colors.successBg },
+  late: { color: '#D97706', bg: '#FEF3C7' },
+  absent: { color: colors.danger, bg: colors.dangerBg },
+  leave: { color: colors.info, bg: colors.infoBg },
+  // Payroll / leave lifecycle
+  expiring: { color: '#D97706', bg: '#FEF3C7' },
+  expired: { color: colors.danger, bg: colors.dangerBg },
+  disputed: { color: '#B45309', bg: '#FDE68A' }
 };
 
 export function StatusBadge({ status, label }: { status: string; label?: string }) {
@@ -240,13 +249,13 @@ interface StatCardProps {
 
 export function StatCard({
   label, value, icon, color = colors.primary,
-  bgGradient, borderColor = colors.border, subtitle,
+  bgGradient, borderColor = colors.border, subtitle
 }: StatCardProps) {
   return (
     <div style={{
       ...presets.card,
       background: bgGradient || colors.white,
-      borderColor,
+      borderColor
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: spacing.md }}>
         <span style={{ fontSize: fontSize.md, fontWeight: fontWeight.semibold, color }}>{label}</span>
@@ -282,7 +291,7 @@ export function Modal({ open, onClose, title, children, footer, width = '560px' 
       style={{
         position: 'fixed', inset: 0, zIndex: 1000,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
+        backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)'
       }}
       onClick={onClose}
     >
@@ -291,7 +300,7 @@ export function Modal({ open, onClose, title, children, footer, width = '560px' 
           background: colors.white, borderRadius: radius.xxl,
           width, maxWidth: '95vw', maxHeight: '90vh',
           display: 'flex', flexDirection: 'column',
-          boxShadow: shadows.xl,
+          boxShadow: shadows.xl
         }}
         onClick={e => e.stopPropagation()}
       >
@@ -299,7 +308,7 @@ export function Modal({ open, onClose, title, children, footer, width = '560px' 
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           padding: `${spacing.xl} ${spacing.xxl}`,
-          borderBottom: `1px solid ${colors.border}`,
+          borderBottom: `1px solid ${colors.border}`
         }}>
           <h2 style={{ fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.textPrimary, margin: 0 }}>
             {title}
@@ -307,7 +316,7 @@ export function Modal({ open, onClose, title, children, footer, width = '560px' 
           <button onClick={onClose} style={{
             background: 'none', border: 'none', cursor: 'pointer',
             padding: spacing.sm, borderRadius: radius.md,
-            color: colors.textMuted,
+            color: colors.textMuted
           }}>
             <X size={20} />
           </button>
@@ -321,7 +330,7 @@ export function Modal({ open, onClose, title, children, footer, width = '560px' 
           <div style={{
             display: 'flex', justifyContent: 'flex-end', gap: spacing.md,
             padding: `${spacing.lg} ${spacing.xxl}`,
-            borderTop: `1px solid ${colors.border}`,
+            borderTop: `1px solid ${colors.border}`
           }}>
             {footer}
           </div>
@@ -372,7 +381,7 @@ export function SectionCard({ title, icon, subtitle, children, actions, style }:
       {title && (
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          marginBottom: spacing.xl,
+          marginBottom: spacing.xl
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm }}>
             {icon}
@@ -410,7 +419,7 @@ export function TabBar({ tabs, active, onChange }: TabBarProps) {
     <div style={{
       display: 'flex', gap: '2px',
       borderBottom: `2px solid ${colors.border}`,
-      marginBottom: spacing.xxl,
+      marginBottom: spacing.xxl
     }}>
       {tabs.map(tab => (
         <button
@@ -423,7 +432,7 @@ export function TabBar({ tabs, active, onChange }: TabBarProps) {
             background: 'transparent', border: 'none',
             borderBottom: active === tab.key ? `3px solid ${colors.primary}` : '3px solid transparent',
             cursor: 'pointer', transition: 'all 0.2s',
-            display: 'flex', alignItems: 'center', gap: '6px',
+            display: 'flex', alignItems: 'center', gap: '6px'
           }}
         >
           {tab.icon}{tab.label}
@@ -449,7 +458,7 @@ export function SearchBar({ value, onChange, placeholder = 'Search...', style }:
     <div style={{ position: 'relative', ...style }}>
       <Search size={18} style={{
         position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)',
-        color: colors.textLight,
+        color: colors.textLight
       }} />
       <input
         type="text"
@@ -459,7 +468,7 @@ export function SearchBar({ value, onChange, placeholder = 'Search...', style }:
         style={{
           ...presets.input,
           paddingLeft: '38px',
-          width: '100%',
+          width: '100%'
         }}
       />
     </div>
@@ -491,7 +500,7 @@ interface DataTableProps<T> {
 
 export function DataTable<T>({
   columns, data, loading, emptyIcon, emptyTitle = 'No data',
-  emptySubtitle, onRowClick, rowKey,
+  emptySubtitle, onRowClick, rowKey
 }: DataTableProps<T>) {
   if (loading) {
     return (
@@ -530,7 +539,7 @@ export function DataTable<T>({
             onClick={() => onRowClick?.(item)}
             style={{
               cursor: onRowClick ? 'pointer' : 'default',
-              transition: 'background 0.15s',
+              transition: 'background 0.15s'
             }}
             onMouseEnter={e => { if (onRowClick) (e.currentTarget.style.background = colors.bgAlt); }}
             onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
@@ -585,7 +594,7 @@ export function LoadingSpinner({ message = 'Loading...' }: { message?: string })
         width: '40px', height: '40px',
         border: `3px solid ${colors.border}`, borderTopColor: colors.primary,
         borderRadius: '50%', animation: 'spin 1s linear infinite',
-        margin: '0 auto 16px',
+        margin: '0 auto 16px'
       }} />
       {message}
     </div>
@@ -632,7 +641,7 @@ interface ConfirmDialogProps {
 
 export function ConfirmDialog({
   open, title, message, confirmLabel = 'Confirm', cancelLabel = 'Cancel',
-  variant = 'danger', onConfirm, onCancel, loading,
+  variant = 'danger', onConfirm, onCancel, loading
 }: ConfirmDialogProps) {
   return (
     <Modal open={open} onClose={onCancel} title={title} width="420px" footer={

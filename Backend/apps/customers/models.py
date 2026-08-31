@@ -425,44 +425,6 @@ class CustomerServiceRate(TimeStampedModel):
         return f"{self.customer} - {self.service}: €{self.price}"
 
 
-class CustomerServiceSurcharge(TimeStampedModel):
-    """
-    Custom surcharge percentage for a specific service for a specific customer.
-    Allows different surcharge rates per service (e.g., 30% weekend for Cleaning,
-    but only 15% weekend for Security).
-    """
-    customer_service_rate = models.ForeignKey(
-        CustomerServiceRate,
-        on_delete=models.CASCADE,
-        related_name='service_surcharges',
-        verbose_name="Customer Service Rate"
-    )
-    surcharge_type = models.ForeignKey(
-        'employees.SurchargeType',
-        on_delete=models.PROTECT,
-        related_name='customer_service_surcharges',
-        verbose_name="Surcharge Type"
-    )
-    percentage = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        verbose_name="Percentage (%)",
-        help_text="Custom surcharge percentage for this service"
-    )
-    is_enabled = models.BooleanField(
-        default=True,
-        verbose_name="Is Enabled"
-    )
-    
-    class Meta:
-        verbose_name = 'Customer Service Surcharge'
-        verbose_name_plural = 'Customer Service Surcharges'
-        unique_together = ['customer_service_rate', 'surcharge_type']
-        ordering = ['surcharge_type__name']
-    
-    def __str__(self):
-        return f"{self.customer_service_rate.service} - {self.surcharge_type}: {self.percentage}%"
-
 
 # =============================================================================
 # CUSTOMER SURCHARGES (Linked to SurchargeType from employees app)

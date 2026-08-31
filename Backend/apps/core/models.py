@@ -222,10 +222,13 @@ class SystemConfig(TimeStampedModel):
     )
     company_address = models.TextField(default='Rotterdam, Netherlands')
     
-    # Frontend URL for email links
+    # Public dashboard URL, used to build links in outgoing email
+    # (notification deep links and password-reset links).
     frontend_url = models.URLField(
         default='http://localhost:3000',
-        help_text="Frontend base URL for email links, e.g. https://admin.prototaalservice.nl"
+        verbose_name="Dashboard URL",
+        help_text="Public base URL of the dashboard, e.g. https://dashboard.ckmservices.nl. "
+                  "Used for links in notification and password-reset emails."
     )
 
     # Week Configuration (ISO 8601 compliant)
@@ -317,6 +320,21 @@ class SystemConfig(TimeStampedModel):
     firebase_enabled = models.BooleanField(
         default=False,
         help_text="Enable Firebase Cloud Messaging for push notifications"
+    )
+    firebase_project_id = models.CharField(
+        max_length=200,
+        blank=True,
+        default='',
+        verbose_name='Firebase Project ID',
+        help_text='The Firebase project id, e.g. "ckm-services-1234". Required for FCM HTTP v1.',
+    )
+    firebase_credentials_json = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Firebase Service Account JSON',
+        help_text='Contents of the service-account key file downloaded from '
+                  'Firebase Console → Project settings → Service accounts. '
+                  'Required for FCM HTTP v1.',
     )
     firebase_server_key = models.TextField(
         blank=True,

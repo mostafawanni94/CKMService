@@ -51,7 +51,7 @@ export const colors = {
 
   orange: '#EA580C',
   orangeBg: '#FFF7ED',
-  orangeBorder: '#FDBA74',
+  orangeBorder: '#FDBA74'
 } as const;
 
 export const spacing = {
@@ -61,7 +61,7 @@ export const spacing = {
   lg: '16px',
   xl: '20px',
   xxl: '24px',
-  xxxl: '32px',
+  xxxl: '32px'
 } as const;
 
 export const radius = {
@@ -70,7 +70,7 @@ export const radius = {
   lg: '10px',
   xl: '12px',
   xxl: '16px',
-  full: '50%',
+  full: '50%'
 } as const;
 
 export const fontSize = {
@@ -82,7 +82,7 @@ export const fontSize = {
   xl: '16px',
   xxl: '20px',
   xxxl: '24px',
-  heading: '28px',
+  heading: '28px'
 } as const;
 
 export const fontWeight = {
@@ -90,14 +90,14 @@ export const fontWeight = {
   medium: 500,
   semibold: 600,
   bold: 700,
-  extrabold: 800,
+  extrabold: 800
 } as const;
 
 export const shadows = {
   sm: '0 1px 2px rgba(0,0,0,0.05)',
   md: '0 4px 6px -1px rgba(0,0,0,0.1)',
   lg: '0 10px 15px -3px rgba(0,0,0,0.1)',
-  xl: '0 20px 25px -5px rgba(0,0,0,0.1)',
+  xl: '0 20px 25px -5px rgba(0,0,0,0.1)'
 } as const;
 
 /** Reusable inline style presets */
@@ -106,7 +106,7 @@ export const presets = {
     background: colors.white,
     borderRadius: radius.xl,
     padding: spacing.xxl,
-    border: `1px solid ${colors.border}`,
+    border: `1px solid ${colors.border}`
   } as React.CSSProperties,
 
   input: {
@@ -118,7 +118,7 @@ export const presets = {
     color: colors.textPrimary,
     outline: 'none',
     transition: 'border-color 0.2s',
-    background: colors.white,
+    background: colors.white
   } as React.CSSProperties,
 
   label: {
@@ -126,20 +126,20 @@ export const presets = {
     fontSize: fontSize.md,
     fontWeight: fontWeight.semibold,
     color: colors.textSecondary,
-    marginBottom: '6px',
+    marginBottom: '6px'
   } as React.CSSProperties,
 
   pageTitle: {
     fontSize: fontSize.xxxl,
     fontWeight: fontWeight.extrabold,
     color: colors.textPrimary,
-    letterSpacing: '-0.5px',
+    letterSpacing: '-0.5px'
   } as React.CSSProperties,
 
   pageSubtitle: {
     fontSize: fontSize.md,
     color: colors.textMuted,
-    marginTop: spacing.xs,
+    marginTop: spacing.xs
   } as React.CSSProperties,
 
   tableHeader: {
@@ -149,12 +149,12 @@ export const presets = {
     fontWeight: fontWeight.bold,
     color: colors.textMuted,
     textTransform: 'uppercase' as const,
-    letterSpacing: '0.5px',
+    letterSpacing: '0.5px'
   } as React.CSSProperties,
 
   tableCell: {
     padding: '12px',
     fontSize: fontSize.base,
-    borderBottom: `1px solid ${colors.borderLight}`,
-  } as React.CSSProperties,
+    borderBottom: `1px solid ${colors.borderLight}`
+  } as React.CSSProperties
 } as const;

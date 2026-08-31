@@ -4,8 +4,12 @@ Employee API Views.
 ViewSets with proper permissions and business logic.
 """
 
+import os
+
+from django.conf import settings
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -33,22 +37,11 @@ from .serializers import (
 # PERMISSIONS
 # =============================================================================
 
-class IsAdmin(permissions.BasePermission):
-    """Allow access only to admin users."""
-    
-    def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_admin
-
-
-class IsAdminOrSelf(permissions.BasePermission):
-    """Allow access to admin or the user themselves."""
-    
-    def has_object_permission(self, request, view, obj):
-        if request.user.is_admin:
-            return True
-        if hasattr(obj, 'user'):
-            return obj.user == request.user
-        return obj == request.user
+# Canonical definitions live in apps.core.permissions. Re-exported here so the
+# historical ``from apps.employees.views import IsAdmin`` import keeps working.
+from apps.core.permissions import (  # noqa: F401
+    IsAdmin, IsAdminOrSelf, IsBackOffice, IsFinanceStaff, IsOperationsStaff,
+)
 
 
 # =============================================================================
@@ -164,7 +157,15 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['list', 'retrieve', 'approve', 'reject', 'soft_delete', 'restore', 'deleted']:
             return [IsAdmin()]
-        if self.action in ['complete_profile', 'submit', 'my_profile']:
+        # Employee self-service: these read or write only the caller's own
+        # record, and were previously falling through to IsAdmin() below — so
+        # the mobile app's assignments, wallet and notification-settings screens
+        # all received 403.
+        if self.action in [
+            'complete_profile', 'submit', 'my_profile', 'me', 'upload_document',
+            'my_assignments', 'my_wallet',
+            'my_notification_settings', 'update_notification_settings',
+        ]:
             return [permissions.IsAuthenticated()]
         return [IsAdmin()]
     
@@ -262,7 +263,7 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
         required_fields = [
             'first_name', 'last_name', 'initials', 'gender', 'date_of_birth',
             'bsn', 'document_type', 'document_number',
-            'phone_number', 'address', 'postcode',
+            'phone_number', 'street_address', 'postcode',
             'city', 'iban', 'nationality',
         ]
         
@@ -613,7 +614,7 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
         assignments = ProjectAssignment.objects.filter(
             employee__user=request.user,
             is_active=True
-        ).select_related('project').order_by('date_from')
+        ).select_related('project').order_by('start_date')
         
         serializer = EmployeeAssignmentSerializer(assignments, many=True)
         return Response({'results': serializer.data})
@@ -753,6 +754,135 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
 # =============================================================================
 # CONTRACT TYPE VIEWSET (Admin only)
 # =============================================================================
+    # -------------------------------------------------------------------------
+    # Self-service endpoints used by the mobile app
+    # -------------------------------------------------------------------------
+
+    @action(detail=False, methods=['get'], url_path='me')
+    def me(self, request):
+        """
+        The signed-in user's own profile.
+
+        GET /api/employees/profiles/me/
+
+        Alias of ``my_profile``. The mobile app called a bare ``/employees/me/``
+        that never existed; this is the canonical location.
+        """
+        return self.my_profile(request)
+
+    @action(detail=False, methods=['post'], url_path='upload_document',
+            parser_classes=[MultiPartParser, FormParser])
+    def upload_document(self, request):
+        """
+        Upload an identity document for the signed-in employee.
+
+        POST /api/employees/profiles/upload_document/
+        Form data:
+        - file: the image or PDF (required)
+        - type: one of ``front``, ``back``, ``pdf`` (required)
+        """
+        profile = EmployeeProfile.objects.filter(user=request.user).first()
+        if profile is None:
+            return Response(
+                {'error': 'No employee profile is linked to this account.'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        upload = request.FILES.get('file')
+        if not upload:
+            return Response({'error': 'A file is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        field_map = {
+            'front': 'id_document_front',
+            'back': 'id_document_back',
+            'pdf': 'id_document_pdf',
+        }
+        doc_type = request.data.get('type', '')
+        field = field_map.get(doc_type)
+        if field is None:
+            return Response(
+                {'error': f"type must be one of {', '.join(field_map)}."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
+        if upload.size > max_bytes:
+            return Response(
+                {'error': f'File exceeds the {settings.MAX_UPLOAD_SIZE_MB} MB limit.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        extension = os.path.splitext(upload.name)[1].lower()
+        allowed = (settings.ALLOWED_DOCUMENT_EXTENSIONS if doc_type == 'pdf'
+                   else settings.ALLOWED_IMAGE_EXTENSIONS)
+        if extension not in allowed:
+            return Response(
+                {'error': f"Unsupported file type '{extension}'. Allowed: {', '.join(allowed)}."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        setattr(profile, field, upload)
+        profile.save(update_fields=[field, 'updated_at'])
+
+        stored = getattr(profile, field)
+        return Response({
+            'message': 'Document uploaded.',
+            'type': doc_type,
+            'field': field,
+            'url': stored.url if stored else None,
+        }, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'], url_path='contracts',
+            permission_classes=[IsBackOffice])
+    def contracts_overview(self, request):
+        """
+        Every employee contract, across all employees, with an expiry state.
+
+        GET /api/employees/profiles/contracts/?status=active|expiring|expired
+
+        The dashboard's HR → Contracts page needs a cross-employee view; the
+        existing ``{id}/contract_history/`` only covers one person at a time.
+        """
+        today = timezone.now().date()
+        soon = today + timezone.timedelta(days=60)
+
+        contracts = (
+            EmployeeContractHistory.objects
+            .select_related('employee', 'uploaded_by')
+            .order_by('-effective_from')
+        )
+
+        rows = []
+        for contract in contracts:
+            end = contract.effective_to
+            if end is None or end > soon:
+                state = 'active'
+            elif end < today:
+                state = 'expired'
+            else:
+                state = 'expiring'
+            rows.append({
+                'id': contract.id,
+                'employee': str(contract.employee_id),
+                'employee_name': contract.employee.full_name,
+                'hourly_rate': contract.hourly_rate,
+                'effective_from': contract.effective_from,
+                'effective_to': end,
+                'status': state,
+                'days_remaining': (end - today).days if end else None,
+                'notes': contract.notes,
+                'contract_document': (
+                    request.build_absolute_uri(contract.contract_document.url)
+                    if contract.contract_document else None
+                ),
+            })
+
+        state_filter = request.query_params.get('status')
+        if state_filter and state_filter != 'all':
+            rows = [r for r in rows if r['status'] == state_filter]
+
+        return Response({'count': len(rows), 'results': rows})
+
 
 class ContractTypeViewSet(viewsets.ModelViewSet):
     """ViewSet for managing contract types (NL-specific)."""
