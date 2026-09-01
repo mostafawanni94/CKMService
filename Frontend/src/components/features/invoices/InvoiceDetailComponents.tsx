@@ -97,6 +97,16 @@ export function InvoiceHeader({ invoice }: { invoice: InvoiceDetail }) {
     );
 }
 
+/** Plain Dutch for the codes the API returns. */
+const BLOCKER_TITLES: Record<string, string> = {
+    NO_LINES: 'Deze factuur heeft geen regels.',
+    NO_RATE: 'Er is geen uurtarief bekend voor een of meer regels.',
+    VAT_REQUIRES_REVIEW: 'De btw-behandeling is nog niet vastgesteld.',
+    MISSING_CUSTOMER_VAT_NUMBER: 'Het btw-nummer van de klant ontbreekt.',
+    ALREADY_ISSUED: 'Deze factuur is al verstuurd.',
+    CANCELLED: 'Deze factuur is geannuleerd.',
+};
+
 export function IssueGate({ blockers }: { blockers: IssueBlocker[] }) {
     if (!blockers.length) {
         return (
@@ -117,8 +127,13 @@ export function IssueGate({ blockers }: { blockers: IssueBlocker[] }) {
             {blockers.map(blocker => (
                 <div key={blocker.code} style={{ marginBottom: spacing.md }}>
                     <div style={{ fontWeight: fontWeight.semibold, color: colors.warning }}>
-                        {blocker.message}
+                        {BLOCKER_TITLES[blocker.code] ?? blocker.message}
                     </div>
+                    {BLOCKER_TITLES[blocker.code] && (
+                        <div style={{ fontSize: fontSize.sm, color: colors.textSecondary }}>
+                            {blocker.message}
+                        </div>
+                    )}
                     {blocker.lines?.map(line => (
                         <div key={line.id} style={{
                             fontSize: fontSize.sm, color: colors.textSecondary,

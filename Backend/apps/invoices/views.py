@@ -120,9 +120,13 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 
         entries = list(billable_entries(customer, project=project, **window))
         rows, total = [], Decimal('0.00')
+        unpriced_services = set()
         for entry in entries:
             priced = price_entry(entry)
             total += priced['total']
+            if not priced['has_rate']:
+                unpriced_services.add(
+                    priced['service'] or 'geen dienst gekozen op de urenregistratie')
             rows.append({
                 'work_entry': str(entry.pk),
                 'work_date': entry.work_date,
@@ -136,17 +140,28 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 'allowance_amount': priced['allowance_amount'],
                 'total': priced['total'],
                 'surcharges': priced['surcharges'],
+                'has_rate': priced['has_rate'],
             })
 
         skipped = list(billable_entries(
             customer, project=project, include_billed=True, **window
         ).exclude(pk__in=[e.pk for e in entries]).values_list('pk', flat=True))
 
+        warnings = []
+        if unpriced_services:
+            warnings.append({
+                'code': 'NO_RATE',
+                'message': 'No hourly rate resolves for: '
+                           + ', '.join(sorted(unpriced_services))
+                           + '. Those hours would be billed at zero.',
+            })
+
         return Response({
             'customer': customer.company_name,
             'entry_count': len(rows),
             'already_billed_count': len(skipped),
             'subtotal': total,
+            'warnings': warnings,
             'next_invoice_number': peek_number(
                 DocumentSeries.INVOICE, timezone.localdate().year),
             'lines': rows,

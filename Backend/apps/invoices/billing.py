@@ -108,6 +108,10 @@ def price_entry(entry):
 
     Delegates the arithmetic to WorkEntry — the money model — and returns the
     parts so the invoice can show the customer what they are paying for.
+
+    A rate of zero is reported, not billed. `get_service_rate` returns 0 when
+    the customer has no rate configured for the service, and quietly invoicing
+    a month of work at nothing is worse than refusing to invoice it.
     """
     hours = entry.calculated_hours
     rate = entry.get_service_rate()
@@ -137,6 +141,8 @@ def price_entry(entry):
         'surcharge_amount': surcharge_amount.quantize(CENT),
         'allowance_amount': allowance if allowance > 0 else Decimal('0.00'),
         'total': Decimal(total).quantize(CENT),
+        'has_rate': Decimal(rate) > 0,
+        'service': entry.service.name if entry.service else None,
     }
 
 
@@ -420,6 +426,24 @@ def issue_blockers(invoice):
     if not invoice.lines.filter(is_deleted=False).exists():
         blockers.append({'code': 'NO_LINES',
                          'message': 'An invoice with no lines cannot be issued.'})
+
+    # A line at zero almost always means the customer has no agreed rate for
+    # that service. Sending it would invoice the work at nothing.
+    unpriced = invoice.lines.filter(
+        is_deleted=False, line_type=InvoiceLine.LineType.SERVICE, hourly_rate=0)
+    if unpriced.exists():
+        blockers.append({
+            'code': 'NO_RATE',
+            'message': f'{unpriced.count()} line(s) have no hourly rate. Set the '
+                       'customer’s rate for that service before issuing.',
+            'lines': [
+                {'id': str(line.pk), 'description': line.description,
+                 'reason': ('No service is recorded on the work entry.'
+                            if line.work_entry and line.work_entry.service_id is None
+                            else 'No CustomerServiceRate is configured for this service.')}
+                for line in unpriced[:20]
+            ],
+        })
 
     unclassified = invoice.lines.filter(is_deleted=False).exclude(
         vat_classification_status=ClassificationStatus.CLASSIFIED)

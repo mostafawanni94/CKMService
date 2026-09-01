@@ -575,3 +575,62 @@ class InvoiceApiTests(BillingSetup):
             client.force_authenticate(make_user(email=f'{role}@inv.test', role=role))
             response = client.get('/api/invoices/invoices/')
             self.assertEqual(response.status_code, 403, f'{role} reached invoices')
+
+
+class ZeroRateTests(BillingSetup):
+    """
+    Work priced at nothing is reported, not billed.
+
+    `get_service_rate` returns 0 when the customer has no configured rate for
+    the service. Quietly invoicing a month of work at zero is worse than
+    refusing to invoice it — the customer pays nothing and nobody notices.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.unpriced = make_service(name='Glasbewassing')   # no rate attached
+
+    def test_the_preview_warns_before_anything_is_created(self):
+        make_work_entry(employee=self.employee, project=self.project,
+                        work_date=MONDAY, service=self.unpriced)
+
+        client = APIClient()
+        client.force_authenticate(self.user)
+        response = client.post('/api/invoices/invoices/preview/', {
+            'customer_id': str(self.customer.pk),
+            'week_year': 2026, 'week_number': 33,
+        }, format='json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['subtotal'], Decimal('0.00'))
+        self.assertEqual(response.data['warnings'][0]['code'], 'NO_RATE')
+        self.assertIn('Glasbewassing', response.data['warnings'][0]['message'])
+        self.assertFalse(response.data['lines'][0]['has_rate'])
+
+    def test_a_zero_rate_line_blocks_issuing(self):
+        make_work_entry(employee=self.employee, project=self.project,
+                        work_date=MONDAY, service=self.unpriced)
+        invoice = generate_invoice(self.customer, week=(2026, 33), actor=self.user)
+
+        codes = [blocker['code'] for blocker in issue_blockers(invoice)]
+        self.assertIn('NO_RATE', codes)
+        with self.assertRaises(BillingError):
+            issue_invoice(invoice, actor=self.user)
+
+    def test_setting_the_rate_unblocks_it(self):
+        entry = make_work_entry(employee=self.employee, project=self.project,
+                                work_date=MONDAY, service=self.unpriced)
+        attach_service_rate(self.customer, self.unpriced, Decimal('30.00'))
+
+        from apps.worklogs.models import clear_surcharge_caches
+        clear_surcharge_caches()
+
+        invoice = generate_invoice(self.customer, week=(2026, 33), actor=self.user)
+        self.assertEqual(invoice.lines.first().hourly_rate, Decimal('30.00'))
+        self.assertEqual([b['code'] for b in issue_blockers(invoice)], [])
+
+    def test_a_priced_line_is_never_flagged(self):
+        self.work(0)
+        invoice = generate_invoice(self.customer, week=(2026, 33), actor=self.user)
+        self.assertNotIn('NO_RATE',
+                         [b['code'] for b in issue_blockers(invoice)])
