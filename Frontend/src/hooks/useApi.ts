@@ -192,6 +192,36 @@ export async function apiGet<T>(endpoint: string): Promise<T> {
   return res.json();
 }
 
+/**
+ * Fetch every page of a paginated list endpoint.
+ *
+ * DRF pages at 20 by default. A page that renders `data.results` and stops
+ * shows only the first 20 rows with no way to reach the rest — which is what
+ * most of the reference lists in this dashboard were doing. This follows the
+ * `next` link to the end.
+ *
+ * `maxPages` is a guard, not a preference: a list long enough to hit it should
+ * be paginated in the UI rather than loaded whole.
+ */
+export async function apiGetAll<T>(
+  endpoint: string,
+  { pageSize = 100, maxPages = 50 }: { pageSize?: number; maxPages?: number } = {}
+): Promise<T[]> {
+  const separator = endpoint.includes('?') ? '&' : '?';
+  let url: string | null = `${endpoint}${separator}page_size=${pageSize}`;
+  const rows: T[] = [];
+
+  for (let page = 0; url && page < maxPages; page++) {
+    const data: { results?: T[]; next?: string | null } | T[] =
+      await apiGet<{ results?: T[]; next?: string | null } | T[]>(url);
+
+    if (Array.isArray(data)) return data;          // an unpaginated endpoint
+    rows.push(...(data.results ?? []));
+    url = data.next ?? null;
+  }
+  return rows;
+}
+
 /** Typed POST/PUT/PATCH/DELETE with JSON body. */
 export async function apiMutate<T>(
   endpoint: string,

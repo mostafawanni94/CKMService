@@ -201,7 +201,9 @@ class Payslip(BaseModel):
 
     period = models.ForeignKey(
         PayrollPeriod,
-        on_delete=models.CASCADE,
+        # Payslips are issued records. Removing a payroll period must not
+        # erase what people were paid.
+        on_delete=models.PROTECT,
         related_name='payslips',
         verbose_name='Payroll Period',
     )

@@ -395,6 +395,9 @@ class SystemConfig(TimeStampedModel):
     objects = SystemConfigManager()
 
     class Meta:
+        # A singleton, but an explicit order keeps the "everything is ordered"
+        # rule free of exceptions.
+        ordering = ['id']
         verbose_name = 'System Configuration'
         verbose_name_plural = 'System Configuration'
 

@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/dashboard';
-import { apiFetch } from '@/hooks/useApi';
+import { apiFetch, apiGetAll } from '@/hooks/useApi';
 
 // Types
 interface AllowanceType {
@@ -59,7 +59,9 @@ export default function AllowanceTypesPage() {
             if (response.ok) {
                 const data = await response.json();
                 // Handle both paginated {results: [...]} and direct array responses
-                setAllowanceTypes(Array.isArray(data) ? data : (data.results || []));
+                // Every page, not just the first: DRF pages at 20, and this list is
+            // filtered in the browser, so a partial fetch silently hid rows.
+            setAllowanceTypes(await apiGetAll('/employees/allowance-types/'));
             }
         } catch (error) {
             console.error('Failed to fetch allowance types:', error);

@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/dashboard';
-import { apiFetch } from '@/hooks/useApi';
+import { apiFetch, apiGetAll } from '@/hooks/useApi';
 
 // Types
 interface Agency {
@@ -52,14 +52,9 @@ export default function AgenciesPage() {
         try {
             setIsLoading(true);
             const params = showDeleted ? '?include_deleted=true' : '';
-            const response = await apiFetch(`/employees/agencies/${params}`);
-            if (response.ok) {
-                const data = await response.json();
-                const agencyList = Array.isArray(data) ? data : (data.results || []);
-                setAgencies(agencyList);
-            } else {
-                setAgencies([]);
-            }
+            // Every page, not just the first: DRF pages at 20, and this list
+            // is filtered in the browser, so a partial fetch silently hid rows.
+            setAgencies(await apiGetAll<Agency>(`/employees/agencies/${params}`));
         } catch (error) {
             console.error('Error fetching agencies:', error);
             setAgencies([]);

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { Card, Button, Input } from '@/components/ui';
 import { BarChart3, Users, Clock, DollarSign, Download, Calendar, Filter, TrendingUp, Building2 } from 'lucide-react';
-import { apiFetch } from '@/hooks/useApi';
+import { apiFetch, apiGetAll } from '@/hooks/useApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -62,11 +62,7 @@ export default function ReportsPage() {
 
     async function loadEmployees() {
         try {
-            const response = await apiFetch(`/employees/profiles/`);
-            if (response.ok) {
-                const data = await response.json();
-                setEmployees(data.results || data);
-            }
+            setEmployees(await apiGetAll('/employees/profiles/'));
         } catch (err) {
             console.error('Failed to load employees:', err);
         }
@@ -74,11 +70,7 @@ export default function ReportsPage() {
 
     async function loadProjects() {
         try {
-            const response = await apiFetch(`/projects/projects/`);
-            if (response.ok) {
-                const data = await response.json();
-                setProjects(data.results || data);
-            }
+            setProjects(await apiGetAll('/projects/projects/'));
         } catch (err) {
             console.error('Failed to load projects:', err);
         }
@@ -87,12 +79,13 @@ export default function ReportsPage() {
     async function loadReportData() {
         setLoading(true);
         try {
-            // For now, we'll calculate from work logs
-            const response = await apiFetch(`/worklogs/?work_date_after=${dateFrom}&work_date_before=${dateTo}&status=approved`);
+            // Every page of work logs. This used to read only the first
+            // twenty, so every earnings and hours figure on this page was
+            // whatever twenty rows happened to come back first.
+            const logs = await apiGetAll<any>(
+                `/worklogs/?work_date_after=${dateFrom}&work_date_before=${dateTo}&status=approved`);
 
-            if (response.ok) {
-                const data = await response.json();
-                const logs = data.results || data;
+            {
 
                 // Calculate employee earnings
                 const employeeMap = new Map<string, EmployeeEarning>();

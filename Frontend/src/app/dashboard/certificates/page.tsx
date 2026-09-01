@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/dashboard';
-import { apiFetch, readApiError } from '@/hooks/useApi';
+import { apiFetch, readApiError, apiGetAll } from '@/hooks/useApi';
 
 // Types
 interface CertificateType {
@@ -69,7 +69,9 @@ export default function CertificatesPage() {
             });
             if (!response.ok) throw new Error('Failed to load certificate types');
             const data = await response.json();
-            setCertificates(data.results || data || []);
+            // Every page, not just the first: DRF pages at 20, and this list is
+            // filtered in the browser, so a partial fetch silently hid rows.
+            setCertificates(await apiGetAll('/certificates/employee-certificates/'));
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load certificate types');
         } finally {

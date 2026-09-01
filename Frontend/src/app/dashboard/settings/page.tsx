@@ -28,6 +28,7 @@ import {
     ChevronDown
 } from 'lucide-react';
 import { apiFetch } from '@/hooks/useApi';
+import { availableLanguages, useLanguage } from '@/lib/i18n';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -105,7 +106,9 @@ export default function SettingsPage() {
     // Check if settings have changed
     const hasChanges = JSON.stringify(settings) !== originalSettings;
 
-    const [selectedLanguage, setSelectedLanguage] = useState('en');
+    // The picker used to set local state that nothing ever read, so choosing a
+    // language highlighted a card and changed nothing else.
+    const { language: selectedLanguage, setLanguage: setSelectedLanguage } = useLanguage();
 
     // Load settings from API on mount
     useEffect(() => {
@@ -167,12 +170,15 @@ export default function SettingsPage() {
         '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00',
     ];
 
-    const languages = [
-        { code: 'en', name: 'English', flag: '🇬🇧' },
-        { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
-        { code: 'ar', name: 'العربية', flag: '🇸🇦' },
-        { code: 'uk', name: 'Українська', flag: '🇺🇦' },
-    ];
+    // Driven by the translation tables, so the picker cannot offer a language
+    // the app has no strings for — it used to offer Dutch, which did not exist,
+    // and omit Russian, which did.
+    const FLAGS: Record<string, string> = {
+        nl: '🇳🇱', en: '🇬🇧', ar: '🇸🇦', uk: '🇺🇦', ru: '🇷🇺',
+    };
+    const languages = availableLanguages.map(lang => ({
+        code: lang.code, name: lang.label, flag: FLAGS[lang.code] ?? '🏳️',
+    }));
 
     if (loading) {
         return (
@@ -486,11 +492,15 @@ export default function SettingsPage() {
                     title="Language"
                     description="Choose your preferred display language"
                 >
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+                    <div style={{ display: 'grid',
+                                  gridTemplateColumns: `repeat(${languages.length}, 1fr)`,
+                                  gap: '12px' }}>
                         {languages.map((lang) => (
                             <button
                                 key={lang.code}
                                 onClick={() => setSelectedLanguage(lang.code)}
+                                aria-pressed={selectedLanguage === lang.code}
+                                aria-label={lang.name}
                                 style={{
                                     display: 'flex',
                                     flexDirection: 'column',

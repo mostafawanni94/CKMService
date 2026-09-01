@@ -284,6 +284,7 @@ class ProjectRequiredCertificate(BaseModel):
     )
     
     class Meta:
+        ordering = ['certificate_type_id']
         verbose_name = 'Project Required Certificate'
         verbose_name_plural = 'Project Required Certificates'
         unique_together = ['project', 'certificate_type']

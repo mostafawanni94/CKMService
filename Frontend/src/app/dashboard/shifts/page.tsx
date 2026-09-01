@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { Button } from '@/components/ui';
 import { Calendar, Clock, MapPin, User, Building2, Phone, Mail, Plus, Check, X, AlertCircle, Search, Filter } from 'lucide-react';
-import { apiFetch } from '@/hooks/useApi';
+import { apiFetch, apiGetAll } from '@/hooks/useApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -109,11 +109,7 @@ export default function ShiftsPage() {
     async function loadShifts() {
         setLoading(true);
         try {
-            const response = await apiFetch(`/worklogs/shifts/`);
-            if (response.ok) {
-                const data = await response.json();
-                setShifts(data.results || data);
-            }
+            setShifts(await apiGetAll('/worklogs/shifts/'));
         } catch (error) {
             console.error('Failed to load shifts:', error);
         }
@@ -134,11 +130,8 @@ export default function ShiftsPage() {
 
     async function loadEmployees() {
         try {
-            const response = await apiFetch(`/employees/profiles/`);
-            if (response.ok) {
-                const data = await response.json();
-                setEmployees((data.results || data).map((e: any) => ({ id: e.id, full_name: e.full_name })));
-            }
+            const profiles = await apiGetAll<any>('/employees/profiles/');
+            setEmployees(profiles.map((e: any) => ({ id: e.id, full_name: e.full_name })));
         } catch (error) {
             console.error('Failed to load employees:', error);
         }

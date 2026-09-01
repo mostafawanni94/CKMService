@@ -1039,6 +1039,7 @@ class AgencyWallet(TimeStampedModel):
     )
     
     class Meta:
+        ordering = ['agency_id']
         verbose_name = 'Agency Wallet'
         verbose_name_plural = 'Agency Wallets'
     

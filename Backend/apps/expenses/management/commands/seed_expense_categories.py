@@ -1,11 +1,14 @@
-"""Seed default expense categories for Dutch business use."""
-import os
-import django
+"""
+Create the default expense categories.
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
-django.setup()
+Was a loose script that called django.setup() itself, so it could only be run
+by path and never from a deployment step. Idempotent: existing categories are
+left alone.
 
-from apps.expenses.models import ExpenseCategory
+    python manage.py seed_expense_categories
+"""
+
+from django.core.management.base import BaseCommand
 
 CATEGORIES = [
     {'name': 'Office Rent', 'name_nl': 'Kantoorhuur', 'code': 'RENT', 'category_type': 'fixed', 'icon': 'building', 'color': '#3B82F6', 'sort_order': 1},
@@ -23,13 +26,19 @@ CATEGORIES = [
     {'name': 'Other', 'name_nl': 'Overig', 'code': 'OTHER', 'category_type': 'variable', 'icon': 'more-horizontal', 'color': '#9CA3AF', 'sort_order': 99},
 ]
 
-created = 0
-for cat_data in CATEGORIES:
-    _, was_created = ExpenseCategory.objects.get_or_create(
-        code=cat_data['code'],
-        defaults=cat_data,
-    )
-    if was_created:
-        created += 1
 
-print(f"Seeded {created} expense categories ({len(CATEGORIES) - created} already existed).")
+class Command(BaseCommand):
+    help = 'Create the default Dutch expense categories. Idempotent.'
+
+    def handle(self, *args, **options):
+        from apps.expenses.models import ExpenseCategory
+
+        created = 0
+        for row in CATEGORIES:
+            _, is_new = ExpenseCategory.objects.get_or_create(
+                code=row['code'], defaults=row)
+            created += int(is_new)
+
+        self.stdout.write(self.style.SUCCESS(
+            f'{created} categor{"y" if created == 1 else "ies"} created, '
+            f'{len(CATEGORIES) - created} already present.'))

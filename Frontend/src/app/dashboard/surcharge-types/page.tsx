@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/dashboard';
-import { apiFetch } from '@/hooks/useApi';
+import { apiFetch, apiGetAll } from '@/hooks/useApi';
 
 // Types
 interface SurchargeType {
@@ -97,14 +97,8 @@ export default function SurchargeTypesPage() {
     const fetchSurchargeTypes = async () => {
         try {
             setIsLoading(true);
-            const response = await apiFetch(`/employees/surcharge-types/`);
-            if (response.ok) {
-                const data = await response.json();
-                const types = Array.isArray(data) ? data : (data.results || []);
-                setSurchargeTypes(types);
-            } else {
-                setSurchargeTypes([]);
-            }
+            // Every page: DRF pages at 20 and this list is filtered client-side.
+            setSurchargeTypes(await apiGetAll<SurchargeType>('/employees/surcharge-types/'));
         } catch (error) {
             console.error('Error fetching surcharge types:', error);
             setSurchargeTypes([]);

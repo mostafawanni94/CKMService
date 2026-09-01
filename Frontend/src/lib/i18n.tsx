@@ -1,6 +1,8 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import {
+    createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode,
+} from 'react';
 
 // Translation type
 type Translations = typeof en;
@@ -174,6 +176,179 @@ const en = {
 };
 
 // Arabic translations
+/**
+ * Dutch. The default: CKM is a Dutch company, its customers are Dutch,
+ * and the back office works in Dutch all day.
+ */
+const nl: Translations = {
+    // Common
+    dashboard: 'Dashboard',
+    employees: 'Medewerkers',
+    customers: 'Klanten',
+    projects: 'Projecten',
+    worklogs: 'Urenregistratie',
+    invoices: 'Backoffice',
+    wallet: 'Wallet',
+    settings: 'Instellingen',
+    logout: 'Uitloggen',
+
+    // Dashboard Home
+    adminDashboard: 'Beheerdersdashboard',
+    welcomeBack: 'Welkom terug!',
+    welcomeMessage: 'Dit speelt er vandaag in je bedrijf.',
+    today: 'Vandaag',
+    overview: 'Overzicht',
+    employeeManagement: 'Personeelsbeheer',
+    business: 'Zakelijk',
+    operations: 'Uitvoering',
+    system: 'Systeem',
+    allEmployees: 'Alle medewerkers',
+    pendingApprovals: 'Te beoordelen',
+    pendingEmployees: 'Medewerkers in behandeling',
+    pendingWorkLogs: 'Uren in behandeling',
+    pendingAdvances: 'Voorschotaanvragen',
+    totalPending: 'Totaal in behandeling',
+    awaitingApproval: 'Wacht op goedkeuring',
+    hoursToApprove: 'Uren goed te keuren',
+    moneyRequests: 'Geldaanvragen',
+    actionsNeeded: 'Actie vereist',
+    reviewNow: 'Nu beoordelen',
+    allCaughtUp: 'Alles is bijgewerkt',
+    quickActions: 'Snelle acties',
+
+    // Quick action cards
+    addEmployeeDesc: 'Voeg een nieuwe medewerker toe en geef inloggegevens uit',
+    addCustomerDesc: 'Leg een nieuwe klant vast met adres- en factuurgegevens',
+    reviewWorkLogsDesc: 'Beoordeel en keur ingediende uren goed',
+    generateInvoiceDesc: 'Maak facturen op basis van goedgekeurde uren',
+
+    // Getting started
+    gettingStarted: 'Aan de slag',
+    completeSteps: 'Rond deze stappen af om te beginnen',
+    step1: 'Voeg je eerste klant toe',
+    step2: 'Maak een project voor die klant aan',
+    step3: 'Voeg medewerkers toe en deel hun inloggegevens',
+    step4: 'Wijs medewerkers toe aan projecten',
+    step5: 'Medewerkers dienen hun uren in via de app',
+
+    // System links
+    systemLinks: 'Systeemkoppelingen',
+    djangoAdmin: 'Django-beheer',
+    djangoAdminDesc: 'Directe toegang tot de database',
+    apiDocs: 'API-documentatie',
+    apiDocsDesc: 'Interactieve API-documentatie',
+    systemSettings: 'Systeeminstellingen',
+    systemSettingsDesc: 'Bedrijfsgegevens, e-mail en meldingen',
+
+    // Employee page
+    totalEmployees: 'Totaal medewerkers',
+    active: 'Actief',
+    pending: 'In behandeling',
+    incomplete: 'Onvolledig',
+    addEmployee: 'Medewerker toevoegen',
+    viewEmployee: 'Medewerker bekijken',
+    editProfile: 'Profiel bewerken',
+    approve: 'Goedkeuren',
+    reject: 'Afkeuren',
+    refresh: 'Vernieuwen',
+    search: 'Zoeken',
+    searchEmployees: 'Zoek medewerkers',
+    manageProfiles: 'Profielen beheren',
+    noEmployeesFound: 'Geen medewerkers gevonden',
+    clickAddEmployee: 'Klik op "Medewerker toevoegen" om te beginnen',
+
+    // Create employee
+    addNewEmployee: 'Nieuwe medewerker toevoegen',
+    firstName: 'Voornaam',
+    lastName: 'Achternaam',
+    email: 'E-mailadres',
+    temporaryPassword: 'Tijdelijk wachtwoord',
+    generate: 'Genereren',
+    createEmployee: 'Medewerker aanmaken',
+    cancel: 'Annuleren',
+    employeeCreated: 'Medewerker aangemaakt',
+    shareCredentials: 'Deel de inloggegevens met de medewerker',
+    copyCredentials: 'Inloggegevens kopiëren',
+    shareViaWhatsApp: 'Delen via WhatsApp',
+    done: 'Klaar',
+    password: 'Wachtwoord',
+    employeeWillSetPassword: 'De medewerker stelt bij de eerste keer inloggen een eigen wachtwoord in',
+
+    // Edit employee
+    editEmployeeProfile: 'Profiel van medewerker bewerken',
+    personalInformation: 'Persoonlijke gegevens',
+    contactInformation: 'Contactgegevens',
+    contractInformation: 'Contractgegevens',
+    address: 'Adres',
+    streetAddress: 'Straat en huisnummer',
+    postcode: 'Postcode',
+    city: 'Plaats',
+    phoneNumber: 'Telefoonnummer',
+    nationality: 'Nationaliteit',
+    saveChanges: 'Wijzigingen opslaan',
+    saving: 'Opslaan…',
+    phase: 'Fase',
+    startDate: 'Startdatum',
+    endDate: 'Einddatum',
+    notProvided: 'Niet ingevuld',
+
+    // Customers
+    addCustomer: 'Klant toevoegen',
+    companyName: 'Bedrijfsnaam',
+    totalCustomers: 'Totaal klanten',
+    manageCustomers: 'Klanten beheren',
+    noCustomersYet: 'Nog geen klanten',
+    addFirstCustomer: 'Voeg je eerste klant toe',
+    searchCustomers: 'Zoek klanten',
+    inactive: 'Inactief',
+    phone: 'Telefoon',
+
+    // Status
+    approved: 'Goedgekeurd',
+    rejected: 'Afgekeurd',
+
+    // Actions
+    close: 'Sluiten',
+    view: 'Bekijken',
+    edit: 'Bewerken',
+    delete: 'Verwijderen',
+    save: 'Opslaan',
+    creating: 'Aanmaken…',
+    copied: 'Gekopieerd',
+    loading: 'Laden…',
+    error: 'Fout',
+    retry: 'Opnieuw proberen',
+    assign: 'Toewijzen',
+
+    // Projects
+    manageProjects: 'Projecten beheren',
+    newProject: 'Nieuw project',
+    totalProjects: 'Totaal projecten',
+    completed: 'Afgerond',
+    searchProjects: 'Zoek projecten',
+    noProjectsYet: 'Nog geen projecten',
+    started: 'Gestart',
+    all: 'Alle',
+
+    // Work logs
+    reviewWorkLogs: 'Uren beoordelen',
+    manageWorkLogs: 'Urenregistratie beheren',
+    totalLogs: 'Totaal registraties',
+    pendingApproval: 'Wacht op goedkeuring',
+    allWorkLogs: 'Alle registraties',
+    employee: 'Medewerker',
+    project: 'Project',
+    date: 'Datum',
+    time: 'Tijd',
+    hours: 'Uren',
+    status: 'Status',
+    actions: 'Acties',
+    noPendingWorkLogs: 'Geen uren in behandeling',
+    noWorkLogsFound: 'Geen uren gevonden',
+
+// Arabic translations
+};
+
 const ar: Translations = {
     dashboard: 'لوحة التحكم',
     employees: 'الموظفين',
@@ -638,7 +813,20 @@ const ru: Translations = {
     noWorkLogsFound: 'Журналы работы не найдены.'
 };
 
-const translations: Record<string, Translations> = { en, ar, uk, ru };
+const translations: Record<string, Translations> = { nl, en, ar, uk, ru };
+
+/** The languages the switcher offers, in the order it offers them. */
+export const availableLanguages = [
+    { code: 'nl', label: 'Nederlands', rtl: false },
+    { code: 'en', label: 'English', rtl: false },
+    { code: 'ar', label: 'العربية', rtl: true },
+    { code: 'uk', label: 'Українська', rtl: false },
+    { code: 'ru', label: 'Русский', rtl: false },
+] as const;
+
+const DEFAULT_LANGUAGE = 'nl';
+const RTL_LANGUAGES: ReadonlySet<string> = new Set<string>(
+    availableLanguages.filter(l => l.rtl).map(l => l.code));
 
 interface LanguageContextType {
     language: string;
@@ -650,49 +838,56 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-    const [language, setLanguageState] = useState('en');
-    const [mounted, setMounted] = useState(false);
+    // Server and first client render must agree, so both start on the default
+    // language; the stored choice is applied in an effect straight after.
+    const [language, setLanguageState] = useState<string>(DEFAULT_LANGUAGE);
 
-    useEffect(() => {
-        setMounted(true);
-        const savedLang = localStorage.getItem('language') || 'en';
-        setLanguageState(savedLang);
-
-        // Apply RTL if needed
-        if (savedLang === 'ar') {
-            document.documentElement.dir = 'rtl';
-        } else {
-            document.documentElement.dir = 'ltr';
-        }
-        document.documentElement.lang = savedLang;
+    const applyDocumentLanguage = useCallback((lang: string) => {
+        if (typeof document === 'undefined') return;
+        document.documentElement.dir = RTL_LANGUAGES.has(lang) ? 'rtl' : 'ltr';
+        document.documentElement.lang = lang;
     }, []);
 
-    const setLanguage = (lang: string) => {
-        localStorage.setItem('language', lang);
-        setLanguageState(lang);
-
-        // Apply RTL
-        if (lang === 'ar') {
-            document.documentElement.dir = 'rtl';
-        } else {
-            document.documentElement.dir = 'ltr';
+    useEffect(() => {
+        let stored: string | null = null;
+        try {
+            stored = localStorage.getItem('language');
+        } catch {
+            // A browser refusing site data still gets the default.
         }
-        document.documentElement.lang = lang;
-    };
+        const chosen = stored && stored in translations ? stored : DEFAULT_LANGUAGE;
+        setLanguageState(chosen);
+        applyDocumentLanguage(chosen);
+    }, [applyDocumentLanguage]);
 
-    const t = (key: keyof Translations): string => {
-        return translations[language]?.[key] || translations.en[key] || key;
-    };
+    const setLanguage = useCallback((lang: string) => {
+        const chosen = lang in translations ? lang : DEFAULT_LANGUAGE;
+        try {
+            localStorage.setItem('language', chosen);
+        } catch {
+            // The choice still applies for this session.
+        }
+        setLanguageState(chosen);
+        applyDocumentLanguage(chosen);
+    }, [applyDocumentLanguage]);
 
-    const isRTL = language === 'ar';
+    const t = useCallback(
+        (key: keyof Translations): string =>
+            translations[language]?.[key] || translations[DEFAULT_LANGUAGE][key] || key,
+        [language],
+    );
 
-    // Prevent hydration mismatch
-    if (!mounted) {
-        return <>{children}</>;
-    }
+    const value = useMemo(
+        () => ({ language, setLanguage, t, isRTL: RTL_LANGUAGES.has(language) }),
+        [language, setLanguage, t],
+    );
 
+    // The context is always provided. It used to render its children *without*
+    // the provider until an effect had run, so any component calling
+    // useLanguage() on the first render threw "must be used within
+    // LanguageProvider".
     return (
-        <LanguageContext.Provider value={{ language, setLanguage, t, isRTL }}>
+        <LanguageContext.Provider value={value}>
             {children}
         </LanguageContext.Provider>
     );

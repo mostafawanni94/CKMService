@@ -7,7 +7,7 @@ import { Card, Button, Badge, Input } from '@/components/ui';
 import { api, Employee } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n';
 import { Users, UserCheck, UserX, Search, Eye, Plus, X, Mail, Phone, Copy, MessageCircle, CheckCircle, AlertCircle, MapPin, Calendar, CreditCard, Globe, FileText, Edit, Save, Trash2, AlertTriangle, ChevronDown, Download } from 'lucide-react';
-import { apiFetch, readApiError } from '@/hooks/useApi';
+import { apiFetch, readApiError, apiGetAll } from '@/hooks/useApi';
 
 // Comprehensive list of nationalities with country flags
 const NATIONALITIES = [
@@ -222,11 +222,14 @@ export default function EmployeesPage() {
         setLoading(true);
         setError(null);
         try {
-            const [allResponse, pending] = await Promise.all([
-                api.getEmployees(),
+            // Every page. `api.getEmployees()` returns the first twenty; the
+            // list is searched and filtered in the browser, so stopping there
+            // hid every employee past the twentieth with no way to reach them.
+            const [all, pending] = await Promise.all([
+                apiGetAll<Employee>('/employees/profiles/'),
                 api.getPendingEmployees(),
             ]);
-            setEmployees(allResponse.results || []);
+            setEmployees(all);
             setPendingEmployees(pending || []);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load employees');

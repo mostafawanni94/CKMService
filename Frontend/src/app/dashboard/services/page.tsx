@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { Button } from '@/components/ui';
-import { apiFetch, readApiError } from '@/hooks/useApi';
+import { apiFetch, readApiError, apiGetAll } from '@/hooks/useApi';
 
 // Types
 interface CertificateType {
@@ -72,10 +72,9 @@ export default function ServicesPage() {
         setLoading(true);
         setError(null);
         try {
-            const response = await apiFetch(`/customers/services/`);
-            if (!response.ok) throw new Error('Failed to load services');
-            const data = await response.json();
-            setServices(data.results || data || []);
+            // Every page, not just the first: DRF pages at 20, and this list
+            // is filtered in the browser, so a partial fetch silently hid rows.
+            setServices(await apiGetAll<Service>('/customers/services/'));
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load services');
         } finally {

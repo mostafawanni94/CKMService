@@ -34,7 +34,10 @@ class Wallet(TimeStampedModel):
     
     employee = models.OneToOneField(
         'employees.EmployeeProfile',
-        on_delete=models.CASCADE,
+        # A wallet is a financial ledger. Deleting an employee row must not
+        # take their earnings, advances and payouts with it — employees are
+        # soft-deleted, and the history has to outlive the profile.
+        on_delete=models.PROTECT,
         related_name='wallet',
         verbose_name="Employee"
     )
@@ -64,6 +67,7 @@ class Wallet(TimeStampedModel):
     )
     
     class Meta:
+        ordering = ['employee_id']
         verbose_name = 'Wallet'
         verbose_name_plural = 'Wallets'
     
@@ -254,7 +258,9 @@ class AdvanceRequest(BaseModel):
     
     employee = models.ForeignKey(
         'employees.EmployeeProfile',
-        on_delete=models.CASCADE,
+        # An advance is money that changed hands; it is not deleted with a
+        # profile row.
+        on_delete=models.PROTECT,
         related_name='advance_requests',
         verbose_name="Employee"
     )

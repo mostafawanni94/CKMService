@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/dashboard';
-import { apiFetch } from '@/hooks/useApi';
+import { apiFetch, apiGetAll } from '@/hooks/useApi';
 
 // Types
 interface ContractType {
@@ -71,8 +71,9 @@ export default function ContractTypesPage() {
             const response = await apiFetch(`/employees/contract-types/`);
             if (response.ok) {
                 const data = await response.json();
-                // Handle both array and paginated response
-                const types = Array.isArray(data) ? data : (data.results || []);
+                // Every page, not just the first: DRF pages at 20, and this
+                // list is filtered in the browser, so a partial fetch hid rows.
+                const types = await apiGetAll<ContractType>('/employees/contract-types/');
                 setContractTypes(types);
             } else {
                 const errorText = await response.text();

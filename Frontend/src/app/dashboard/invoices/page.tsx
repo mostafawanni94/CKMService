@@ -7,7 +7,7 @@ import { api, Invoice } from '@/lib/api';
 import { FileText, Download, Eye, Clock, CheckCircle, AlertCircle, DollarSign, X, Gift, Coins, Users, User, Briefcase } from 'lucide-react';
 import ExcelJS from 'exceljs';
 import { useRouter } from 'next/navigation';
-import { apiDownload, apiFetch } from '@/hooks/useApi';
+import { apiDownload, apiFetch, apiGetAll } from '@/hooks/useApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -449,8 +449,9 @@ export default function InvoicesPage() {
         setLoading(true);
         setError(null);
         try {
-            const response = await api.getInvoices();
-            setInvoices(response.results || []);
+            // Every page. Only the first twenty invoices were reachable, and
+            // an invoice you cannot see is an invoice you cannot chase.
+            setInvoices(await apiGetAll<Invoice>('/invoices/invoices/'));
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load invoices');
         } finally {

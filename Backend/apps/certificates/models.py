@@ -252,6 +252,7 @@ class VCAInfo(BaseModel):
     )
     
     class Meta:
+        ordering = ['-created_at']
         verbose_name = 'VCA Information'
         verbose_name_plural = 'VCA Information'
     

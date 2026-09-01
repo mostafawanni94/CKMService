@@ -72,6 +72,7 @@ Ten apps under `Backend/apps/`:
 | `hr` | Leave types & requests, payroll periods, payslips, derived attendance |
 | `expenses` | Expense categories, expenses, income records |
 | `wallet` | Employee wallet, transactions, advance requests |
+| `vat` | BTW treatments, ledger, quarterly periods, returns, reporting, exports |
 | `certificates` | Certificate types, employee certificates, VCA |
 | `notifications` | In-app notifications, email (SMTP), FCM push, preferences |
 
@@ -89,6 +90,42 @@ them in a views module.
 | `IsEmployee` | `employee` |
 | `IsCustomerUser` | `customer` **and** linked to a Customer |
 | `IsAdminOrSelf` | object-level: admin, or the owner |
+
+### Billing lives in `apps/invoices/billing.py`
+
+One service turns approved work into invoices. Everything that bills a customer
+goes through it, so duplicate protection, rate resolution and VAT classification
+cannot be bypassed:
+
+- `billable_entries` — approved, unbilled work for a customer, by week or period
+- `price_entry` — delegates to `WorkEntry.calculated_price`; nothing re-derives a rate
+- `generate_invoice` → `issue_blockers` → `issue_invoice` → `create_credit_note`
+- A work entry is billed once: enforced by a partial unique constraint on
+  `InvoiceLine.work_entry` for service lines, as well as by the service.
+- Numbers come from `apps/invoices/numbering.py`, a locked sequence row per
+  series per year. Never `count() + 1`.
+- Issued documents are never edited. A mistake becomes a credit note.
+
+`apps/invoices/pdf.py` renders the invoice with ReportLab, carrying everything
+the Wet OB requires including "btw verlegd" and the customer's BTW number.
+
+### VAT lives in `apps/vat/`
+
+`returns.calculate_return` is the **only** place a return is computed; the
+dashboard, the exports and the filing all call it. Rules:
+
+- A treatment nobody has established is `REQUIRES_REVIEW`, never 21%, never 0%.
+- The period follows the **invoice date** (factuurstelsel), never the payment.
+- There is no rubriek 5g. `FORBIDDEN_BOX_CODES` enforces it.
+- A filed period is snapshotted and locked. Corrections are new offsetting
+  entries in an open period (`apps/vat/corrections.py`).
+
+### The employee wallet is a ledger
+
+`apps/wallet/services.py` is the single authority. Every movement is keyed on
+what caused it — a work entry, a payslip, an expense — so approval, payroll and
+the backfill command can all be re-run without paying anyone twice. A partial
+unique constraint enforces it in the database too.
 
 ### Money lives in `WorkEntry`
 
@@ -127,6 +164,12 @@ OpenAPI schema at `/api/schema/`, Swagger at `/api/docs/`.
 /api/worklogs/      entries · shifts · export/customer/   (bare "" aliases entries)
 /api/invoices/      invoices · agency-invoices · incoming-invoices
                     cost-types · rates · pending-earnings
+                    invoices/preview|generate · invoices/<id>/blockers|issue
+                    invoices/<id>/credit-note|record-payment|pdf|send|add-line
+/api/vat/           boxes · treatments · ledger · periods · dashboard
+                    periods/<id>/return|boxes/<code>|blockers|snapshot|events
+                    periods/<id>/finalize|lock|reopen|export
+                    dashboard/receivables|payables|requires-review
 /api/hr/            leave-types · leave-requests · payroll-periods · payslips · attendance
 /api/expenses/      categories · expenses · income
 /api/wallet/        wallets · advances
@@ -225,6 +268,14 @@ navigation using a non-credential `ckm_session` cookie hint.
   requirements pins suggested.
 - `Backend/requirements.txt` lists **direct dependencies only**. Add a package
   there the moment you import it.
+- Company identity (KvK, BTW number, IBAN, logo, payment terms, invoice
+  numbering prefixes) lives in `SystemConfig`, set in Settings. The IBAN is
+  encrypted at rest. An invoice cannot be rendered correctly without them.
+- `WorkEntry.agency` is derived on save from `EmployeeAgencyHistory.agency_on`,
+  so an employee who moves between agencies keeps their history billed to the
+  agency that was in force on each day.
+- Financial relations use `PROTECT`, not `CASCADE`: deleting an employee must
+  not take their wallet ledger with them.
 
 ## Testing
 
@@ -235,5 +286,19 @@ Factories live in `apps/core/testing/` — `make_employee`, `make_work_entry`,
 ```bash
 python manage.py test                      # everything
 python manage.py test apps.worklogs        # the money paths
+python manage.py test apps.invoices        # billing, PDFs, credit notes
+python manage.py test apps.vat             # classification, returns, filing
+python manage.py test apps.wallet          # employee money
 python manage.py test apps.hr              # payroll and leave
+python manage.py test apps.core.tests.test_end_to_end   # the whole cycle
+python manage.py test apps.core.tests.test_security     # access and encryption
+python manage.py test apps.core.tests.test_performance  # query-count guards
+python manage.py test apps.core.tests.test_schema       # schema invariants
+```
+
+### Scheduled jobs
+
+```bash
+# Daily, from cron: flag overdue invoices and send finance alerts.
+0 7 * * *  cd Backend && venv/bin/python manage.py finance_alerts
 ```

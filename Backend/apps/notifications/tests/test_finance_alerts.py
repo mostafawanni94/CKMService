@@ -204,3 +204,53 @@ class DailyRunTests(AlertSetup):
         out = StringIO()
         call_command('finance_alerts', '--date', '2026-08-10', stdout=out)
         self.assertIn('flagged overdue', out.getvalue())
+
+
+class DeviceRegistrationTests(TestCase):
+    """
+    Push notifications need somewhere to store the device token.
+
+    The model was declared in its own module and never imported into
+    models.py, so Django never built its table and every registration call
+    failed with "no such table" — no device could receive a push.
+    """
+
+    def setUp(self):
+        from rest_framework.test import APIClient
+
+        self.employee = make_employee()
+        self.client = APIClient()
+        self.client.force_authenticate(self.employee.user)
+
+    def test_a_device_can_register(self):
+        response = self.client.post('/api/notifications/devices/register/', {
+            'token': 'fcm-token-abc123', 'platform': 'android',
+        }, format='json')
+        self.assertIn(response.status_code, (200, 201))
+
+        from apps.notifications.device_models import DeviceRegistration
+        device = DeviceRegistration.objects.get(token='fcm-token-abc123')
+        self.assertEqual(device.user, self.employee.user)
+        self.assertTrue(device.is_active)
+
+    def test_registering_the_same_token_twice_updates_it(self):
+        from apps.notifications.device_models import DeviceRegistration
+
+        for _ in range(2):
+            self.client.post('/api/notifications/devices/register/', {
+                'token': 'fcm-token-xyz', 'platform': 'ios',
+            }, format='json')
+        self.assertEqual(
+            DeviceRegistration.objects.filter(token='fcm-token-xyz').count(), 1)
+
+    def test_a_device_can_unregister(self):
+        from apps.notifications.device_models import DeviceRegistration
+
+        self.client.post('/api/notifications/devices/register/', {
+            'token': 'fcm-token-bye', 'platform': 'android'}, format='json')
+        response = self.client.post('/api/notifications/devices/unregister/',
+                                    {'token': 'fcm-token-bye'}, format='json')
+        self.assertIn(response.status_code, (200, 204))
+        device = DeviceRegistration.objects.filter(token='fcm-token-bye').first()
+        if device is not None:
+            self.assertFalse(device.is_active)

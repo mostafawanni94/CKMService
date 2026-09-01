@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/dashboard';
-import { apiFetch } from '@/hooks/useApi';
+import { apiFetch, apiGetAll } from '@/hooks/useApi';
 
 // Types
 interface Gratuity {
@@ -91,12 +91,8 @@ export default function GratuitiesPage() {
             if (filterCustomer) params.append('customer', filterCustomer);
             if (params.toString()) url += `?${params.toString()}`;
 
-            const response = await apiFetch(url, {
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setGratuities(data.results || data);
-            }
+            // Every page: DRF pages at 20 and this list is filtered client-side.
+            setGratuities(await apiGetAll<Gratuity>(url));
         } catch (error) {
             console.error('Failed to fetch gratuities:', error);
         } finally {

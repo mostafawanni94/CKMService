@@ -87,10 +87,14 @@ export function Input({
   label, value, onChange, type = 'text', placeholder,
   required, disabled, style, min, max, step
 }: InputProps) {
+  const id = React.useId();
   return (
     <div>
-      {label && <label style={presets.label}>{label}{required && ' *'}</label>}
+      {label && (
+        <label htmlFor={id} style={presets.label}>{label}{required && ' *'}</label>
+      )}
       <input
+        id={id}
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
@@ -130,10 +134,14 @@ export function Select({
   label, value, onChange, options, placeholder,
   required, disabled, style
 }: SelectProps) {
+  const id = React.useId();
   return (
     <div>
-      {label && <label style={presets.label}>{label}{required && ' *'}</label>}
+      {label && (
+        <label htmlFor={id} style={presets.label}>{label}{required && ' *'}</label>
+      )}
       <select
+        id={id}
         value={value}
         onChange={e => onChange(e.target.value)}
         required={required}
@@ -163,10 +171,14 @@ interface TextAreaProps {
 }
 
 export function TextArea({ label, value, onChange, placeholder, rows = 3, required }: TextAreaProps) {
+  const id = React.useId();
   return (
     <div>
-      {label && <label style={presets.label}>{label}{required && ' *'}</label>}
+      {label && (
+        <label htmlFor={id} style={presets.label}>{label}{required && ' *'}</label>
+      )}
       <textarea
+        id={id}
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
@@ -285,6 +297,25 @@ interface ModalProps {
 }
 
 export function Modal({ open, onClose, title, children, footer, width = '560px' }: ModalProps) {
+  const titleId = React.useId();
+  const panelRef = React.useRef<HTMLDivElement>(null);
+
+  // Escape closes the dialog, which is what every keyboard user tries first.
+  React.useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [open, onClose]);
+
+  // Focus moves into the dialog, so a screen reader announces it and Tab stays
+  // somewhere sensible instead of continuing down the page behind it.
+  React.useEffect(() => {
+    if (open) panelRef.current?.focus();
+  }, [open]);
+
   if (!open) return null;
   return (
     <div
@@ -296,11 +327,16 @@ export function Modal({ open, onClose, title, children, footer, width = '560px' 
       onClick={onClose}
     >
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
         style={{
           background: colors.white, borderRadius: radius.xxl,
           width, maxWidth: '95vw', maxHeight: '90vh',
           display: 'flex', flexDirection: 'column',
-          boxShadow: shadows.xl
+          boxShadow: shadows.xl, outline: 'none'
         }}
         onClick={e => e.stopPropagation()}
       >
@@ -310,15 +346,15 @@ export function Modal({ open, onClose, title, children, footer, width = '560px' 
           padding: `${spacing.xl} ${spacing.xxl}`,
           borderBottom: `1px solid ${colors.border}`
         }}>
-          <h2 style={{ fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.textPrimary, margin: 0 }}>
+          <h2 id={titleId} style={{ fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.textPrimary, margin: 0 }}>
             {title}
           </h2>
-          <button onClick={onClose} style={{
+          <button type="button" onClick={onClose} aria-label="Sluiten" style={{
             background: 'none', border: 'none', cursor: 'pointer',
             padding: spacing.sm, borderRadius: radius.md,
             color: colors.textMuted
           }}>
-            <X size={20} />
+            <X size={20} aria-hidden="true" />
           </button>
         </div>
         {/* Body */}
@@ -461,10 +497,11 @@ export function SearchBar({ value, onChange, placeholder = 'Search...', style }:
         color: colors.textLight
       }} />
       <input
-        type="text"
+        type="search"
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
+        aria-label={placeholder}
         style={{
           ...presets.input,
           paddingLeft: '38px',
@@ -569,17 +606,19 @@ interface PaginationProps {
 export function Pagination({ page, totalPages, onChange }: PaginationProps) {
   if (totalPages <= 1) return null;
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: spacing.sm, marginTop: spacing.xl }}>
+    <nav aria-label="Paginering"
+         style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: spacing.sm, marginTop: spacing.xl }}>
       <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => onChange(page - 1)} icon={<ChevronLeft size={16} />}>
         Prev
       </Button>
-      <span style={{ fontSize: fontSize.md, color: colors.textMuted, padding: '0 12px' }}>
+      <span aria-live="polite"
+            style={{ fontSize: fontSize.md, color: colors.textMuted, padding: '0 12px' }}>
         Page {page} of {totalPages}
       </span>
       <Button variant="secondary" size="sm" disabled={page >= totalPages} onClick={() => onChange(page + 1)}>
         Next <ChevronRight size={16} />
       </Button>
-    </div>
+    </nav>
   );
 }
 
@@ -589,8 +628,9 @@ export function Pagination({ page, totalPages, onChange }: PaginationProps) {
 
 export function LoadingSpinner({ message = 'Loading...' }: { message?: string }) {
   return (
-    <div style={{ textAlign: 'center', padding: '100px', color: colors.textLight }}>
-      <div style={{
+    <div role="status" aria-live="polite"
+         style={{ textAlign: 'center', padding: '100px', color: colors.textLight }}>
+      <div aria-hidden="true" style={{
         width: '40px', height: '40px',
         border: `3px solid ${colors.border}`, borderTopColor: colors.primary,
         borderRadius: '50%', animation: 'spin 1s linear infinite',

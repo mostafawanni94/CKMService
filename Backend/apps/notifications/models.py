@@ -259,8 +259,20 @@ class NotificationPreference(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
+        ordering = ['user_id']
         verbose_name = 'Notification Preference'
         verbose_name_plural = 'Notification Preferences'
     
     def __str__(self):
         return f"Notification Preferences: {self.user}"
+
+
+# =============================================================================
+# DEVICE REGISTRATION
+# =============================================================================
+
+# Declared in its own module but never imported here, so Django never
+# discovered it and never built its table: every call to
+# /api/notifications/devices/register/ failed with "no such table", which meant
+# no mobile device could ever receive a push notification.
+from .device_models import DeviceRegistration  # noqa: E402,F401

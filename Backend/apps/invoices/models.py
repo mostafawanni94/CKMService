@@ -850,7 +850,9 @@ class ProjectRate(BaseModel):
     
     project = models.ForeignKey(
         'projects.Project',
-        on_delete=models.CASCADE,
+        # Rate history is what past invoices were priced from. It survives
+        # the project being removed.
+        on_delete=models.PROTECT,
         blank=True,
         null=True,
         related_name='rates',
