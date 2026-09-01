@@ -1,87 +1,123 @@
-# Pro Totaal Service - Admin Dashboard
+# CKM Services — Dashboard
 
-A modern admin dashboard for managing the Pro Totaal Service business operations.
+Back-office dashboard for the CKM Services platform. Next.js 16 (App Router),
+React 19, TypeScript.
 
-## Tech Stack
+Part of a larger platform — see the [root README](../README.md) for the whole
+picture.
 
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **State Management**: React Context + SWR for data fetching
-- **API Integration**: REST API to Django Backend
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18.17 or later
-- npm 9.x or later
-
-### Installation
+## Running it
 
 ```bash
-# Install dependencies
 npm install
-
-# Create environment file
-cp .env.example .env.local
-
-# Start development server
-npm run dev
+cp .env.example .env.local     # BACKEND_API_URL=http://localhost:8000
+npm run dev                    # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the dashboard.
+The Django API must be running. Next proxies `/api` and `/media` to
+`BACKEND_API_URL`, so the browser only talks to one origin and there is no CORS
+in development.
 
-### Environment Variables
+| Variable | Purpose |
+|---|---|
+| `BACKEND_API_URL` | Where Next proxies `/api` and `/media`. Server-side only. |
+| `NEXT_PUBLIC_API_URL` | Leave unset. Only for calling the API on another origin directly, which then needs CORS on the backend. |
 
-Create a `.env.local` file with:
+## Scripts
 
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
+```bash
+npm run dev          # dev server
+npm run build        # production build
+npm run start        # serve the production build
+npm run lint         # eslint
+npm run check:api    # API-client invariants — see below
+npx tsc --noEmit     # type check
 ```
 
-## Project Structure
+## Layout
 
 ```
 src/
-├── app/                    # App Router pages
-│   ├── (auth)/            # Authentication pages
-│   ├── (dashboard)/       # Dashboard pages
-│   │   ├── employees/     # Employee management
-│   │   ├── customers/     # Customer management
-│   │   ├── projects/      # Project management
-│   │   ├── worklogs/      # Work log approval
-│   │   ├── invoices/      # Invoice generation
-│   │   └── settings/      # System settings
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Home page
-├── components/            # Reusable components
-│   ├── ui/               # UI primitives
-│   ├── forms/            # Form components
-│   └── tables/           # Data tables
-├── lib/                  # Utility functions
-│   ├── api/              # API client
-│   ├── hooks/            # Custom hooks
-│   └── utils/            # Helper functions
-├── styles/               # Global styles
-└── types/                # TypeScript types
+├── app/
+│   ├── page.tsx              public marketing page
+│   ├── login/ · logout/
+│   └── dashboard/            42 routes, grouped by domain
+├── components/
+│   ├── layout/dashboard.tsx  shell, role-filtered navigation
+│   ├── ui/shared.tsx         Button, Input, DataTable, Modal, StatCard…
+│   └── features/             per-domain presentational pieces
+├── hooks/
+│   ├── useApi.ts             THE API client — every request goes through it
+│   └── use*.ts               one view-model hook per page
+├── lib/
+│   ├── auth.ts               tokens, JWT claims, role helpers
+│   ├── api.ts                typed domain methods (delegates to useApi)
+│   └── i18n.tsx              EN · AR (RTL) · UK · RU
+├── styles/tokens.ts          colors, spacing, typography
+└── proxy.ts                  edge guard for /dashboard (Next 16's middleware)
 ```
 
-## Available Scripts
+## Page shape
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run type-check` - Run TypeScript check
+Thin page → view-model hook → feature components → shared UI. `dashboard/hr/*`,
+`dashboard/incoming-invoices/` and `dashboard/expenses/` are the reference
+examples:
 
-## Features (To Be Implemented)
+```tsx
+export default function ExpensesPage() {
+  const vm = useExpenses();          // all state and fetching lives here
+  return (
+    <DashboardLayout>
+      <PageHeader title="Expenses" … />
+      <ExpenseTable expenses={vm.expenses} loading={vm.loading} … />
+    </DashboardLayout>
+  );
+}
+```
 
-- [ ] Admin authentication
-- [ ] Employee management (CRUD, approval workflow)
-- [ ] Customer management
-- [ ] Project management
-- [ ] Work log approval
-- [ ] Weekly invoice generation
-- [ ] Notification center
-- [ ] Dashboard analytics
+Several older pages are still 1,500–2,800 lines with their data layer inline and
+hardcoded colors. When you touch one, extract the data layer into a hook rather
+than adding to it.
+
+## Data fetching
+
+Import from `@/hooks/useApi`:
+
+```ts
+import { apiGet, apiMutate, apiFetch, apiUpload, apiDownload } from '@/hooks/useApi';
+
+const employees = await apiGet<Paginated<Employee>>('/employees/profiles/');
+await apiMutate('/hr/leave-requests/123/approve/', 'POST', { notes: 'ok' });
+```
+
+`apiFetch` attaches the bearer token, refreshes it transparently on a 401
+(coalescing concurrent refreshes), and stores the rotated refresh token. Errors
+come back as readable messages via `readApiError()`, including DRF field errors.
+
+**Never** build an `Authorization` header by hand, and **never** read
+`localStorage` for a token — use `@/lib/auth`.
+
+`@tanstack/react-query` is wired up in `app/providers.tsx`; new hooks should
+prefer `useQuery`. The existing `useFetch`/`useMutation` helpers still work.
+
+## `npm run check:api`
+
+Enforces two invariants a type-checker cannot see, both learned the hard way:
+
+1. **`apiFetch` must never call itself.** A codemod once rewrote the raw `fetch`
+   inside the client onto `apiFetch`; every request blew the stack, and it
+   type-checked and built cleanly.
+2. **Our API goes through `apiFetch`; third-party APIs use plain `fetch`.**
+   `apiFetch` carries the user's token, so an external URL would leak it. The
+   PDOK postcode lookup is the one legitimate plain-`fetch` caller.
+
+Blocking in CI.
+
+## Auth
+
+`proxy.ts` redirects unauthenticated navigation at the edge using a
+non-credential `ckm_session` cookie hint — the edge runtime cannot read
+localStorage, so it cannot verify a session itself. `app/dashboard/layout.tsx`
+then checks expiry and role client-side.
+
+Both are presentation only. The API enforces permissions on every request.

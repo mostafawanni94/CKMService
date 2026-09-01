@@ -1,147 +1,85 @@
-# Pro Totaal Service - Employee Mobile App
+# CKM Services — Employee App
 
-A Flutter mobile application for employees of Pro Totaal Service.
+Flutter mobile app for CKM Services employees.
 
-## Tech Stack
+> **Note the directory name.** This folder is called `FlutterProTotaalService`
+> but it is the **employee** app (`pubspec name: pro_totaal_service`). The
+> customer portal lives in `FlutterEmployeeProject/`. A rebrand renamed the
+> product but not the folders.
 
-- **Framework**: Flutter 3.x
-- **Language**: Dart
-- **State Management**: Provider
-- **API Integration**: REST API to Django Backend
-- **Authentication**: Token-based (JWT)
+Part of a larger platform — see the [root README](../README.md).
 
-## Prerequisites
+## Running it
 
-Before you begin, ensure you have Flutter installed:
-
-### Install Flutter (macOS)
+The API base URL is supplied at build time; there is deliberately no default in
+a release build.
 
 ```bash
-# Using Homebrew
-brew install flutter
-
-# Or download from https://flutter.dev/docs/get-started/install/macos
-```
-
-### Verify Installation
-
-```bash
-flutter doctor
-```
-
-## Getting Started
-
-### 1. Initialize Flutter Project
-
-Since Flutter SDK wasn't installed during scaffolding, run:
-
-```bash
-# Create a new Flutter project in this directory
-flutter create . --org com.prototaalservice
-
-# Get dependencies
 flutter pub get
+
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api    # Android emulator
+flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8000/api   # iOS simulator
+flutter run --dart-define=API_BASE_URL=http://192.168.1.50:8000/api  # physical device
+
+flutter build apk --dart-define=API_BASE_URL=https://api.ckmservices.nl/api
 ```
 
-### 2. Configure API Endpoint
-
-Edit `lib/config/app_config.dart` with your backend URL.
-
-### 3. Run the App
+Omitting `API_BASE_URL` in debug falls back to a per-platform localhost address;
+omitting it in a **release** build throws at startup, on purpose.
 
 ```bash
-# For iOS
-flutter run -d ios
-
-# For Android
-flutter run -d android
+flutter analyze
+flutter test
 ```
 
-## Project Structure
+## What an employee can do
+
+- Complete their profile on first login and submit it for approval
+- See assignments — **location and time only**, never the customer or the
+  commercial detail behind the job
+- Acknowledge shifts, fill in actual times and breaks, attach photos, submit
+- Track worklog status and pending earnings
+- View wallet balance and request advances
+- View payslips and request leave
+- Receive push notifications
+
+English, Arabic (RTL) and Russian.
+
+## Layout
 
 ```
 lib/
-├── main.dart                 # App entry point
-├── config/                   # Configuration
-│   ├── app_config.dart      # API URLs, constants
-│   └── theme.dart           # App theme
-├── models/                   # Data models
-│   ├── user.dart
-│   ├── employee.dart
-│   ├── project.dart
-│   ├── work_log.dart
-│   └── wallet.dart
-├── providers/                # State management
-│   ├── auth_provider.dart
-│   ├── employee_provider.dart
-│   └── wallet_provider.dart
-├── screens/                  # UI screens
-│   ├── auth/                # Login screens
-│   ├── onboarding/          # Profile completion
-│   ├── home/                # Main dashboard
-│   ├── assignments/         # Project assignments
-│   ├── worklogs/            # Time tracking
-│   ├── wallet/              # Wallet & advances
-│   └── notifications/       # Notification center
-├── services/                 # API services
-│   ├── api_service.dart     # HTTP client
-│   ├── auth_service.dart    # Authentication
-│   └── storage_service.dart # Local storage
-├── widgets/                  # Reusable widgets
-│   ├── buttons/
-│   ├── cards/
-│   ├── forms/
-│   └── dialogs/
-└── utils/                    # Utilities
-    ├── validators.dart
-    ├── formatters.dart
-    └── helpers.dart
+├── main.dart
+├── core/
+│   ├── config/api_config.dart     build-time base URL
+│   ├── network/api_client.dart    HTTP + automatic token refresh
+│   ├── storage/secure_storage.dart
+│   ├── services/fcm_service.dart  push notifications
+│   ├── localization/ · widgets/ · utils/
+└── features/                      auth · profile · home · assignments · shifts
+                                   worklogs · wallet · invoices · notifications
 ```
 
-## Features
+Each feature follows `data/` (services and models) → `presentation/viewmodels/`
+(Provider `ChangeNotifier`) → `presentation/screens/`.
 
-### Employee Features
+## Networking
 
-- [ ] Login with admin-provided credentials
-- [ ] Complete profile (mandatory fields)
-- [ ] Upload ID documents (front + back)
-- [ ] Upload certificates (VCA, etc.)
-- [ ] View project assignments
-- [ ] Submit work logs (time tracking)
-- [ ] View wallet balance
-- [ ] Request advances
-- [ ] Receive notifications
+`ApiClient` attaches the bearer token, and on a 401 refreshes once and retries.
+Concurrent 401s share a single refresh — the server rotates refresh tokens and
+blacklists the old one, so parallel refreshes would invalidate each other.
 
-### Technical Features
+When the session cannot be renewed, `ApiClient.onSessionExpired` fires and
+`AuthViewModel` returns the user to the login screen.
 
-- [ ] Offline support
-- [ ] Push notifications
-- [ ] Camera integration (document upload)
-- [ ] Biometric authentication
-- [ ] Dark mode support
+## Push notifications
 
-## API Integration
+`FcmService` uses FCM **HTTP v1**. It needs:
 
-The app connects to the Django backend at:
-- Development: `http://localhost:8000/api`
-- Production: `https://api.prototaalservice.nl/api`
+- `android/app/google-services.json`
+- `ios/Runner/GoogleService-Info.plist`
+- A Firebase project id and service-account JSON under dashboard Settings
 
-## Building for Production
-
-### Android
-
-```bash
-flutter build apk --release
-# or for app bundle
-flutter build appbundle --release
-```
-
-### iOS
-
-```bash
-flutter build ios --release
-```
-
-## Support
-
-For technical support, contact the development team.
+Without them `initialize()` logs and no-ops — the app runs normally, just
+without push. Device tokens register **after** login, since the endpoint is
+authenticated and binds the token to the signed-in user.

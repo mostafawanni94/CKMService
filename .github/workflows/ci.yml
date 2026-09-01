@@ -62,7 +62,7 @@ jobs:
         run: npm run check:api
       - name: Type check
         run: npx tsc --noEmit
-      # Non-blocking for now: the tree carries ~211 pre-existing lint errors,
+      # Non-blocking for now: the tree carries 211 pre-existing lint errors,
       # mostly `any` types and React 19's new set-state-in-effect rule. Keep the
       # signal visible and drive the count down, then flip this to blocking.
       - name: Lint

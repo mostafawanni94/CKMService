@@ -145,7 +145,7 @@ OpenAPI schema at `/api/schema/`, Swagger at `/api/docs/`.
 /api/expenses/      categories · expenses · income
 /api/wallet/        wallets · advances
 /api/certificates/  types · employee-certificates
-/api/notifications/ notifications · preferences · devices
+/api/notifications/ notifications · preferences · devices/register|unregister
 /api/settings/      config/ · config/public/
 /api/customer-portal/ profile/ · projects/ · projects/<id>/{entries,calendar,export}
 ```
