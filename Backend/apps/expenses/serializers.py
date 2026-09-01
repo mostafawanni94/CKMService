@@ -2,6 +2,7 @@
 from decimal import Decimal
 from rest_framework import serializers
 from .models import ExpenseCategory, Expense, IncomeRecord
+from apps.core.media import signed_media_url
 
 
 class ExpenseCategorySerializer(serializers.ModelSerializer):
@@ -57,7 +58,7 @@ class ExpenseDetailSerializer(serializers.ModelSerializer):
         if obj.receipt_file:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.receipt_file.url)
+                return signed_media_url(obj.receipt_file, request)
             return obj.receipt_file.url
         return None
 
@@ -131,7 +132,7 @@ class IncomeRecordDetailSerializer(serializers.ModelSerializer):
         if obj.payment_proof:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.payment_proof.url)
+                return signed_media_url(obj.payment_proof, request)
             return obj.payment_proof.url
         return None
 

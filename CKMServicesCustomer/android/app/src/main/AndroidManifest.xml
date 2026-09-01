@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- App lock: biometric unlock with a PIN fallback. -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <application
         android:label="CKM Services Portal"
         android:name="${applicationName}"

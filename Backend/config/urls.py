@@ -5,7 +5,7 @@ Root URL configuration for the CKM Services API.
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
@@ -13,6 +13,7 @@ from drf_spectacular.views import (
 )
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
+from apps.core.media import serve_protected_media
 from apps.employees.auth_views import (
     CKMTokenObtainPairView,
     password_change,
@@ -51,6 +52,12 @@ urlpatterns = [
     path('api/hr/', include('apps.hr.urls')),
 ]
 
+# Media is NOT served by static(): MEDIA_ROOT holds ID documents, contracts and
+# work photos, and static() applies no access control whatsoever. Every file is
+# reached through a signed, expiring URL — see apps/core/media.py.
+urlpatterns += [
+    re_path(r'^media/(?P<path>.+)$', serve_protected_media, name='protected-media'),
+]
+
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

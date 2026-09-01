@@ -22,6 +22,8 @@ import 'features/profile/presentation/screens/profile_completion_screen.dart';
 import 'features/profile/presentation/screens/pending_approval_screen.dart';
 import 'core/network/api_client.dart';
 import 'core/services/fcm_service.dart';
+import 'core/security/app_lock_gate.dart';
+import 'core/security/app_lock_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -130,11 +132,26 @@ class _AppRootState extends State<AppRoot> {
     });
   }
 
+  final _appLock = AppLockService();
+
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthViewModel>(
       builder: (context, auth, _) {
-        switch (auth.state) {
+        // Everything behind sign-in sits under the lock gate: biometrics on
+        // launch and after every background, with a PIN fallback.
+        return AppLockGate(
+          lock: _appLock,
+          isSignedIn: auth.state == AuthState.authenticated,
+          onSignOut: () => auth.logout(),
+          child: _screenFor(auth),
+        );
+      },
+    );
+  }
+
+  Widget _screenFor(AuthViewModel auth) {
+    switch (auth.state) {
           // Loading states
           case AuthState.initial:
           case AuthState.loading:
@@ -161,9 +178,7 @@ class _AppRootState extends State<AppRoot> {
           case AuthState.unauthenticated:
           case AuthState.error:
             return const LoginScreen();
-        }
-      },
-    );
+    }
   }
 }
 

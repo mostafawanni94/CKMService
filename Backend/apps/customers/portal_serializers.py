@@ -21,6 +21,8 @@ from apps.customers.models import Customer
 # CUSTOMER PROFILE
 # =============================================================================
 
+from apps.core.media import signed_media_url
+
 class CustomerProfileSerializer(serializers.ModelSerializer):
     """Customer's own company profile (read-only)."""
     logo_url = serializers.SerializerMethodField()
@@ -36,7 +38,7 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
     def get_logo_url(self, obj):
         request = self.context.get('request')
         if obj.logo and request:
-            return request.build_absolute_uri(obj.logo.url)
+            return signed_media_url(obj.logo, request)
         return None
 
 
@@ -59,7 +61,7 @@ class CustomerPhotoSerializer(serializers.ModelSerializer):
     def get_photo_url(self, obj):
         request = self.context.get('request')
         if obj.photo and request:
-            return request.build_absolute_uri(obj.photo.url)
+            return signed_media_url(obj.photo, request)
         return None
 
 
@@ -113,7 +115,7 @@ class CustomerProjectListSerializer(serializers.ModelSerializer):
             work_entry__project=obj
         ).order_by('-taken_at').first()
         if latest_photo and latest_photo.photo and request:
-            return request.build_absolute_uri(latest_photo.photo.url)
+            return signed_media_url(latest_photo.photo, request)
         return None
 
 

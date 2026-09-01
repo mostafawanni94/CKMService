@@ -906,7 +906,7 @@ class WorkEntry(BaseModel):
         
         return False
     
-    def get_hours_breakdown_detailed(self):
+    def get_hours_breakdown_detailed(self, percentages=None, rate_override=None):
         """Calculate exact hours breakdown by surcharge type.
         
         For a shift like 02:00-10:30 with night shift defined as 22:00-06:00:
@@ -935,7 +935,7 @@ class WorkEntry(BaseModel):
             return result
         
         customer = self.project.customer
-        rate = float(self.get_service_rate())
+        rate = float(self.get_service_rate() if rate_override is None else rate_override)
         
         # Get work times in Amsterdam local time
         if self.actual_start_datetime and self.actual_end_datetime:
@@ -960,21 +960,31 @@ class WorkEntry(BaseModel):
         break_minutes = self._get_total_break_minutes()
         net_work_minutes = total_work_minutes - break_minutes
         
-        # Build list of applicable surcharges with their conditions and percentages
+        # Build the list of surcharges this payer is subject to, with their
+        # percentages. `percentages` lets a different payer (an agency) reuse the
+        # same minute-level engine with its own rates: {surcharge_type_id: pct}.
+        # Passing it also changes which surcharge wins an overlapping minute,
+        # which is correct — the winner must be decided on the payer's own rates.
         applicable_surcharges = []
         for surcharge_type in SurchargeType.objects.filter(is_active=True):
-            try:
-                customer_surcharge = CustomerServiceSurcharge.objects.get(
-                    customer=customer,
-                    surcharge_type=surcharge_type,
-                    is_enabled=True
-                )
-            except CustomerServiceSurcharge.DoesNotExist:
-                continue
-            
+            if percentages is not None:
+                if surcharge_type.id not in percentages:
+                    continue
+                pct = float(percentages[surcharge_type.id])
+            else:
+                try:
+                    customer_surcharge = CustomerServiceSurcharge.objects.get(
+                        customer=customer,
+                        surcharge_type=surcharge_type,
+                        is_enabled=True
+                    )
+                except CustomerServiceSurcharge.DoesNotExist:
+                    continue
+                pct = float(customer_surcharge.percentage)
+
             applicable_surcharges.append({
                 'surcharge_type': surcharge_type,
-                'percentage': float(customer_surcharge.percentage),
+                'percentage': pct,
                 'name': surcharge_type.name,
                 'category': surcharge_type.category or 'other',
             })
@@ -1104,14 +1114,21 @@ class WorkEntry(BaseModel):
             name = surcharge_info['name']
             if name in surcharge_minutes:
                 hours = surcharge_minutes[name] / 60
-                amount = hours * rate * (surcharge_info['percentage'] / 100)
+                # `percentage` is a percentage OF the hourly rate, not an uplift
+                # on top of it: 150 means those hours are billed at 1.5x the
+                # rate. base_price below already counts every hour at the plain
+                # rate, so only the difference above 100% is added here.
+                effective_rate = rate * (surcharge_info['percentage'] / 100)
+                amount = hours * (effective_rate - rate)
                 category = surcharge_info['category']
                 
                 result['surcharges'].append({
+                    'id': str(surcharge_info['surcharge_type'].id),
                     'name': name,
                     'category': category,
                     'hours': round(hours, 2),
                     'percentage': surcharge_info['percentage'],
+                    'effective_rate': round(effective_rate, 2),
                     'amount': round(amount, 2),
                 })
                 
@@ -1357,11 +1374,88 @@ class WorkEntry(BaseModel):
                 # Calculate surcharge using employee's rate, not customer rate
                 surcharge_hours = s.get('hours', 0)
                 surcharge_percentage = s.get('percentage', 0)
-                surcharge_amount = surcharge_hours * float(employee_rate) * (surcharge_percentage / 100)
+                # Percentage OF the rate; base_payment already counts every
+                # hour at the plain rate, so add only the amount above 100%.
+                surcharge_amount = (
+                    surcharge_hours * float(employee_rate)
+                    * ((surcharge_percentage - 100) / 100)
+                )
                 total_surcharge_amount += Decimal(str(surcharge_amount))
         
         return (base_payment + total_surcharge_amount).quantize(Decimal('0.01'))
     
+    def get_agency_hours_breakdown(self, agency):
+        """
+        Hours and money for this entry as the *agency* is paid for it.
+
+        Mirrors get_employee_hours_breakdown, but priced on the agency's own
+        base_hourly_rate and its own AgencySurcharge percentages — the agency is
+        an independent payer, so it may be paid a night-shift uplift the
+        customer is not billed for, and vice versa.
+
+        Uses the same minute-level engine as customer billing, so partial hours
+        inside a window are split identically: a 02:00-10:00 shift against a
+        22:00-06:00 night window yields 4 surcharged hours and 4 normal ones.
+        """
+        from decimal import Decimal
+        from apps.employees.models import AgencySurcharge
+
+        base_rate = Decimal(str(agency.base_hourly_rate or 0))
+
+        empty = {
+            'total_hours': float(self.calculated_hours or 0),
+            'normal_hours': float(self.calculated_hours or 0),
+            'agency_rate': float(base_rate),
+            'base_amount': float((Decimal(str(self.calculated_hours or 0)) * base_rate)
+                                 .quantize(Decimal('0.01'))),
+            'surcharges': [],
+            'total_surcharge_amount': 0.0,
+            'total_amount': float((Decimal(str(self.calculated_hours or 0)) * base_rate)
+                                  .quantize(Decimal('0.01'))),
+        }
+
+        if not agency.has_surcharges or base_rate == 0:
+            return empty
+
+        percentages = {
+            row.surcharge_type_id: row.percentage
+            for row in AgencySurcharge.objects.filter(agency=agency, is_enabled=True)
+        }
+        if not percentages:
+            return empty
+
+        breakdown = self.get_hours_breakdown_detailed(
+            percentages=percentages, rate_override=base_rate
+        )
+
+        hours = Decimal(str(breakdown.get('total_hours', 0)))
+        base_amount = (hours * base_rate).quantize(Decimal('0.01'))
+        total_surcharge = Decimal('0')
+        surcharges = []
+        for item in breakdown.get('surcharges', []):
+            amount = Decimal(str(item.get('amount', 0)))
+            total_surcharge += amount
+            surcharges.append({
+                'id': item.get('id'),
+                'name': item.get('name'),
+                'category': item.get('category'),
+                'hours': item.get('hours'),
+                'percentage': item.get('percentage'),
+                'effective_rate': item.get('effective_rate'),
+                'amount': float(amount),
+            })
+
+        total_surcharge = total_surcharge.quantize(Decimal('0.01'))
+        return {
+            'total_hours': float(hours),
+            'normal_hours': breakdown.get('normal_hours', 0.0),
+            'agency_rate': float(base_rate),
+            'base_amount': float(base_amount),
+            'surcharges': surcharges,
+            'total_surcharge_amount': float(total_surcharge),
+            'total_amount': float(base_amount + total_surcharge),
+        }
+
     def get_employee_hours_breakdown(self):
         """Get hours breakdown for employee payment calculation.
         
@@ -1392,7 +1486,10 @@ class WorkEntry(BaseModel):
             for s in breakdown.get('surcharges', []):
                 surcharge_hours = s.get('hours', 0)
                 surcharge_percentage = s.get('percentage', 0)
-                surcharge_amount = surcharge_hours * float(employee_rate) * (surcharge_percentage / 100)
+                surcharge_amount = (
+                    surcharge_hours * float(employee_rate)
+                    * ((surcharge_percentage - 100) / 100)
+                )
                 result['surcharges'].append({
                     'name': s.get('name'),
                     'category': s.get('category'),

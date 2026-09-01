@@ -12,6 +12,8 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>CKM Services uses Face ID to confirm it is you before showing your projects and documents.</string>
 	<key>CFBundleName</key>
 	<string>ckm_services_customer</string>
 	<key>CFBundlePackageType</key>

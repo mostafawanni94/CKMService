@@ -953,10 +953,11 @@ class AgencySurcharge(TimeStampedModel):
         verbose_name="Surcharge Type"
     )
     percentage = models.DecimalField(
-        max_digits=5,
+        max_digits=6,
         decimal_places=2,
-        verbose_name="Surcharge Percentage",
-        help_text="e.g., 20.00 for 20%"
+        default=125.00,
+        verbose_name="Percentage of hourly rate (%)",
+        help_text="Percentage OF the hourly rate, not on top of it. 150 means the rate for those hours becomes 1.5x base (EUR 10/h -> EUR 15/h). 100 means no uplift."
     )
     is_enabled = models.BooleanField(
         default=True,

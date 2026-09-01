@@ -11,6 +11,8 @@ import 'features/auth/data/auth_service.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/projects/presentation/projects_dashboard.dart';
 import 'features/profile/presentation/profile_screen.dart';
+import 'core/security/app_lock_gate.dart';
+import 'core/security/app_lock_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,13 +27,15 @@ void main() {
   runApp(
     ChangeNotifierProvider(
       create: (_) => AuthService()..init(),
-      child: const CKMCustomerPortalApp(),
+      child: CKMCustomerPortalApp(),
     ),
   );
 }
 
 class CKMCustomerPortalApp extends StatelessWidget {
-  const CKMCustomerPortalApp({super.key});
+  CKMCustomerPortalApp({super.key});
+
+  final _appLock = AppLockService();
 
   @override
   Widget build(BuildContext context) {
@@ -41,10 +45,14 @@ class CKMCustomerPortalApp extends StatelessWidget {
       theme: AppTheme.darkTheme,
       home: Consumer<AuthService>(
         builder: (ctx, auth, _) {
-          if (auth.isLoggedIn) {
-            return const MainShell();
-          }
-          return const LoginScreen();
+          // Behind sign-in everything sits under the lock gate: biometrics on
+          // launch and after every background, with a PIN fallback.
+          return AppLockGate(
+            lock: _appLock,
+            isSignedIn: auth.isLoggedIn,
+            onSignOut: auth.logout,
+            child: auth.isLoggedIn ? const MainShell() : const LoginScreen(),
+          );
         },
       ),
     );

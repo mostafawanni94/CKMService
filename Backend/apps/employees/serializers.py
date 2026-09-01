@@ -19,6 +19,8 @@ from .models import (
 # RATE HISTORY SERIALIZER
 # =============================================================================
 
+from apps.core.media import signed_media_url
+
 class EmployeeRateHistorySerializer(serializers.ModelSerializer):
     """Serializer for employee hourly rate history."""
     changed_by_name = serializers.SerializerMethodField()
@@ -60,7 +62,7 @@ class EmployeeContractHistorySerializer(serializers.ModelSerializer):
         if obj.contract_document:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.contract_document.url)
+                return signed_media_url(obj.contract_document, request)
             return obj.contract_document.url
         return None
 
@@ -393,9 +395,7 @@ class EmployeeProfileDetailSerializer(serializers.ModelSerializer):
         file_field = getattr(obj, field_name, None)
         if file_field and hasattr(file_field, 'url'):
             request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(file_field.url)
-            return file_field.url
+            return signed_media_url(file_field, request)
         return None
     
     def get_id_document_front_url(self, obj):

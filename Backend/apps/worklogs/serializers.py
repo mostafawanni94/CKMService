@@ -11,6 +11,8 @@ from apps.customers.models import Outfolder
 from .models import Shift, WorkEntry, WorkEntryPhoto
 
 
+from apps.core.media import signed_media_url
+
 class LocalDateTimeField(serializers.DateTimeField):
     """
     Custom DateTimeField that treats naive datetimes as Amsterdam local time
@@ -450,7 +452,7 @@ class WorkEntryPhotoSerializer(serializers.ModelSerializer):
     def get_photo_url(self, obj):
         request = self.context.get('request')
         if obj.photo and request:
-            return request.build_absolute_uri(obj.photo.url)
+            return signed_media_url(obj.photo, request)
         return None
 
 

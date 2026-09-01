@@ -12,6 +12,8 @@ from .models import (
 from apps.employees.models import SurchargeType
 
 
+from apps.core.media import signed_media_url
+
 class CustomerContactSerializer(serializers.ModelSerializer):
     """Serializer for customer contacts."""
     
@@ -217,7 +219,7 @@ class CustomerContractHistorySerializer(serializers.ModelSerializer):
         if obj.contract_document:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.contract_document.url)
+                return signed_media_url(obj.contract_document, request)
             return obj.contract_document.url
         return None
 

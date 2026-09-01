@@ -24,6 +24,10 @@ dependencies:
   http: ^1.2.2
   dio: ^5.7.0
   
+  # Security
+  crypto: ^3.0.6
+  local_auth: ^2.3.0
+
   # Local Storage
   shared_preferences: ^2.3.3
   flutter_secure_storage: ^9.2.2

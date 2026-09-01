@@ -18,6 +18,7 @@ __all__ = [
     'make_service', 'make_surcharge_type', 'make_work_entry',
     'make_leave_type', 'tiny_image',
     'attach_service_rate', 'attach_customer_surcharge',
+    'make_agency', 'attach_agency_surcharge',
 ]
 
 # Monotonic suffix so repeated factory calls in one test do not collide on the
@@ -164,10 +165,16 @@ def attach_service_rate(customer, service, price=Decimal('40.00'), apply_surchar
     )
 
 
-def attach_customer_surcharge(customer, surcharge_type, percentage=Decimal('30.00')):
-    """Set the percentage `customer` pays for `surcharge_type`."""
-    from apps.customers.models import CustomerSurcharge
-    return CustomerSurcharge.objects.create(
+def attach_customer_surcharge(customer, surcharge_type, percentage=Decimal('130.00')):
+    """
+    Set what `customer` pays for `surcharge_type`, as a percentage OF the rate.
+
+    Uses CustomerServiceSurcharge because that is the model
+    `WorkEntry.get_applicable_surcharges()` actually queries; CustomerSurcharge
+    is a separate, older table that the calculation does not read.
+    """
+    from apps.customers.models import CustomerServiceSurcharge
+    return CustomerServiceSurcharge.objects.create(
         customer=customer, surcharge_type=surcharge_type,
         percentage=percentage, is_enabled=True,
     )
@@ -218,3 +225,26 @@ def make_leave_type(name='Vakantie', code=None, **kwargs):
     defaults = dict(name=name, code=code or f'LV{_next()}', is_paid=True, is_active=True)
     defaults.update(kwargs)
     return LeaveType.objects.create(**defaults)
+
+
+def make_agency(name=None, base_hourly_rate=Decimal('10.00'), has_surcharges=True, **kwargs):
+    """An agency that pays its own rate and its own surcharges."""
+    from apps.employees.models import Agency
+    index = _next()
+    defaults = dict(
+        name=name or f'Agency {index}',
+        code=f'AG{index}',
+        base_hourly_rate=base_hourly_rate,
+        has_surcharges=has_surcharges,
+    )
+    defaults.update(kwargs)
+    return Agency.objects.create(**defaults)
+
+
+def attach_agency_surcharge(agency, surcharge_type, percentage=Decimal('150.00')):
+    """Set what `agency` is paid for `surcharge_type`, as a percentage OF its rate."""
+    from apps.employees.models import AgencySurcharge
+    return AgencySurcharge.objects.create(
+        agency=agency, surcharge_type=surcharge_type,
+        percentage=percentage, is_enabled=True,
+    )

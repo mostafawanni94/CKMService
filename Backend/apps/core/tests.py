@@ -141,3 +141,61 @@ class RelativePaginationTests(TestCase):
             [row['id'] for row in first.data['results']],
             [row['id'] for row in second.data['results']],
         )
+
+
+class ProtectedMediaTests(TestCase):
+    """
+    MEDIA_ROOT holds ID documents, contracts and work photos. It was served by
+    static() with no access control: ~1,500 files were downloadable by anyone
+    who guessed a path, and the filenames are people's names.
+    """
+
+    def setUp(self):
+        import tempfile, pathlib
+        from django.test import override_settings
+        self.tmp = tempfile.mkdtemp()
+        (pathlib.Path(self.tmp) / 'employees').mkdir()
+        self.rel = 'employees/contract.pdf'
+        (pathlib.Path(self.tmp) / self.rel).write_bytes(b'%PDF-1.4 secret')
+        self.override = override_settings(MEDIA_ROOT=self.tmp)
+        self.override.enable()
+
+    def tearDown(self):
+        import shutil
+        self.override.disable()
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_an_unsigned_request_is_refused(self):
+        self.assertEqual(self.client.get(f'/media/{self.rel}').status_code, 403)
+
+    def test_a_forged_signature_is_refused(self):
+        response = self.client.get(f'/media/{self.rel}?sig=not-a-real-signature')
+        self.assertEqual(response.status_code, 403)
+
+    def test_a_valid_signature_serves_the_file(self):
+        from apps.core.media import sign_path
+        response = self.client.get(f'/media/{self.rel}?sig={sign_path(self.rel)}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(b''.join(response.streaming_content), b'%PDF-1.4 secret')
+
+    def test_a_signature_for_one_file_does_not_open_another(self):
+        import pathlib
+        from apps.core.media import sign_path
+        other = 'employees/other.pdf'
+        (pathlib.Path(self.tmp) / other).write_bytes(b'other')
+        response = self.client.get(f'/media/{other}?sig={sign_path(self.rel)}')
+        self.assertEqual(response.status_code, 403)
+
+    def test_a_signature_expires(self):
+        from apps.core.media import sign_path, verify_path
+        self.assertFalse(verify_path(self.rel, sign_path(self.rel), ttl=-1))
+
+    def test_path_traversal_is_refused(self):
+        from apps.core.media import sign_path
+        evil = '../config/settings.py'
+        response = self.client.get(f'/media/{evil}?sig={sign_path(evil)}')
+        self.assertIn(response.status_code, (403, 404))
+
+    def test_signed_media_url_returns_none_for_an_empty_field(self):
+        from apps.core.media import signed_media_url
+        self.assertIsNone(signed_media_url(None))

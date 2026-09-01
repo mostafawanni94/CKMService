@@ -259,20 +259,25 @@ class AgencyInvoiceViewSet(viewsets.ModelViewSet):
         total_amount = Decimal('0.00')
         
         for entry in entries:
-            hours = entry.calculated_hours or Decimal('0.00')
+            # Priced on the agency's own rate and its own AgencySurcharge
+            # percentages, using the same minute-level engine as customer
+            # billing — so partial hours inside a window split identically.
+            #
+            # This used to read `entry.surcharges_breakdown`, a serializer field
+            # that does not exist on the model, so the guard never passed and
+            # every agency line was billed with zero surcharge.
+            agency_breakdown = entry.get_agency_hours_breakdown(agency)
+
+            hours = Decimal(str(agency_breakdown['total_hours']))
             base_rate = agency.base_hourly_rate
-            base_amount = (hours * base_rate).quantize(Decimal('0.01'))
-            
-            # Calculate surcharge
-            surcharge_pct = Decimal('0.00')
-            if agency.has_surcharges and hasattr(entry, 'surcharges_breakdown'):
-                # Use existing surcharge calculation from work entry
-                breakdown = entry.surcharges_breakdown or {}
-                if breakdown:
-                    surcharge_pct = Decimal(str(breakdown.get('total_percentage', 0)))
-            
-            surcharge_amount = (base_amount * surcharge_pct / 100).quantize(Decimal('0.01'))
-            line_total = base_amount + surcharge_amount
+            base_amount = Decimal(str(agency_breakdown['base_amount']))
+            surcharge_amount = Decimal(str(agency_breakdown['total_surcharge_amount']))
+            # Effective blended percentage, for display on the line.
+            surcharge_pct = (
+                (surcharge_amount / base_amount * 100).quantize(Decimal('0.01'))
+                if base_amount else Decimal('0.00')
+            )
+            line_total = Decimal(str(agency_breakdown['total_amount']))
             
             total_hours += hours
             total_amount += line_total
@@ -361,16 +366,19 @@ class AgencyInvoiceViewSet(viewsets.ModelViewSet):
         
         # Create line items
         for entry in entries:
-            hours = entry.calculated_hours or Decimal('0.00')
+            # Same engine as the preview above, so a generated invoice always
+            # matches what was previewed.
+            agency_breakdown = entry.get_agency_hours_breakdown(agency)
+
+            hours = Decimal(str(agency_breakdown['total_hours']))
             base_rate = agency.base_hourly_rate
-            
-            # Calculate surcharge percentage
-            surcharge_pct = Decimal('0.00')
-            if agency.has_surcharges and hasattr(entry, 'surcharges_breakdown'):
-                breakdown = entry.surcharges_breakdown or {}
-                if breakdown:
-                    surcharge_pct = Decimal(str(breakdown.get('total_percentage', 0)))
-            
+            base_amount = Decimal(str(agency_breakdown['base_amount']))
+            surcharge_amount = Decimal(str(agency_breakdown['total_surcharge_amount']))
+            surcharge_pct = (
+                (surcharge_amount / base_amount * 100).quantize(Decimal('0.01'))
+                if base_amount else Decimal('0.00')
+            )
+
             AgencyInvoiceLine.objects.create(
                 invoice=invoice,
                 employee=entry.employee,
@@ -379,7 +387,10 @@ class AgencyInvoiceViewSet(viewsets.ModelViewSet):
                 work_date=entry.work_date,
                 hours=hours,
                 base_rate=base_rate,
+                base_amount=base_amount,
                 surcharge_percentage=surcharge_pct,
+                surcharge_amount=surcharge_amount,
+                total=base_amount + surcharge_amount,
                 description=f"{entry.employee.full_name if hasattr(entry.employee, 'full_name') else ''} - {entry.project.name}",
                 created_by=request.user,
             )
