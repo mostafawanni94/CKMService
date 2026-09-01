@@ -28,8 +28,10 @@ export interface VatPeriod {
 
 export interface VatBox {
     code: string;
-    label: string;
-    label_nl: string;
+    /** The Belastingdienst's own Dutch wording for the rubriek. */
+    name: string;
+    direction: string;
+    is_computed: boolean;
     taxable_base: string;
     vat_amount: string;
     entry_count: number;

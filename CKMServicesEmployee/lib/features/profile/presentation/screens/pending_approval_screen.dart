@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../auth/presentation/viewmodels/auth_viewmodel.dart';
 import '../../../../core/widgets/app_widgets.dart';
-import '../../../../core/localization/app_strings.dart';
 
 class PendingApprovalScreen extends StatefulWidget {
   const PendingApprovalScreen({super.key});

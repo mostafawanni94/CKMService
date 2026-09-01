@@ -48,7 +48,7 @@ class CKMServicesEmployeeApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => LocalizationProvider()),
+        ChangeNotifierProvider(create: (_) => LocalizationProvider()..load()),
         ChangeNotifierProvider(create: (_) {
           final auth = AuthViewModel();
           // An unrecoverable 401 anywhere in the app now signs the user out
@@ -66,12 +66,14 @@ class CKMServicesEmployeeApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: _buildTheme(),
             
-            // Localization - Now supports English, Arabic, Russian
+            // Dutch first: the company, its customers and its paperwork are
+            // Dutch. Arabic is right-to-left and mirrors the whole tree below.
             locale: localization.locale,
             supportedLocales: const [
+              Locale('nl'), // Nederlands
               Locale('en'), // English
-              Locale('ar'), // Arabic (RTL)
-              Locale('ru'), // Russian
+              Locale('ar'), // العربية (RTL)
+              Locale('ru'), // Русский
             ],
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,

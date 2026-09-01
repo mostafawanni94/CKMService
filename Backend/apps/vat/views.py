@@ -10,6 +10,7 @@ from django.db import transaction
 from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from django.http import HttpResponse
 from rest_framework.response import Response
 
 from apps.core.permissions import IsAdmin, IsFinanceStaff
@@ -259,6 +260,27 @@ class VatPeriodViewSet(viewsets.ModelViewSet):
             return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(self.get_serializer(period).data)
 
+    @action(detail=True, methods=['get'])
+    def export(self, request, pk=None):
+        """
+        The accountant's workbook for this quarter.
+
+        Four sheets: the return, every transaction behind every box, anything
+        still to be established, and the documents of the quarter. The figures
+        come from the same calculator the filing uses.
+        """
+        from .exports import build_quarter_workbook, workbook_filename
+
+        period = self.get_object()
+        content = build_quarter_workbook(period)
+        response = HttpResponse(
+            content,
+            content_type=('application/vnd.openxmlformats-officedocument'
+                          '.spreadsheetml.sheet'))
+        response['Content-Disposition'] = (
+            f'attachment; filename="{workbook_filename(period)}"')
+        return response
+
     @action(detail=True, methods=['post'], permission_classes=[IsAdmin])
     def reopen(self, request, pk=None):
         """
@@ -274,3 +296,70 @@ class VatPeriodViewSet(viewsets.ModelViewSet):
         except FinalizationBlocked as exc:
             return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(self.get_serializer(period).data)
+
+
+class FinanceDashboardView(viewsets.ViewSet):
+    """
+    The finance overview.
+
+    One endpoint that answers what the business earned, what it spent, what it
+    is owed, what it owes, and where the VAT stands — built from the same
+    records the return is built from, so the dashboard cannot contradict the
+    filing.
+    """
+
+    permission_classes = [IsFinanceStaff]
+
+    def list(self, request):
+        from .reporting import dashboard
+
+        year = int(request.query_params.get('year') or timezone.now().year)
+        quarter = request.query_params.get('quarter')
+        return Response(dashboard(year, int(quarter) if quarter else None))
+
+    @action(detail=False, methods=['get'])
+    def receivables(self, request):
+        """What customers owe, by age."""
+        from .reporting import receivables
+
+        return Response(receivables())
+
+    @action(detail=False, methods=['get'])
+    def payables(self, request):
+        """What CKM owes: suppliers, agencies and its own employees."""
+        from .reporting import payables
+
+        return Response(payables())
+
+    @action(detail=False, methods=['get'], url_path='requires-review')
+    def requires_review(self, request):
+        """
+        Every transaction the engine refused to decide, across all periods.
+
+        This is the work list: nothing can be filed while it has entries.
+        """
+        from .constants import ClassificationStatus
+        from .models import VatLedgerEntry
+
+        entries = VatLedgerEntry.objects.filter(
+            is_deleted=False,
+            classification_status=ClassificationStatus.REQUIRES_REVIEW,
+        ).select_related('period').order_by('transaction_date')
+
+        return Response({
+            'count': entries.count(),
+            'entries': [
+                {
+                    'id': str(entry.pk),
+                    'period': str(entry.period) if entry.period else None,
+                    'date': entry.transaction_date,
+                    'source_type': entry.source_type,
+                    'source_id': entry.source_id,
+                    'reference': entry.source_reference,
+                    'taxable_base': entry.taxable_base,
+                    'vat_on_document': entry.vat_amount,
+                    'reason': entry.review_reason,
+                }
+                for entry in entries[:500]
+            ],
+        })

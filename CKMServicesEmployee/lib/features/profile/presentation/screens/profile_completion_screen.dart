@@ -13,7 +13,6 @@ import '../../../auth/presentation/viewmodels/auth_viewmodel.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../../core/widgets/country_picker.dart';
 import '../../../../core/widgets/document_upload.dart';
-import '../../../../core/localization/app_strings.dart';
 import 'package:intl/intl.dart';
 import '../../data/profile_service.dart';
 
@@ -75,9 +74,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
   // ==============================
   // CARD 3: Certificates
   // ==============================
-  final _vcaDiplomaController = TextEditingController();
-  bool _hasVcaVol = false;
-  List<Map<String, dynamic>> _addedCertificates = [];
+  final _vcaDiplomaController = TextEditingController();  List<Map<String, dynamic>> _addedCertificates = [];
   List<Map<String, dynamic>> _availableCertificateTypes = [];
   bool _isLoadingCertTypes = true;
 
@@ -1455,42 +1452,6 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildUploadBox(String label, String? path, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: path != null ? Colors.green.shade50 : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: path != null ? Colors.green.shade300 : Colors.grey.shade300,
-            style: path != null ? BorderStyle.solid : BorderStyle.solid,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              path != null ? Icons.check_circle : Icons.cloud_upload_outlined,
-              size: 32,
-              color: path != null ? Colors.green.shade600 : Colors.grey.shade400,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: path != null ? Colors.green.shade700 : Colors.grey.shade600,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

@@ -157,8 +157,9 @@ function Sidebar({
     // Finance submenu items
     const financeItems = [
         { name: 'Expenses', href: '/dashboard/expenses', icon: Receipt, show: canSeeFinance },
-        { name: 'Financial Overview', href: '/dashboard/finance', icon: BarChart3, show: canSeeFinance },
+        { name: 'Financial Overview', href: '/dashboard/finance/overview', icon: BarChart3, show: canSeeFinance },
         { name: 'BTW Aangifte', href: '/dashboard/finance/vat', icon: FileText, show: canSeeFinance },
+        { name: 'Expenses Summary', href: '/dashboard/finance', icon: Receipt, show: canSeeFinance },
         { name: 'Reports', href: '/dashboard/reports', icon: BarChart3, show: canSeeFinance },
     ].filter(item => item.show);
 

@@ -144,8 +144,12 @@ export function BoxTable({ boxes, expandedBox, boxEntries, onToggle }: {
                                             </span>
                                         </td>
                                         <td style={{ padding: spacing.md }}>
-                                            {box.label_nl}
-                                            <div style={{ fontSize: fontSize.xs, color: colors.textSecondary }}>{box.label}</div>
+                                            {box.name}
+                                            {box.is_computed && (
+                                                <div style={{ fontSize: fontSize.xs, color: colors.textSecondary }}>
+                                                    Berekend uit de overige rubrieken
+                                                </div>
+                                            )}
                                         </td>
                                         <td style={{ padding: spacing.md, textAlign: 'right' }}>{euro(box.taxable_base)}</td>
                                         <td style={{ padding: spacing.md, textAlign: 'right' }}>{euro(box.vat_amount)}</td>

@@ -6,7 +6,8 @@ import { Card, Button, Input } from '@/components/ui';
 import { api, Invoice } from '@/lib/api';
 import { FileText, Download, Eye, Clock, CheckCircle, AlertCircle, DollarSign, X, Gift, Coins, Users, User, Briefcase } from 'lucide-react';
 import ExcelJS from 'exceljs';
-import { apiFetch } from '@/hooks/useApi';
+import { useRouter } from 'next/navigation';
+import { apiDownload, apiFetch } from '@/hooks/useApi';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -78,6 +79,7 @@ export default function InvoicesPage() {
     const [search, setSearch] = useState('');
 
     // Detail modal
+    const router = useRouter();
     const [selectedInvoice, setSelectedInvoice] = useState<InvoiceDetail | null>(null);
     const [loadingDetail, setLoadingDetail] = useState(false);
 
@@ -471,81 +473,24 @@ export default function InvoicesPage() {
         }
     }
 
-    function exportPDF() {
+    /**
+     * Download the invoice as the customer receives it.
+     *
+     * This used to build a second invoice in HTML and hand it to the browser's
+     * print dialog. That document had its own layout, its own totals and no
+     * legally required details, so what the customer received and what the
+     * dashboard showed could differ. The PDF now comes from the server, which
+     * renders it once when the invoice is issued.
+     */
+    async function exportPDF() {
         if (!selectedInvoice) return;
-
-        // Create a printable version
-        const printContent = `
-            <html>
-            <head>
-                <title>Invoice ${selectedInvoice.invoice_number}</title>
-                <style>
-                    body { font-family: Arial, sans-serif; padding: 40px; }
-                    h1 { color: #1E3A5F; }
-                    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-                    th { background: #f5f5f5; }
-                    .total { font-weight: bold; font-size: 18px; }
-                    .section { margin-top: 30px; }
-                </style>
-            </head>
-            <body>
-                <h1>INVOICE ${selectedInvoice.invoice_number}</h1>
-                <p><strong>Customer:</strong> ${selectedInvoice.customer_name}</p>
-                <p><strong>Period:</strong> Week ${selectedInvoice.week_number}, ${selectedInvoice.week_year}</p>
-                <p><strong>Date:</strong> ${selectedInvoice.week_start_date} - ${selectedInvoice.week_end_date}</p>
-                
-                <div class="section">
-                    <h2>Labor Hours</h2>
-                    <table>
-                        <tr><th>Employee</th><th>Project</th><th>Hours</th><th>Rate</th><th>Total</th></tr>
-                        ${selectedInvoice.lines.map(l => `
-                            <tr><td>${l.employee_name}</td><td>${l.project_name}</td><td>${l.quantity_hours}h</td><td>€${l.hourly_rate}</td><td>€${l.total}</td></tr>
-                        `).join('')}
-                    </table>
-                </div>
-                
-                ${selectedInvoice.allowance_lines.length > 0 ? `
-                <div class="section">
-                    <h2>Allowances (Toeslag)</h2>
-                    <table>
-                        <tr><th>Employee</th><th>Type</th><th>Hours</th><th>Rate</th><th>Total</th></tr>
-                        ${selectedInvoice.allowance_lines.map(a => `
-                            <tr><td>${a.employee_name}</td><td>${a.allowance_name || a.allowance_type_name}</td><td>${a.quantity_hours}h</td><td>€${a.hourly_rate}</td><td>€${a.total}</td></tr>
-                        `).join('')}
-                    </table>
-                </div>
-                ` : ''}
-                
-                ${selectedInvoice.gratuity_lines.length > 0 ? `
-                <div class="section">
-                    <h2>Gratuities (Fooi)</h2>
-                    <table>
-                        <tr><th>Employee</th><th>Description</th><th>Amount</th></tr>
-                        ${selectedInvoice.gratuity_lines.map(g => `
-                            <tr><td>${g.employee_name}</td><td>${g.description || '-'}</td><td>€${g.amount}</td></tr>
-                        `).join('')}
-                    </table>
-                </div>
-                ` : ''}
-                
-                <div class="section" style="text-align: right; border-top: 2px solid #1E3A5F; padding-top: 20px;">
-                    <p>Subtotal: €${selectedInvoice.subtotal.toLocaleString()}</p>
-                    <p>Costs: €${selectedInvoice.total_costs.toLocaleString()}</p>
-                    <p>Allowances: €${selectedInvoice.total_allowances.toLocaleString()}</p>
-                    <p>Gratuities: €${selectedInvoice.total_gratuities.toLocaleString()}</p>
-                    <p>VAT (${selectedInvoice.vat_rate}%): €${selectedInvoice.vat_amount.toLocaleString()}</p>
-                    <p class="total">TOTAL: €${selectedInvoice.total.toLocaleString()}</p>
-                </div>
-            </body>
-            </html>
-        `;
-
-        const printWindow = window.open('', '_blank');
-        if (printWindow) {
-            printWindow.document.write(printContent);
-            printWindow.document.close();
-            printWindow.print();
+        try {
+            await apiDownload(
+                `/invoices/invoices/${selectedInvoice.id}/pdf/?download=1`,
+                `${selectedInvoice.invoice_number}.pdf`,
+            );
+        } catch (err) {
+            console.error('Failed to download the invoice PDF:', err);
         }
     }
 
@@ -1594,11 +1539,17 @@ export default function InvoicesPage() {
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <button
+                                        onClick={() => router.push(`/dashboard/invoices/${selectedInvoice.id}`)}
+                                        className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg font-medium"
+                                    >
+                                        Open volledige factuur
+                                    </button>
+                                    <button
                                         onClick={exportPDF}
                                         className="flex items-center gap-2 px-4 py-2 bg-[#1E3A5F] text-white rounded-lg font-medium"
                                     >
                                         <Download className="w-4 h-4" />
-                                        Export PDF
+                                        Download PDF
                                     </button>
                                     <button
                                         onClick={() => setSelectedInvoice(null)}

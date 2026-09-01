@@ -58,16 +58,24 @@ def calculate_return(period, include_entry_ids=False):
     )
     aggregated = {r['return_box__code']: r for r in rows}
 
+    # One query for all thirteen boxes. This used to be a query per box inside
+    # the loop, which meant thirteen round trips every time a return was shown
+    # — and the dashboard shows four returns at once.
+    box_flags = {
+        row['code']: row
+        for row in VatReturnBox.objects.values('code', 'is_active', 'is_computed')
+    }
+
     boxes = []
     for code, name, direction in RETURN_BOXES:
-        box = VatReturnBox.objects.filter(code=code).first()
+        box = box_flags.get(code)
         row = aggregated.get(code)
         boxes.append({
             'code': code,
             'name': name,
             'direction': str(direction),
-            'is_active': bool(box.is_active) if box else False,
-            'is_computed': bool(box.is_computed) if box else False,
+            'is_active': bool(box['is_active']) if box else False,
+            'is_computed': bool(box['is_computed']) if box else False,
             'taxable_base': to_cents(row['taxable_base'] or 0) if row else Decimal('0.00'),
             'vat_amount': to_cents(row['vat_amount'] or 0) if row else Decimal('0.00'),
             'entry_count': row['entry_count'] if row else 0,

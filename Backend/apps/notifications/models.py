@@ -56,6 +56,14 @@ class Notification(BaseModel):
         INVOICE_GENERATED = 'invoice_generated', 'Invoice Generated'
         INVOICE_SENT = 'invoice_sent', 'Invoice Sent'
         INVOICE_PAID = 'invoice_paid', 'Invoice Paid'
+        INVOICE_OVERDUE = 'invoice_overdue', 'Invoice Overdue'
+        CREDIT_NOTE_ISSUED = 'credit_note_issued', 'Credit Note Issued'
+        SUPPLIER_INVOICE_DUE = 'supplier_invoice_due', 'Supplier Invoice Due'
+
+        # VAT
+        VAT_DEADLINE = 'vat_deadline', 'VAT Filing Deadline'
+        VAT_REQUIRES_REVIEW = 'vat_requires_review', 'VAT Requires Review'
+        VAT_PERIOD_FINALIZED = 'vat_period_finalized', 'VAT Period Finalized'
         
         # Certificates
         CERTIFICATE_EXPIRING = 'certificate_expiring', 'Certificate Expiring'

@@ -7,7 +7,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django.utils import timezone
-from django.db.models import Case, When, Value, IntegerField
+from django.db.models import Case, When, Value, IntegerField, Q
+from rest_framework.permissions import IsAuthenticated
 
 from apps.core.permissions import IsAdmin
 from apps.core.pagination import StandardPagination
@@ -530,14 +531,40 @@ class GratuityViewSet(viewsets.ModelViewSet):
 
 class EmployeeCustomerViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    ViewSet for employees to access customers for worklog submission.
-    Read-only access to basic customer info.
+    Customers an employee needs in order to log work.
+
+    An employee sees only the customers they are actually assigned to. This
+    used to return every active customer to any authenticated user, which meant
+    a customer-portal login could enumerate the whole client list.
     """
-    from rest_framework.permissions import IsAuthenticated
-    
+
     queryset = Customer.objects.filter(is_active=True).order_by('company_name')
     serializer_class = CustomerListSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        base = super().get_queryset()
+
+        if getattr(user, 'is_admin', False) or user.role in ('finance', 'operations'):
+            return base
+
+        if user.role == 'employee':
+            # The reverse accessor is `profile`, not `employee_profile`.
+            profile = getattr(user, 'profile', None)
+            if profile is None:
+                return base.none()
+            # Assigned projects, plus anywhere they have actually worked.
+            return base.filter(
+                Q(projects__assignments__employee=profile)
+                | Q(projects__work_entries__employee=profile)
+            ).distinct()
+
+        if user.role == 'customer':
+            linked = getattr(user, 'customer_id', None)
+            return base.filter(pk=linked) if linked else base.none()
+
+        return base.none()
     
     @action(detail=True, methods=['get'])
     def outfolders(self, request, pk=None):

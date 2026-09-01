@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../../../auth/presentation/viewmodels/auth_viewmodel.dart';
 import '../../../wallet/presentation/viewmodels/wallet_viewmodel.dart';
 import '../../../wallet/presentation/screens/advance_request_screen.dart';
-import '../../../invoices/presentation/viewmodels/invoice_viewmodel.dart';
 import '../../../invoices/presentation/screens/work_logs_screen.dart';
 import '../../../invoices/presentation/screens/log_work_screen.dart';
 import '../../../invoices/presentation/screens/invoices_screen.dart';
@@ -245,73 +244,6 @@ class _QuickActionCard extends StatelessWidget {
 }
 
 /// Assignment Card - Location Only (Data Isolation)
-class _AssignmentCard extends StatelessWidget {
-  final String locationAddress;
-  final String locationCity;
-  final String date;
-  final String time;
-  final String status;
-
-  const _AssignmentCard({
-    required this.locationAddress,
-    required this.locationCity,
-    required this.date,
-    required this.time,
-    required this.status,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isActive = status == 'Active';
-    
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border(left: BorderSide(color: isActive ? AppColors.success : AppColors.primary, width: 4)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: (isActive ? AppColors.success : AppColors.primary).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(Icons.location_on, color: isActive ? AppColors.success : AppColors.primary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(locationAddress, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                const SizedBox(height: 4),
-                Text(locationCity, style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(Icons.calendar_today, size: 12, color: Colors.grey.shade500),
-                    const SizedBox(width: 4),
-                    Text(date, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-                    const SizedBox(width: 12),
-                    Icon(Icons.access_time, size: 12, color: Colors.grey.shade500),
-                    const SizedBox(width: 4),
-                    Text(time, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          StatusBadge(status: status),
-        ],
-      ),
-    );
-  }
-}
-
 /// Profile Tab
 class _ProfileTab extends StatelessWidget {
   const _ProfileTab();

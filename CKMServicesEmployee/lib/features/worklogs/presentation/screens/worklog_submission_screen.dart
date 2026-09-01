@@ -3,8 +3,6 @@
 /// Allows employees to submit new work logs with allowances support.
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../viewmodels/worklog_viewmodel.dart';
 import '../../data/worklog_service.dart';
 import '../../../../core/widgets/app_widgets.dart';
 

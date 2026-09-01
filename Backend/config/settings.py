@@ -265,10 +265,15 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'apps.core.pagination.RelativePageNumberPagination',
     'PAGE_SIZE': 20,
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ],
+    # The browsable API is a development convenience. In production it renders
+    # every endpoint as an HTML form and advertises the whole schema to anyone
+    # who reaches the host, so it is switched off with DEBUG.
+    'DEFAULT_RENDERER_CLASSES': (
+        ['rest_framework.renderers.JSONRenderer',
+         'rest_framework.renderers.BrowsableAPIRenderer']
+        if DEBUG else
+        ['rest_framework.renderers.JSONRenderer']
+    ),
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
@@ -277,6 +282,9 @@ REST_FRAMEWORK = {
         'anon': '100/hour',
         'user': '1000/hour',
         'password_reset': '5/hour',
+        # Credential stuffing is the realistic attack on a small business
+        # dashboard: a handful of accounts, publicly known email addresses.
+        'login': '10/min',
     },
     'DATETIME_FORMAT': '%Y-%m-%dT%H:%M:%S%z',
     'DATE_FORMAT': '%Y-%m-%d',

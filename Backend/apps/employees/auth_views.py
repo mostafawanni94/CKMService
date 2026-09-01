@@ -56,10 +56,23 @@ class CKMTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
 
 
+class LoginThrottle(AnonRateThrottle):
+    """
+    Login gets its own bucket, tighter than the general anonymous rate.
+
+    A small business dashboard has a handful of accounts with publicly known
+    email addresses, so credential stuffing is the realistic attack. The
+    general 100/hour anonymous rate is far too loose for a password guess.
+    """
+
+    scope = 'login'
+
+
 class CKMTokenObtainPairView(TokenObtainPairView):
     """Login endpoint returning tokens plus the signed-in user's identity."""
 
     serializer_class = CKMTokenObtainPairSerializer
+    throttle_classes = [LoginThrottle]
 
 
 class PasswordResetThrottle(AnonRateThrottle):

@@ -28,9 +28,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
   String? _selectedCustomerId;
   String? _selectedSupervisorId;
   String? _selectedProjectId;
-  String? _selectedServiceId;
-  String _locationOverride = '';
-  TimeOfDay _startTime = const TimeOfDay(hour: 8, minute: 0);
+  String? _selectedServiceId;  TimeOfDay _startTime = const TimeOfDay(hour: 8, minute: 0);
   TimeOfDay _endTime = const TimeOfDay(hour: 16, minute: 0);
   
   // Multiple breaks support
