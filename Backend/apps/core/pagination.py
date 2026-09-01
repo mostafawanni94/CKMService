@@ -60,14 +60,17 @@ class SmallPagination(RelativeLinksMixin, PageNumberPagination):
 class LargePagination(RelativeLinksMixin, PageNumberPagination):
     """
     Large pagination for admin dashboards.
-    Default: 50 items per page
-    Max: 200 items per page
-    
-    Usage: ?page=1&page_size=100
+
+    The cap is high because the worklogs board deliberately loads a whole
+    period at once, and silently truncating financial data would be worse than
+    a slow response. The per-row cost that made this dangerous (7 queries an
+    entry) is now memoised away — see apps/worklogs/models.py.
+
+    Pages that only need a window should use StandardPagination instead.
     """
     page_size = 50
     page_size_query_param = 'page_size'
-    max_page_size = 200
+    max_page_size = 10000
 
 
 class RelativePageNumberPagination(RelativeLinksMixin, PageNumberPagination):
@@ -75,4 +78,6 @@ class RelativePageNumberPagination(RelativeLinksMixin, PageNumberPagination):
 
     page_size = 20
     page_size_query_param = 'page_size'
-    max_page_size = 10000
+    # Capped deliberately: the dashboard was requesting page_size=9999, and every
+    # row of a worklog list runs a per-minute money calculation.
+    max_page_size = 200

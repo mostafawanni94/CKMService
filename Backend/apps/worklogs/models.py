@@ -30,6 +30,60 @@ from apps.core.models import BaseModel
 # SHIFT (Admin-scheduled work)
 # =============================================================================
 
+
+# =============================================================================
+# SURCHARGE CONFIG CACHE
+# =============================================================================
+#
+# The surcharge configuration is small and changes rarely, but the hour
+# breakdown needs it for every work entry. Reading it per entry made list views
+# quadratic in queries. These caches are invalidated whenever the underlying
+# rows are saved or deleted (see the signals at the bottom of this module).
+
+_SURCHARGE_TYPE_CACHE = []
+_CUSTOMER_SURCHARGE_CACHE = {}
+_SERVICE_RATE_CACHE = {}
+
+
+def _active_surcharge_types():
+    """All active SurchargeType rows, read once per process."""
+    from apps.employees.models import SurchargeType
+    if not _SURCHARGE_TYPE_CACHE:
+        _SURCHARGE_TYPE_CACHE.extend(SurchargeType.objects.filter(is_active=True))
+    return _SURCHARGE_TYPE_CACHE
+
+
+def _customer_surcharge_percentages(customer_id):
+    """{surcharge_type_id: percentage} for one customer, read once per process."""
+    from apps.customers.models import CustomerServiceSurcharge
+    if customer_id not in _CUSTOMER_SURCHARGE_CACHE:
+        _CUSTOMER_SURCHARGE_CACHE[customer_id] = {
+            row.surcharge_type_id: row.percentage
+            for row in CustomerServiceSurcharge.objects.filter(
+                customer_id=customer_id, is_enabled=True
+            )
+        }
+    return _CUSTOMER_SURCHARGE_CACHE[customer_id]
+
+
+def _service_rate(customer_id, service_id):
+    """Price per hour for one customer+service, read once per process."""
+    from apps.customers.models import CustomerServiceRate
+    key = (customer_id, service_id)
+    if key not in _SERVICE_RATE_CACHE:
+        row = CustomerServiceRate.objects.filter(
+            customer_id=customer_id, service_id=service_id, is_active=True
+        ).first()
+        _SERVICE_RATE_CACHE[key] = row.price if row else Decimal('0')
+    return _SERVICE_RATE_CACHE[key]
+
+
+def clear_surcharge_caches(**_kwargs):
+    """Drop the caches. Wired to post_save/post_delete on the config models."""
+    _SURCHARGE_TYPE_CACHE.clear()
+    _CUSTOMER_SURCHARGE_CACHE.clear()
+    _SERVICE_RATE_CACHE.clear()
+
 class Shift(BaseModel):
     """
     Admin-scheduled work shift.
@@ -789,18 +843,9 @@ class WorkEntry(BaseModel):
         if not self.service or not self.project:
             return Decimal('0')
         
-        from apps.customers.models import CustomerServiceRate
-        
-        try:
-            customer = self.project.customer
-            rate = CustomerServiceRate.objects.get(
-                customer=customer,
-                service=self.service,
-                is_active=True
-            )
-            return rate.price
-        except CustomerServiceRate.DoesNotExist:
-            return Decimal('0')
+        # Memoised: the same customer+service pair repeats on every row of a
+        # list, and this used to be a query per entry.
+        return _service_rate(self.project.customer_id, self.service_id)
     
     def get_applicable_surcharges(self):
         """Detect which surcharges apply to this work entry based on time/date.
@@ -965,22 +1010,21 @@ class WorkEntry(BaseModel):
         # same minute-level engine with its own rates: {surcharge_type_id: pct}.
         # Passing it also changes which surcharge wins an overlapping minute,
         # which is correct — the winner must be decided on the payer's own rates.
+        #
+        # The two lookups below are identical for every entry of the same
+        # customer, but used to run per entry: 7 queries a row, so a 1,000-row
+        # page cost ~7,000 queries. They are memoised per process instead.
         applicable_surcharges = []
-        for surcharge_type in SurchargeType.objects.filter(is_active=True):
+        for surcharge_type in _active_surcharge_types():
             if percentages is not None:
                 if surcharge_type.id not in percentages:
                     continue
                 pct = float(percentages[surcharge_type.id])
             else:
-                try:
-                    customer_surcharge = CustomerServiceSurcharge.objects.get(
-                        customer=customer,
-                        surcharge_type=surcharge_type,
-                        is_enabled=True
-                    )
-                except CustomerServiceSurcharge.DoesNotExist:
+                customer_percentages = _customer_surcharge_percentages(customer.id)
+                if surcharge_type.id not in customer_percentages:
                     continue
-                pct = float(customer_surcharge.percentage)
+                pct = float(customer_percentages[surcharge_type.id])
 
             applicable_surcharges.append({
                 'surcharge_type': surcharge_type,

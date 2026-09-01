@@ -56,13 +56,32 @@ function Sidebar({
     const navRef = useRef<HTMLElement>(null);
     const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
 
-    // Restore sidebar scroll position on mount
+    // This layout is rendered *inside* each page rather than as a route layout,
+    // so it unmounts on every navigation and all its state resets — which is why
+    // an opened group snapped shut as soon as you clicked an item in it, and why
+    // the scroll position needed saving too. Both are restored on mount.
     useEffect(() => {
         const savedScrollTop = sessionStorage.getItem('sidebarScrollTop');
         if (savedScrollTop && navRef.current) {
             navRef.current.scrollTop = parseInt(savedScrollTop, 10);
         }
-    }, []);
+
+        let restored: string[] = [];
+        try {
+            restored = JSON.parse(sessionStorage.getItem('sidebarExpandedMenus') || '[]');
+        } catch {
+            restored = [];
+        }
+
+        // The group that owns the current page is always open, so landing on a
+        // sub-page by URL or refresh shows you where you are.
+        const owningCurrentRoute = navGroups
+            .filter(group => group.activePrefixes.some(prefix => pathname.startsWith(prefix)))
+            .map(group => group.id);
+
+        setExpandedMenus([...new Set([...restored, ...owningCurrentRoute])]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pathname]);
 
     // Save sidebar scroll position before navigation
     const handleNavClick = () => {
@@ -101,6 +120,33 @@ function Sidebar({
         { name: 'Contracts', href: '/dashboard/hr/contracts', icon: FileText, show: canSeeOperations },
     ].filter(item => item.show);
 
+    // Collapsible groups, declared as data so the sidebar can both render them
+    // and work out which one owns the current route.
+    const navGroups = [
+        {
+            id: 'backoffice',
+            label: t('invoices'),
+            icon: FileText,
+            get items() { return invoiceItems; },
+            activePrefixes: ['/dashboard/invoices', '/dashboard/incoming-invoices',
+                             '/dashboard/agency-invoices'],
+        },
+        {
+            id: 'hr',
+            label: 'HR',
+            icon: CalendarDays,
+            get items() { return hrItems; },
+            activePrefixes: ['/dashboard/hr'],
+        },
+        {
+            id: 'finance',
+            label: 'Finance',
+            icon: Wallet,
+            get items() { return financeItems; },
+            activePrefixes: ['/dashboard/expenses', '/dashboard/finance', '/dashboard/reports'],
+        },
+    ];
+
     // Backoffice submenu items
     const invoiceItems = [
         { name: 'Outgoing Invoices', href: '/dashboard/invoices', icon: FileText, show: canSeeFinance },
@@ -116,11 +162,13 @@ function Sidebar({
     ].filter(item => item.show);
 
     const toggleSubmenu = (menuName: string) => {
-        setExpandedMenus(prev =>
-            prev.includes(menuName)
+        setExpandedMenus(prev => {
+            const next = prev.includes(menuName)
                 ? prev.filter(m => m !== menuName)
-                : [...prev, menuName]
-        );
+                : [...prev, menuName];
+            sessionStorage.setItem('sidebarExpandedMenus', JSON.stringify(next));
+            return next;
+        });
     };
 
     // Settings section items
@@ -411,29 +459,16 @@ function Sidebar({
                                 <NavItem key={item.href} item={item} />
                             ))}
 
-                            <SubMenu
-                                id="backoffice"
-                                label={t('invoices')}
-                                icon={FileText}
-                                items={invoiceItems}
-                                activePrefixes={['/dashboard/invoices', '/dashboard/incoming-invoices', '/dashboard/agency-invoices']}
-                            />
-
-                            <SubMenu
-                                id="hr"
-                                label="HR"
-                                icon={CalendarDays}
-                                items={hrItems}
-                                activePrefixes={['/dashboard/hr']}
-                            />
-
-                            <SubMenu
-                                id="finance"
-                                label="Finance"
-                                icon={Wallet}
-                                items={financeItems}
-                                activePrefixes={['/dashboard/expenses', '/dashboard/finance', '/dashboard/reports']}
-                            />
+                            {navGroups.map(group => (
+                                <SubMenu
+                                    key={group.id}
+                                    id={group.id}
+                                    label={group.label}
+                                    icon={group.icon}
+                                    items={group.items}
+                                    activePrefixes={group.activePrefixes}
+                                />
+                            ))}
                         </div>
                         <div style={{ marginTop: '32px' }}>
                             <p style={{

@@ -1,6 +1,8 @@
 """WorkEntry API Views - Unified Work Entry System."""
 
+import logging
 from datetime import date, timedelta
+from decimal import Decimal
 from rest_framework import viewsets, status, permissions, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -12,11 +14,15 @@ from apps.employees.models import EmployeeProfile
 from apps.core.pagination import LargePagination
 from .models import Shift, WorkEntry, WorkEntryPhoto
 from .serializers import (
+
     ShiftSerializer, ShiftCreateSerializer, ShiftFillDataSerializer, ShiftRejectionSerializer,
     WorkEntryListSerializer, WorkEntryDetailSerializer, WorkEntryCreateSerializer,
     WorkEntryFillDataSerializer, WorkEntryApprovalSerializer, WorkEntryRejectionSerializer,
     WorkEntryBulkCreateSerializer, WorkEntryPhotoSerializer, WorkEntryPhotoUploadSerializer,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -593,27 +599,55 @@ class WorkEntryViewSet(viewsets.ModelViewSet):
             print(f"Failed to notify employee: {e}")
     
     def _create_wallet_earning(self, entry):
-        """Create wallet earning transaction for approved entry."""
+        """
+        Credit the employee's wallet for an approved work entry.
+
+        Uses `calculated_employee_payment`, which is the employee's own rate
+        with their surcharge entitlement applied. This used to multiply the
+        hours by a hardcoded 15.00, so every wallet balance was wrong: it
+        ignored the employee's actual rate and every surcharge.
+
+        Idempotent — re-approving an entry does not credit it twice.
+        """
+        from apps.wallet.models import Wallet, WalletTransaction
+
+        if entry.employee_id is None:
+            return None
+
         try:
-            from apps.wallet.models import Wallet, WalletTransaction
-            
+            amount = entry.calculated_employee_payment or Decimal('0.00')
+            if amount <= 0:
+                logger.info(
+                    'Work entry %s approved but pays 0 — is the employee\'s '
+                    'hourly_rate set?', entry.id
+                )
+                return None
+
             wallet, _ = Wallet.objects.get_or_create(employee=entry.employee)
-            
-            # Calculate earnings
-            hourly_rate = 15.00  # Default rate
-            earnings = float(entry.calculated_hours) * hourly_rate
-            
-            WalletTransaction.objects.create(
+
+            transaction, created = WalletTransaction.objects.get_or_create(
                 wallet=wallet,
-                transaction_type=WalletTransaction.Type.EARNING,
-                amount=earnings,
-                description=f"Work: {entry.project.name} ({entry.work_date})",
                 reference_type='workentry',
                 reference_id=entry.id,
-                created_by=entry.approved_by
+                transaction_type=WalletTransaction.Type.EARNING,
+                defaults={
+                    'amount': amount,
+                    'description': f'Work: {entry.project.name} ({entry.work_date})',
+                    'created_by': entry.approved_by,
+                },
             )
-        except Exception as e:
-            print(f"Failed to create wallet earning: {e}")
+
+            # An entry edited after approval should correct, not duplicate.
+            if not created and transaction.amount != amount:
+                transaction.amount = amount
+                transaction.save()
+
+            return transaction
+        except Exception:
+            # Never let a wallet problem block an approval, but do not lose it
+            # to stdout either — this used to be a bare print().
+            logger.exception('Failed to credit wallet for work entry %s', entry.id)
+            return None
     
     # =========================================================================
     # PHOTO ACTIONS
