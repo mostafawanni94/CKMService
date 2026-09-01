@@ -1,5 +1,6 @@
 """Invoice Serializers."""
 from decimal import Decimal
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from .models import (
@@ -85,6 +86,7 @@ class InvoiceListSerializer(serializers.ModelSerializer):
 
     has_pdf = serializers.SerializerMethodField()
 
+    @extend_schema_field(serializers.BooleanField())
     def get_has_pdf(self, obj):
         return bool(obj.pdf_file)
 
@@ -115,6 +117,7 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
             'pdf_generated_at', 'sent_at', 'sent_to', 'corrects',
         ]
 
+    @extend_schema_field(serializers.CharField(allow_null=True))
     def get_pdf_url(self, obj):
         if not obj.pdf_file:
             return None
@@ -215,6 +218,7 @@ class AgencyInvoiceLineSerializer(serializers.ModelSerializer):
             'surcharge_percentage', 'surcharge_amount', 'total', 'description',
         ]
     
+    @extend_schema_field(serializers.CharField())
     def get_employee_name(self, obj):
         return obj.employee.full_name if hasattr(obj.employee, 'full_name') else str(obj.employee)
 
@@ -236,6 +240,7 @@ class AgencyInvoiceListSerializer(serializers.ModelSerializer):
             'line_count', 'created_at',
         ]
     
+    @extend_schema_field(serializers.IntegerField())
     def get_line_count(self, obj):
         return obj.lines.count()
 

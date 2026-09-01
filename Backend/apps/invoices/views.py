@@ -5,6 +5,8 @@ from django.db.models import Sum
 from django.utils import timezone
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -722,6 +724,11 @@ class IncomingInvoiceViewSet(viewsets.ModelViewSet):
 # EMPLOYEE EARNINGS
 # =============================================================================
 
+@extend_schema_view(
+    list=extend_schema(
+        summary='What an employee has earned but not yet been paid',
+        responses=OpenApiTypes.OBJECT),
+)
 class PendingEarningsView(viewsets.ViewSet):
     """
     What the signed-in employee has earned but not yet been paid for.

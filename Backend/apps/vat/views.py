@@ -7,10 +7,12 @@ here — company VAT position is not theirs to see.
 """
 
 from django.db import transaction
+from django.http import HttpResponse
 from django.utils import timezone
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from django.http import HttpResponse
 from rest_framework.response import Response
 
 from apps.core.permissions import IsAdmin, IsFinanceStaff
@@ -298,6 +300,13 @@ class VatPeriodViewSet(viewsets.ModelViewSet):
         return Response(self.get_serializer(period).data)
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary='Finance overview',
+        description='Revenue, costs, receivables, payables and the VAT position '
+                    'for a year or a quarter.',
+        responses=OpenApiTypes.OBJECT),
+)
 class FinanceDashboardView(viewsets.ViewSet):
     """
     The finance overview.
@@ -317,6 +326,7 @@ class FinanceDashboardView(viewsets.ViewSet):
         quarter = request.query_params.get('quarter')
         return Response(dashboard(year, int(quarter) if quarter else None))
 
+    @extend_schema(summary='What customers owe, by age', responses=OpenApiTypes.OBJECT)
     @action(detail=False, methods=['get'])
     def receivables(self, request):
         """What customers owe, by age."""
@@ -324,6 +334,7 @@ class FinanceDashboardView(viewsets.ViewSet):
 
         return Response(receivables())
 
+    @extend_schema(summary='What CKM owes suppliers, agencies and its own employees', responses=OpenApiTypes.OBJECT)
     @action(detail=False, methods=['get'])
     def payables(self, request):
         """What CKM owes: suppliers, agencies and its own employees."""
@@ -331,6 +342,7 @@ class FinanceDashboardView(viewsets.ViewSet):
 
         return Response(payables())
 
+    @extend_schema(summary='Transactions the VAT engine could not classify', responses=OpenApiTypes.OBJECT)
     @action(detail=False, methods=['get'], url_path='requires-review')
     def requires_review(self, request):
         """
