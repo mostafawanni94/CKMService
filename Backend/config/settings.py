@@ -107,6 +107,7 @@ LOCAL_APPS = [
     'apps.certificates.apps.CertificatesConfig',
     'apps.expenses.apps.ExpensesConfig',
     'apps.hr.apps.HRConfig',
+    'apps.vat.apps.VatConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

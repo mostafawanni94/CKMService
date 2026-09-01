@@ -330,7 +330,50 @@ class InvoiceLine(BaseModel):
         default=Decimal('0.00'),
         verbose_name="Total"
     )
-    
+
+    # ── VAT, per line ──────────────────────────────────────────────────────
+    # Reverse charge is decided per service, not per invoice: CKM can bill a
+    # customer for ordinary cleaning at 21% and lend them a worker for covered
+    # physical work on the same invoice. A single invoice-level rate cannot
+    # express that, so treatment lives here.
+    vat_treatment_code = models.CharField(
+        max_length=30,
+        default='UNKNOWN',
+        verbose_name="VAT treatment",
+        help_text="Defaults to UNKNOWN. A line is never assumed to be 21%.",
+    )
+    price_mode = models.CharField(
+        max_length=20,
+        default='EXCLUDING_VAT',
+        verbose_name="Price mode",
+        help_text="Whether `total` includes VAT. Stated, never inferred.",
+    )
+    vat_rate = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, blank=True,
+        verbose_name="VAT rate (%)",
+        help_text="Derived from the treatment; null until classified.",
+    )
+    net_amount = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True)
+    vat_amount = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True)
+    gross_amount = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True)
+    vat_return_box = models.CharField(max_length=4, blank=True, default='')
+    vat_classification_status = models.CharField(
+        max_length=20, default='REQUIRES_REVIEW', db_index=True,
+        verbose_name="VAT classification status",
+    )
+    vat_review_reason = models.TextField(blank=True, default='')
+
+    # Traceability back to the work that produced the line.
+    work_entry = models.ForeignKey(
+        'worklogs.WorkEntry',
+        on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='invoice_lines',
+        verbose_name="Work entry",
+    )
+
     class Meta:
         verbose_name = 'Invoice Line'
         verbose_name_plural = 'Invoice Lines'

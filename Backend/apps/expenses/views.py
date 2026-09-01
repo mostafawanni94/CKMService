@@ -411,10 +411,15 @@ class ExpenseViewSet(viewsets.ModelViewSet):
         ws4.cell(row=7, column=2, value="Voorbelasting (BTW op inkopen)")
         ws4.cell(row=7, column=4, value=float(total_exp_vat)).number_format = currency_fmt
         
-        # Box 5g: Af te dragen
-        ws4.cell(row=9, column=1, value="5g").font = Font(bold=True, size=12)
-        ws4.cell(row=9, column=2, value="Af te dragen / Terug te vragen").font = Font(bold=True, size=12)
+        # Payable / refundable. Deliberately NOT labelled as a rubriek: the
+        # Dutch return has no 5g, and this figure is derived as 5a - 5b rather
+        # than entered in a box. The old "5g" label is preserved below only as
+        # a historical note so previously exported files remain explainable.
+        ws4.cell(row=9, column=1, value="").font = Font(bold=True, size=12)
+        ws4.cell(row=9, column=2, value="Af te dragen / Terug te vragen (5a - 5b)").font = Font(bold=True, size=12)
         ws4.cell(row=9, column=4, value=float(total_inc_vat - total_exp_vat)).number_format = currency_fmt
+        ws4.cell(row=10, column=2,
+                 value="Berekend uit 5a - 5b; dit is geen rubriek op de aangifte.").font = Font(italic=True, size=9)
         ws4['D9'].font = Font(bold=True, size=12, color='1E3A5F')
         
         ws4.column_dimensions['A'].width = 10
