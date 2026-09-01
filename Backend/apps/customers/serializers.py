@@ -14,6 +14,8 @@ from apps.employees.models import SurchargeType
 
 from apps.core.media import signed_media_url
 
+from apps.employees.serializers import MaskedSensitiveFieldsMixin
+
 class CustomerContactSerializer(serializers.ModelSerializer):
     """Serializer for customer contacts."""
     
@@ -45,7 +47,7 @@ class OutfolderSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
 
-class CustomerListSerializer(serializers.ModelSerializer):
+class CustomerListSerializer(MaskedSensitiveFieldsMixin, serializers.ModelSerializer):
     """Serializer for customer list view."""
     
     outfolders_count = serializers.IntegerField(
@@ -169,7 +171,7 @@ class CustomerAllowanceSerializer(serializers.ModelSerializer):
         return [s.name for s in obj.enabled_surcharges.all()]
 
 
-class CustomerDetailSerializer(serializers.ModelSerializer):
+class CustomerDetailSerializer(MaskedSensitiveFieldsMixin, serializers.ModelSerializer):
     """Serializer for customer detail view."""
     
     contacts = CustomerContactSerializer(many=True, read_only=True)

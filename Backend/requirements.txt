@@ -27,6 +27,9 @@ PyPDF2==3.0.1                  # PDF merging in employees/pdf_generator.py
 requests==2.32.5
 google-auth==2.57.0            # OAuth2 for the FCM HTTP v1 API
 
+# --- Field-level encryption -------------------------------------------------
+cryptography==50.0.1          # Fernet for BSN / IBAN / document numbers
+
 # --- Optional: PostgreSQL (set DATABASE_ENGINE=postgresql) ------------------
 # psycopg[binary]==3.2.3
 

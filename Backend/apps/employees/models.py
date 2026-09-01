@@ -22,6 +22,8 @@ from apps.core.models import BaseModel, TimeStampedModel
 # CUSTOM USER MANAGER
 # =============================================================================
 
+from apps.core.encryption import EncryptedCharField
+
 class UserManager(BaseUserManager):
     """Custom user manager for admin-only account creation.
     Employees cannot self-register.
@@ -211,8 +213,8 @@ class EmployeeProfile(BaseModel):
         regex=r'^\d{9}$',
         message='BSN must be exactly 9 digits'
     )
-    bsn = models.CharField(
-        max_length=9,
+    bsn = EncryptedCharField(
+        plaintext_max_length=9,
         validators=[bsn_validator],
         verbose_name="BSN",
         help_text="Dutch national identification number (9 digits)"
@@ -226,8 +228,8 @@ class EmployeeProfile(BaseModel):
         verbose_name="Document Type",
         help_text="Type of ID document (defined by admin)"
     )
-    document_number = models.CharField(
-        max_length=50,
+    document_number = EncryptedCharField(
+        plaintext_max_length=50,
         verbose_name="Document Number",
         help_text="Can be extracted via OCR, employee can edit"
     )
@@ -302,8 +304,8 @@ class EmployeeProfile(BaseModel):
         regex=r'^[A-Z]{2}\d{2}[A-Z0-9]{1,30}$',
         message='Enter a valid IBAN'
     )
-    iban = models.CharField(
-        max_length=34,
+    iban = EncryptedCharField(
+        plaintext_max_length=34,
         validators=[iban_validator],
         verbose_name="IBAN Number"
     )
@@ -422,8 +424,8 @@ class EmployeeProfile(BaseModel):
         null=True,
         verbose_name="Driver's License (Back)"
     )
-    drivers_license_number = models.CharField(
-        max_length=50,
+    drivers_license_number = EncryptedCharField(
+        plaintext_max_length=50,
         blank=True,
         default='',
         verbose_name="Driver's License Number"
@@ -676,8 +678,8 @@ class Agency(TimeStampedModel):
         verbose_name="BTW Number",
         help_text="VAT identification number (e.g. NL123456789B01)"
     )
-    iban = models.CharField(
-        max_length=34, blank=True, default='',
+    iban = EncryptedCharField(
+        plaintext_max_length=34, blank=True, default='',
         verbose_name="IBAN",
         help_text="Bank account number for payments"
     )

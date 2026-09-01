@@ -187,7 +187,7 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
         """Get current user's employee profile."""
         try:
             profile = EmployeeProfile.objects.get(user=request.user)
-            serializer = EmployeeProfileDetailSerializer(profile)
+            serializer = EmployeeProfileDetailSerializer(profile, context={'request': request})
             return Response(serializer.data)
         except EmployeeProfile.DoesNotExist:
             return Response(
@@ -228,7 +228,7 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         
-        return Response(EmployeeProfileDetailSerializer(profile).data)
+        return Response(EmployeeProfileDetailSerializer(profile, context={'request': request}).data)
     
     @action(detail=False, methods=['post'])
     def submit(self, request):
@@ -488,7 +488,7 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
         return Response({
             'status': 'success',
             'message': 'Employee approved successfully',
-            'profile': EmployeeProfileDetailSerializer(profile).data
+            'profile': EmployeeProfileDetailSerializer(profile, context={'request': request}).data
         })
     
     @action(detail=True, methods=['post'])
@@ -517,7 +517,7 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
         return Response({
             'status': 'success',
             'message': 'Employee rejected',
-            'profile': EmployeeProfileDetailSerializer(profile).data
+            'profile': EmployeeProfileDetailSerializer(profile, context={'request': request}).data
         })
     
     @action(detail=False, methods=['get'])
@@ -590,7 +590,7 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
         return Response({
             'status': 'success',
             'message': f'Employee {profile.full_name} has been restored',
-            'profile': EmployeeProfileDetailSerializer(profile).data
+            'profile': EmployeeProfileDetailSerializer(profile, context={'request': request}).data
         })
     
     @action(detail=False, methods=['get'])

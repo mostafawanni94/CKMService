@@ -21,6 +21,54 @@ from .models import (
 
 from apps.core.media import signed_media_url
 
+
+class MaskedSensitiveFieldsMixin:
+    """
+    Mask BSN, IBAN and document numbers unless the reader is entitled to them.
+
+    These fields are encrypted at rest, but that protects the database — not the
+    API. Without this, any caller who can reach the serializer receives the
+    decrypted value in JSON.
+
+    Entitled to the full value:
+      * admin and finance roles — payroll and payment need the real IBAN;
+      * the employee themselves, reading their own record.
+
+    Everyone else sees a mask. Writes are unaffected: a masked value is never
+    echoed back into the model, because the mask is applied on output only.
+    """
+
+    SENSITIVE_FIELDS = {
+        'bsn': 'bsn',
+        'iban': 'iban',
+        'g_rekening': 'iban',
+        'document_number': 'generic',
+        'drivers_license_number': 'generic',
+    }
+
+    def _may_see_sensitive(self, instance):
+        request = self.context.get('request')
+        user = getattr(request, 'user', None)
+        if user is None or not user.is_authenticated:
+            return False
+        if user.is_admin or user.is_finance:
+            return True
+        # The subject of the record may always read their own.
+        owner = getattr(instance, 'user_id', None)
+        return owner is not None and owner == user.id
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if self._may_see_sensitive(instance):
+            return data
+
+        from apps.core.encryption import mask_bsn, mask_generic, mask_iban
+        maskers = {'bsn': mask_bsn, 'iban': mask_iban, 'generic': mask_generic}
+        for field, kind in self.SENSITIVE_FIELDS.items():
+            if field in data and data[field]:
+                data[field] = maskers[kind](data[field])
+        return data
+
 class EmployeeRateHistorySerializer(serializers.ModelSerializer):
     """Serializer for employee hourly rate history."""
     changed_by_name = serializers.SerializerMethodField()
@@ -239,7 +287,7 @@ class AgencySurchargeCreateSerializer(serializers.ModelSerializer):
 # AGENCY SERIALIZERS
 # =============================================================================
 
-class AgencySerializer(serializers.ModelSerializer):
+class AgencySerializer(MaskedSensitiveFieldsMixin, serializers.ModelSerializer):
     """Serializer for agencies (admin-managed)."""
     employee_count = serializers.SerializerMethodField()
     surcharges = AgencySurchargeCreateSerializer(many=True, required=False)
@@ -312,7 +360,7 @@ class EmployeeAgencyHistorySerializer(serializers.ModelSerializer):
 # EMPLOYEE PROFILE SERIALIZERS
 # =============================================================================
 
-class EmployeeProfileListSerializer(serializers.ModelSerializer):
+class EmployeeProfileListSerializer(MaskedSensitiveFieldsMixin, serializers.ModelSerializer):
     """Serializer for employee list view."""
     
     user_email = serializers.EmailField(source='user.email', read_only=True)
@@ -327,7 +375,7 @@ class EmployeeProfileListSerializer(serializers.ModelSerializer):
         ]
 
 
-class EmployeeProfileDetailSerializer(serializers.ModelSerializer):
+class EmployeeProfileDetailSerializer(MaskedSensitiveFieldsMixin, serializers.ModelSerializer):
     """Full serializer for employee profile detail with attachment URLs."""
     
     user = UserSerializer(read_only=True)
@@ -417,7 +465,7 @@ class EmployeeProfileDetailSerializer(serializers.ModelSerializer):
         return self._get_file_url(obj, 'contract_document')
 
 
-class EmployeeProfileCompletionSerializer(serializers.ModelSerializer):
+class EmployeeProfileCompletionSerializer(MaskedSensitiveFieldsMixin, serializers.ModelSerializer):
     """
     Serializer for employee to complete their profile.
     Used during first login mandatory completion.
@@ -587,7 +635,7 @@ class AgencyTransactionSerializer(serializers.ModelSerializer):
 # EXTENDED AGENCY SERIALIZER (with billing info)
 # =============================================================================
 
-class AgencyDetailSerializer(serializers.ModelSerializer):
+class AgencyDetailSerializer(MaskedSensitiveFieldsMixin, serializers.ModelSerializer):
     """Full agency detail with billing and surcharges."""
     
     employee_count = serializers.SerializerMethodField()

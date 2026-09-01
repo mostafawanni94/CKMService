@@ -17,6 +17,8 @@ from apps.core.models import BaseModel, TimeStampedModel
 # CUSTOMER (Company)
 # =============================================================================
 
+from apps.core.encryption import EncryptedCharField
+
 class Customer(BaseModel):
     """
     Customer company that rents employees.
@@ -91,8 +93,8 @@ class Customer(BaseModel):
         regex=r'^[A-Z]{2}\d{2}[A-Z0-9]{1,30}$',
         message='Enter a valid IBAN'
     )
-    iban = models.CharField(
-        max_length=34,
+    iban = EncryptedCharField(
+        plaintext_max_length=34,
         blank=True,
         default='',
         validators=[iban_validator],
@@ -100,8 +102,8 @@ class Customer(BaseModel):
     )
     
     # G-rekening (separate IBAN for special account)
-    g_rekening = models.CharField(
-        max_length=34,
+    g_rekening = EncryptedCharField(
+        plaintext_max_length=34,
         blank=True,
         default='',
         validators=[iban_validator],

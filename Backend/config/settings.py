@@ -225,6 +225,27 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'employees.User'
 
 # =============================================================================
+# FIELD-LEVEL ENCRYPTION
+# =============================================================================
+# Comma-separated Fernet keys. The first encrypts; all of them decrypt, which is
+# what allows rotation without an outage. Read from the environment only — never
+# stored in the database, never committed.
+#
+# Generate one with:  python manage.py generate_encryption_key
+#
+# BACK THIS KEY UP SEPARATELY FROM THE DATABASE. A dump restored without it
+# cannot decrypt BSN, IBAN or document numbers.
+FIELD_ENCRYPTION_KEYS = os.getenv('FIELD_ENCRYPTION_KEYS', '')
+
+if not FIELD_ENCRYPTION_KEYS and not DEBUG:
+    raise ImproperlyConfigured(
+        'FIELD_ENCRYPTION_KEYS must be set when DEBUG is off. Sensitive fields '
+        'cannot be read or written without it. A key is never generated '
+        'automatically: a fresh key would make existing encrypted data '
+        'permanently unreadable.'
+    )
+
+# =============================================================================
 # DJANGO REST FRAMEWORK
 # =============================================================================
 
