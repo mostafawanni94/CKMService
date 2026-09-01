@@ -5,7 +5,9 @@ Sends notification emails using Gmail SMTP with App Password.
 """
 
 import smtplib
+from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
+from email import encoders
 from email.mime.multipart import MIMEMultipart
 from typing import List, Optional
 import logging
@@ -45,7 +47,9 @@ class EmailService:
         recipients: List[str],
         subject: str,
         html_content: str,
-        text_content: Optional[str] = None
+        text_content: Optional[str] = None,
+        attachments: Optional[List[tuple]] = None,
+        reply_to: Optional[str] = None,
     ) -> bool:
         """
         Send email to recipients.
@@ -55,6 +59,8 @@ class EmailService:
             subject: Email subject
             html_content: HTML email body
             text_content: Plain text fallback (auto-generated if not provided)
+            attachments: (filename, bytes, mimetype) tuples, e.g. an invoice PDF
+            reply_to: Address replies should go to
             
         Returns:
             True if email sent successfully, False otherwise
@@ -69,20 +75,37 @@ class EmailService:
         
         try:
             # Create message
-            msg = MIMEMultipart('alternative')
+            # An attachment cannot live inside multipart/alternative, so the
+            # body becomes one alternative part inside a mixed container.
+            if attachments:
+                msg = MIMEMultipart('mixed')
+                body = MIMEMultipart('alternative')
+            else:
+                msg = body = MIMEMultipart('alternative')
+
             msg['Subject'] = subject
             msg['From'] = f"CKM Services <{self.sender_email}>"
             msg['To'] = ', '.join(recipients)
-            
+            if reply_to:
+                msg['Reply-To'] = reply_to
+
             # Plain text version
             if not text_content:
                 text_content = strip_tags(html_content)
-            
-            part1 = MIMEText(text_content, 'plain')
-            part2 = MIMEText(html_content, 'html')
-            
-            msg.attach(part1)
-            msg.attach(part2)
+
+            body.attach(MIMEText(text_content, 'plain'))
+            body.attach(MIMEText(html_content, 'html'))
+
+            if attachments:
+                msg.attach(body)
+                for filename, content, mimetype in attachments:
+                    main, _, sub = (mimetype or 'application/octet-stream').partition('/')
+                    part = MIMEBase(main, sub or 'octet-stream')
+                    part.set_payload(content)
+                    encoders.encode_base64(part)
+                    part.add_header('Content-Disposition', 'attachment',
+                                    filename=filename)
+                    msg.attach(part)
             
             # Send via Gmail SMTP
             with smtplib.SMTP(self.SMTP_SERVER, self.SMTP_PORT) as server:

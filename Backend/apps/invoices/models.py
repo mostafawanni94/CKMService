@@ -12,7 +12,37 @@ from decimal import Decimal
 
 from django.db import models
 
-from apps.core.models import BaseModel
+from apps.core.models import BaseModel, TimeStampedModel
+
+
+# =============================================================================
+# DOCUMENT NUMBERING
+# =============================================================================
+
+class DocumentSeries(models.TextChoices):
+    INVOICE = 'invoice', 'Invoice'
+    CREDIT_NOTE = 'credit_note', 'Credit note'
+
+
+class InvoiceSequence(TimeStampedModel):
+    """The last number issued in one series, for one year."""
+
+    series = models.CharField(max_length=20, choices=DocumentSeries.choices)
+    year = models.PositiveIntegerField()
+    last_number = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = 'Invoice sequence'
+        verbose_name_plural = 'Invoice sequences'
+        constraints = [
+            models.UniqueConstraint(fields=['series', 'year'],
+                                    name='unique_sequence_per_series_year'),
+        ]
+        ordering = ['-year', 'series']
+
+    def __str__(self):
+        return f'{self.get_series_display()} {self.year}: {self.last_number}'
+
 
 
 # =============================================================================
@@ -99,12 +129,52 @@ class Invoice(VatClassifiableMixin, BaseModel):
         PARTIALLY_PAID = 'partially_paid', 'Partially Paid'
         OVERDUE = 'overdue', 'Overdue'
         CANCELLED = 'cancelled', 'Cancelled'
-    
+
+    class DocumentType(models.TextChoices):
+        INVOICE = 'invoice', 'Invoice'
+        CREDIT_NOTE = 'credit_note', 'Credit note'
+
+    class BillingMode(models.TextChoices):
+        WEEKLY = 'weekly', 'Weekly'
+        PERIOD = 'period', 'Period'
+
+    # Statuses at which the document has left the building. Past this point the
+    # figures are the customer's copy and are never edited in place.
+    ISSUED_STATUSES = ('sent', 'paid', 'partially_paid', 'overdue')
+
     # Invoice number
     invoice_number = models.CharField(
         max_length=50,
         unique=True,
         verbose_name="Invoice Number"
+    )
+
+    document_type = models.CharField(
+        max_length=20,
+        choices=DocumentType.choices,
+        default=DocumentType.INVOICE,
+        db_index=True,
+        verbose_name="Document type",
+    )
+    billing_mode = models.CharField(
+        max_length=10,
+        choices=BillingMode.choices,
+        default=BillingMode.WEEKLY,
+        verbose_name="Billing mode",
+        help_text="Weekly invoices are one per customer per week; period "
+                  "invoices cover an arbitrary date range.",
+    )
+    # A credit note points at what it corrects. The original is never altered.
+    corrects = models.ForeignKey(
+        'self',
+        on_delete=models.PROTECT,
+        null=True, blank=True,
+        related_name='credit_notes',
+        verbose_name="Corrects",
+    )
+    correction_reason = models.TextField(
+        blank=True, default='',
+        verbose_name="Reason for correction",
     )
     
     # Customer
@@ -128,7 +198,24 @@ class Invoice(VatClassifiableMixin, BaseModel):
     week_end_date = models.DateField(
         verbose_name="Week End Date"
     )
-    
+
+    # Explicit service period. Equal to the week for a weekly invoice; an
+    # arbitrary range for a period invoice. Printed on the document, because a
+    # Dutch invoice must state when the service was supplied.
+    period_start = models.DateField(
+        null=True, blank=True, verbose_name="Period start")
+    period_end = models.DateField(
+        null=True, blank=True, verbose_name="Period end")
+    # Optional narrowing: an invoice for one project rather than the customer's
+    # whole week.
+    project = models.ForeignKey(
+        'projects.Project',
+        on_delete=models.PROTECT,
+        null=True, blank=True,
+        related_name='invoices',
+        verbose_name="Project",
+    )
+
     # Totals
     subtotal = models.DecimalField(
         max_digits=12,
@@ -218,12 +305,40 @@ class Invoice(VatClassifiableMixin, BaseModel):
         default='',
         verbose_name="Internal Notes"
     )
-    
+
+    # --- The issued document -------------------------------------------------
+    # Rendered once, when the invoice is issued, and never regenerated: the
+    # customer's copy and ours must be the same file.
+    pdf_file = models.FileField(
+        upload_to='invoices/%Y/', blank=True, null=True,
+        verbose_name="PDF")
+    pdf_generated_at = models.DateTimeField(null=True, blank=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    sent_to = models.CharField(max_length=255, blank=True, default='')
+
     class Meta:
         verbose_name = 'Invoice'
         verbose_name_plural = 'Invoices'
         ordering = ['-week_year', '-week_number']
-        unique_together = ['customer', 'week_year', 'week_number']
+        constraints = [
+            # One weekly invoice per customer per week — but a cancelled or
+            # deleted one must not block a replacement, and a credit note is a
+            # separate document that may share the week.
+            models.UniqueConstraint(
+                fields=['customer', 'week_year', 'week_number'],
+                condition=models.Q(document_type='invoice', billing_mode='weekly',
+                                   is_deleted=False) & ~models.Q(status='cancelled'),
+                name='unique_active_weekly_invoice_per_customer',
+            ),
+        ]
+        indexes = [
+            models.Index(fields=['document_type', 'status'],
+                         name='invoice_type_status_idx'),
+            models.Index(fields=['customer', '-issue_date'],
+                         name='invoice_customer_date_idx'),
+            models.Index(fields=['period_start', 'period_end'],
+                         name='invoice_period_idx'),
+        ]
     
     def __str__(self):
         return f"{self.invoice_number} - {self.customer}"
@@ -233,45 +348,90 @@ class Invoice(VatClassifiableMixin, BaseModel):
         return self.total - self.amount_paid
     
     def calculate_totals(self):
-        """Recalculate all totals from line items."""
+        """
+        Recalculate the totals from the line items.
+
+        VAT is summed from the lines, because reverse charge is decided per
+        service: CKM can clean an office at 21% and lend a worker for covered
+        work on the same invoice. `vat_rate` on the invoice is a display
+        default only — it is never the arithmetic. Lines that have not been
+        classified contribute no VAT and are reported separately, so an
+        unclassified line shows up as a hole rather than as 21%.
+        """
         from django.db.models import Sum
-        
-        # Sum labor charges
-        labor_total = self.lines.aggregate(
-            total=Sum('total')
-        )['total'] or Decimal('0.00')
-        
-        # Sum costs
-        cost_total = self.costs.aggregate(
-            total=Sum('total')
-        )['total'] or Decimal('0.00')
-        
-        # Sum allowances
+
+        lines = self.lines.filter(is_deleted=False)
+
+        labor_total = lines.aggregate(total=Sum('total'))['total'] or Decimal('0.00')
+        cost_total = self.costs.aggregate(total=Sum('total'))['total'] or Decimal('0.00')
         allowance_total = self.allowance_lines.aggregate(
-            total=Sum('total')
-        )['total'] or Decimal('0.00')
-        
-        # Sum gratuities
+            total=Sum('total'))['total'] or Decimal('0.00')
         gratuity_total = self.gratuity_lines.aggregate(
-            total=Sum('amount')
-        )['total'] or Decimal('0.00')
-        
+            total=Sum('amount'))['total'] or Decimal('0.00')
+
         self.subtotal = labor_total
         self.total_costs = cost_total
         self.total_allowances = allowance_total
         self.total_gratuities = gratuity_total
-        
-        # Calculate VAT on subtotal + allowances (gratuities typically not taxed)
-        taxable = self.subtotal + self.total_allowances
-        self.vat_amount = (taxable * self.vat_rate / 100).quantize(Decimal('0.01'))
-        
-        # Total including costs, allowances, gratuities, and VAT
-        self.total = self.subtotal + self.total_costs + self.total_allowances + self.total_gratuities + self.vat_amount
-        
+
+        classified = lines.exclude(vat_amount=None)
+        line_vat = classified.aggregate(total=Sum('vat_amount'))['total']
+
+        if line_vat is not None and classified.count() == lines.count() and lines.exists():
+            # Every labour line is classified: the lines are the truth.
+            # Costs and allowances follow the invoice's own rate, which is the
+            # rate the customer agreed for extras.
+            extras_taxable = self.total_costs + self.total_allowances
+            self.vat_amount = (
+                line_vat + (extras_taxable * self.vat_rate / 100)
+            ).quantize(Decimal('0.01'))
+        else:
+            # Legacy or partially classified: fall back to the invoice rate so
+            # historical invoices keep the totals they were issued with.
+            taxable = self.subtotal + self.total_allowances
+            self.vat_amount = (taxable * self.vat_rate / 100).quantize(Decimal('0.01'))
+
+        self.total = (self.subtotal + self.total_costs + self.total_allowances
+                      + self.total_gratuities + self.vat_amount)
+
         self.save(update_fields=[
-            'subtotal', 'total_costs', 'total_allowances', 'total_gratuities', 
+            'subtotal', 'total_costs', 'total_allowances', 'total_gratuities',
             'vat_amount', 'total', 'updated_at'
         ])
+
+    @property
+    def is_issued(self):
+        """Has this document been given to the customer?"""
+        return self.status in self.ISSUED_STATUSES
+
+    @property
+    def is_credit_note(self):
+        return self.document_type == self.DocumentType.CREDIT_NOTE
+
+    @property
+    def credited_total(self):
+        """How much of this invoice has been credited back."""
+        from django.db.models import Sum
+
+        return abs(self.credit_notes.filter(is_deleted=False).exclude(
+            status=self.Status.CANCELLED
+        ).aggregate(total=Sum('total'))['total'] or Decimal('0.00'))
+
+    @property
+    def net_of_credits(self):
+        """What the customer actually owes once credit notes are applied."""
+        return self.total - self.credited_total
+
+    @property
+    def unclassified_line_count(self):
+        """Labour lines whose VAT treatment nobody has established."""
+        return self.lines.filter(is_deleted=False).exclude(
+            vat_classification_status='CLASSIFIED').count()
+
+    @property
+    def has_reverse_charged_lines(self):
+        return self.lines.filter(
+            is_deleted=False, vat_return_box='1e').exists()
 
 
 # =============================================================================
@@ -376,17 +536,73 @@ class InvoiceLine(VatClassifiableMixin, BaseModel):
         verbose_name="Work entry",
     )
 
+    class LineType(models.TextChoices):
+        SERVICE = 'service', 'Service'
+        CREDIT = 'credit', 'Credit'
+        MANUAL = 'manual', 'Manual'
+
+    line_type = models.CharField(
+        max_length=10,
+        choices=LineType.choices,
+        default=LineType.SERVICE,
+        verbose_name="Line type",
+    )
+    work_date = models.DateField(
+        null=True, blank=True,
+        verbose_name="Work date",
+        help_text="The day the work was done; drives the sort order on the PDF.")
+    # What the customer is being charged for, in the customer's terms: the
+    # hours at plain rate plus each surcharge that applied. Frozen at billing
+    # time so a later change to a surcharge cannot rewrite an issued invoice.
+    surcharge_breakdown = models.JSONField(
+        default=list, blank=True,
+        verbose_name="Surcharge breakdown")
+    base_amount = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True,
+        verbose_name="Base amount",
+        help_text="Hours at the plain rate, before surcharges and allowances.")
+    surcharge_amount = models.DecimalField(
+        max_digits=12, decimal_places=2, default=Decimal('0.00'),
+        verbose_name="Surcharge amount")
+    allowance_amount = models.DecimalField(
+        max_digits=12, decimal_places=2, default=Decimal('0.00'),
+        verbose_name="Allowance amount")
+    # Set when the line's `total` was supplied rather than derived from
+    # hours x rate — a credit line, or a fixed-price item.
+    total_is_explicit = models.BooleanField(default=False)
+
     class Meta:
         verbose_name = 'Invoice Line'
         verbose_name_plural = 'Invoice Lines'
-        ordering = ['created_at']
+        ordering = ['work_date', 'created_at']
+        constraints = [
+            # A work entry is billed to the customer exactly once. Credit lines
+            # reference the same entry deliberately, so they are excluded.
+            models.UniqueConstraint(
+                fields=['work_entry'],
+                condition=models.Q(line_type='service', is_deleted=False,
+                                   work_entry__isnull=False),
+                name='unique_billed_work_entry',
+            ),
+        ]
+        indexes = [
+            models.Index(fields=['invoice', 'work_date'], name='line_invoice_date_idx'),
+            models.Index(fields=['work_entry'], name='line_work_entry_idx'),
+        ]
     
     def __str__(self):
         return f"{self.invoice}: {self.employee} - {self.quantity_hours}h"
     
     def save(self, *args, **kwargs):
-        """Auto-calculate total."""
-        self.total = (self.quantity_hours * self.hourly_rate).quantize(Decimal('0.01'))
+        """
+        Derive the total from hours x rate, unless it was stated explicitly.
+
+        A billed line carries surcharges and allowances that hours x rate does
+        not express, and a credit line carries a negative amount that is not a
+        product of hours at all. Recomputing those would silently change money.
+        """
+        if not self.total_is_explicit:
+            self.total = (self.quantity_hours * self.hourly_rate).quantize(Decimal('0.01'))
         super().save(*args, **kwargs)
 
 

@@ -19,7 +19,9 @@ from apps.core.models import BaseModel, TimeStampedModel
 
 from apps.core.encryption import EncryptedCharField
 
-class Customer(BaseModel):
+from apps.vat.mixins import VatClassifiableMixin
+
+class Customer(VatClassifiableMixin, BaseModel):
     """
     Customer company that rents employees.
     

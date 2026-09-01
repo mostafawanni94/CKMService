@@ -23,7 +23,18 @@ class InvoiceLineSerializer(serializers.ModelSerializer):
     class Meta:
         model = InvoiceLine
         fields = ['id', 'project', 'project_name', 'employee', 'employee_name',
-                  'description', 'quantity_hours', 'hourly_rate', 'total']
+                  'description', 'quantity_hours', 'hourly_rate', 'total',
+                  'line_type', 'work_date', 'work_entry',
+                  'base_amount', 'surcharge_amount', 'allowance_amount',
+                  'surcharge_breakdown',
+                  'vat_treatment_code', 'vat_rate', 'net_amount', 'vat_amount',
+                  'gross_amount', 'vat_return_box', 'vat_classification_status',
+                  'vat_review_reason']
+        read_only_fields = ['net_amount', 'vat_amount', 'gross_amount',
+                            'vat_return_box', 'vat_classification_status',
+                            'vat_review_reason', 'base_amount',
+                            'surcharge_amount', 'allowance_amount',
+                            'surcharge_breakdown']
 
 
 class InvoiceCostSerializer(serializers.ModelSerializer):
@@ -64,10 +75,18 @@ class InvoiceListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Invoice
-        fields = ['id', 'invoice_number', 'customer', 'customer_name', 'week_year',
-                  'week_number', 'week_start_date', 'week_end_date', 'total',
-                  'total_allowances', 'total_gratuities',
-                  'status', 'status_display', 'issue_date', 'created_at']
+        fields = ['id', 'invoice_number', 'document_type', 'billing_mode',
+                  'customer', 'customer_name', 'project', 'week_year',
+                  'week_number', 'week_start_date', 'week_end_date',
+                  'period_start', 'period_end', 'subtotal', 'vat_amount', 'total',
+                  'total_allowances', 'total_gratuities', 'amount_paid',
+                  'status', 'status_display', 'issue_date', 'due_date',
+                  'corrects', 'has_pdf', 'created_at']
+
+    has_pdf = serializers.SerializerMethodField()
+
+    def get_has_pdf(self, obj):
+        return bool(obj.pdf_file)
 
 
 class InvoiceDetailSerializer(serializers.ModelSerializer):
@@ -77,17 +96,100 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
     allowance_lines = InvoiceAllowanceSerializer(many=True, read_only=True)
     gratuity_lines = InvoiceGratuitySerializer(many=True, read_only=True)
     amount_due = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
-    
+    credited_total = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+    net_of_credits = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+    unclassified_line_count = serializers.IntegerField(read_only=True)
+    has_reverse_charged_lines = serializers.BooleanField(read_only=True)
+    is_issued = serializers.BooleanField(read_only=True)
+    credit_notes = InvoiceListSerializer(many=True, read_only=True)
+    corrects_number = serializers.CharField(
+        source='corrects.invoice_number', read_only=True, default=None)
+    pdf_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Invoice
         fields = '__all__'
+        read_only_fields = [
+            'invoice_number', 'subtotal', 'total_costs', 'total_allowances',
+            'total_gratuities', 'vat_amount', 'total', 'pdf_file',
+            'pdf_generated_at', 'sent_at', 'sent_to', 'corrects',
+        ]
+
+    def get_pdf_url(self, obj):
+        if not obj.pdf_file:
+            return None
+        from apps.core.media import signed_media_url
+        return signed_media_url(obj.pdf_file, self.context.get('request'))
 
 
 class InvoiceGenerateSerializer(serializers.Serializer):
+    """
+    Generate an invoice for a week, or for an arbitrary period.
+
+    Give either week_year + week_number, or period_start + period_end. The
+    optional project narrows the invoice to one project.
+    """
+
     customer_id = serializers.UUIDField()
-    week_year = serializers.IntegerField(min_value=2020, max_value=2100)
-    week_number = serializers.IntegerField(min_value=1, max_value=53)
-    
+    week_year = serializers.IntegerField(
+        min_value=2020, max_value=2100, required=False)
+    week_number = serializers.IntegerField(
+        min_value=1, max_value=53, required=False)
+    period_start = serializers.DateField(required=False)
+    period_end = serializers.DateField(required=False)
+    project_id = serializers.UUIDField(required=False, allow_null=True)
+    notes = serializers.CharField(required=False, allow_blank=True, default='')
+    vat_treatment_code = serializers.CharField(required=False, allow_blank=True)
+    is_staff_lending_or_subcontracting = serializers.BooleanField(
+        required=False, allow_null=True, default=None)
+    is_physical_work_on_immovable_property = serializers.BooleanField(
+        required=False, allow_null=True, default=None)
+
+    def validate(self, attrs):
+        has_week = attrs.get('week_year') and attrs.get('week_number')
+        has_period = attrs.get('period_start') and attrs.get('period_end')
+        if has_week == has_period:
+            raise serializers.ValidationError(
+                'Give either week_year and week_number, or period_start and period_end.')
+        if has_period and attrs['period_start'] > attrs['period_end']:
+            raise serializers.ValidationError(
+                'period_start must not be after period_end.')
+        return attrs
+
+
+class InvoicePreviewSerializer(serializers.Serializer):
+    """What would be billed, before anything is created."""
+
+    customer_id = serializers.UUIDField()
+    week_year = serializers.IntegerField(min_value=2020, max_value=2100, required=False)
+    week_number = serializers.IntegerField(min_value=1, max_value=53, required=False)
+    period_start = serializers.DateField(required=False)
+    period_end = serializers.DateField(required=False)
+    project_id = serializers.UUIDField(required=False, allow_null=True)
+
+    validate = InvoiceGenerateSerializer.validate
+
+
+class CreditNoteSerializer(serializers.Serializer):
+    reason = serializers.CharField(min_length=10)
+    line_ids = serializers.ListField(
+        child=serializers.UUIDField(), required=False, allow_empty=True)
+
+
+class RecordPaymentSerializer(serializers.Serializer):
+    amount = serializers.DecimalField(max_digits=12, decimal_places=2, min_value=Decimal('0.01'))
+    paid_date = serializers.DateField(required=False)
+
+
+class ManualLineSerializer(serializers.Serializer):
+    description = serializers.CharField(max_length=255)
+    quantity_hours = serializers.DecimalField(max_digits=8, decimal_places=2)
+    hourly_rate = serializers.DecimalField(max_digits=10, decimal_places=2)
+    project_id = serializers.UUIDField(required=False, allow_null=True)
+    employee_id = serializers.UUIDField(required=False, allow_null=True)
+    work_date = serializers.DateField(required=False)
+
+
 class ProjectRateSerializer(serializers.ModelSerializer):
     margin = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     margin_percentage = serializers.DecimalField(max_digits=5, decimal_places=2, read_only=True)

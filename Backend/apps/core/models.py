@@ -7,8 +7,11 @@ enables future extensions without schema changes.
 """
 
 import uuid
+
 from django.db import models
 from django.utils import timezone
+
+from apps.core.encryption import EncryptedCharField
 
 
 class TimeStampedModel(models.Model):
@@ -222,6 +225,53 @@ class SystemConfig(TimeStampedModel):
     )
     company_address = models.TextField(default='Rotterdam, Netherlands')
     
+    # --- Legal identity -----------------------------------------------------
+    # A Dutch invoice must carry the supplier's name, address, KvK number and
+    # BTW-identificatienummer. These are printed on every invoice and credit
+    # note, so they belong in configuration rather than in the PDF template.
+    company_legal_name = models.CharField(
+        max_length=200, blank=True, default='',
+        verbose_name="Legal name",
+        help_text="As registered with the KvK, e.g. 'CKMcleaning VOF'.")
+    company_kvk_number = models.CharField(
+        max_length=20, blank=True, default='',
+        verbose_name="KvK number")
+    company_btw_number = models.CharField(
+        max_length=20, blank=True, default='',
+        verbose_name="BTW-identificatienummer",
+        help_text="e.g. NL869591071B01. Printed on every invoice.")
+    company_iban = EncryptedCharField(
+        plaintext_max_length=34, blank=True, default='',
+        verbose_name="IBAN",
+        help_text="Encrypted at rest; printed on invoices so customers can pay.")
+    company_bic = models.CharField(max_length=11, blank=True, default='')
+    company_postal_code = models.CharField(max_length=12, blank=True, default='')
+    company_city = models.CharField(max_length=100, blank=True, default='')
+    company_country = models.CharField(max_length=100, blank=True, default='Nederland')
+    company_website = models.CharField(max_length=200, blank=True, default='')
+    company_logo = models.ImageField(
+        upload_to='company/', blank=True, null=True,
+        verbose_name="Logo",
+        help_text="Shown on invoices and credit notes.")
+
+    # --- Invoicing ----------------------------------------------------------
+    invoice_payment_terms_days = models.PositiveIntegerField(
+        default=14,
+        verbose_name="Payment terms (days)",
+        help_text="Due date = issue date + this many days.")
+    invoice_number_prefix = models.CharField(
+        max_length=10, default='F',
+        help_text="Outgoing invoices are numbered <prefix><year>-<sequence>.")
+    credit_note_number_prefix = models.CharField(
+        max_length=10, default='CN',
+        help_text="Credit notes are numbered <prefix><year>-<sequence>.")
+    invoice_footer_text = models.TextField(
+        blank=True, default='',
+        help_text="Printed at the foot of every invoice.")
+    invoice_reverse_charge_text = models.CharField(
+        max_length=200, default='Btw verlegd',
+        help_text="Wording required on a reverse-charged invoice.")
+
     # Public dashboard URL, used to build links in outgoing email
     # (notification deep links and password-reset links).
     frontend_url = models.URLField(

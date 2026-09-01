@@ -17,7 +17,9 @@ from apps.core.models import BaseModel, StatusChoices
 # PROJECT
 # =============================================================================
 
-class Project(BaseModel):
+from apps.vat.mixins import VatClassifiableMixin
+
+class Project(VatClassifiableMixin, BaseModel):
     """
     Project represents a work assignment from a customer.
     
