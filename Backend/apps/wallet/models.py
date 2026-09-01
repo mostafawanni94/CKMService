@@ -1,5 +1,5 @@
 """
-Wallet models for Pro Totaal Service.
+Wallet models for CKM Services.
 
 Handles:
 - Ledger-based wallet (all movements recorded)

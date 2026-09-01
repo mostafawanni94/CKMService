@@ -1,5 +1,5 @@
 """
-Project models for Pro Totaal Service.
+Project models for CKM Services.
 
 Handles:
 - Project creation and management

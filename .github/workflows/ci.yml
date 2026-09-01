@@ -77,10 +77,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Directory names are inverted relative to what the apps are:
-        # FlutterProTotaalService is the employee app, FlutterEmployeeProject is
-        # the customer portal.
-        app: [FlutterProTotaalService, FlutterEmployeeProject]
+        app: [CKMServicesEmployee, CKMServicesCustomer]
     defaults:
       run:
         working-directory: ${{ matrix.app }}

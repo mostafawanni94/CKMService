@@ -1,5 +1,5 @@
 """
-Professional reusable filter system for Pro Totaal Service.
+Professional reusable filter system for CKM Services.
 
 Provides base filter classes that can be extended for any model.
 Supports date ranges, search, status, and custom filtering.
@@ -150,7 +150,7 @@ class DateRangeFilter(filters.FilterSet):
 
 class WeeklyFilter(filters.FilterSet):
     """
-    Week-based filtering for Pro Totaal Service.
+    Week-based filtering for CKM Services.
     Follows business rule: Monday 06:00 → Sunday 06:00
     """
     week_year = filters.NumberFilter(

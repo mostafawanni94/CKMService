@@ -1,5 +1,5 @@
 """
-Gmail SMTP Email Service for Pro Totaal Service.
+Gmail SMTP Email Service for CKM Services.
 
 Sends notification emails using Gmail SMTP with App Password.
 """

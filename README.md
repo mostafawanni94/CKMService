@@ -16,16 +16,8 @@ runs **Monday 06:00 → Sunday 06:00**.
 |---|---|---|---|
 | **`Backend/`** | REST API — the single source of truth | Django 6 · DRF 3.16 · Python 3.13 | ~22k LOC, 11 apps, 67 models |
 | **`Frontend/`** | Back-office dashboard | Next.js 16 · React 19 · TypeScript | ~43k LOC, 42 routes |
-| **`FlutterProTotaalService/`** | **Employee** mobile app | Flutter 3 · Provider | ~19k LOC |
-| **`FlutterEmployeeProject/`** | **Customer portal** app | Flutter 3 · Provider | ~3k LOC |
-
-> ### ⚠️ The two Flutter directory names are inverted
->
-> `FlutterProTotaalService/` is the **employee** app (`pubspec name: pro_totaal_service`).
-> `FlutterEmployeeProject/` is the **customer portal** (`pubspec name: ckm_customer_portal`).
->
-> A rebrand from "Pro Totaal Service" to CKM Services renamed the product but not
-> the folders. Check `pubspec.yaml` before editing either one.
+| **`CKMServicesEmployee/`** | **Employee** mobile app | Flutter 3 · Provider | ~19k LOC |
+| **`CKMServicesCustomer/`** | **Customer portal** app | Flutter 3 · Provider | ~3k LOC |
 
 ---
 
@@ -67,7 +59,7 @@ The API base URL is supplied at build time — there is no default in a release
 build, on purpose.
 
 ```bash
-cd FlutterProTotaalService            # employee app
+cd CKMServicesEmployee            # employee app
 flutter pub get
 flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api    # Android emulator
 flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8000/api   # iOS simulator
@@ -186,8 +178,8 @@ npm run check:api     # API-client invariants (see below)
 npm run build
 
 # Mobile
-cd FlutterProTotaalService && flutter analyze && flutter test
-cd FlutterEmployeeProject && flutter analyze && flutter test
+cd CKMServicesEmployee && flutter analyze && flutter test
+cd CKMServicesCustomer && flutter analyze && flutter test
 ```
 
 CI runs all of this on every push — `.github/workflows/ci.yml`.

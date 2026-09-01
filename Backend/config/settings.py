@@ -94,7 +94,7 @@ THIRD_PARTY_APPS = [
     'drf_spectacular',
 ]
 
-# Pro Totaal Service Apps - Modular Architecture
+# CKM Services Apps - Modular Architecture
 LOCAL_APPS = [
     'apps.core.apps.CoreConfig',
     'apps.employees.apps.EmployeesConfig',
@@ -162,7 +162,7 @@ if DATABASE_ENGINE == 'postgresql':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('POSTGRES_DB', 'prototaalservice'),
+            'NAME': os.getenv('POSTGRES_DB', 'ckmservices'),
             'USER': os.getenv('POSTGRES_USER', 'postgres'),
             'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
             'HOST': os.getenv('POSTGRES_HOST', 'localhost'),

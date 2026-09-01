@@ -1,5 +1,5 @@
 """
-Notification models for Pro Totaal Service.
+Notification models for CKM Services.
 
 Handles:
 - System notifications for all events

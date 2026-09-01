@@ -10,27 +10,13 @@ week runs **Monday 06:00 → Sunday 06:00**.
 
 ---
 
-## ⚠️ Read this first: the Flutter directory names are inverted
-
-| Directory | What it actually is | pubspec `name` |
-|---|---|---|
-| `FlutterProTotaalService/` | **Employee mobile app** (~19k LOC) | `pro_totaal_service` |
-| `FlutterEmployeeProject/` | **Customer portal app** (~3k LOC) | `ckm_customer_portal` |
-
-A rebrand from "Pro Totaal Service" to CKM Services (commit `71bcdcc`) renamed
-the product but not the folders. Always confirm via `pubspec.yaml` before
-editing. When someone says "the employee app" they mean
-`FlutterProTotaalService/`.
-
----
-
 ## Layout
 
 ```
 Backend/                  Django 6 + DRF — the single source of truth
 Frontend/                 Next.js 16 + React 19 admin dashboard
-FlutterProTotaalService/  Employee mobile app
-FlutterEmployeeProject/   Customer portal app
+CKMServicesEmployee/  Employee mobile app
+CKMServicesCustomer/   Customer portal app
 docker-compose.yml        Postgres + gunicorn + Next, production-shaped
 .github/workflows/ci.yml  Backend tests, frontend build, Flutter analyze
 ```
@@ -51,7 +37,7 @@ cp .env.example .env.local
 npm install && npm run dev
 
 # Mobile — base URL must be supplied at build time
-cd FlutterProTotaalService
+cd CKMServicesEmployee
 flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api   # Android emulator
 flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8000/api  # iOS simulator
 ```
@@ -66,7 +52,7 @@ SECRET_KEY=$(openssl rand -base64 48) docker compose up --build
 ```bash
 cd Backend   && python manage.py check && python manage.py makemigrations --check --dry-run && python manage.py test
 cd Frontend  && npx tsc --noEmit && npm run build
-cd FlutterProTotaalService && flutter analyze && flutter test
+cd CKMServicesEmployee && flutter analyze && flutter test
 ```
 
 ---

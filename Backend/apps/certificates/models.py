@@ -1,5 +1,5 @@
 """
-Certificate models for Pro Totaal Service.
+Certificate models for CKM Services.
 
 Handles:
 - Admin-defined certificate types

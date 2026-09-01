@@ -17,7 +17,7 @@ from apps.worklogs.models import WorkLog
 from apps.wallet.models import Wallet, WalletTransaction, AdvanceRequest
 from apps.certificates.models import CertificateType, EmployeeCertificate
 
-print("Creating test data for Pro Totaal Service...")
+print("Creating test data for CKM Services...")
 
 # =============================================================================
 # DOCUMENT TYPES & CERTIFICATE TYPES
@@ -99,7 +99,7 @@ for cert_data in cert_types:
 
 print("Creating admin user...")
 admin, created = User.objects.get_or_create(
-    email='admin@prototaalservice.nl',
+    email='admin@ckmservices.nl',
     defaults={
         'is_admin': True,
         'is_staff': True,
@@ -109,7 +109,7 @@ admin, created = User.objects.get_or_create(
 if created:
     admin.set_password('admin123')
     admin.save()
-    print("  Created admin: admin@prototaalservice.nl / admin123")
+    print("  Created admin: admin@ckmservices.nl / admin123")
 
 # =============================================================================
 # TEST EMPLOYEES
@@ -212,6 +212,6 @@ for profile in EmployeeProfile.objects.filter(status='approved'):
 
 print("\n✅ Test data created successfully!")
 print("\nTest accounts:")
-print("  Admin: admin@prototaalservice.nl / admin123")
+print("  Admin: admin@ckmservices.nl / admin123")
 print("  Employee: jan.devries@test.nl / test123")
 print("  Employee: maria.santos@test.nl / test123")

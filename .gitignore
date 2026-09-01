@@ -36,24 +36,27 @@ out/
 .npm
 *.tsbuildinfo
 
-# Flutter build artifacts (these are large and should not be in git)
-FlutterProTotaalService/build/
-FlutterProTotaalService/.dart_tool/
-FlutterProTotaalService/.flutter-plugins
-FlutterProTotaalService/.flutter-plugins-dependencies
-FlutterProTotaalService/.packages
-FlutterProTotaalService/*.iml
-FlutterProTotaalService/.metadata
-FlutterProTotaalService/android/.gradle/
-FlutterProTotaalService/android/app/debug/
-FlutterProTotaalService/android/app/profile/
-FlutterProTotaalService/android/app/release/
-FlutterProTotaalService/ios/Pods/
-FlutterProTotaalService/ios/.symlinks/
+# Flutter build artifacts (large; never committed)
+# Applies to both apps: CKMServicesEmployee and CKMServicesCustomer.
+CKMServices*/build/
+CKMServices*/.dart_tool/
+CKMServices*/.flutter-plugins
+CKMServices*/.flutter-plugins-dependencies
+CKMServices*/.packages
+CKMServices*/*.iml
+CKMServices*/.metadata
+CKMServices*/.idea/
+CKMServices*/android/.gradle/
+CKMServices*/android/app/debug/
+CKMServices*/android/app/profile/
+CKMServices*/android/app/release/
+CKMServices*/ios/Pods/
+CKMServices*/ios/.symlinks/
 *.apk
 *.aab
 *.dill
 *.so
+
 
 # Environment files
 .env

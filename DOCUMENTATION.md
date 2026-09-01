@@ -9,11 +9,8 @@ Use case documentation for all four applications:
 
 - **Backend** — Django REST Framework, the single source of truth
 - **Frontend** — Next.js admin dashboard
-- **`FlutterProTotaalService/`** — the **employee** mobile app
-- **`FlutterEmployeeProject/`** — the **customer portal** app
-
-> ⚠️ The two Flutter directory names are inverted relative to what the apps
-> actually are. Confirm via `pubspec.yaml` before editing either one.
+- **`CKMServicesEmployee/`** — the employee mobile app
+- **`CKMServicesCustomer/`** — the customer portal app
 
 ---
 
@@ -829,7 +826,7 @@ Frontend/src/app/
 
 ## Feature Structure
 ```
-FlutterProTotaalService/lib/
+CKMServicesEmployee/lib/
 ├── main.dart              # App entry point
 ├── core/                  # Core utilities
 │   ├── network/           # API client
@@ -1132,4 +1129,4 @@ FlutterProTotaalService/lib/
 
 # End of Documentation
 
-This documentation covers the complete ProTotaalService system including all models, API endpoints, frontend pages, and Flutter features.
+This documentation covers the complete CKMServices system including all models, API endpoints, frontend pages, and Flutter features.

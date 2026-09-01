@@ -1,5 +1,5 @@
 """
-Invoice models for Pro Totaal Service.
+Invoice models for CKM Services.
 
 Handles:
 - Weekly invoice generation

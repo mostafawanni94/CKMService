@@ -1,5 +1,5 @@
 """
-Core models for Pro Totaal Service.
+Core models for CKM Services.
 
 Provides abstract base classes with common fields and behaviors
 that all models inherit from. This ensures consistency and

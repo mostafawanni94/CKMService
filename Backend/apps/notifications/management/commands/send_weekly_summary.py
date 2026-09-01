@@ -158,7 +158,7 @@ class Command(BaseCommand):
             </div>
             
             <p style="color: #9CA3AF; font-size: 12px; text-align: center;">
-                This is an automated weekly summary from ProTotaalService
+                This is an automated weekly summary from CKMServices
             </p>
         </div>
         """

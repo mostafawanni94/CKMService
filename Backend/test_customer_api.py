@@ -13,7 +13,7 @@ failed = 0
 tests_run = []
 
 def get_token():
-    r = requests.post(f"{BASE_URL}/auth/token/", json={"email": "admin@prototaalservice.nl", "password": "admin123"})
+    r = requests.post(f"{BASE_URL}/auth/token/", json={"email": "admin@ckmservices.nl", "password": "admin123"})
     return r.json().get('access') if r.status_code == 200 else None
 
 def h(token, json=True):

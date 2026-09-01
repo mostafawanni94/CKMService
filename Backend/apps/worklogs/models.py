@@ -1,5 +1,5 @@
 """
-WorkLog models for Pro Totaal Service.
+WorkLog models for CKM Services.
 
 Handles:
 - Time evidence recording (start/break/end)

@@ -5,7 +5,7 @@ import random
 from django.core.files import File
 
 # Set up Django environment
-sys.path.append('/Users/mustafa/Desktop/ProTotaalService/CKMServices/Backend')
+sys.path.append('/Users/mustafa/Desktop/CKMServices/CKMServices/Backend')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 

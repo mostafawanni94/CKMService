@@ -1,4 +1,4 @@
-# 🚀 Deployment Checklist - ProTotaalService
+# 🚀 Deployment Checklist - CKMServices
 
 ## 📋 Before Going Online (Run Once)
 
@@ -87,7 +87,7 @@ python manage.py createsuperuser
 - `Backend/apps/notifications/email_service.py` - Gmail SMTP service
 - `Backend/apps/notifications/device_models.py` - FCM device tokens
 - `Backend/apps/notifications/management/commands/check_expiring_certificates.py`
-- `FlutterProTotaalService/lib/core/services/fcm_service.dart`
+- `CKMServicesEmployee/lib/core/services/fcm_service.dart`
 
 ---
 

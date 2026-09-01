@@ -1,5 +1,5 @@
 """
-Customer models for Pro Totaal Service.
+Customer models for CKM Services.
 
 Handles:
 - Customer companies (B2B clients)

@@ -1,5 +1,5 @@
 """
-Employee models for Pro Totaal Service.
+Employee models for CKM Services.
 
 Handles:
 - Custom User (admin-created accounts)
@@ -50,7 +50,7 @@ class UserManager(BaseUserManager):
 # =============================================================================
 
 class User(AbstractUser):
-    """Custom User model for Pro Totaal Service.
+    """Custom User model for CKM Services.
     
     - Admin creates accounts (no self-registration)
     - Email is the unique identifier (not username)
