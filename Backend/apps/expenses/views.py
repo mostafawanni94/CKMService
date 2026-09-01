@@ -14,7 +14,9 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.core.permissions import IsAdmin
+from django.utils import timezone
+
+from apps.core.permissions import IsAdmin, IsFinanceStaff
 from .models import ExpenseCategory, Expense, IncomeRecord
 from .serializers import (
     ExpenseCategorySerializer, ExpenseListSerializer,
@@ -54,8 +56,81 @@ class ExpenseViewSet(viewsets.ModelViewSet):
         POST   /api/expenses/expenses/ocr_extract/   — OCR extraction from receipt
     """
     
-    queryset = Expense.objects.select_related('category').order_by('-expense_date')
-    permission_classes = [IsAdmin]
+    queryset = Expense.objects.select_related(
+        'category', 'paid_by_employee', 'paid_by_employee__user', 'incoming_invoice'
+    ).order_by('-expense_date')
+    permission_classes = [IsFinanceStaff]
+
+    @action(detail=True, methods=['post'])
+    def reimburse(self, request, pk=None):
+        """
+        Repay an employee who paid this expense out of pocket.
+
+        Credits their wallet. Keyed on the expense, so calling it twice does
+        not pay twice.
+        """
+        from apps.wallet.services import reimburse_expense
+
+        expense = self.get_object()
+        if expense.paid_by_employee_id is None:
+            return Response(
+                {'error': 'This expense was not paid by an employee.'},
+                status=status.HTTP_400_BAD_REQUEST)
+        if expense.reimbursement_status == Expense.Reimbursement.REIMBURSED:
+            return Response({'error': 'This expense has already been reimbursed.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        movement = reimburse_expense(expense, expense.paid_by_employee,
+                                     actor=request.user)
+        expense.reimbursement_status = Expense.Reimbursement.REIMBURSED
+        expense.reimbursed_at = timezone.now()
+        expense.save(update_fields=['reimbursement_status', 'reimbursed_at',
+                                    'updated_at'])
+        return Response({
+            'status': 'success',
+            'amount': expense.total_amount,
+            'wallet_balance': movement.wallet.balance if movement else None,
+        })
+
+    @action(detail=False, methods=['get'], url_path='awaiting-reimbursement')
+    def awaiting_reimbursement(self, request):
+        """What CKM owes its employees for expenses they fronted."""
+        pending = self.get_queryset().filter(
+            reimbursement_status=Expense.Reimbursement.PENDING,
+            paid_by_employee__isnull=False)
+        total = pending.aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')
+        return Response({
+            'count': pending.count(),
+            'total': total,
+            'expenses': ExpenseListSerializer(pending, many=True).data,
+        })
+
+    @action(detail=False, methods=['post'], url_path='check-duplicate')
+    def check_duplicate(self, request):
+        """
+        Has this expense been booked already?
+
+        Called before saving, so the same receipt is not deducted twice.
+        """
+        vendor = (request.data.get('vendor_name') or '').strip()
+        reference = (request.data.get('reference_number') or '').strip()
+        amount = request.data.get('total_amount')
+        expense_date = request.data.get('expense_date')
+
+        query = Expense.objects.filter(is_deleted=False)
+        if vendor:
+            query = query.filter(vendor_name__iexact=vendor)
+        if reference:
+            matches = query.filter(reference_number__iexact=reference)
+        elif amount and expense_date:
+            matches = query.filter(total_amount=amount, expense_date=expense_date)
+        else:
+            return Response({'duplicate': False, 'matches': []})
+
+        return Response({
+            'duplicate': matches.exists(),
+            'matches': ExpenseListSerializer(matches[:5], many=True).data,
+        })
     
     def get_serializer_class(self):
         if self.action == 'list':

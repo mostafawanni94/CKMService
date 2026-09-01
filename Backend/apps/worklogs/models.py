@@ -1564,7 +1564,22 @@ class WorkEntry(BaseModel):
         if self.actual_start_datetime:
             self._calculate_billing_week()
 
+        # Which agency is owed for this work. Never derived from the employee's
+        # *current* agency alone: an employee who moves between agencies would
+        # otherwise have their whole history re-billed to the new one.
+        if self.agency_id is None and self.employee_id and self.work_date:
+            self.agency = self._resolve_agency()
+
         super().save(*args, **kwargs)
+
+    def _resolve_agency(self):
+        """The agency that was in force for this employee on the work date."""
+        from apps.employees.models import EmployeeAgencyHistory
+
+        try:
+            return EmployeeAgencyHistory.agency_on(self.employee, self.work_date)
+        except Exception:
+            return getattr(self.employee, 'current_agency', None)
 
 
 # =============================================================================

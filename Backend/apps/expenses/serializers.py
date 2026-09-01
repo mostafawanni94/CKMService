@@ -21,6 +21,8 @@ class ExpenseCategorySerializer(serializers.ModelSerializer):
 
 
 class ExpenseListSerializer(serializers.ModelSerializer):
+    paid_by_employee_name = serializers.CharField(
+        source='paid_by_employee.full_name', read_only=True, default=None)
     category_name = serializers.CharField(source='category.name', read_only=True)
     category_code = serializers.CharField(source='category.code', read_only=True)
     category_color = serializers.CharField(source='category.color', read_only=True)
@@ -37,6 +39,9 @@ class ExpenseListSerializer(serializers.ModelSerializer):
             'payment_method_display', 'is_paid', 'paid_date', 'reference_number',
             'is_recurring', 'recurring_frequency', 'status', 'status_display',
             'has_receipt', 'created_at',
+            'paid_by_employee', 'paid_by_employee_name', 'reimbursement_status',
+            'reimbursed_at', 'incoming_invoice',
+            'vat_treatment_code', 'deductible_percentage',
         ]
     
     def get_has_receipt(self, obj):

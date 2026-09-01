@@ -256,27 +256,88 @@ class Expense(VatClassifiableMixin, BaseModel):
         verbose_name="Status"
     )
     
+    # --- Who paid for it -----------------------------------------------------
+    # An expense an employee paid out of pocket is a debt to that employee, and
+    # it belongs in their wallet rather than in someone's memory.
+    paid_by_employee = models.ForeignKey(
+        'employees.EmployeeProfile',
+        on_delete=models.PROTECT,
+        null=True, blank=True,
+        related_name='expenses_paid',
+        verbose_name="Paid by employee",
+        help_text="Set when an employee paid this out of pocket.")
+
+    class Reimbursement(models.TextChoices):
+        NOT_APPLICABLE = 'not_applicable', 'Not applicable'
+        PENDING = 'pending', 'To be reimbursed'
+        REIMBURSED = 'reimbursed', 'Reimbursed'
+
+    reimbursement_status = models.CharField(
+        max_length=20,
+        choices=Reimbursement.choices,
+        default=Reimbursement.NOT_APPLICABLE,
+        db_index=True,
+        verbose_name="Reimbursement")
+    reimbursed_at = models.DateTimeField(null=True, blank=True)
+
+    # The supplier invoice this expense was booked from, when there is one.
+    incoming_invoice = models.ForeignKey(
+        'invoices.IncomingInvoice',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='expenses',
+        verbose_name="Supplier invoice")
+
     # Notes
     notes = models.TextField(
         blank=True,
         default='',
         verbose_name="Notes"
     )
-    
+
     class Meta:
         verbose_name = 'Expense'
         verbose_name_plural = 'Expenses'
         ordering = ['-expense_date']
+        indexes = [
+            models.Index(fields=['expense_date', 'category'],
+                         name='expense_date_category_idx'),
+            models.Index(fields=['reimbursement_status', 'paid_by_employee'],
+                         name='expense_reimbursement_idx'),
+            models.Index(fields=['vendor_name', 'expense_date'],
+                         name='expense_vendor_date_idx'),
+        ]
+        constraints = [
+            # The same supplier reference booked twice is a double deduction.
+            models.UniqueConstraint(
+                fields=['vendor_name', 'reference_number', 'total_amount'],
+                condition=models.Q(is_deleted=False) & ~models.Q(reference_number=''),
+                name='unique_expense_per_vendor_reference',
+            ),
+        ]
     
     def __str__(self):
         return f"{self.vendor_name} - €{self.total_amount} ({self.expense_date})"
     
     def save(self, *args, **kwargs):
-        """Auto-calculate VAT and total."""
+        """
+        Derive VAT and the total from the net amount and the rate.
+
+        These are the figures on the supplier's receipt. What CKM may deduct is
+        a separate question, decided by the VAT engine from `vat_treatment_code`
+        and `deductible_percentage` — never by this arithmetic.
+        """
         if self.amount_excl_vat:
             self.vat_amount = (self.amount_excl_vat * self.vat_rate / 100).quantize(Decimal('0.01'))
             self.total_amount = self.amount_excl_vat + self.vat_amount
+        if self.paid_by_employee_id and self.reimbursement_status == self.Reimbursement.NOT_APPLICABLE:
+            self.reimbursement_status = self.Reimbursement.PENDING
         super().save(*args, **kwargs)
+
+    @property
+    def awaits_reimbursement(self):
+        return (self.paid_by_employee_id is not None
+                and self.reimbursement_status == self.Reimbursement.PENDING)
 
 
 # =============================================================================

@@ -258,12 +258,23 @@ class PayrollPeriodViewSet(viewsets.ModelViewSet):
                 {'detail': 'This period is already marked paid.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        from apps.wallet.services import settle_payslip
+
         with transaction.atomic():
             period.status = PayrollPeriod.Status.PAID
             period.paid_at = timezone.now()
             period.save(update_fields=['status', 'paid_at', 'updated_at'])
             period.payslips.update(status=Payslip.Status.PAID)
-        return Response(self.get_serializer(period).data)
+
+            # Paying a payslip settles what the wallet has been accruing, so
+            # the wallet shows what is still owed rather than growing forever.
+            settled = 0
+            for payslip in period.payslips.select_related('employee'):
+                if settle_payslip(payslip, actor=request.user):
+                    settled += 1
+
+        return Response({**self.get_serializer(period).data,
+                         'wallets_settled': settled})
 
     @action(detail=True, methods=['get'])
     def summary(self, request, pk=None):

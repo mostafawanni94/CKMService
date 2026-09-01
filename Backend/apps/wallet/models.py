@@ -198,6 +198,23 @@ class WalletTransaction(BaseModel):
         verbose_name = 'Wallet Transaction'
         verbose_name_plural = 'Wallet Transactions'
         ordering = ['-created_at']
+        indexes = [
+            # The idempotency lookup: has this work entry / payslip / expense
+            # already been posted to this wallet?
+            models.Index(fields=['wallet', 'reference_type', 'reference_id'],
+                         name='wallet_txn_reference_idx'),
+            models.Index(fields=['wallet', '-created_at'],
+                         name='wallet_txn_recent_idx'),
+        ]
+        constraints = [
+            # One movement per cause. Two earnings for the same work entry
+            # would pay an employee twice.
+            models.UniqueConstraint(
+                fields=['wallet', 'transaction_type', 'reference_type', 'reference_id'],
+                condition=models.Q(is_deleted=False) & ~models.Q(reference_type=''),
+                name='unique_wallet_movement_per_source',
+            ),
+        ]
     
     def __str__(self):
         sign = '+' if self.amount >= 0 else ''

@@ -800,6 +800,31 @@ class EmployeeAgencyHistory(TimeStampedModel):
         """Check if this is the current agency assignment."""
         return self.end_date is None
 
+    @classmethod
+    def agency_on(cls, employee, on_date):
+        """
+        Which agency this employee worked for on a given day.
+
+        An employee can work through several agencies over time, and can be
+        registered with more than one at once. The assignment that covers the
+        work date decides who is paid for it — not whichever agency happens to
+        be current today, which would misprice every historical entry after a
+        transfer.
+        """
+        if employee is None or on_date is None:
+            return None
+
+        assignment = cls.objects.filter(
+            employee=employee,
+            start_date__lte=on_date,
+        ).filter(
+            models.Q(end_date__isnull=True) | models.Q(end_date__gte=on_date)
+        ).order_by('-start_date').first()
+
+        if assignment is not None:
+            return assignment.agency
+        return getattr(employee, 'current_agency', None)
+
 
 # =============================================================================
 # SURCHARGE TYPE (Admin-defined Day Payment Types)

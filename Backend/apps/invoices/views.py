@@ -457,16 +457,24 @@ class AgencyInvoiceViewSet(viewsets.ModelViewSet):
                 'total': str(line_total),
             })
         
+        # The VAT the agency will charge, not a flat 21%. An agency lending
+        # workers for covered work invoices CKM with the VAT reverse charged,
+        # and the preview must say the same thing the invoice will.
+        probe = AgencyInvoice(agency=agency, vat_rate=Decimal('21.00'),
+                              vat_treatment_code=agency.vat_treatment_code)
+        vat_amount = probe.charged_vat_on(total_amount)
+
         return Response({
             'agency_name': agency.name,
             'agency_code': agency.code,
+            'agency_vat_treatment': agency.vat_treatment_code,
             'period_start': period_start.isoformat(),
             'period_end': period_end.isoformat(),
             'entry_count': len(preview_lines),
             'total_hours': str(total_hours),
             'subtotal': str(total_amount),
-            'vat_amount': str((total_amount * Decimal('0.21')).quantize(Decimal('0.01'))),
-            'total': str((total_amount * Decimal('1.21')).quantize(Decimal('0.01'))),
+            'vat_amount': str(vat_amount),
+            'total': str(total_amount + vat_amount),
             'lines': preview_lines,
         })
     

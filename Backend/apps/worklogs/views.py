@@ -545,7 +545,13 @@ class WorkEntryViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         reason = serializer.validated_data['reason']
         
+        was_approved = entry.status == WorkEntry.Status.APPROVED
         entry.reject(reason)
+        if was_approved:
+            # The wallet was credited on approval; withdrawing the approval has
+            # to withdraw the credit, or the employee is paid for work that was
+            # rejected.
+            self._reverse_wallet_earning(entry, request.user)
         self._notify_employee(entry, 'rejected',
             f"Your work entry for {entry.work_date} needs revision. Reason: {reason}")
         
@@ -554,7 +560,17 @@ class WorkEntryViewSet(viewsets.ModelViewSet):
     # =========================================================================
     # HELPER METHODS
     # =========================================================================
-    
+
+    def _reverse_wallet_earning(self, entry, actor=None):
+        """Post a correcting movement when an approval is withdrawn."""
+        from apps.wallet.services import reverse_work_entry
+
+        try:
+            return reverse_work_entry(entry, actor=actor)
+        except Exception:
+            logger.exception('Failed to reverse wallet credit for entry %s', entry.id)
+            return None
+
     def _notify_admins_entry_submitted(self, entry):
         """Notify admins about new submission."""
         try:
@@ -602,53 +618,20 @@ class WorkEntryViewSet(viewsets.ModelViewSet):
         """
         Credit the employee's wallet for an approved work entry.
 
-        Uses `calculated_employee_payment`, which is the employee's own rate
-        with their surcharge entitlement applied. This used to multiply the
-        hours by a hardcoded 15.00, so every wallet balance was wrong: it
-        ignored the employee's actual rate and every surcharge.
-
-        Idempotent — re-approving an entry does not credit it twice.
+        The arithmetic and the idempotency both live in
+        `apps.wallet.services`, so approval here, a bulk approval, and the
+        backfill command all credit the same amount exactly once.
         """
-        from apps.wallet.models import Wallet, WalletTransaction
-
-        if entry.employee_id is None:
-            return None
+        from apps.wallet.services import credit_work_entry
 
         try:
-            amount = entry.calculated_employee_payment or Decimal('0.00')
-            if amount <= 0:
-                logger.info(
-                    'Work entry %s approved but pays 0 — is the employee\'s '
-                    'hourly_rate set?', entry.id
-                )
-                return None
-
-            wallet, _ = Wallet.objects.get_or_create(employee=entry.employee)
-
-            transaction, created = WalletTransaction.objects.get_or_create(
-                wallet=wallet,
-                reference_type='workentry',
-                reference_id=entry.id,
-                transaction_type=WalletTransaction.Type.EARNING,
-                defaults={
-                    'amount': amount,
-                    'description': f'Work: {entry.project.name} ({entry.work_date})',
-                    'created_by': entry.approved_by,
-                },
-            )
-
-            # An entry edited after approval should correct, not duplicate.
-            if not created and transaction.amount != amount:
-                transaction.amount = amount
-                transaction.save()
-
-            return transaction
+            return credit_work_entry(entry, actor=entry.approved_by)
         except Exception:
-            # Never let a wallet problem block an approval, but do not lose it
-            # to stdout either — this used to be a bare print().
+            # A wallet problem must never block an approval, but it must not
+            # disappear either — this used to be a bare print().
             logger.exception('Failed to credit wallet for work entry %s', entry.id)
             return None
-    
+
     # =========================================================================
     # PHOTO ACTIONS
     # =========================================================================

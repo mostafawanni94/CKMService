@@ -1079,28 +1079,52 @@ class AgencyInvoice(VatClassifiableMixin, BaseModel):
         return self.amount_paid >= self.total
     
     def calculate_totals(self):
-        """Recalculate all totals from line items."""
+        """
+        Recalculate the totals from the line items.
+
+        The VAT is whatever the agency's stated treatment produces. A staffing
+        agency lending workers for physical work on immovable property invoices
+        CKM with the VAT reverse charged, so the invoice total is the net
+        amount and CKM declares the VAT itself. Applying a flat 21% here would
+        overstate what CKM owes the agency by the VAT.
+        """
         from django.db.models import Sum
-        
+
         agg = self.lines.aggregate(
             total_hours=Sum('hours'),
             total_base=Sum('base_amount'),
             total_surcharge=Sum('surcharge_amount'),
             total_line=Sum('total'),
         )
-        
+
         self.total_hours = agg['total_hours'] or Decimal('0.00')
         self.subtotal = agg['total_base'] or Decimal('0.00')
         self.total_surcharges = agg['total_surcharge'] or Decimal('0.00')
-        
+
         taxable = self.subtotal + self.total_surcharges
-        self.vat_amount = (taxable * self.vat_rate / 100).quantize(Decimal('0.01'))
+        self.vat_amount = self.charged_vat_on(taxable)
         self.total = taxable + self.vat_amount
-        
+
         self.save(update_fields=[
             'total_hours', 'subtotal', 'total_surcharges',
             'vat_amount', 'total', 'updated_at'
         ])
+
+    def charged_vat_on(self, taxable):
+        """
+        What the agency actually charges on this amount.
+
+        Reverse-charged and zero-rated supplies carry no VAT on the invoice.
+        An unstated treatment keeps the invoice's own rate, so an existing
+        invoice's figures never change underneath it.
+        """
+        from apps.vat.constants import VatTreatmentCode
+
+        code = self.effective_treatment_code(fallback=self.agency)
+        if code in (VatTreatmentCode.REVERSE_CHARGE, VatTreatmentCode.ZERO_RATE,
+                    VatTreatmentCode.EXEMPT, VatTreatmentCode.OUT_OF_SCOPE):
+            return Decimal('0.00')
+        return (taxable * self.vat_rate / 100).quantize(Decimal('0.01'))
 
 
 # =============================================================================
