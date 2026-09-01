@@ -169,6 +169,17 @@ class VatPeriod(BaseModel):
 
     #: The figures exactly as filed. Kept so a later change to a source document
     #: cannot silently rewrite what was submitted.
+    locked_at = models.DateTimeField(null=True, blank=True)
+    locked_by = models.ForeignKey(
+        'employees.User', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='locked_vat_periods')
+
+    reopened_at = models.DateTimeField(null=True, blank=True)
+    reopened_by = models.ForeignKey(
+        'employees.User', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='reopened_vat_periods')
+    reopen_reason = models.TextField(blank=True, default='')
+
     filed_snapshot = models.JSONField(null=True, blank=True)
     rules_version = models.CharField(max_length=20, blank=True, default='')
     notes = models.TextField(blank=True, default='')
@@ -352,3 +363,41 @@ class VatClassificationOverride(TimeStampedModel):
 
     def __str__(self):
         return f'{self.original_treatment_code} -> {self.new_treatment_code}'
+
+
+class VatPeriodEvent(TimeStampedModel):
+    """
+    Audit log for everything that happens to a filing period.
+
+    Separate from the ledger: the ledger records what the VAT is, this records
+    who did what to the period and when.
+    """
+
+    class Event(models.TextChoices):
+        CREATED = 'CREATED', 'Period created'
+        RECALCULATED = 'RECALCULATED', 'Recalculated'
+        RECONCILED = 'RECONCILED', 'Reconciliation run'
+        FINALIZED = 'FINALIZED', 'Finalized'
+        LOCKED = 'LOCKED', 'Locked'
+        REOPENED = 'REOPENED', 'Reopened'
+        CORRECTION_POSTED = 'CORRECTION_POSTED', 'Correction posted'
+        BLOCKED = 'BLOCKED', 'Action blocked'
+
+    period = models.ForeignKey(
+        VatPeriod, on_delete=models.CASCADE, related_name='events')
+    event = models.CharField(max_length=30, choices=Event.choices, db_index=True)
+    detail = models.TextField(blank=True, default='')
+    payload = models.JSONField(
+        null=True, blank=True,
+        help_text='Totals or findings at the time, so an event is explainable later.')
+    actor = models.ForeignKey(
+        'employees.User', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='vat_period_events')
+
+    class Meta:
+        verbose_name = 'VAT period event'
+        ordering = ['-created_at']
+        indexes = [models.Index(fields=['period', 'event'])]
+
+    def __str__(self):
+        return f'{self.period} — {self.event}'

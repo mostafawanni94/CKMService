@@ -158,6 +158,7 @@ function Sidebar({
     const financeItems = [
         { name: 'Expenses', href: '/dashboard/expenses', icon: Receipt, show: canSeeFinance },
         { name: 'Financial Overview', href: '/dashboard/finance', icon: BarChart3, show: canSeeFinance },
+        { name: 'BTW Aangifte', href: '/dashboard/finance/vat', icon: FileText, show: canSeeFinance },
         { name: 'Reports', href: '/dashboard/reports', icon: BarChart3, show: canSeeFinance },
     ].filter(item => item.show);
 

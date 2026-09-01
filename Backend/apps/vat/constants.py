@@ -80,12 +80,24 @@ FORBIDDEN_BOX_CODES = {'5g'}
 
 
 class VatPeriodStatus(models.TextChoices):
-    DRAFT = 'DRAFT', 'Draft'
-    CALCULATED = 'CALCULATED', 'Calculated'
+    """
+    Lifecycle of a filing period.
+
+    OPEN is the working state; the status is derived from the ledger rather than
+    set by hand, so a period cannot claim to be ready while something is
+    unresolved.
+    """
+
+    OPEN = 'OPEN', 'Open'
     REVIEW_REQUIRED = 'REVIEW_REQUIRED', 'Review required'
-    REVIEWED = 'REVIEWED', 'Reviewed'
+    READY_TO_FINALIZE = 'READY_TO_FINALIZE', 'Ready to finalize'
     FINALIZED = 'FINALIZED', 'Finalized'
     LOCKED = 'LOCKED', 'Locked'
+
+    # Retained so periods stored under the earlier naming stay valid.
+    DRAFT = 'DRAFT', 'Draft (legacy)'
+    CALCULATED = 'CALCULATED', 'Calculated (legacy)'
+    REVIEWED = 'REVIEWED', 'Reviewed (legacy)'
 
 
 #: A period in one of these states may no longer be recalculated in place.

@@ -124,54 +124,32 @@ def post(
 
 def summarise(period):
     """
-    The return figures for a period, computed from the ledger.
+    Backwards-compatible summary.
 
-    5a and 5b are derived; the payable/refundable figure is 5a - 5b and is
-    likewise derived. Neither is a box anybody types into, and there is no 5g.
+    Delegates to apps.vat.returns.calculate_return so there is exactly one
+    implementation of the return maths.
     """
-    from django.db.models import Count, Sum
+    from .returns import calculate_return
 
+    result = calculate_return(period)
     entries = VatLedgerEntry.objects.filter(period=period, is_deleted=False)
-
-    boxes = {}
-    rows = (
-        entries.exclude(return_box__isnull=True)
-        .values('return_box__code', 'return_box__name')
-        .annotate(base=Sum('taxable_base'), vat=Sum('vat_amount'), count=Count('id'))
-        .order_by('return_box__code')
-    )
-    for row in rows:
-        boxes[row['return_box__code']] = {
-            'code': row['return_box__code'],
-            'name': row['return_box__name'],
-            'taxable_base': to_cents(row['base'] or 0),
-            'vat_amount': to_cents(row['vat'] or 0),
-            'transaction_count': row['count'],
-        }
-
-    totals = entries.aggregate(
-        output=Sum('output_vat'), deductible=Sum('deductible_vat'))
-    box_5a = to_cents(totals['output'] or 0)
-    box_5b = to_cents(totals['deductible'] or 0)
-
     needs_review = entries.filter(
         classification_status=ClassificationStatus.REQUIRES_REVIEW)
 
     return {
-        'period': str(period),
-        'status': period.status,
-        'boxes': boxes,
-        'box_5a_verschuldigde_omzetbelasting': box_5a,
-        'box_5b_voorbelasting': box_5b,
-        # Derived, not filed in a box of its own.
-        'payable': to_cents(box_5a - box_5b),
-        'is_refund': (box_5a - box_5b) < 0,
-        'entry_count': entries.count(),
-        'requires_review_count': needs_review.count(),
+        'period': result['period'],
+        'status': result['status'],
+        'boxes': {b['code']: b for b in result['boxes'] if b['entry_count']},
+        'box_5a_verschuldigde_omzetbelasting': result['box_5a'],
+        'box_5b_voorbelasting': result['box_5b'],
+        'payable': result['vat_position'],
+        'is_refund': result['vat_position'] < 0,
+        'entry_count': result['entry_count'],
+        'requires_review_count': result['requires_review_count'],
         'requires_review': [
             {'id': str(e.pk), 'source': e.source_reference or e.source_id,
              'reason': e.review_reason}
             for e in needs_review[:50]
         ],
-        'rules_version': VAT_RULES_VERSION,
+        'rules_version': result['rules_version'],
     }

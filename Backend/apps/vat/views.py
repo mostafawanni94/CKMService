@@ -12,7 +12,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.core.permissions import IsFinanceStaff
+from apps.core.permissions import IsAdmin, IsFinanceStaff
 
 from .constants import ClassificationStatus, VatPeriodStatus
 from .ledger import summarise
@@ -138,57 +138,139 @@ class VatLedgerEntryViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class VatPeriodViewSet(viewsets.ModelViewSet):
+    """
+    Filing periods.
+
+    Status is derived from the ledger, never set by hand: a period cannot claim
+    to be ready while something is unresolved.
+    """
+
     queryset = VatPeriod.objects.filter(is_deleted=False)
     serializer_class = VatPeriodSerializer
     permission_classes = [IsFinanceStaff]
     filterset_fields = ['year', 'quarter', 'status']
 
+    @action(detail=False, methods=['post'], url_path='ensure')
+    def ensure(self, request):
+        """Create the four quarters of a year. Idempotent."""
+        from .returns import ensure_periods
+        year = int(request.data.get('year') or timezone.now().year)
+        created = ensure_periods(year)
+        return Response({
+            'year': year,
+            'created': [str(p) for p in created],
+            'periods': VatPeriodSerializer(
+                VatPeriod.objects.filter(year=year).order_by('quarter'), many=True).data,
+        })
+
     @action(detail=True, methods=['get'])
     def summary(self, request, pk=None):
-        """The return figures, derived from the ledger."""
+        """Backwards-compatible summary."""
         return Response(summarise(self.get_object()))
+
+    @action(detail=True, methods=['get', 'post'], url_path='return')
+    def vat_return(self, request, pk=None):
+        """
+        The full return: every box, the derived 5a and 5b, and the position.
+
+        POST refreshes the derived status first.
+        """
+        from .returns import calculate_return, refresh_status
+
+        period = self.get_object()
+        if request.method == 'POST':
+            refresh_status(period, actor=request.user)
+            period.refresh_from_db()
+        return Response(calculate_return(period))
+
+    @action(detail=True, methods=['get'], url_path=r'boxes/(?P<box_code>[0-9a-z]+)')
+    def box_entries(self, request, pk=None, box_code=None):
+        """Drill-down: the ledger entries behind one box."""
+        from .returns import entries_for_box
+
+        entries = entries_for_box(self.get_object(), box_code)
+        page = self.paginate_queryset(entries)
+        serializer = VatLedgerEntrySerializer(
+            page if page is not None else entries, many=True)
+        if page is not None:
+            return self.get_paginated_response(serializer.data)
+        return Response({'box': box_code, 'count': entries.count(),
+                         'results': serializer.data})
 
     @action(detail=True, methods=['get'])
     def reconciliation(self, request, pk=None):
         return Response(status_for(self.get_object()))
 
+    @action(detail=True, methods=['get'])
+    def blockers(self, request, pk=None):
+        """Everything standing between this period and being filed."""
+        from .returns import blockers_for
+
+        blockers = blockers_for(self.get_object())
+        return Response({'can_finalize': not blockers, 'blockers': blockers})
+
+    @action(detail=True, methods=['get'])
+    def snapshot(self, request, pk=None):
+        """The figures exactly as filed."""
+        period = self.get_object()
+        if not period.filed_snapshot:
+            return Response({'detail': 'This period has not been filed.'},
+                            status=status.HTTP_404_NOT_FOUND)
+        return Response({
+            'period': str(period),
+            'finalized_at': period.finalized_at,
+            'finalized_by': getattr(period.finalized_by, 'email', None),
+            'rules_version': period.rules_version,
+            'snapshot': period.filed_snapshot,
+        })
+
+    @action(detail=True, methods=['get'])
+    def events(self, request, pk=None):
+        """The audit trail for this period."""
+        from .models import VatPeriodEvent
+
+        events = VatPeriodEvent.objects.filter(period=self.get_object())
+        return Response([
+            {'event': e.event, 'detail': e.detail,
+             'actor': getattr(e.actor, 'email', None),
+             'at': e.created_at}
+            for e in events
+        ])
+
     @action(detail=True, methods=['post'])
     def finalize(self, request, pk=None):
-        """
-        Freeze a period.
+        from .returns import FinalizationBlocked, finalize as do_finalize
 
-        Refused while anything is unresolved or reconciliation reports an error:
-        a return should not be filed over known problems.
-        """
-        period = self.get_object()
-        if period.is_closed:
-            return Response({'detail': f'{period} is already {period.status.lower()}.'},
+        try:
+            period = do_finalize(self.get_object(), actor=request.user,
+                                 note=request.data.get('note', ''))
+        except FinalizationBlocked as exc:
+            return Response({'detail': str(exc), 'blockers': exc.blockers},
                             status=status.HTTP_400_BAD_REQUEST)
+        return Response(self.get_serializer(period).data)
 
-        reconciliation = status_for(period)
-        if not reconciliation['is_clean']:
-            return Response(
-                {'detail': 'Resolve the reconciliation errors first.',
-                 'reconciliation': reconciliation},
-                status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=True, methods=['post'])
+    def lock(self, request, pk=None):
+        from .returns import FinalizationBlocked, lock as do_lock
 
-        with transaction.atomic():
-            snapshot = summarise(period)
-            period.filed_snapshot = {
-                k: (str(v) if hasattr(v, 'quantize') else v)
-                for k, v in snapshot.items() if k != 'boxes'
-            }
-            period.filed_snapshot['boxes'] = {
-                code: {kk: str(vv) for kk, vv in box.items()}
-                for code, box in snapshot['boxes'].items()
-            }
-            period.status = VatPeriodStatus.FINALIZED
-            period.finalized_at = timezone.now()
-            period.finalized_by = request.user
-            period.rules_version = snapshot['rules_version']
-            period.save()
+        try:
+            period = do_lock(self.get_object(), actor=request.user)
+        except FinalizationBlocked as exc:
+            return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(self.get_serializer(period).data)
 
-            # Freeze the entries so a later source edit cannot rewrite the filing.
-            VatLedgerEntry.objects.filter(period=period).update(is_locked=True)
+    @action(detail=True, methods=['post'], permission_classes=[IsAdmin])
+    def reopen(self, request, pk=None):
+        """
+        Reopen a filed period. Admin only, reason required, fully audited.
 
+        A locked period cannot be reopened — corrections go to an open period.
+        """
+        from .returns import FinalizationBlocked, reopen as do_reopen
+
+        try:
+            period = do_reopen(self.get_object(), actor=request.user,
+                               reason=request.data.get('reason', ''))
+        except FinalizationBlocked as exc:
+            return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(self.get_serializer(period).data)

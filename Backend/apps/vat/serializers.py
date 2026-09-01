@@ -58,8 +58,12 @@ class VatPeriodSerializer(serializers.ModelSerializer):
     class Meta:
         model = VatPeriod
         fields = ['id', 'label', 'year', 'quarter', 'start_date', 'end_date',
-                  'status', 'is_closed', 'finalized_at', 'rules_version', 'notes']
-        read_only_fields = ['status', 'finalized_at', 'rules_version']
+                  'status', 'is_closed', 'finalized_at', 'finalized_by',
+                  'locked_at', 'locked_by', 'reopened_at', 'reopen_reason',
+                  'rules_version', 'notes']
+        # Status is derived from the ledger, so it is never accepted from a client.
+        read_only_fields = ['status', 'finalized_at', 'finalized_by', 'locked_at',
+                            'locked_by', 'reopened_at', 'reopen_reason', 'rules_version']
 
 
 class VatOverrideSerializer(serializers.ModelSerializer):
