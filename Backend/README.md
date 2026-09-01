@@ -57,6 +57,7 @@ they live in `SystemConfig`, edited at runtime under dashboard Settings.
 | `hr` | Leave types and requests, payroll periods, payslips, derived attendance |
 | `expenses` | Expense categories, expenses, income records |
 | `wallet` | Employee wallet, transactions, advance requests |
+| `vat` | BTW treatments, ledger, quarterly periods, returns, reporting, exports |
 | `certificates` | Certificate types, employee certificates, VCA |
 | `notifications` | In-app, email (SMTP) and FCM push |
 
@@ -78,6 +79,44 @@ arithmetic:
 
 `billing_week_year` / `billing_week_number` are derived in `save()`, and invoice
 generation filters on them — an entry without them is invisible to invoicing.
+`agency` is derived the same way, from the employee's agency assignment covering
+the work date, so a transfer never re-bills history to the new agency.
+
+### Billing — `apps/invoices/billing.py`
+
+The only path from approved work to a customer invoice.
+
+```
+billable_entries → price_entry → generate_invoice
+                 → issue_blockers → issue_invoice → create_credit_note
+```
+
+- A work entry is billed once. Enforced by a partial unique constraint on
+  `InvoiceLine.work_entry`, not only by the service.
+- Numbers come from `numbering.next_number`, a row locked for the transaction.
+  Never `count() + 1`: that races and reuses numbers after a deletion.
+- Issued documents are never edited. `create_credit_note` writes a separate
+  numbered document with negative lines pointing at the original.
+- `pdf.py` renders the invoice with everything the Wet OB requires, including
+  "btw verlegd" and the customer's BTW number.
+
+### VAT — `apps/vat/`
+
+`returns.calculate_return` is the **only** place a return is computed. Rules:
+
+- An unestablished treatment is `REQUIRES_REVIEW` — never 21%, never 0%.
+- The period follows the invoice date (factuurstelsel), never the payment.
+- There is no rubriek 5g; `FORBIDDEN_BOX_CODES` enforces it.
+- Filing snapshots the figures and locks the entries. Corrections are new
+  offsetting entries in an open period.
+
+See [../BTW_AANGIFTE.md](../BTW_AANGIFTE.md).
+
+### The wallet — `apps/wallet/services.py`
+
+Every movement is keyed on what caused it — a work entry, a payslip, an expense
+— so approval, payroll and the backfill command can all be re-run without paying
+anyone twice. A partial unique constraint enforces it in the database too.
 
 ## Permissions
 
@@ -131,10 +170,23 @@ extend that list when a client starts using a new endpoint.
 ## Tests
 
 ```bash
-python manage.py test                    # 71 tests
-python manage.py test apps.worklogs      # the money maths
-python manage.py test apps.hr            # payroll and leave
+python manage.py test                            # the whole suite
+python manage.py test apps.worklogs              # the money maths
+python manage.py test apps.invoices              # billing, PDFs, credit notes
+python manage.py test apps.vat                   # classification, returns, filing
+python manage.py test apps.wallet                # employee money
+python manage.py test apps.hr                    # payroll and leave
+
+python manage.py test apps.core.tests.test_end_to_end    # the whole cycle
+python manage.py test apps.core.tests.test_security      # access and encryption
+python manage.py test apps.core.tests.test_performance   # query-count guards
+python manage.py test apps.core.tests.test_schema        # schema invariants
 ```
+
+The `test_schema` module holds the invariants a financial database has to keep:
+no money stored as a float, every foreign key indexed, every model ordered,
+financial relations `PROTECT` rather than `CASCADE`, and no model changed
+without a migration.
 
 Factories live in `apps/core/testing/` — `make_employee`, `make_work_entry`,
 `make_customer`, `attach_service_rate`, `attach_customer_surcharge`.

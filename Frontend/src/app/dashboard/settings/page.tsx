@@ -25,7 +25,8 @@ import {
     Key,
     ToggleLeft,
     ToggleRight,
-    ChevronDown
+    ChevronDown,
+    FileText
 } from 'lucide-react';
 import { apiFetch } from '@/hooks/useApi';
 import { availableLanguages, useLanguage } from '@/lib/i18n';
@@ -39,6 +40,23 @@ interface ContactEntry {
 
 interface SystemConfig {
     company_name: string;
+    // Legal identity. A Dutch invoice must carry the supplier's registered
+    // name, address, KvK number and BTW-identificatienummer; without these the
+    // PDF is not a valid invoice.
+    company_legal_name: string;
+    company_kvk_number: string;
+    company_btw_number: string;
+    company_iban: string;
+    company_bic: string;
+    company_postal_code: string;
+    company_city: string;
+    company_country: string;
+    company_website: string;
+    invoice_payment_terms_days: number;
+    invoice_number_prefix: string;
+    credit_note_number_prefix: string;
+    invoice_footer_text: string;
+    invoice_reverse_charge_text: string;
     company_emails: ContactEntry[];
     company_phones: ContactEntry[];
     company_address: string;
@@ -76,6 +94,20 @@ export default function SettingsPage() {
     const [originalSettings, setOriginalSettings] = useState<string>('');
     const [settings, setSettings] = useState<SystemConfig>({
         company_name: 'CKM Services',
+        company_legal_name: '',
+        company_kvk_number: '',
+        company_btw_number: '',
+        company_iban: '',
+        company_bic: '',
+        company_postal_code: '',
+        company_city: '',
+        company_country: 'Nederland',
+        company_website: '',
+        invoice_payment_terms_days: 14,
+        invoice_number_prefix: 'F',
+        credit_note_number_prefix: 'CN',
+        invoice_footer_text: '',
+        invoice_reverse_charge_text: 'Btw verlegd',
         company_emails: [{ label: 'Main', value: 'info@ckmservices.nl' }],
         company_phones: [{ label: 'Main', value: '+31 6 26607384' }],
         company_address: 'Businesspark 10, Amsterdam',
@@ -482,6 +514,51 @@ export default function SettingsPage() {
                             </p>
                         </div>
                     </div>
+                </SettingsCard>
+
+                {/* Legal identity and invoicing. Everything here is printed on
+                    every invoice and credit note. */}
+                <SettingsCard
+                    icon={FileText}
+                    iconColor="#0EA5E9"
+                    iconBg="#E0F2FE"
+                    title="Facturatie en bedrijfsgegevens"
+                    description="Wat op elke factuur en creditnota komt te staan. Wettelijk verplicht op een Nederlandse factuur."
+                >
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                        <InputField label="Statutaire naam" icon={Building2}
+                            value={settings.company_legal_name}
+                            onChange={(v) => setSettings({ ...settings, company_legal_name: v })} />
+                        <InputField label="KvK-nummer" icon={FileText}
+                            value={settings.company_kvk_number}
+                            onChange={(v) => setSettings({ ...settings, company_kvk_number: v })} />
+                        <InputField label="Btw-identificatienummer" icon={FileText}
+                            value={settings.company_btw_number}
+                            onChange={(v) => setSettings({ ...settings, company_btw_number: v })} />
+                        <InputField label="IBAN (versleuteld opgeslagen)" icon={FileText}
+                            value={settings.company_iban}
+                            onChange={(v) => setSettings({ ...settings, company_iban: v })} />
+                        <InputField label="Postcode" icon={MapPin}
+                            value={settings.company_postal_code}
+                            onChange={(v) => setSettings({ ...settings, company_postal_code: v })} />
+                        <InputField label="Plaats" icon={MapPin}
+                            value={settings.company_city}
+                            onChange={(v) => setSettings({ ...settings, company_city: v })} />
+                        <InputField label="Betaaltermijn (dagen)" icon={Clock}
+                            value={String(settings.invoice_payment_terms_days)}
+                            onChange={(v) => setSettings({ ...settings, invoice_payment_terms_days: parseInt(v) || 14 })} />
+                        <InputField label="Factuurnummer-voorvoegsel" icon={FileText}
+                            value={settings.invoice_number_prefix}
+                            onChange={(v) => setSettings({ ...settings, invoice_number_prefix: v })} />
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#6B7280', marginBottom: '20px' }}>
+                        Facturen worden genummerd als <strong>{settings.invoice_number_prefix}{new Date().getFullYear()}-001</strong>,
+                        creditnota&apos;s als <strong>{settings.credit_note_number_prefix}{new Date().getFullYear()}-001</strong>.
+                        Een uitgegeven nummer wordt nooit opnieuw gebruikt.
+                    </div>
+                    <InputField label="Voettekst op de factuur" icon={FileText}
+                        value={settings.invoice_footer_text}
+                        onChange={(v) => setSettings({ ...settings, invoice_footer_text: v })} />
                 </SettingsCard>
 
                 {/* Language Settings Card */}

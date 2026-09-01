@@ -4,6 +4,7 @@ import { DashboardLayout } from '@/components/layout/dashboard';
 import { Button } from '@/components/ui';
 import { Building2, ArrowLeft, MapPin, Save, Trash2, CreditCard, AlertTriangle, Camera, UserCircle, Plus, X, Phone, Mail, Edit2, Check, PhoneCall, Briefcase, Euro, CheckCircle, Percent, FileText, Upload, Eye, Gift } from 'lucide-react';
 import { useCustomerDetail } from '@/hooks/useCustomerDetail';
+import { VatSettingsPanel } from '@/components/features/vat/VatSettingsPanel';
 import { apiFetch, readApiError } from '@/hooks/useApi';
 
 export default function CustomerDetailPage() {
@@ -360,6 +361,14 @@ export default function CustomerDetailPage() {
                     </div>
                 </div>
 
+
+                {/* What the VAT engine needs before it will decide anything. */}
+                <div style={{ marginBottom: '24px' }}>
+                    <VatSettingsPanel
+                        endpoint={`/customers/customers/${vm.customer?.id}/`}
+                        subtitle="Geldt voor alle projecten van deze klant, tenzij een project het anders vastlegt"
+                    />
+                </div>
 
                 {/* Supervisors Section */}
                 <div style={{ backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '24px', marginBottom: '24px' }}>

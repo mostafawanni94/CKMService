@@ -7,6 +7,7 @@ import { Button } from '@/components/ui';
 import { FolderKanban, ArrowLeft, MapPin, Save, Trash2, Building2, AlertTriangle, UserCircle, Check, X, Calendar } from 'lucide-react';
 import { Customer } from '@/lib/api';
 import { apiFetch } from '@/hooks/useApi';
+import { VatSettingsPanel } from '@/components/features/vat/VatSettingsPanel';
 
 interface Supervisor {
     id: string;
@@ -491,6 +492,15 @@ export default function ProjectDetailPage() {
                             </div>
                         )}
                     </div>
+                </div>
+
+                {/* Project-level VAT: whether *this* work is lent labour on
+                    immovable property is a property of the job, not the client. */}
+                <div style={{ marginBottom: '24px' }}>
+                    <VatSettingsPanel
+                        endpoint={`/projects/projects/${params.id}/`}
+                        subtitle="Alleen invullen als dit project afwijkt van de instelling bij de klant"
+                    />
                 </div>
 
                 {/* Delete Confirmation Modal */}

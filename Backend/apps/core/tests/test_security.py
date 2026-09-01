@@ -190,3 +190,42 @@ class EncryptionTests(TestCase):
                            [config.pk])
             stored = cursor.fetchone()[0]
         self.assertTrue(stored.startswith('enc$v1'))
+
+
+class SettingsExposureTests(TestCase):
+    """
+    The company IBAN is printed on invoices, so it has to be readable — but
+    only by the people who issue them.
+    """
+
+    def test_the_public_config_does_not_carry_the_iban(self):
+        from apps.core.models import SystemConfig
+
+        config = SystemConfig.objects.get_config()
+        config.company_iban = 'NL20INGB0119413256'
+        config.save()
+
+        response = self.client.get('/api/settings/config/public/')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('company_iban', response.data)
+        self.assertNotIn('INGB', str(response.data))
+
+    def test_a_non_admin_gets_the_public_shape(self):
+        from apps.core.models import SystemConfig
+
+        config = SystemConfig.objects.get_config()
+        config.company_iban = 'NL20INGB0119413256'
+        config.save()
+
+        client = APIClient()
+        client.force_authenticate(make_employee().user)
+        response = client.get('/api/settings/config/')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('company_iban', response.data)
+
+    def test_only_an_admin_may_change_the_company_identity(self):
+        client = APIClient()
+        client.force_authenticate(make_user(email='ops@settings.test', role='operations'))
+        response = client.patch('/api/settings/config/',
+                                {'company_kvk_number': '00000000'}, format='json')
+        self.assertEqual(response.status_code, 403)

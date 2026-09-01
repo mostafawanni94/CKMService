@@ -84,11 +84,22 @@ than adding to it.
 Import from `@/hooks/useApi`:
 
 ```ts
-import { apiGet, apiMutate, apiFetch, apiUpload, apiDownload } from '@/hooks/useApi';
+import {
+  apiGet, apiGetAll, apiMutate, apiFetch, apiUpload, apiDownload,
+} from '@/hooks/useApi';
 
-const employees = await apiGet<Paginated<Employee>>('/employees/profiles/');
+const page = await apiGet<Paginated<Employee>>('/employees/profiles/');
+const everyone = await apiGetAll<Employee>('/employees/profiles/');
 await apiMutate('/hr/leave-requests/123/approve/', 'POST', { notes: 'ok' });
 ```
+
+**A list needs `apiGetAll` or a pagination control — never both halves of
+neither.** DRF pages at 20. A page that reads `data.results` and stops shows the
+first twenty rows with no way to reach the rest; twelve pages in this dashboard
+were doing exactly that, including the reports page, which was computing
+earnings totals from whatever twenty work logs came back first. `apiGetAll`
+follows the `next` link with a guard; a list long enough to hit that guard wants
+a pagination control instead.
 
 `apiFetch` attaches the bearer token, refreshes it transparently on a 401
 (coalescing concurrent refreshes), and stores the rotated refresh token. Errors
@@ -99,6 +110,25 @@ come back as readable messages via `readApiError()`, including DRF field errors.
 
 `@tanstack/react-query` is wired up in `app/providers.tsx`; new hooks should
 prefer `useQuery`. The existing `useFetch`/`useMutation` helpers still work.
+
+## Money and VAT
+
+The browser never computes either. Amounts, VAT rates, boxes and positions all
+come from the backend already decided; the dashboard's job is to show them and
+to say clearly when something has *not* been decided. A line whose VAT treatment
+nobody has established is shown as "vast te stellen", not as 21%.
+
+Set a customer's or a project's VAT facts through `VatSettingsPanel`
+(`components/features/vat/`), which saves itself against any detail endpoint.
+
+## Language
+
+`@/lib/i18n` holds the tables for Dutch (the default), English, Arabic (RTL),
+Ukrainian and Russian. `useLanguage()` gives `t`, `language`, `setLanguage` and
+`isRTL`; the choice is stored in `localStorage` and applied to
+`document.documentElement`. Add a language by adding a table and an entry in
+`availableLanguages` — the settings picker is driven by that list, so it can
+never offer a language with no strings.
 
 ## `npm run check:api`
 

@@ -89,9 +89,33 @@ highest-surcharge-wins arithmetic that decides both what the customer is billed
 and what the employee is paid. Approved hours flow into customer invoices,
 agency invoices, payslips and wallet earnings.
 
-### Finance
-Outgoing invoices, agency invoices, incoming (supplier) payables, expenses and
-income records, and an `Aangifte` Excel export for the quarterly VAT return.
+### Billing
+One service (`apps/invoices/billing.py`) turns approved work into invoices, for
+a week or an arbitrary period, optionally for one project. It prices from
+`WorkEntry.calculated_price` so nothing re-derives a rate, itemises every
+surcharge on the line so the customer can see the working, and bills each work
+entry exactly once — enforced by a database constraint as well as by the code.
+Invoice numbers come from a locked sequence, never a row count.
+
+Issuing an invoice dates it, renders a Dutch PDF with ReportLab and posts the
+VAT. Issued documents are never edited: a mistake becomes a **credit note**, its
+own numbered document pointing at what it corrects.
+
+### BTW / VAT
+A full quarterly VAT subsystem — classification, ledger, periods, returns,
+reconciliation, filing and locking. **Nothing is guessed:** a supply whose
+treatment nobody has established is held for review, kept out of the return, and
+blocks the quarter from being filed. Reverse charge (verleggingsregeling) is
+applied only when both conditions are established and no exception applies.
+
+`apps/vat/returns.py` is the single return calculator; the dashboard, the
+exports and the filing all call it, so they cannot disagree. See
+[BTW_AANGIFTE.md](BTW_AANGIFTE.md).
+
+### Finance reporting
+Revenue net of credit notes, costs by source, aged receivables, payables
+including what the company owes its own employees, and a four-sheet accountant's
+workbook per quarter.
 
 ### HR
 Leave types and requests with overlap validation, payroll periods that build
@@ -101,7 +125,7 @@ plus approved leave.
 ### Employees, on mobile
 Assignments (location and time only — never the customer or the commercial
 detail), shifts, worklogs with photo upload, wallet and advances, payslips,
-push notifications. English, Arabic (RTL) and Russian.
+push notifications. **Dutch** (default), English, Arabic (RTL) and Russian.
 
 ### Customers, on mobile
 Read-only view of their own projects, work entries, calendars, employee photos
@@ -243,6 +267,16 @@ Management commands driven by cron; there is no Celery. See
 ```
 check_expiring_certificates    check_stale_worklogs      check_missing_worklogs
 send_weekly_summary            cleanup_notifications     cleanup_deleted_records
+finance_alerts                 seed_expense_categories
+```
+
+`finance_alerts` runs daily: it flags invoices whose due date has passed, and
+warns about invoices that just fell overdue, supplier invoices about to fall
+due, VAT filing deadlines at 21/7/2 days with the blockers named, and a Monday
+summary of transactions the VAT engine could not classify.
+
+```bash
+0 7 * * *  cd Backend && venv/bin/python manage.py finance_alerts
 ```
 
 ## Push notifications
@@ -260,9 +294,22 @@ no-ops; the apps still run.
 | | |
 |---|---|
 | [CLAUDE.md](CLAUDE.md) | Architecture, conventions and gotchas — start here |
+| [BTW_AANGIFTE.md](BTW_AANGIFTE.md) | How VAT is decided, and how to file a quarter |
+| [ENCRYPTION.md](ENCRYPTION.md) | The field-encryption key: configuring, backing up, rotating |
 | [DOCUMENTATION.md](DOCUMENTATION.md) | Per-endpoint API reference |
 | [DEPLOYMENT_NOTIFICATIONS.md](DEPLOYMENT_NOTIFICATIONS.md) | Cron jobs and email setup |
 | `/api/docs/` | Live Swagger UI |
+
+## Before you invoice anyone
+
+Two things must be set, or invoicing will not work:
+
+1. **Settings → Facturatie en bedrijfsgegevens** — the legal name, KvK number,
+   BTW number and IBAN. A Dutch invoice is not valid without them, and the PDF
+   prints whatever is there.
+2. **The VAT treatment on each customer** (and on any project that differs).
+   Until it is set, every line is held for review and no invoice can be issued.
+   This is deliberate: the alternative is a system that guesses your VAT.
 
 ## Known gaps
 
@@ -270,6 +317,10 @@ no-ops; the apps still run.
   `set-state-in-effect`). Lint runs in CI but is non-blocking until the count
   comes down.
 - The largest dashboard pages still carry their data layer inline and use inline
-  styles rather than the token system.
+  styles rather than the token system. New pages follow
+  page → hook → components.
+- The employee app's screens are still written in English rather than reading
+  from the translation table; the table, the switch and the persistence all
+  work, so the remaining job is per-screen.
 - No frontend test runner yet; coverage is type-checking, the build, and the
-  API-client guard.
+  API-client guard. The backend carries the test weight.
