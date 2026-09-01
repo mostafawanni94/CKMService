@@ -24,6 +24,8 @@ from apps.core.models import BaseModel, TimeStampedModel
 
 from apps.core.encryption import EncryptedCharField
 
+from apps.vat.mixins import VatClassifiableMixin
+
 class UserManager(BaseUserManager):
     """Custom user manager for admin-only account creation.
     Employees cannot self-register.
@@ -630,7 +632,7 @@ class ContractType(TimeStampedModel):
 # AGENCY
 # =============================================================================
 
-class Agency(TimeStampedModel):
+class Agency(VatClassifiableMixin, TimeStampedModel):
     """Employment agencies for uitzendkracht employees.
     Admin can create/manage agencies, employees can be assigned/transferred.
     Soft delete is used - agencies are never hard deleted for historical tracking.

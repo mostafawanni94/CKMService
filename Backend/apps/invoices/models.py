@@ -19,6 +19,8 @@ from apps.core.models import BaseModel
 # COST TYPE (Admin-defined, Extensible)
 # =============================================================================
 
+from apps.vat.mixins import VatClassifiableMixin
+
 class CostType(models.Model):
     """
     Admin-defined cost types for flexible cost tracking.
@@ -81,7 +83,7 @@ class CostType(models.Model):
 # INVOICE
 # =============================================================================
 
-class Invoice(BaseModel):
+class Invoice(VatClassifiableMixin, BaseModel):
     """
     Weekly invoice for a customer.
     
@@ -276,7 +278,7 @@ class Invoice(BaseModel):
 # INVOICE LINE (Labor Hours)
 # =============================================================================
 
-class InvoiceLine(BaseModel):
+class InvoiceLine(VatClassifiableMixin, BaseModel):
     """
     Invoice line item - represents billable hours.
     
@@ -706,7 +708,7 @@ class ProjectRate(BaseModel):
 # AGENCY INVOICE
 # =============================================================================
 
-class AgencyInvoice(BaseModel):
+class AgencyInvoice(VatClassifiableMixin, BaseModel):
     """
     Invoice for an agency — tracks what CKM owes to the agency
     for their employees' work during a specific period.
@@ -993,7 +995,7 @@ class AgencyInvoiceLine(BaseModel):
 # INCOMING (SUPPLIER / PURCHASE) INVOICES
 # =============================================================================
 
-class IncomingInvoice(BaseModel):
+class IncomingInvoice(VatClassifiableMixin, BaseModel):
     """
     An invoice *received* from a supplier or subcontractor.
 

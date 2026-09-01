@@ -21,7 +21,9 @@ from apps.core.models import BaseModel
 # EXPENSE CATEGORY
 # =============================================================================
 
-class ExpenseCategory(BaseModel):
+from apps.vat.mixins import VatClassifiableMixin
+
+class ExpenseCategory(VatClassifiableMixin, BaseModel):
     """
     Admin-configurable expense categories.
     Pre-seeded with Dutch business categories.
@@ -96,7 +98,7 @@ class ExpenseCategory(BaseModel):
 # EXPENSE
 # =============================================================================
 
-class Expense(BaseModel):
+class Expense(VatClassifiableMixin, BaseModel):
     """
     Business expense record with receipt upload and OCR extraction.
     

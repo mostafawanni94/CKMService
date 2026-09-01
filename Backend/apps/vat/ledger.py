@@ -12,8 +12,7 @@ from django.db import transaction
 
 from .classification import VatClassificationResult
 from .constants import (
-    CLOSED_PERIOD_STATUSES, ClassificationStatus, COMPUTED_BOXES,
-    VAT_RULES_VERSION,
+    CLOSED_PERIOD_STATUSES, ClassificationStatus, VAT_RULES_VERSION,
 )
 from .models import VatLedgerEntry, VatPeriod, VatReturnBox, to_cents
 
@@ -62,8 +61,11 @@ def post(
             'Record a correction rather than changing it.'
         )
 
+    # Tag the entry with its box, including 5b. 5a and 5b are *totals* — their
+    # value is summed rather than fed in — but tagging each entry is exactly how
+    # a total is traced back to the transactions behind it.
     box = None
-    if result.return_box_code and result.return_box_code not in COMPUTED_BOXES:
+    if result.return_box_code:
         box = VatReturnBox.objects.filter(code=result.return_box_code).first()
 
     # Reverse-charge VAT is declared and, when deductible, deducted — the two

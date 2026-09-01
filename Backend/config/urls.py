@@ -50,6 +50,7 @@ urlpatterns = [
     path('api/customer-portal/', include('apps.customers.portal_urls')),
     path('api/expenses/', include('apps.expenses.urls')),
     path('api/hr/', include('apps.hr.urls')),
+    path('api/vat/', include('apps.vat.urls')),
 ]
 
 # Media is NOT served by static(): MEDIA_ROOT holds ID documents, contracts and
