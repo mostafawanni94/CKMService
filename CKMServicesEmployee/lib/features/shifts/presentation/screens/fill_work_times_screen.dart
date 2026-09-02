@@ -11,7 +11,7 @@ class _BreakTime {
   String? startTime;
   String? endTime;
   
-  _BreakTime({this.startTime, this.endTime});
+  _BreakTime({this.startTime});
   
   Map<String, String> toJson() => {
     'start': startTime ?? '',
