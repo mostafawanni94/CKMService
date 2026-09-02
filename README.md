@@ -317,11 +317,18 @@ Two things must be set, or invoicing will not work:
 - 211 pre-existing ESLint errors (mostly `any` and React 19's
   `set-state-in-effect`). Lint runs in CI but is non-blocking until the count
   comes down.
-- The largest dashboard pages still carry their data layer inline and use inline
-  styles rather than the token system. New pages follow
-  page → hook → components.
-- The employee app's screens are still written in English rather than reading
-  from the translation table; the table, the switch and the persistence all
-  work, so the remaining job is per-screen.
-- No frontend test runner yet; coverage is type-checking, the build, and the
-  API-client guard. The backend carries the test weight.
+- **Translation.** The tables (Dutch, English, Arabic RTL, Ukrainian, Russian),
+  the switch, the persistence and the direction handling all work and are
+  tested. What is missing is the wiring: 30 of the 42 dashboard pages carry
+  roughly 557 visible strings written inline rather than read through `t()`, and
+  the employee app's screens are the same. The remaining job is per-page and the
+  scope is measured rather than guessed.
+- **Page size.** Nine dashboard pages remain over 900 lines. Seven of the
+  largest were split into page → hook → components this round;
+  `surcharge-types` and `weekly-board` were attempted, did not come apart
+  cleanly, and were reverted rather than left half-done.
+- Older pages still use inline styles rather than the token system, and
+  hand-roll dialogs and formatting that `ConfirmDialog`, `formatCurrency` and
+  `formatDateTime` already provide.
+- Frontend test coverage is thin: the API client, plus type-checking, the build
+  and the API-client guard. The backend carries the weight.
