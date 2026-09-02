@@ -115,7 +115,75 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
             'invoice_number', 'subtotal', 'total_costs', 'total_allowances',
             'total_gratuities', 'vat_amount', 'total', 'pdf_file',
             'pdf_generated_at', 'sent_at', 'sent_to', 'corrects',
+            # Status is a consequence, not an input. It moves through `issue`,
+            # `record-payment`, `credit-note` and the overdue job. Left writable,
+            # a PATCH could set an issued invoice back to draft — and a draft can
+            # be deleted, so that was a way to delete an issued invoice.
+            'status', 'amount_paid',
         ]
+        # The weekly-uniqueness UniqueConstraint has a condition over
+        # document_type, billing_mode, is_deleted and status. DRF derives a
+        # UniqueTogetherValidator from it and then reads those condition fields
+        # out of the incoming data — which a PATCH does not carry, so every
+        # partial update died with KeyError: 'billing_mode' and returned a 500.
+        # Uniqueness is enforced by the database and checked by the billing
+        # service before it creates anything; `validate` below reports it as a
+        # 400 when a client sets the fields by hand.
+        validators = []
+
+    # Changing any of these on an issued document would restate an invoice the
+    # customer already has. A correction is a credit note, not an edit.
+    IMMUTABLE_ONCE_ISSUED = (
+        'customer', 'project', 'week_year', 'week_number', 'week_start_date',
+        'week_end_date', 'period_start', 'period_end', 'issue_date', 'due_date',
+        'vat_rate', 'document_type', 'billing_mode', 'notes',
+        'vat_treatment_code', 'is_staff_lending_or_subcontracting',
+        'is_physical_work_on_immovable_property',
+    )
+
+    def validate(self, attrs):
+        invoice = self.instance
+
+        if invoice is not None and invoice.is_issued:
+            changed = [
+                field for field in self.IMMUTABLE_ONCE_ISSUED
+                if field in attrs and getattr(invoice, field) != attrs[field]
+            ]
+            if changed:
+                raise serializers.ValidationError({
+                    field: (f'{invoice.invoice_number} has been issued. Issue a '
+                            f'credit note and a corrected invoice instead of '
+                            f'changing it.')
+                    for field in changed
+                })
+
+        # Mirror the database constraint so a hand-built request gets a 400
+        # rather than an IntegrityError.
+        customer = attrs.get('customer', getattr(invoice, 'customer', None))
+        year = attrs.get('week_year', getattr(invoice, 'week_year', None))
+        number = attrs.get('week_number', getattr(invoice, 'week_number', None))
+        document_type = attrs.get(
+            'document_type', getattr(invoice, 'document_type', Invoice.DocumentType.INVOICE))
+        mode = attrs.get(
+            'billing_mode', getattr(invoice, 'billing_mode', Invoice.BillingMode.WEEKLY))
+
+        if (customer and year and number
+                and document_type == Invoice.DocumentType.INVOICE
+                and mode == Invoice.BillingMode.WEEKLY):
+            clash = Invoice.objects.filter(
+                customer=customer, week_year=year, week_number=number,
+                document_type=Invoice.DocumentType.INVOICE,
+                billing_mode=Invoice.BillingMode.WEEKLY, is_deleted=False,
+            ).exclude(status=Invoice.Status.CANCELLED)
+            if invoice is not None:
+                clash = clash.exclude(pk=invoice.pk)
+            existing = clash.first()
+            if existing is not None:
+                raise serializers.ValidationError(
+                    f'Invoice {existing.invoice_number} already covers week '
+                    f'{number} of {year} for this customer.')
+
+        return attrs
 
     @extend_schema_field(serializers.CharField(allow_null=True))
     def get_pdf_url(self, obj):

@@ -23,6 +23,8 @@ from reportlab.platypus import (
     Image, KeepTogether, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle,
 )
 
+from apps.vat.constants import VatTreatmentCode
+
 # CKM's own colours, kept in one place so the document reads as one design.
 INK = colors.HexColor('#0F172A')
 MUTED = colors.HexColor('#64748B')
@@ -240,13 +242,19 @@ def _vat_summary(invoice):
         bucket['net'] += net
         bucket['vat'] += vat
 
-    extras = (invoice.total_costs + invoice.total_allowances)
+    # Costs and allowances, on the same terms the invoice totals and the VAT
+    # ledger use. This used to apply a flat rate here, which is a third place
+    # deciding the same thing and a third chance to disagree.
+    extras = invoice.extras_taxable
     if extras:
-        key = f'{invoice.vat_rate:.0f}'
+        extras_vat = invoice.extras_vat
+        reverse = invoice.extras_treatment_code() == VatTreatmentCode.REVERSE_CHARGE
+        key = ('verlegd' if reverse
+               else (f'{invoice.vat_rate:.0f}' if extras_vat else 'onbekend'))
         bucket = buckets.setdefault(key, {'net': Decimal('0.00'), 'vat': Decimal('0.00'),
-                                          'reverse': False, 'rate': invoice.vat_rate})
+                                          'reverse': reverse, 'rate': invoice.vat_rate})
         bucket['net'] += extras
-        bucket['vat'] += (extras * invoice.vat_rate / 100).quantize(Decimal('0.01'))
+        bucket['vat'] += extras_vat
 
     return buckets
 

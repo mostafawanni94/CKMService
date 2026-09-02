@@ -174,11 +174,23 @@ if DATABASE_ENGINE == 'postgresql':
         }
     }
 else:
-    # SQLite for development
+    # SQLite for development.
+    #
+    # SQLite allows one writer at a time and, by default, gives up the moment
+    # the database is busy. Two people generating invoices at the same moment
+    # both take a number from the same locked row, and the second request died
+    # with "database table is locked" rather than waiting its turn. `timeout`
+    # makes a writer wait; WAL lets readers carry on while one writer works.
+    # Production runs PostgreSQL, where SELECT FOR UPDATE does this properly.
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
+            'OPTIONS': {
+                'timeout': 20,
+                'init_command': 'PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;',
+                'transaction_mode': 'IMMEDIATE',
+            },
         }
     }
 

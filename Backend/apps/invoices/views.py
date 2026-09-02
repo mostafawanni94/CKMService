@@ -19,7 +19,7 @@ from apps.worklogs.models import WorkEntry
 from .billing import (
     BillingError, add_manual_line, billable_entries, create_credit_note,
     describe_entry, generate_invoice, issue_blockers, issue_invoice,
-    price_entry, record_payment,
+    price_entry, record_payment, retry_on_lock,
 )
 from .numbering import DocumentSeries, peek_number
 from .models import (
@@ -85,11 +85,20 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         return InvoiceDetailSerializer
 
     def perform_destroy(self, instance):
-        """An issued document is never deleted. Credit it instead."""
-        if instance.is_issued:
+        """
+        A document that has ever been issued is never deleted.
+
+        The test is the issue date, not the current status: a cancelled invoice
+        was still sent to a customer, and its number has been consumed. Only a
+        draft that never left the building can be removed.
+        """
+        if instance.issue_date is not None or instance.is_issued:
             raise ValidationError(
-                f'{instance.invoice_number} has been issued and cannot be deleted. '
-                'Issue a credit note instead.')
+                f'{instance.invoice_number} was issued on {instance.issue_date} '
+                f'and cannot be deleted. Issue a credit note instead.')
+        if instance.is_credit_note:
+            raise ValidationError(
+                f'{instance.invoice_number} is a credit note and cannot be deleted.')
         instance.delete()
 
     # ── Selecting the work ────────────────────────────────────────────────
@@ -185,12 +194,14 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         }
 
         try:
-            invoice = generate_invoice(
+            # Two people generating at the same moment contend for the number
+            # sequence; the loser waits and tries again rather than erroring.
+            invoice = retry_on_lock(lambda: generate_invoice(
                 customer, project=project, actor=request.user,
                 notes=data.get('notes', ''),
                 vat_treatment_code=data.get('vat_treatment_code') or None,
                 reverse_charge_facts=facts,
-                **window)
+                **window))
         except BillingError as exc:
             return Response({'error': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -262,11 +273,11 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         serializer = CreditNoteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
-            note = create_credit_note(
+            note = retry_on_lock(lambda: create_credit_note(
                 self.get_object(),
                 reason=serializer.validated_data['reason'],
                 line_ids=serializer.validated_data.get('line_ids') or None,
-                actor=request.user)
+                actor=request.user))
         except BillingError as exc:
             return Response({'error': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(

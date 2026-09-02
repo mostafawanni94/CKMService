@@ -378,13 +378,10 @@ class Invoice(VatClassifiableMixin, BaseModel):
         line_vat = classified.aggregate(total=Sum('vat_amount'))['total']
 
         if line_vat is not None and classified.count() == lines.count() and lines.exists():
-            # Every labour line is classified: the lines are the truth.
-            # Costs and allowances follow the invoice's own rate, which is the
-            # rate the customer agreed for extras.
-            extras_taxable = self.total_costs + self.total_allowances
-            self.vat_amount = (
-                line_vat + (extras_taxable * self.vat_rate / 100)
-            ).quantize(Decimal('0.01'))
+            # Every labour line is classified: the lines are the truth. Costs
+            # and allowances are part of the same supply, so they follow the
+            # invoice's treatment — reverse charged with it, or taxed with it.
+            self.vat_amount = (line_vat + self.extras_vat).quantize(Decimal('0.01'))
         else:
             # Legacy or partially classified: fall back to the invoice rate so
             # historical invoices keep the totals they were issued with.
@@ -398,6 +395,78 @@ class Invoice(VatClassifiableMixin, BaseModel):
             'subtotal', 'total_costs', 'total_allowances', 'total_gratuities',
             'vat_amount', 'total', 'updated_at'
         ])
+
+    @property
+    def extras_taxable(self):
+        """
+        Costs and allowances billed alongside the work.
+
+        Gratuities are excluded: a tip passed through to staff is not
+        consideration for CKM's supply. Confirm that treatment with your
+        accountant if you start billing service charges rather than tips.
+        """
+        return self.total_costs + self.total_allowances
+
+    def extras_treatment_code(self):
+        """
+        The VAT treatment for costs and allowances.
+
+        They are billed alongside the work, so they follow it. The invoice's own
+        treatment wins if one is stated; otherwise the lines decide, because the
+        treatment is usually resolved per line from the project or the customer
+        and never written onto the invoice. Lines that disagree with each other
+        leave it unresolved rather than picking one.
+        """
+        from apps.vat.constants import VatTreatmentCode
+
+        stated = self.effective_treatment_code()
+        if stated != VatTreatmentCode.UNKNOWN:
+            return stated
+
+        codes = set(
+            self.lines.filter(is_deleted=False)
+            .exclude(vat_classification_status='REQUIRES_REVIEW')
+            .values_list('vat_treatment_code', flat=True)
+        ) - {VatTreatmentCode.UNKNOWN, '', None}
+
+        return codes.pop() if len(codes) == 1 else VatTreatmentCode.UNKNOWN
+
+    def extras_facts_source(self):
+        """
+        The line whose reverse-charge facts the extras inherit.
+
+        The facts are frozen onto the lines at billing time, not onto the
+        invoice, so this is where the extras have to read them from.
+        """
+        if any(getattr(self, field) is not None for field in (
+                'is_staff_lending_or_subcontracting',
+                'is_physical_work_on_immovable_property')):
+            return self
+        return self.lines.filter(is_deleted=False).exclude(
+            vat_classification_status='REQUIRES_REVIEW').first()
+
+    @property
+    def extras_vat(self):
+        """
+        VAT on the extras.
+
+        These used to be taxed at a flat `vat_rate` here and then never posted
+        to the VAT ledger at all, so an invoice with billed transport charged
+        the customer VAT that the return never declared.
+        """
+        from apps.vat.constants import VatTreatmentCode
+
+        taxable = self.extras_taxable
+        if not taxable:
+            return Decimal('0.00')
+
+        code = self.extras_treatment_code()
+        if code in (VatTreatmentCode.REVERSE_CHARGE, VatTreatmentCode.ZERO_RATE,
+                    VatTreatmentCode.EXEMPT, VatTreatmentCode.OUT_OF_SCOPE,
+                    VatTreatmentCode.UNKNOWN):
+            return Decimal('0.00')
+
+        return (taxable * self.vat_rate / 100).quantize(Decimal('0.01'))
 
     @property
     def is_issued(self):

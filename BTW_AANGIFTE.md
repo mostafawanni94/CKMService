@@ -86,6 +86,31 @@ old invoice to the ledger reaches the same conclusion it did the first time.
 Deadlines: normally the last day of the month after the quarter (Q3 → 31
 October). The system warns at 21, 7 and 2 days, naming what is still blocking.
 
+## Costs, toeslagen and fooien on an invoice
+
+An invoice can carry three things besides the hours:
+
+| | Treated as | Reaches the return? |
+|---|---|---|
+| **Kosten** (transport, kleding, extra's) | Part of the same supply | Yes — same box, same rate as the work |
+| **Toeslagen** (allowances) | Part of the same supply | Yes |
+| **Fooi** (gratuity) | Not consideration for CKM's supply | No — untaxed and undeclared |
+
+Costs and allowances follow the treatment of the work they are billed with. On a
+reverse-charged invoice they are reverse charged too; on a 21% invoice they are
+taxed at 21%. The invoice, the PDF and the ledger all read this from one place
+(`Invoice.extras_treatment_code`), so they cannot disagree.
+
+**These were previously charged to the customer but never posted to the ledger**,
+so an invoice with billed transport collected VAT the return never declared. If
+you have issued invoices with costs on them, ask your accountant whether a
+correction is needed for the periods concerned.
+
+**The fooi treatment is a judgement call.** A tip passed through to staff is not
+consideration for CKM's own supply, so it is left out of the taxable base. If you
+start billing a *service charge* rather than passing on a tip, that is
+consideration and the treatment changes — confirm it with your accountant.
+
 ## Corrections
 
 A filed return is never edited.

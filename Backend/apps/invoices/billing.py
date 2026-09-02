@@ -15,6 +15,8 @@ Three rules hold throughout:
   REQUIRES_REVIEW, never as 21%.
 """
 
+import random
+import time
 from datetime import timedelta
 from decimal import Decimal
 
@@ -34,6 +36,33 @@ CENT = Decimal('0.01')
 
 class BillingError(Exception):
     """A billing request that cannot be honoured as asked."""
+
+
+def retry_on_lock(operation, attempts=5, base_delay=0.05):
+    """
+    Retry an operation that lost a database lock.
+
+    Taking an invoice number locks the sequence row, so two people generating
+    invoices at the same moment contend for it. PostgreSQL blocks the second
+    writer until the first commits and both succeed. SQLite refuses immediately
+    with "database is locked", which would surface as a 500 for whoever was
+    second — a safe failure, since no number is duplicated, but a needless one.
+
+    Each attempt runs in its own transaction, so this must wrap the whole
+    operation rather than sit inside it.
+    """
+    from django.db import OperationalError
+
+    for attempt in range(attempts):
+        try:
+            return operation()
+        except OperationalError as exc:
+            if 'lock' not in str(exc).lower() or attempt == attempts - 1:
+                raise
+            # Back off a little further each time, with a jitter so two
+            # contending writers do not retry in lockstep forever.
+            time.sleep(base_delay * (2 ** attempt) * (0.5 + random.random()))
+    raise AssertionError('unreachable')
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -60,11 +60,15 @@ def _deductible_or_review(document, fallback, result):
 @transaction.atomic
 def post_invoice(invoice, created_by=None):
     """
-    Post a customer invoice, one ledger entry per line.
+    Post a customer invoice: one ledger entry per line, plus one for the extras.
 
     The line is the classification unit: CKM can bill ordinary cleaning at 21%
     and lend a worker for covered work on the same invoice, and those belong in
     different boxes.
+
+    Costs and allowances billed alongside the work are posted too. They used to
+    be charged to the customer and left out of the ledger entirely, so an
+    invoice with billed transport collected VAT that the return never declared.
     """
     outcome = PostingResult()
     tax_point = invoice.issue_date or invoice.week_start_date
@@ -133,7 +137,61 @@ def post_invoice(invoice, created_by=None):
         ])
         outcome.entries.append(entry)
 
+    _post_invoice_extras(invoice, tax_point, customer, outcome, created_by)
     return outcome
+
+
+def _post_invoice_extras(invoice, tax_point, customer, outcome, created_by):
+    """
+    Post the costs and allowances billed alongside the work.
+
+    They are part of the same supply, so they carry the invoice's treatment:
+    reverse charged with it, or taxed with it. One entry, because they are one
+    amount on the document rather than separate services.
+
+    Gratuities are deliberately excluded — a tip passed through to staff is not
+    consideration for CKM's supply. See `Invoice.extras_taxable`.
+    """
+    taxable = invoice.extras_taxable
+    if not taxable:
+        return
+
+    # The same rule the invoice totals use, so the document and the ledger
+    # cannot disagree about the extras.
+    treatment = invoice.extras_treatment_code()
+
+    # The facts are frozen onto the lines when the invoice is generated, so the
+    # extras inherit them from the supply they were billed with.
+    facts = invoice.build_reverse_charge_facts(
+        counterparty_vat_number=getattr(customer, 'btw_number', None),
+        fallback=invoice.extras_facts_source(),
+    )
+
+    result = classify_amount(
+        taxable, treatment, tax_point,
+        price_mode=PriceMode.EXCLUDING_VAT, direction='OUTPUT',
+        reverse_charge_facts=facts,
+        counterparty_vat_number=getattr(customer, 'btw_number', None),
+    )
+
+    try:
+        entry = post(
+            result,
+            source_type='InvoiceExtras',
+            source_id=invoice.pk,
+            source_line_id='extras',
+            kind=VatLedgerEntry.Kind.SALE,
+            tax_point_date=tax_point,
+            invoice_date=invoice.issue_date,
+            source_reference=f'{invoice.invoice_number} (kosten en toeslagen)',
+            direction='OUTPUT',
+            created_by=created_by,
+        )
+    except PeriodClosed as exc:
+        outcome.errors.append(str(exc))
+        return
+
+    outcome.entries.append(entry)
 
 
 # =============================================================================
