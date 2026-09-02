@@ -35,6 +35,12 @@ interface ProjectHours {
     employee_count: number;
 }
 
+/** Money and hours arrive as decimal strings; anything unparseable is zero. */
+function num(value: unknown): number {
+    const parsed = parseFloat(String(value ?? ''));
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
 export default function ReportsPage() {
     const [activeReport, setActiveReport] = useState<'earnings' | 'project-hours' | 'employee-hours'>('earnings');
     const [loading, setLoading] = useState(false);
@@ -82,18 +88,23 @@ export default function ReportsPage() {
             // Every page of work logs. This used to read only the first
             // twenty, so every earnings and hours figure on this page was
             // whatever twenty rows happened to come back first.
+            // The list endpoint names its date filters start_date/end_date and,
+            // without them, silently narrows to today onwards. The old
+            // work_date_after/before names were ignored, so this page reported
+            // zeroes for every past period.
             const logs = await apiGetAll<any>(
-                `/worklogs/?work_date_after=${dateFrom}&work_date_before=${dateTo}&status=approved`);
+                `/worklogs/entries/?start_date=${dateFrom}&end_date=${dateTo}&status=approved`);
 
             {
 
                 // Calculate employee earnings
                 const employeeMap = new Map<string, EmployeeEarning>();
                 logs.forEach((log: any) => {
-                    const key = log.employee;
+                    const key = log.employee_id;
+                    if (!key) return;
                     if (!employeeMap.has(key)) {
                         employeeMap.set(key, {
-                            employee_id: log.employee,
+                            employee_id: key,
                             employee_name: log.employee_name || 'Unknown',
                             total_hours: 0,
                             total_earnings: 0,
@@ -101,10 +112,12 @@ export default function ReportsPage() {
                         });
                     }
                     const emp = employeeMap.get(key)!;
-                    emp.total_hours += parseFloat(log.calculated_hours || 0);
+                    emp.total_hours += num(log.calculated_hours);
                     emp.approved_logs += 1;
-                    // Earnings would need hourly rate, simplified here
-                    emp.total_earnings += parseFloat(log.calculated_hours || 0) * 25; // Default rate
+                    // The backend is the source of truth for pay. This used to
+                    // multiply hours by a hardcoded 25 EUR, inventing figures
+                    // that matched nothing in payroll.
+                    emp.total_earnings += num(log.employee_payment);
                 });
                 setEarningsData(Array.from(employeeMap.values()));
 
@@ -112,20 +125,21 @@ export default function ReportsPage() {
                 const projectMap = new Map<string, ProjectHours>();
                 const projectEmployees = new Map<string, Set<string>>();
                 logs.forEach((log: any) => {
-                    const key = log.project;
+                    const key = log.project_id;
+                    if (!key) return;
                     if (!projectMap.has(key)) {
                         projectMap.set(key, {
-                            project_id: log.project,
+                            project_id: key,
                             project_name: log.project_name || 'Unknown',
-                            customer_name: '',
+                            customer_name: log.customer_name || '',
                             total_hours: 0,
                             employee_count: 0
                         });
                         projectEmployees.set(key, new Set());
                     }
                     const proj = projectMap.get(key)!;
-                    proj.total_hours += parseFloat(log.calculated_hours || 0);
-                    projectEmployees.get(key)!.add(log.employee);
+                    proj.total_hours += num(log.calculated_hours);
+                    if (log.employee_id) projectEmployees.get(key)!.add(log.employee_id);
                 });
                 projectEmployees.forEach((emps, key) => {
                     const proj = projectMap.get(key)!;

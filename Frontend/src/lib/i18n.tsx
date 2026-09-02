@@ -4,6 +4,8 @@ import {
     createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode,
 } from 'react';
 
+import { phrases } from './phrases';
+
 // Translation type
 type Translations = typeof en;
 
@@ -831,7 +833,12 @@ const RTL_LANGUAGES: ReadonlySet<string> = new Set<string>(
 interface LanguageContextType {
     language: string;
     setLanguage: (lang: string) => void;
-    t: (key: keyof Translations) => string;
+    /**
+     * Accepts either a camelCase key from the table below or an English
+     * phrase. Anything unknown is returned as given, so a screen that has not
+     * been translated yet still reads correctly instead of showing a key.
+     */
+    t: (key: keyof Translations | (string & {})) => string;
     isRTL: boolean;
 }
 
@@ -872,8 +879,18 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }, [applyDocumentLanguage]);
 
     const t = useCallback(
-        (key: keyof Translations): string =>
-            translations[language]?.[key] || translations[DEFAULT_LANGUAGE][key] || key,
+        (key: keyof Translations | (string & {})): string => {
+            const table = translations[language] as Record<string, string> | undefined;
+            const fallback = translations[DEFAULT_LANGUAGE] as Record<string, string>;
+            return (
+                table?.[key]
+                ?? phrases[language]?.[key]
+                // English is the phrase key space, so it is already correct and
+                // must not fall through to the Dutch table.
+                ?? (language === 'en' ? undefined : fallback[key])
+                ?? key
+            );
+        },
         [language],
     );
 

@@ -71,14 +71,37 @@ class Command(BaseCommand):
                 setattr(config, field, value)
                 changed.append(field)
 
+        # Contact rows have been written under three key names over time
+        # ({value}, {email}, {number}). Converge them on {label, value} so the
+        # settings form and the PDF header read the same field.
+        for field, *aliases in (
+            ('company_emails', 'email'),
+            ('company_phones', 'number'),
+        ):
+            canonical = [
+                {
+                    'label': str(row.get('label', '')),
+                    'value': str(next(
+                        (row[key] for key in ('value', *aliases) if row.get(key)),
+                        '',
+                    )),
+                }
+                for row in (getattr(config, field) or [])
+                if isinstance(row, dict)
+            ]
+            if canonical != getattr(config, field):
+                setattr(config, field, canonical)
+                changed.append(field)
+
         # Add the primary address without disturbing any others, and without
         # adding a second copy of one already stored under the other key.
         if PRIMARY_EMAIL not in config.contact_emails:
             config.company_emails = [
-                {'label': 'Info', 'email': PRIMARY_EMAIL},
+                {'label': 'Info', 'value': PRIMARY_EMAIL},
                 *(config.company_emails or []),
             ]
-            changed.append('company_emails')
+            if 'company_emails' not in changed:
+                changed.append('company_emails')
 
         if not changed:
             self.stdout.write('Already up to date; nothing written.')

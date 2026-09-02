@@ -13,12 +13,13 @@ from rest_framework.permissions import IsAuthenticated
 from apps.core.permissions import IsAdmin
 from apps.core.pagination import StandardPagination
 from .models import (
-    Customer, CustomerContact, Outfolder, OutfolderContact, Service,
-    CustomerContractHistory, CustomerServiceRateHistory, Gratuity
+    Customer, CustomerContact, CustomerAllowance, Outfolder, OutfolderContact,
+    Service, CustomerContractHistory, CustomerServiceRateHistory, Gratuity
 )
 from .serializers import (
     CustomerListSerializer, CustomerDetailSerializer,
-    CustomerContactSerializer, OutfolderSerializer, OutfolderContactSerializer, ServiceSerializer,
+    CustomerContactSerializer, CustomerAllowanceSerializer,
+    OutfolderSerializer, OutfolderContactSerializer, ServiceSerializer,
     CustomerContractHistorySerializer, CustomerServiceRateHistorySerializer, GratuitySerializer
 )
 
@@ -447,6 +448,49 @@ class CustomerViewSet(viewsets.ModelViewSet):
         
         serializer = CustomerServiceRateHistorySerializer(created_rates, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class CustomerContactViewSet(viewsets.ModelViewSet):
+    """Edit and remove customer contacts.
+
+    Customers are created through ``customers/<id>/add_contact/``; this gives
+    the existing rows the update and delete routes the dashboard already calls.
+    """
+
+    queryset = CustomerContact.objects.select_related('customer').order_by(
+        '-is_primary', 'label')
+    serializer_class = CustomerContactSerializer
+    permission_classes = [IsAdmin]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        customer = self.request.query_params.get('customer')
+        if customer:
+            queryset = queryset.filter(customer_id=customer)
+        return queryset
+
+
+class CustomerAllowanceViewSet(viewsets.ModelViewSet):
+    """Which allowances a customer pays for, and at what price."""
+
+    queryset = CustomerAllowance.objects.select_related(
+        'customer', 'allowance_type'
+    ).prefetch_related('enabled_surcharges').order_by(
+        'customer__company_name', 'allowance_type__name', 'custom_name')
+    serializer_class = CustomerAllowanceSerializer
+    permission_classes = [IsAdmin]
+    pagination_class = StandardPagination
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        params = self.request.query_params
+        customer = params.get('customer')
+        if customer:
+            queryset = queryset.filter(customer_id=customer)
+        is_enabled = params.get('is_enabled')
+        if is_enabled is not None:
+            queryset = queryset.filter(is_enabled=is_enabled.lower() == 'true')
+        return queryset
 
 
 class ServiceViewSet(viewsets.ModelViewSet):

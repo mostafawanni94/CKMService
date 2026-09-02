@@ -505,11 +505,16 @@ export function useWorklogDetail() {
         if (!confirm('Are you sure you want to delete this photo?')) return;
 
         try {
-            const response = await apiFetch(`/worklogs/photos/${photoId}/`, {
-                method: 'DELETE',
-            });
+            // Photos are nested under their entry; /worklogs/photos/<id>/ has
+            // never been routed, so every delete silently 404'd.
+            const response = await apiFetch(
+                `/worklogs/entries/${params.id}/photos/${photoId}/`,
+                { method: 'DELETE' },
+            );
             if (response.ok || response.status === 204) {
                 setPhotos(prev => prev.filter(p => p.id !== photoId));
+            } else {
+                alert('Kon de foto niet verwijderen.');
             }
         } catch (err) {
             console.error('Delete error:', err);

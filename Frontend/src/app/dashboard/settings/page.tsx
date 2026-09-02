@@ -38,6 +38,20 @@ interface ContactEntry {
     value: string;
 }
 
+/**
+ * Contact rows have been stored under three key names over time
+ * ({value}, {email}, {number}). The form edits one shape; normalise on load so
+ * an older row shows its address instead of an empty box.
+ */
+function normalizeContacts(entries: unknown): ContactEntry[] {
+    if (!Array.isArray(entries)) return [];
+    return entries.map((entry) => {
+        const row = (entry ?? {}) as Record<string, unknown>;
+        const value = row.value ?? row.email ?? row.number ?? '';
+        return { label: String(row.label ?? ''), value: String(value) };
+    });
+}
+
 interface SystemConfig {
     company_name: string;
     // Legal identity. A Dutch invoice must carry the supplier's registered
@@ -154,8 +168,13 @@ export default function SettingsPage() {
             const response = await apiFetch(`/settings/config/`);
             if (response.ok) {
                 const data = await response.json();
-                setSettings(data);
-                setOriginalSettings(JSON.stringify(data));
+                const normalized = {
+                    ...data,
+                    company_emails: normalizeContacts(data.company_emails),
+                    company_phones: normalizeContacts(data.company_phones),
+                };
+                setSettings(normalized);
+                setOriginalSettings(JSON.stringify(normalized));
             }
         } catch (err) {
             console.error('Failed to load settings:', err);
