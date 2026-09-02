@@ -106,6 +106,12 @@ so an invoice with billed transport collected VAT the return never declared. If
 you have issued invoices with costs on them, ask your accountant whether a
 correction is needed for the periods concerned.
 
+**A mixed invoice cannot carry extras.** If one invoice bills work at 21% and
+lent labour with the btw verlegd, there is no single treatment for the costs, so
+the system refuses to issue it. Either state the treatment on the invoice, or
+split the work across two invoices — which is usually the clearer document
+anyway.
+
 **The fooi treatment is a judgement call.** A tip passed through to staff is not
 consideration for CKM's own supply, so it is left out of the taxable base. If you
 start billing a *service charge* rather than passing on a tip, that is

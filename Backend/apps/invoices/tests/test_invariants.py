@@ -893,3 +893,56 @@ class InvoiceAndReturnAgreeTests(SurchargeFixture, TestCase):
         self.assertIn('Btw verlegd over', text)
         self.assertIn('388,00', text)      # work and costs together
         self.assertNotIn('Btw 21%', text)
+
+
+    def test_a_mixed_invoice_with_extras_cannot_be_issued(self):
+        """
+        Some lines at 21%, some reverse charged: there is no single answer for
+        the costs, so the invoice must not go out charging a VAT amount the
+        return will not declare.
+        """
+        lent = make_project(customer=self.customer, name='Uitlening')
+        lent.vat_treatment_code = 'REVERSE_CHARGE'
+        lent.is_staff_lending_or_subcontracting = True
+        lent.is_physical_work_on_immovable_property = True
+        lent.save()
+        make_work_entry(employee=make_employee(), project=lent,
+                        service=self.service, work_date=MONDAY + timedelta(days=1))
+
+        invoice = self._with_costs()
+        codes = [blocker['code'] for blocker in issue_blockers(invoice)]
+        self.assertIn('EXTRAS_TREATMENT_UNRESOLVED', codes)
+        with self.assertRaises(BillingError):
+            issue_invoice(invoice, actor=self.user)
+
+    def test_stating_the_treatment_on_the_invoice_resolves_a_mixed_one(self):
+        lent = make_project(customer=self.customer, name='Uitlening')
+        lent.vat_treatment_code = 'REVERSE_CHARGE'
+        lent.is_staff_lending_or_subcontracting = True
+        lent.is_physical_work_on_immovable_property = True
+        lent.save()
+        make_work_entry(employee=make_employee(), project=lent,
+                        service=self.service, work_date=MONDAY + timedelta(days=1))
+
+        invoice = self._with_costs()
+        invoice.vat_treatment_code = 'NORMAL'
+        invoice.save()
+        invoice.calculate_totals()
+        invoice.refresh_from_db()
+
+        self.assertNotIn('EXTRAS_TREATMENT_UNRESOLVED',
+                         [blocker['code'] for blocker in issue_blockers(invoice)])
+        self.assertEqual(invoice.extras_vat, Decimal('21.00'))
+
+    def test_an_invoice_without_extras_is_unaffected_by_mixed_treatments(self):
+        lent = make_project(customer=self.customer, name='Uitlening')
+        lent.vat_treatment_code = 'REVERSE_CHARGE'
+        lent.is_staff_lending_or_subcontracting = True
+        lent.is_physical_work_on_immovable_property = True
+        lent.save()
+        self.night_shift()
+        make_work_entry(employee=make_employee(), project=lent,
+                        service=self.service, work_date=MONDAY + timedelta(days=1))
+
+        invoice = generate_invoice(self.customer, week=(2026, 33), actor=self.user)
+        self.assertEqual(issue_blockers(invoice), [])

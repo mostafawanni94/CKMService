@@ -511,6 +511,23 @@ def issue_blockers(invoice):
             ],
         })
 
+    # Costs and allowances follow the treatment of the work they are billed
+    # with. On an invoice that mixes treatments there is no single answer, so
+    # the extras stay unresolved — and an invoice must not go out charging a
+    # VAT amount the return will not declare.
+    if invoice.extras_taxable:
+        from apps.vat.constants import VatTreatmentCode
+
+        if invoice.extras_treatment_code() == VatTreatmentCode.UNKNOWN:
+            blockers.append({
+                'code': 'EXTRAS_TREATMENT_UNRESOLVED',
+                'message': (
+                    'This invoice bills costs or allowances, but its lines do '
+                    'not agree on one VAT treatment, so the treatment of those '
+                    'extras cannot be established. Set the treatment on the '
+                    'invoice, or split the work across two invoices.'),
+            })
+
     customer = invoice.customer
     if invoice.has_reverse_charged_lines and not (customer.btw_number or '').strip():
         blockers.append({

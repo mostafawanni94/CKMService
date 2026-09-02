@@ -104,7 +104,19 @@ cannot be bypassed:
   `InvoiceLine.work_entry` for service lines, as well as by the service.
 - Numbers come from `apps/invoices/numbering.py`, a locked sequence row per
   series per year. Never `count() + 1`.
-- Issued documents are never edited. A mistake becomes a credit note.
+- Issued documents are never edited. A mistake becomes a credit note. `status`
+  and `amount_paid` are read-only through the API — they move through `issue`,
+  `record-payment`, `credit-note` and the overdue job — and anything that ever
+  carried an issue date cannot be deleted.
+- Costs and allowances follow the treatment of the work they are billed with
+  (`Invoice.extras_treatment_code`), and are posted to the VAT ledger like any
+  other supply. The invoice totals, the PDF and the posting service all read
+  that one method, so they cannot drift apart. Gratuities are outside the
+  taxable base.
+- `apps/invoices/tests/test_invariants.py` holds the invariants: surcharges
+  stored as data, one amount from work entry to VAT return, concurrent
+  numbering, numbers never reused, immutability, the refusals, the stored PDF,
+  and a guard that fails if VAT arithmetic appears in `billing.py`.
 
 `apps/invoices/pdf.py` renders the invoice with ReportLab, carrying everything
 the Wet OB requires including "btw verlegd" and the customer's BTW number.

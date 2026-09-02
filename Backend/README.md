@@ -97,6 +97,9 @@ billable_entries → price_entry → generate_invoice
   Never `count() + 1`: that races and reuses numbers after a deletion.
 - Issued documents are never edited. `create_credit_note` writes a separate
   numbered document with negative lines pointing at the original.
+- Numbering survives concurrency: the sequence row is locked for the
+  transaction, and the API retries a lost lock rather than failing the request.
+  20 simultaneous callers get 20 distinct numbers with no gaps.
 - `pdf.py` renders the invoice with everything the Wet OB requires, including
   "btw verlegd" and the customer's BTW number.
 

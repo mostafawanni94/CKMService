@@ -103,6 +103,8 @@ const BLOCKER_TITLES: Record<string, string> = {
     NO_RATE: 'Er is geen uurtarief bekend voor een of meer regels.',
     VAT_REQUIRES_REVIEW: 'De btw-behandeling is nog niet vastgesteld.',
     MISSING_CUSTOMER_VAT_NUMBER: 'Het btw-nummer van de klant ontbreekt.',
+    EXTRAS_TREATMENT_UNRESOLVED:
+        'De btw op de kosten en toeslagen is niet vast te stellen.',
     ALREADY_ISSUED: 'Deze factuur is al verstuurd.',
     CANCELLED: 'Deze factuur is geannuleerd.',
 };
