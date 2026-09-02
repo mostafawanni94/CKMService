@@ -27,10 +27,19 @@ Backend/apps/
 ├── invoices/       # Customer, agency and incoming invoices; pending earnings
 ├── hr/             # Leave types & requests, payroll periods, payslips, attendance
 ├── expenses/       # Expense categories, expenses, income records
-├── wallet/         # Employee wallet & advances
+├── wallet/         # Employee wallet & advances — a ledger, keyed on its sources
+├── vat/            # BTW: treatments, ledger, periods, returns, reporting, exports
 ├── notifications/  # In-app, email and FCM push notifications
 └── certificates/   # Certificate management
 ```
+
+The three services that own money:
+
+| Module | Owns |
+|---|---|
+| `apps/invoices/billing.py` | The only path from approved work to a customer invoice |
+| `apps/vat/returns.py` | The only place a VAT return is computed |
+| `apps/wallet/services.py` | The only place an employee's balance moves |
 
 ## What changed recently
 
@@ -47,7 +56,12 @@ below, and several endpoints moved:
 | Earnings | `/api/invoices/pending-earnings/` |
 | Supplier invoices | `/api/invoices/incoming-invoices/` (+ `summary/`, `mark_paid/`) |
 | HR | `/api/hr/` — `leave-types`, `leave-requests`, `payroll-periods`, `payslips`, `attendance` |
-| Push | FCM **HTTP v1** with a service account, configured in Settings |
+| Push | FCM **HTTP v1** with a service account, configured in Settings. The device-registration table did not exist until the model was registered — `/api/notifications/devices/register/` used to fail with "no such table" |
+| Billing | `/api/invoices/invoices/` gained `preview`, `generate`, `blockers`, `issue`, `add-line`, `credit-note`, `record-payment`, `pdf` and `send`. `finalize` and `mark_paid` are kept as aliases. Access widened from admin to finance staff |
+| VAT | `/api/vat/` — `boxes`, `treatments`, `ledger`, `periods`, `dashboard`. Periods carry `return`, `boxes/<code>`, `blockers`, `snapshot`, `events`, `finalize`, `lock`, `reopen`, `export` |
+| Finance | `/api/vat/dashboard/` plus `receivables`, `payables`, `requires-review` |
+| Expenses | Gained `reimburse`, `awaiting-reimbursement` and `check-duplicate`; access widened from admin to finance staff |
+| Settings | Carries the company legal identity and invoicing configuration; the IBAN is encrypted at rest and absent from the public endpoint |
 
 ---
 
@@ -437,6 +451,37 @@ POST /worklogs/{id}/reject/
 | due_date | DateField | Payment due date |
 | paid_date | DateField | Actual payment date |
 | amount_paid | DecimalField | Amount paid |
+| document_type | CharField | invoice / credit_note |
+| billing_mode | CharField | weekly / period |
+| period_start, period_end | DateField | The service period, printed on the PDF |
+| project | ForeignKey | Set when the invoice covers one project |
+| corrects | ForeignKey(self) | What a credit note corrects |
+| correction_reason | TextField | Why it was credited |
+| pdf_file | FileField | Rendered once, when the invoice is issued |
+| sent_at, sent_to | DateTime/Char | Delivery record |
+| vat_treatment_code + facts | (VatClassifiableMixin) | Reverse-charge facts |
+
+`vat_rate` on the invoice is a display default. The VAT is summed from the
+classified lines, because reverse charge is decided per service: one invoice can
+carry ordinary cleaning at 21% and lent labour with the VAT verlegd.
+
+#### InvoiceLine — the classification unit
+| Field | Type | Description |
+|-------|------|-------------|
+| line_type | CharField | service / credit / manual |
+| work_entry | ForeignKey | Unique for service lines: billed exactly once |
+| work_date | DateField | Sorts the PDF |
+| base_amount, surcharge_amount, allowance_amount | Decimal | The working, shown to the customer |
+| surcharge_breakdown | JSONField | Frozen at billing time |
+| total_is_explicit | Boolean | Stops save() recomputing a billed total |
+| vat_rate, net_amount, vat_amount, gross_amount | Decimal | Null until classified |
+| vat_return_box | CharField | 1a, 1e, … |
+| vat_classification_status | CharField | CLASSIFIED / REQUIRES_REVIEW |
+| vat_review_reason | TextField | Why the engine would not decide |
+
+#### InvoiceSequence
+One row per series per year, locked for the transaction that takes a number.
+Replaces `Invoice.objects.count() + 1`, which raced and reused numbers.
 
 **Methods:**
 - `calculate_totals()` → Recalculate all totals
@@ -1097,17 +1142,53 @@ CKMServicesEmployee/lib/
 
 ## UC-003: Invoice Generation Flow
 ```
-1. Admin opens Dashboard → Invoices
-2. Admin clicks "Generate Invoice"
-3. Admin selects Customer
-4. Admin selects Week
-5. System aggregates approved work logs
-6. System creates invoice with lines
-7. Admin reviews invoice
-8. Admin can edit/add costs
-9. Admin finalizes invoice
-10. Invoice status changes to "Sent"
-11. Admin marks as paid when received
+ 1. Finance opens Dashboard → Invoices → Generate
+ 2. Selects a customer, and either a week or a date range,
+    optionally narrowed to one project
+ 3. POST /api/invoices/invoices/preview/
+      → the approved, unbilled work, each line priced from
+        WorkEntry.calculated_price with its surcharges itemised
+      → warnings for anything that would be billed at zero
+      → nothing is created
+ 4. POST /api/invoices/invoices/generate/
+      → a draft invoice, numbered from the locked sequence
+      → each line classified for VAT; the facts it was
+        classified under are frozen onto the line
+ 5. GET  /api/invoices/invoices/<id>/blockers/
+      → NO_LINES · NO_RATE · VAT_REQUIRES_REVIEW ·
+        MISSING_CUSTOMER_VAT_NUMBER
+ 6. Finance resolves anything listed. A line whose VAT
+    treatment is not established cannot be issued — it is
+    never assumed to be 21%.
+ 7. POST /api/invoices/invoices/<id>/issue/
+      → dates it, sets the due date from the configured terms,
+        renders the PDF once, posts the VAT to the ledger
+ 8. GET  /api/invoices/invoices/<id>/pdf/     (the stored file)
+    POST /api/invoices/invoices/<id>/send/    (emailed, attached)
+ 9. POST /api/invoices/invoices/<id>/record-payment/
+      → sent → partially_paid → paid
+10. A mistake after issue is never edited:
+    POST /api/invoices/invoices/<id>/credit-note/
+      → a separate numbered document with negative lines,
+        pointing at what it corrects
+```
+
+## UC-005: Quarterly VAT Return (Aangifte)
+```
+1. Dashboard → Finance → BTW Aangifte, pick year and quarter
+2. GET  /api/vat/periods/<id>/return/
+     → all thirteen rubrieken, 5a, 5b and the position
+3. GET  /api/vat/periods/<id>/blockers/
+     → every transaction the engine refused to decide, with why
+4. Finance fixes the source documents, not the ledger
+5. POST /api/vat/periods/<id>/finalize/
+     → snapshots the figures, locks every entry behind them
+6. GET  /api/vat/periods/<id>/export/
+     → the accountant's four-sheet workbook
+7. File with the Belastingdienst from the snapshot
+8. POST /api/vat/periods/<id>/lock/
+9. Corrections afterwards go to an open period as new
+   offsetting entries; the filed return is never edited
 ```
 
 ## UC-004: Advance Request Flow
