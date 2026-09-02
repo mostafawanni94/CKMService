@@ -61,7 +61,10 @@ class CustomerListSerializer(MaskedSensitiveFieldsMixin, serializers.ModelSerial
         model = Customer
         fields = [
             'id', 'company_name', 'city', 'country', 'is_active',
-            'outfolders_count', 'projects_count', 'created_at'
+            'outfolders_count', 'projects_count', 'created_at',
+            # The list page renders a logo when there is one; without this field
+            # every row fell back to the placeholder initials.
+            'logo',
         ]
 
 

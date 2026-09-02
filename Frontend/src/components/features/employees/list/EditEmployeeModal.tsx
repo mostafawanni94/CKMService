@@ -121,12 +121,24 @@ import type { EmployeesViewModel as ViewModel } from '@/hooks/useEmployees';
 export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
     const {
         t, router,
-        statusColors, availableDocuments, copied, copyCredentials, createError, createForm, createdEmployee, creating, deleting, editForm, employees, error, exporting, extractEmployee, filter, filteredEmployees, generatePassword, handleApprove, handleCreateEmployee, handleDelete, handleReject, handleSaveEdit, loadEmployees, loading, loadingDocs, nationalityDropdownOpen, nationalityDropdownRef, nationalitySearch, openDeleteModal, openEditModal, pendingEmployees, saving, search, selectedDocuments, selectedEmployee, setAvailableDocuments, setCreateForm, setEditForm, setExporting, setExtractEmployee, setFilter, setLoadingDocs, setNationalityDropdownOpen, setNationalitySearch, setSearch, setSelectedDocuments, setShowCreateModal, setShowDeleteModal, setShowEditModal, setShowExtractModal, setShowShareModal, setShowViewModal, shareWhatsApp, showCreateModal, showDeleteModal, showEditModal, showExtractModal, showShareModal, showViewModal,
+        statusColors, availableDocuments, copied, copyCredentials, editLoading, createError, createForm, createdEmployee, creating, deleting, editForm, employees, error, exporting, extractEmployee, filter, filteredEmployees, generatePassword, handleApprove, handleCreateEmployee, handleDelete, handleReject, handleSaveEdit, loadEmployees, loading, loadingDocs, nationalityDropdownOpen, nationalityDropdownRef, nationalitySearch, openDeleteModal, openEditModal, pendingEmployees, saving, search, selectedDocuments, selectedEmployee, setAvailableDocuments, setCreateForm, setEditForm, setExporting, setExtractEmployee, setFilter, setLoadingDocs, setNationalityDropdownOpen, setNationalitySearch, setSearch, setSelectedDocuments, setShowCreateModal, setShowDeleteModal, setShowEditModal, setShowExtractModal, setShowShareModal, setShowViewModal, shareWhatsApp, showCreateModal, showDeleteModal, showEditModal, showExtractModal, showShareModal, showViewModal,
     } = vm;
 
     // The page renders this only when there is one; guarding here keeps the
     // component independently safe and restores the narrowing.
     if (!selectedEmployee) return null;
+
+    // The full profile is fetched when the modal opens. Showing the form before
+    // it arrives would present empty fields that a save would then write back.
+    if (editLoading) {
+        return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                <div className="rounded-xl bg-white px-8 py-6 text-gray-600">
+                    {t('Loading...')}
+                </div>
+            </div>
+        );
+    }
 
     return (
 
@@ -375,14 +387,34 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                     className="h-11"
                                                 />
                                             </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
-                                                <Input
-                                                    value={editForm.address}
-                                                    onChange={(e) => setEditForm(f => ({ ...f, address: e.target.value }))}
-                                                    placeholder="Hoofdstraat 123"
-                                                    className="h-11"
-                                                />
+                                            <div className="grid grid-cols-[1fr_90px_80px] gap-2">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('Street Name')}</label>
+                                                    <Input
+                                                        value={editForm.street_name}
+                                                        onChange={(e) => setEditForm(f => ({ ...f, street_name: e.target.value }))}
+                                                        placeholder="Hoofdstraat"
+                                                        className="h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('House Nr.')}</label>
+                                                    <Input
+                                                        value={editForm.house_number}
+                                                        onChange={(e) => setEditForm(f => ({ ...f, house_number: e.target.value }))}
+                                                        placeholder="123"
+                                                        className="h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('Add.')}</label>
+                                                    <Input
+                                                        value={editForm.house_number_addition}
+                                                        onChange={(e) => setEditForm(f => ({ ...f, house_number_addition: e.target.value }))}
+                                                        placeholder="A"
+                                                        className="h-11"
+                                                    />
+                                                </div>
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">{t('Postcode')}</label>

@@ -35,7 +35,10 @@ interface EditEmployeeForm {
     birthplace: string;
     bsn: string;
     phone_number: string;
-    address: string;
+    /** The profile stores the address in three columns, not one line. */
+    street_name: string;
+    house_number: string;
+    house_number_addition: string;
     postcode: string;
     city: string;
     nationality: string;
@@ -76,6 +79,8 @@ export function useEmployees() {
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
     const [creating, setCreating] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [editLoading, setEditLoading] = useState(false);
+    const [editError, setEditError] = useState<string | null>(null);
     const [createError, setCreateError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
     const [createdEmployee, setCreatedEmployee] = useState<CreatedEmployee | null>(null);
@@ -94,7 +99,9 @@ export function useEmployees() {
         birthplace: '',
         bsn: '',
         phone_number: '',
-        address: '',
+        street_name: '',
+        house_number: '',
+        house_number_addition: '',
         postcode: '',
         city: '',
         nationality: '',
@@ -248,33 +255,53 @@ export function useEmployees() {
         }
     }
 
-    function openEditModal(emp: Employee) {
+    /**
+     * The list serializer returns ten fields. Filling the edit form from a list
+     * row therefore left BSN, IBAN, address, date of birth, document and rate
+     * blank — and the save PATCHes every one of those fields, so opening the
+     * modal and pressing Save erased them. The full profile is fetched first.
+     */
+    async function openEditModal(emp: Employee) {
         setSelectedEmployee(emp);
-        setEditForm({
-            first_name: emp.first_name || emp.full_name?.split(' ')[0] || '',
-            last_name: emp.last_name || emp.full_name?.split(' ').slice(1).join(' ') || '',
-            prefix_name: emp.prefix_name || '',
-            gender: emp.gender || '',
-            date_of_birth: emp.date_of_birth || '',
-            birthplace: emp.birthplace || '',
-            bsn: emp.bsn || '',
-            phone_number: emp.phone_number || '',
-            address: emp.address || '',
-            postcode: emp.postcode || '',
-            city: emp.city || '',
-            nationality: emp.nationality || '',
-            iban: emp.iban || '',
-            document_type: emp.document_type_name || '',
-            document_number: emp.document_number || '',
-            document_expiry_date: emp.document_expiry_date || '',
-            has_drivers_license: emp.has_drivers_license || false,
-            contract_phase: emp.contract_phase || '',
-            contract_start_date: emp.contract_start_date || '',
-            contract_end_date: emp.contract_end_date || '',
-            hourly_rate: emp.hourly_rate?.toString() || ''
-        });
-        setShowEditModal(true);
         setShowViewModal(false);
+        setShowEditModal(true);
+        setEditLoading(true);
+        setEditError(null);
+        try {
+            const response = await apiFetch(`/employees/profiles/${emp.id}/`);
+            if (!response.ok) throw new Error(await readApiError(response));
+            const full = await response.json();
+            setEditForm({
+                first_name: full.first_name || '',
+                last_name: full.last_name || '',
+                prefix_name: full.prefix_name || '',
+                gender: full.gender || '',
+                date_of_birth: full.date_of_birth || '',
+                birthplace: full.birthplace || '',
+                bsn: full.bsn || '',
+                phone_number: full.phone_number || '',
+                street_name: full.street_name || '',
+                house_number: full.house_number || '',
+                house_number_addition: full.house_number_addition || '',
+                postcode: full.postcode || '',
+                city: full.city || '',
+                nationality: full.nationality || '',
+                iban: full.iban || '',
+                document_type: full.document_type_name || '',
+                document_number: full.document_number || '',
+                document_expiry_date: full.document_expiry_date || '',
+                has_drivers_license: full.has_drivers_license || false,
+                contract_phase: full.contract_phase || '',
+                contract_start_date: full.contract_start_date || '',
+                contract_end_date: full.contract_end_date || '',
+                hourly_rate: full.hourly_rate?.toString() || '',
+            });
+        } catch (err) {
+            setEditError(err instanceof Error ? err.message : 'Failed to load employee');
+            setShowEditModal(false);
+        } finally {
+            setEditLoading(false);
+        }
     }
 
     async function handleSaveEdit(e: React.FormEvent) {
@@ -296,7 +323,9 @@ export function useEmployees() {
                     birthplace: editForm.birthplace,
                     bsn: editForm.bsn,
                     phone_number: editForm.phone_number,
-                    address: editForm.address,
+                    street_name: editForm.street_name,
+                    house_number: editForm.house_number,
+                    house_number_addition: editForm.house_number_addition,
                     postcode: editForm.postcode,
                     city: editForm.city,
                     nationality: editForm.nationality,
@@ -373,7 +402,7 @@ export function useEmployees() {
 
     return {
         t, router,
-        statusColors, availableDocuments, copied, copyCredentials, createError, createForm, createdEmployee, creating, deleting, editForm, employees, error, exporting, extractEmployee, filter, filteredEmployees, generatePassword, handleApprove, handleCreateEmployee, handleDelete, handleReject, handleSaveEdit, loadEmployees, loading, loadingDocs, nationalityDropdownOpen, nationalityDropdownRef, nationalitySearch, openDeleteModal, openEditModal, pendingEmployees, saving, search, selectedDocuments, selectedEmployee, setAvailableDocuments, setCreateForm, setEditForm, setExporting, setExtractEmployee, setFilter, setLoadingDocs, setNationalityDropdownOpen, setNationalitySearch, setSearch, setSelectedDocuments, setShowCreateModal, setShowDeleteModal, setShowEditModal, setShowExtractModal, setShowShareModal, setShowViewModal, shareWhatsApp, showCreateModal, showDeleteModal, showEditModal, showExtractModal, showShareModal, showViewModal,
+        statusColors, availableDocuments, copied, editLoading, editError, copyCredentials, createError, createForm, createdEmployee, creating, deleting, editForm, employees, error, exporting, extractEmployee, filter, filteredEmployees, generatePassword, handleApprove, handleCreateEmployee, handleDelete, handleReject, handleSaveEdit, loadEmployees, loading, loadingDocs, nationalityDropdownOpen, nationalityDropdownRef, nationalitySearch, openDeleteModal, openEditModal, pendingEmployees, saving, search, selectedDocuments, selectedEmployee, setAvailableDocuments, setCreateForm, setEditForm, setExporting, setExtractEmployee, setFilter, setLoadingDocs, setNationalityDropdownOpen, setNationalitySearch, setSearch, setSelectedDocuments, setShowCreateModal, setShowDeleteModal, setShowEditModal, setShowExtractModal, setShowShareModal, setShowViewModal, shareWhatsApp, showCreateModal, showDeleteModal, showEditModal, showExtractModal, showShareModal, showViewModal,
     };
 }
 
