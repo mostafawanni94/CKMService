@@ -47,9 +47,18 @@ python manage.py makemigrations --check --dry-run   # must report no changes
 Two things must be configured or invoicing will refuse to proceed. That refusal
 is deliberate — the alternative is a system that guesses.
 
-1. **Settings → Facturatie en bedrijfsgegevens** — legal name, KvK number, BTW
-   number, IBAN, postcode, city, payment terms. A Dutch invoice is not valid
-   without them and the PDF prints exactly what is there.
+1. **The company identity.** Either through Settings → Facturatie en
+   bedrijfsgegevens, or in one step:
+
+   ```bash
+   python manage.py set_company_identity        # idempotent
+   python manage.py set_company_identity --show # verify; the IBAN is masked
+   ```
+
+   A Dutch invoice is not valid without the legal name, address, KvK number and
+   BTW number, and the PDF prints exactly what is stored. The IBAN is encrypted
+   at rest, so a restore without `FIELD_ENCRYPTION_KEYS` will not be able to
+   print it.
 2. **A VAT treatment on every customer**, and on any project that differs. Until
    it is set, every line is held for review and no invoice can be issued.
 

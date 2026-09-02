@@ -260,6 +260,16 @@ AUTH_USER_MODEL = 'employees.User'
 # cannot decrypt BSN, IBAN or document numbers.
 FIELD_ENCRYPTION_KEYS = os.getenv('FIELD_ENCRYPTION_KEYS', '')
 
+# A test run builds a fresh database and throws it away, so there is no existing
+# ciphertext for a new key to make unreadable — the reason the key is never
+# generated automatically anywhere else. Generating one here lets the suite run
+# on a clean checkout and in CI without a secret being configured, and without
+# weakening the production rule below.
+if not FIELD_ENCRYPTION_KEYS and ('test' in sys.argv or os.getenv('PYTEST_CURRENT_TEST')):
+    from cryptography.fernet import Fernet
+
+    FIELD_ENCRYPTION_KEYS = Fernet.generate_key().decode()
+
 if not FIELD_ENCRYPTION_KEYS and not DEBUG:
     raise ImproperlyConfigured(
         'FIELD_ENCRYPTION_KEYS must be set when DEBUG is off. Sensitive fields '

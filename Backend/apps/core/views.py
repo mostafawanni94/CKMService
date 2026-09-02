@@ -7,6 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 
+from apps.core.permissions import IsAdmin
+
 from .models import SystemConfig
 from .serializers import SystemConfigSerializer, SystemConfigPublicSerializer
 
@@ -19,15 +21,22 @@ class SystemConfigView(APIView):
     """
 
     def get_permissions(self):
+        # The project's permission model is role-based. `IsAdminUser` checks
+        # Django's `is_staff`, which an admin-role account created through the
+        # dashboard does not have — so only a superuser could change the
+        # company settings, and nobody would have been told why.
         if self.request.method in ['PUT', 'PATCH']:
-            return [IsAdminUser()]
+            return [IsAdmin()]
         return [IsAuthenticated()]
 
     def get(self, request):
         """Get current system configuration."""
         config = SystemConfig.objects.get_config()
-        # Return full config for admins, public for others
-        if request.user.is_staff:
+        # Full configuration for an admin, the public subset for everyone else.
+        # This used to test `is_staff`, so an admin-role account that was not
+        # also a Django staff user silently received the public shape and could
+        # not see the company identity it is responsible for.
+        if getattr(request.user, 'is_admin', False) or request.user.is_staff:
             serializer = SystemConfigSerializer(config)
         else:
             serializer = SystemConfigPublicSerializer(config)

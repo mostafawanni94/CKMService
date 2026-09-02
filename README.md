@@ -301,13 +301,28 @@ no-ops; the apps still run.
 | [DEPLOYMENT_NOTIFICATIONS.md](DEPLOYMENT_NOTIFICATIONS.md) | Cron jobs and email setup |
 | `/api/docs/` | Live Swagger UI |
 
+## Company identity
+
+One record holds it — `SystemConfig`, the singleton — and the invoice, the credit
+note, the accountant's export and the finance pages all read from there. It is
+never written into application code.
+
+```bash
+python manage.py set_company_identity          # apply the registered values
+python manage.py set_company_identity --show   # print what is stored (IBAN masked)
+```
+
+The registered values are CKM Services, Rilland Bathstraat 126, 3086 ST
+Rotterdam, KvK 42074970, BTW NL869591071B01. The IBAN is stored through
+`EncryptedCharField`: ciphertext at rest, absent from `/api/settings/config/public/`
+and from the shape a non-admin sees, and printed on invoices because customers
+need it to pay. It is deliberately left out of the accountant's export.
+
 ## Before you invoice anyone
 
-Two things must be set, or invoicing will not work:
-
-1. **Settings → Facturatie en bedrijfsgegevens** — the legal name, KvK number,
-   BTW number and IBAN. A Dutch invoice is not valid without them, and the PDF
-   prints whatever is there.
+1. **The company identity above** — a Dutch invoice is not valid without the
+   legal name, address, KvK number and BTW number, and the PDF prints whatever
+   is stored.
 2. **The VAT treatment on each customer** (and on any project that differs).
    Until it is set, every line is held for review and no invoice can be issued.
    This is deliberate: the alternative is a system that guesses your VAT.

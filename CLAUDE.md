@@ -281,8 +281,15 @@ navigation using a non-credential `ckm_session` cookie hint.
 - `Backend/requirements.txt` lists **direct dependencies only**. Add a package
   there the moment you import it.
 - Company identity (KvK, BTW number, IBAN, logo, payment terms, invoice
-  numbering prefixes) lives in `SystemConfig`, set in Settings. The IBAN is
-  encrypted at rest. An invoice cannot be rendered correctly without them.
+  numbering prefixes) lives in `SystemConfig` — one singleton row, the single
+  source of truth for the invoice, the credit note, the accountant's export and
+  the finance pages. Set it with `manage.py set_company_identity`, or in
+  Settings. Never write these values into application code. The IBAN uses
+  `EncryptedCharField`, so it is ciphertext at rest and absent from the public
+  config endpoint and from the shape a non-admin sees.
+- Settings access is role-based (`is_admin`), not Django's `is_staff`. An
+  admin-role account created through the dashboard is not a Django staff user,
+  and testing `is_staff` silently handed it the public config.
 - `WorkEntry.agency` is derived on save from `EmployeeAgencyHistory.agency_on`,
   so an employee who moves between agencies keeps their history billed to the
   agency that was in force on each day.
