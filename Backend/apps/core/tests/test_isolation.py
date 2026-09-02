@@ -133,6 +133,30 @@ class CustomerCannotReachAnotherCustomerTests(TwoOfEverything):
         response = self.alpha.get(f'/api/worklogs/entries/{self.entry_b.pk}/')
         self.assertIn(response.status_code, (403, 404))
 
+    def test_the_portal_entry_endpoint_refuses_another_customers_entry(self):
+        """
+        The customer app opens a work entry by id. Putting someone else's id in
+        that URL is the obvious attack, and it is the one the app's own screen
+        makes easy to try.
+        """
+        response = self.alpha.get(
+            f'/api/customer-portal/entries/{self.entry_b.pk}/')
+        self.assertIn(response.status_code, (403, 404),
+                      f'reached another customer’s entry: {response.status_code}')
+
+    def test_the_portal_entry_endpoint_allows_their_own(self):
+        response = self.alpha.get(
+            f'/api/customer-portal/entries/{self.entry_a.pk}/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_a_portal_entry_does_not_carry_what_the_employee_is_paid(self):
+        response = self.alpha.get(
+            f'/api/customer-portal/entries/{self.entry_a.pk}/')
+        body = str(response.data).lower()
+        for leak in ('hourly_rate', 'employee_payment', 'wallet', 'margin'):
+            with self.subTest(field=leak):
+                self.assertNotIn(leak, body)
+
 
 class EmployeeCannotReachAnotherEmployeeTests(TwoOfEverything):
     def setUp(self):
