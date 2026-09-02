@@ -272,6 +272,38 @@ class SystemConfig(TimeStampedModel):
         max_length=200, default='Btw verlegd',
         help_text="Wording required on a reverse-charged invoice.")
 
+    # --- Reading the contact lists ------------------------------------------
+    # Two shapes are in the wild: the settings page writes {'label', 'value'},
+    # while this model's help text and the invoice template expect
+    # {'label', 'email'} / {'label', 'number'}. The PDF read only the latter, so
+    # an address or phone entered through Settings never reached an invoice.
+    # These accessors take either, and are the only way the rest of the system
+    # should read them.
+
+    @staticmethod
+    def _contact_values(entries, *keys):
+        seen, values = set(), []
+        for entry in entries or []:
+            if not isinstance(entry, dict):
+                continue
+            for key in keys:
+                value = (entry.get(key) or '').strip()
+                if value and value not in seen:
+                    seen.add(value)
+                    values.append(value)
+                    break
+        return values
+
+    @property
+    def contact_emails(self):
+        """Every configured email address, whichever shape it was stored in."""
+        return self._contact_values(self.company_emails, 'email', 'value')
+
+    @property
+    def contact_phones(self):
+        """Every configured phone number, whichever shape it was stored in."""
+        return self._contact_values(self.company_phones, 'number', 'value')
+
     # Public dashboard URL, used to build links in outgoing email
     # (notification deep links and password-reset links).
     frontend_url = models.URLField(

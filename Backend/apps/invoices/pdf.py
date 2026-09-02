@@ -96,8 +96,11 @@ def _company_block(config, style):
         lines.append(postal)
     if config.company_country:
         lines.append(config.company_country)
-    emails = [item.get('email') for item in (config.company_emails or []) if item.get('email')]
-    phones = [item.get('number') for item in (config.company_phones or []) if item.get('number')]
+    # Read through the model's accessors: the settings page and this template
+    # disagreed about the key name, so a phone entered in Settings was simply
+    # missing from every invoice.
+    emails = config.contact_emails
+    phones = config.contact_phones
     if phones:
         lines.append(phones[0])
     if emails:

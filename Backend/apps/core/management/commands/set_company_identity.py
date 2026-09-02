@@ -58,8 +58,10 @@ class Command(BaseCommand):
                 if field in SENSITIVE and value != '(not set)':
                     value = mask_iban(value)
                 self.stdout.write(f'  {field:24} {value}')
-            emails = [row.get('email') for row in (config.company_emails or [])]
-            self.stdout.write(f'  {"company_emails":24} {", ".join(filter(None, emails)) or "(none)"}')
+            self.stdout.write(
+                f'  {"company_emails":24} {", ".join(config.contact_emails) or "(none)"}')
+            self.stdout.write(
+                f'  {"company_phones":24} {", ".join(config.contact_phones) or "(none)"}')
             return
 
         changed = []
@@ -69,12 +71,13 @@ class Command(BaseCommand):
                 setattr(config, field, value)
                 changed.append(field)
 
-        # The email list is a list of labelled addresses; add the primary one
-        # without disturbing any others already configured.
-        emails = list(config.company_emails or [])
-        if not any(row.get('email') == PRIMARY_EMAIL for row in emails):
-            emails.insert(0, {'label': 'Info', 'email': PRIMARY_EMAIL})
-            config.company_emails = emails
+        # Add the primary address without disturbing any others, and without
+        # adding a second copy of one already stored under the other key.
+        if PRIMARY_EMAIL not in config.contact_emails:
+            config.company_emails = [
+                {'label': 'Info', 'email': PRIMARY_EMAIL},
+                *(config.company_emails or []),
+            ]
             changed.append('company_emails')
 
         if not changed:

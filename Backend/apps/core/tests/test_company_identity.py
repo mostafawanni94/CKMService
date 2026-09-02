@@ -106,6 +106,58 @@ class StorageTests(TestCase):
         self.assertEqual(response.data['company_iban'], 'NL20 INGB 0119 4132 56')
 
 
+class ContactShapeTests(TestCase):
+    """
+    Two shapes for a contact entry are in the wild.
+
+    The settings page writes {'label', 'value'}; the model's help text and the
+    invoice template expect {'label', 'email'} / {'label', 'number'}. The PDF
+    read only the latter, so an address or phone typed into Settings never
+    appeared on an invoice. The accessors take either.
+    """
+
+    def setUp(self):
+        self.config = SystemConfig.objects.get_config()
+
+    def test_the_settings_page_shape_is_read(self):
+        self.config.company_emails = [{'label': 'Main', 'value': 'a@ckm.test'}]
+        self.config.company_phones = [{'label': 'Main', 'value': '+31 6 12345678'}]
+        self.config.save()
+
+        self.assertEqual(self.config.contact_emails, ['a@ckm.test'])
+        self.assertEqual(self.config.contact_phones, ['+31 6 12345678'])
+
+    def test_the_documented_shape_is_read(self):
+        self.config.company_emails = [{'label': 'Info', 'email': 'b@ckm.test'}]
+        self.config.company_phones = [{'label': 'Main', 'number': '+31 6 87654321'}]
+        self.config.save()
+
+        self.assertEqual(self.config.contact_emails, ['b@ckm.test'])
+        self.assertEqual(self.config.contact_phones, ['+31 6 87654321'])
+
+    def test_both_shapes_together_do_not_duplicate_an_address(self):
+        self.config.company_emails = [
+            {'label': 'Info', 'email': 'same@ckm.test'},
+            {'label': 'Main', 'value': 'same@ckm.test'},
+        ]
+        self.config.save()
+        self.assertEqual(self.config.contact_emails, ['same@ckm.test'])
+
+    def test_junk_entries_are_ignored_rather_than_crashing_an_invoice(self):
+        self.config.company_emails = [{}, {'label': 'Empty', 'email': ''}, None,
+                                      {'label': 'Good', 'value': 'c@ckm.test'}]
+        self.config.save()
+        self.assertEqual(self.config.contact_emails, ['c@ckm.test'])
+
+    def test_the_command_does_not_add_a_second_copy(self):
+        self.config.company_emails = [{'label': 'Main', 'value': 'info@ckmservices.nl'}]
+        self.config.save()
+
+        call_command('set_company_identity', stdout=StringIO())
+        self.config.refresh_from_db()
+        self.assertEqual(self.config.contact_emails, ['info@ckmservices.nl'])
+
+
 class DocumentTests(TestCase):
     """The identity reaches every document that legally needs it."""
 
@@ -145,6 +197,16 @@ class DocumentTests(TestCase):
                          'NL20 INGB 0119 4132 56'):
             with self.subTest(required=required):
                 self.assertIn(required, text, f'the invoice omits {required}')
+
+    def test_the_contact_details_reach_the_invoice(self):
+        config = SystemConfig.objects.get_config()
+        config.company_phones = [{'label': 'Main', 'value': '+31 6 84466318'}]
+        config.save()
+
+        text = self._text(self.invoice)
+        self.assertIn('info@ckmservices.nl', text)
+        self.assertIn('+31 6 84466318', text,
+                      'a phone entered through Settings is missing from the invoice')
 
     def test_the_payment_instruction_names_the_account_and_the_company(self):
         text = self._text(self.invoice)
