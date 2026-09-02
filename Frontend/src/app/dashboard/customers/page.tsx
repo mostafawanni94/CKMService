@@ -27,6 +27,7 @@ export default function CustomersPage() {
     const [showViewModal, setShowViewModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+    const [detailLoading, setDetailLoading] = useState(false);
     const [editing, setEditing] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [editForm, setEditForm] = useState({
@@ -72,21 +73,39 @@ export default function CustomersPage() {
 
 
 
-    function openViewModal(customer: Customer) {
+    /**
+     * The list serializer returns eight fields; postcode, address, IBAN, BTW,
+     * KvK and G-rekening are not among them. Filling the form from a list row
+     * left those blank, and the save appends postcode and address
+     * unconditionally — so opening a customer and pressing Save erased its
+     * address. The full record is fetched first.
+     */
+    async function openViewModal(customer: Customer) {
         setSelectedCustomer(customer);
-        setEditForm({
-            company_name: customer.company_name || '',
-            city: customer.city || '',
-            postcode: (customer as any).postcode || '',
-            address: (customer as any).address || '',
-            iban: (customer as any).iban || '',
-            btw_number: (customer as any).btw_number || '',
-            kvk_number: (customer as any).kvk_number || '',
-            g_rekening: (customer as any).g_rekening || '',
-            is_active: customer.is_active ?? true
-        });
         setEditing(false);
         setShowViewModal(true);
+        setDetailLoading(true);
+        try {
+            const response = await apiFetch(`/customers/customers/${customer.id}/`);
+            const full: any = response.ok ? await response.json() : customer;
+            setEditForm({
+                company_name: full.company_name || '',
+                city: full.city || '',
+                postcode: full.postcode || '',
+                address: full.address || '',
+                iban: full.iban || '',
+                btw_number: full.btw_number || '',
+                kvk_number: full.kvk_number || '',
+                g_rekening: full.g_rekening || '',
+                is_active: full.is_active ?? true
+            });
+            if (response.ok) setSelectedCustomer(full);
+        } catch {
+            // Leaving the form untouched is safer than filling it with blanks.
+            setShowViewModal(false);
+        } finally {
+            setDetailLoading(false);
+        }
     }
 
     async function handleSaveCustomer() {
@@ -544,7 +563,7 @@ export default function CustomersPage() {
                 </div>
 
                 {/* View/Edit Customer Modal */}
-                {showViewModal && selectedCustomer && (
+                {showViewModal && selectedCustomer && !detailLoading && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                         <div className="absolute inset-0 bg-black/50" onClick={() => setShowViewModal(false)} />
                         <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
