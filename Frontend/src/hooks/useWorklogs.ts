@@ -405,8 +405,11 @@ export function useWorklogs() {
     } catch {
       // Fall back to cached
     }
-    const employeeObj = employees.find(e => e.id === (freshLog as any).employee);
-    const projectId = (freshLog as any).project || '';
+    // The serializer emits employee_id, not employee, so this used to open the
+    // edit form with no employee selected. project comes back under both names.
+    const employeeId = (freshLog as any).employee_id || (freshLog as any).employee || '';
+    const employeeObj = employees.find(e => e.id === employeeId);
+    const projectId = (freshLog as any).project_id || (freshLog as any).project || '';
     const projectObj = projects.find(p => p.id === projectId);
     const customerId = (projectObj as any)?.customer || '';
 
@@ -416,11 +419,11 @@ export function useWorklogs() {
     };
 
     setFormData({
-      employee: (freshLog as any).employee || '',
+      employee: employeeId,
       customer: customerId,
       project: projectId,
       supervisor: (freshLog as any).supervisor || '',
-      service: (freshLog as any).service || '',
+      service: (freshLog as any).service?.id || (freshLog as any).service || '',
       location_override: freshLog.location || '',
       start_datetime: freshLog.actual_start_datetime
         ? toLocalDatetimeString(freshLog.actual_start_datetime)

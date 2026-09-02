@@ -45,8 +45,29 @@ class ConfigurationTests(TestCase):
     def test_the_primary_email_is_recorded(self):
         call_command('set_company_identity', stdout=StringIO())
         config = SystemConfig.objects.get_config()
-        addresses = [row.get('email') for row in config.company_emails]
-        self.assertIn('info@ckmservices.nl', addresses)
+        self.assertIn('info@ckmservices.nl', config.contact_emails)
+
+    def test_contact_rows_are_written_in_the_canonical_shape(self):
+        """Rows have been stored under 'email', 'number' and 'value' over time.
+
+        The settings form edits ``value``, so the command has to converge on it
+        or the address it writes shows up as an empty box.
+        """
+        call_command('set_company_identity', stdout=StringIO())
+        config = SystemConfig.objects.get_config()
+        for row in config.company_emails:
+            self.assertEqual(sorted(row), ['label', 'value'])
+
+    def test_an_address_stored_under_the_old_key_is_converted_not_duplicated(self):
+        config = SystemConfig.objects.get_config()
+        config.company_emails = [{'label': 'Info', 'email': 'info@ckmservices.nl'}]
+        config.save(update_fields=['company_emails'])
+
+        call_command('set_company_identity', stdout=StringIO())
+
+        config = SystemConfig.objects.get_config()
+        self.assertEqual(config.company_emails,
+                         [{'label': 'Info', 'value': 'info@ckmservices.nl'}])
 
     def test_running_it_twice_changes_nothing(self):
         call_command('set_company_identity', stdout=StringIO())
