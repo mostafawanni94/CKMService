@@ -26,6 +26,8 @@ interface EmployeeEarning {
     total_hours: number;
     total_earnings: number;
     approved_logs: number;
+    /** No hourly rate on the profile, so the backend cannot compute pay. */
+    missing_rate: boolean;
 }
 
 interface ProjectHours {
@@ -110,7 +112,8 @@ export default function ReportsPage() {
                             employee_name: log.employee_name || 'Unknown',
                             total_hours: 0,
                             total_earnings: 0,
-                            approved_logs: 0
+                            approved_logs: 0,
+                            missing_rate: false,
                         });
                     }
                     const emp = employeeMap.get(key)!;
@@ -120,6 +123,11 @@ export default function ReportsPage() {
                     // multiply hours by a hardcoded 25 EUR, inventing figures
                     // that matched nothing in payroll.
                     emp.total_earnings += num(log.employee_payment);
+                    // A worked hour that produces no pay means no rate is
+                    // configured. Saying so beats reporting a confident 0 EUR.
+                    if (num(log.calculated_hours) > 0 && num(log.employee_payment) === 0) {
+                        emp.missing_rate = true;
+                    }
                 });
                 setEarningsData(Array.from(employeeMap.values()));
 
@@ -185,6 +193,7 @@ export default function ReportsPage() {
 
     const totalHours = earningsData.reduce((sum, e) => sum + e.total_hours, 0);
     const totalEarnings = earningsData.reduce((sum, e) => sum + e.total_earnings, 0);
+    const unratedEmployees = earningsData.filter(e => e.missing_rate);
 
     return (
         <DashboardLayout>
@@ -200,6 +209,19 @@ export default function ReportsPage() {
                         {t('Export CSV')}
                     </Button>
                 </div>
+
+                {unratedEmployees.length > 0 && (
+                    <Card className="p-4 border-amber-200 bg-amber-50">
+                        <p className="text-sm font-semibold text-amber-900">
+                            {t('Earnings are incomplete')}
+                        </p>
+                        <p className="text-sm text-amber-800 mt-1">
+                            {t('These employees have no hourly rate on their profile, so their pay cannot be calculated')}
+                            {': '}
+                            {unratedEmployees.map(e => e.employee_name).join(', ')}
+                        </p>
+                    </Card>
+                )}
 
                 {/* Summary Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

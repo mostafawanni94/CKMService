@@ -13,6 +13,10 @@ export type PhraseTable = Record<string, string>;
 
 /** English is the key space, so it needs no table of its own. */
 const nl: PhraseTable = {
+    // Reports warnings
+    'Earnings are incomplete': 'Verdiensten zijn onvolledig',
+    'These employees have no hourly rate on their profile, so their pay cannot be calculated': 'Deze medewerkers hebben geen uurtarief in hun profiel, dus hun loon kan niet worden berekend',
+
     // Remaining page copy
     'Allowances (Toeslag)': 'Toeslagen',
     'Gratuities (Fooi)': 'Fooien',
@@ -384,6 +388,10 @@ const nl: PhraseTable = {
 };
 
 const ar: PhraseTable = {
+    // Reports warnings
+    'Earnings are incomplete': 'الأرباح غير مكتملة',
+    'These employees have no hourly rate on their profile, so their pay cannot be calculated': 'لا يوجد أجر بالساعة في ملفات هؤلاء الموظفين، لذا لا يمكن حساب رواتبهم',
+
     // Remaining page copy
     'Allowances (Toeslag)': 'البدلات',
     'Gratuities (Fooi)': 'الإكراميات',
@@ -807,6 +815,10 @@ const ar: PhraseTable = {
 };
 
 const ru: PhraseTable = {
+    // Reports warnings
+    'Earnings are incomplete': 'Данные о заработке неполны',
+    'These employees have no hourly rate on their profile, so their pay cannot be calculated': 'У этих сотрудников не указана почасовая ставка, поэтому оплату рассчитать нельзя',
+
     // Remaining page copy
     'Allowances (Toeslag)': 'Надбавки',
     'Gratuities (Fooi)': 'Чаевые',
@@ -1230,6 +1242,10 @@ const ru: PhraseTable = {
 };
 
 const uk: PhraseTable = {
+    // Reports warnings
+    'Earnings are incomplete': 'Дані про заробіток неповні',
+    'These employees have no hourly rate on their profile, so their pay cannot be calculated': 'У цих працівників не вказано погодинну ставку, тому оплату розрахувати неможливо',
+
     // Remaining page copy
     'Allowances (Toeslag)': 'Надбавки',
     'Gratuities (Fooi)': 'Чайові',
