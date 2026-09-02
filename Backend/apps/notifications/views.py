@@ -1,5 +1,5 @@
 """Notification API Views."""
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
@@ -28,10 +28,20 @@ class NotificationFilter(filters.FilterSet):
         fields = ['category', 'priority', 'is_read']
 
 
-class NotificationViewSet(viewsets.ModelViewSet):
-    """ViewSet for notifications with pagination and filters."""
-    
-    queryset = Notification.objects.order_by('-created_at')
+class NotificationViewSet(mixins.ListModelMixin,
+                          mixins.RetrieveModelMixin,
+                          mixins.DestroyModelMixin,
+                          viewsets.GenericViewSet):
+    """
+    Your notifications.
+
+    Read, mark read, dismiss. Not create: notifications are produced by the
+    system in response to something happening, never posted by a client. The
+    viewset used to accept a POST, drop the read-only recipient, and fail on the
+    database constraint with a 500.
+    """
+
+    queryset = Notification.objects.select_related('recipient').order_by('-created_at')
     serializer_class = NotificationSerializer
     pagination_class = NotificationPagination
     filterset_class = NotificationFilter

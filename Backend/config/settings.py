@@ -6,6 +6,7 @@ REST API framework, and extensible architecture.
 """
 
 import os
+import sys
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
@@ -224,6 +225,15 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Tests upload documents and render invoice PDFs. Without this they wrote into
+# the developer's own media directory and left everything behind: a single
+# session of test runs had deposited twenty thousand files there. Under `manage
+# .py test` the media root is a temporary directory that goes away with the run.
+if 'test' in sys.argv or os.getenv('PYTEST_CURRENT_TEST'):
+    import tempfile
+
+    MEDIA_ROOT = Path(tempfile.mkdtemp(prefix='ckm-test-media-'))
 
 # =============================================================================
 # DEFAULT PRIMARY KEY FIELD TYPE
