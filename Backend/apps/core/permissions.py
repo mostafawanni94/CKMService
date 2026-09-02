@@ -69,6 +69,19 @@ class IsBackOffice(RolePermission):
     allowed_roles = ('admin', 'finance', 'operations')
 
 
+class IsEmployeeOrBackOffice(RolePermission):
+    """
+    An employee and the people who administer them.
+
+    For endpoints an employee legitimately reaches about themselves — their
+    wallet, their payslips, their leave — where the row filter decides *which*
+    records, and this decides who may ask at all. A customer login is not on
+    the list: employee earnings are none of a client's business.
+    """
+
+    allowed_roles = ('admin', 'finance', 'operations', 'employee')
+
+
 class IsAdminOrSelf(permissions.BasePermission):
     """Allow access to admins, or to the user the object belongs to."""
 

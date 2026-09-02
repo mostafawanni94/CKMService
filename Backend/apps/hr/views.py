@@ -12,7 +12,9 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from apps.core.permissions import IsAdmin, IsBackOffice, IsFinanceStaff
+from apps.core.permissions import (
+    IsAdmin, IsBackOffice, IsEmployeeOrBackOffice, IsFinanceStaff,
+)
 
 from .models import LeaveRequest, LeaveType, PayrollPeriod, Payslip, PayslipLine
 from .serializers import (
@@ -45,8 +47,10 @@ class LeaveTypeViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'code']
 
     def get_permissions(self):
+        # Leave types are a reference list an employee needs in order to
+        # request leave; only an admin maintains them.
         if self.action in ('list', 'retrieve'):
-            return [IsAuthenticated()]
+            return [IsEmployeeOrBackOffice()]
         return [IsAdmin()]
 
 
@@ -59,7 +63,9 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = LeaveRequestSerializer
-    permission_classes = [IsAuthenticated]
+    # A customer login has no business in employee leave, whatever the row
+    # filter would have returned.
+    permission_classes = [IsEmployeeOrBackOffice]
     filterset_fields = ['status', 'employee', 'leave_type']
     search_fields = ['employee__first_name', 'employee__last_name', 'reason']
     ordering_fields = ['start_date', 'created_at', 'status']
@@ -303,7 +309,7 @@ class PayslipViewSet(viewsets.ModelViewSet):
     only finance may edit deductions or notes.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsEmployeeOrBackOffice]
     filterset_fields = ['period', 'employee', 'status']
     ordering_fields = ['created_at', 'gross_pay']
 
@@ -323,8 +329,10 @@ class PayslipViewSet(viewsets.ModelViewSet):
         return qs.filter(employee=profile) if profile else qs.none()
 
     def get_permissions(self):
+        # Reading is for employees and the back office — the queryset then
+        # narrows an employee to their own. Editing a payslip is finance only.
         if self.action in ('list', 'retrieve', 'my'):
-            return [IsAuthenticated()]
+            return [IsEmployeeOrBackOffice()]
         return [IsFinanceStaff()]
 
     def perform_update(self, serializer):

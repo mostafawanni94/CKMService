@@ -9,7 +9,7 @@ from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.core.permissions import IsAdmin
+from apps.core.permissions import IsAdmin, IsEmployeeOrBackOffice
 from .models import Wallet, WalletTransaction, AdvanceRequest
 from .serializers import (
     WalletSerializer, WalletTransactionSerializer,
@@ -21,34 +21,55 @@ from .serializers import (
 
 class WalletViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    ViewSet for viewing wallets.
-    
-    Employees can only view their own wallet.
-    Admin can view all wallets.
+    Employee wallets.
+
+    An employee sees their own; the back office sees all. A customer login has
+    no business here at all, which the permission class enforces before the
+    queryset is even consulted — the row filter alone would leave the endpoint
+    one refactor away from leaking employee earnings to a client.
     """
-    
-    queryset = Wallet.objects.select_related('employee').order_by('-created_at')
+
+    queryset = Wallet.objects.select_related(
+        'employee', 'employee__user').order_by('-created_at')
     serializer_class = WalletSerializer
-    
+    permission_classes = [IsEmployeeOrBackOffice]
+
     def get_queryset(self):
         user = self.request.user
-        if user.is_admin:
+        if user.is_admin or user.role in ('finance', 'operations'):
             return self.queryset
-        # Employee can only see their own wallet
         return self.queryset.filter(employee__user=user)
     
     @action(detail=False, methods=['get'])
     def my_wallet(self, request):
-        """Get current user's wallet."""
-        try:
-            wallet = Wallet.objects.get(employee__user=request.user)
-            serializer = WalletSerializer(wallet)
-            return Response(serializer.data)
-        except Wallet.DoesNotExist:
-            return Response(
-                {'error': 'Wallet not found'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+        """
+        The signed-in employee's wallet.
+
+        An employee who has not yet had work approved has no wallet row, and
+        this used to answer 404 — so the earnings screen showed an error to
+        every new employee instead of a balance of zero. A wallet is a view of
+        its transactions, and an employee with none has a balance of nothing;
+        that is the honest answer, and it is returned without writing a row on
+        a GET.
+        """
+        from apps.employees.models import EmployeeProfile
+        from apps.wallet.services import wallet_for
+
+        wallet = Wallet.objects.select_related('employee', 'employee__user').filter(
+            employee__user=request.user).first()
+
+        if wallet is None:
+            profile = EmployeeProfile.objects.filter(user=request.user).first()
+            if profile is None:
+                return Response(
+                    {'detail': 'This account has no employee profile.'},
+                    status=status.HTTP_404_NOT_FOUND)
+            # Created on first look rather than returned as an error. It is one
+            # row per employee, it is what the first approved shift would have
+            # created anyway, and the balance is zero either way.
+            wallet = wallet_for(profile)
+
+        return Response(WalletSerializer(wallet).data)
     
     @action(detail=True, methods=['get'])
     def transactions(self, request, pk=None):
@@ -127,9 +148,10 @@ class AdvanceRequestViewSet(viewsets.ModelViewSet):
     """
     
     queryset = AdvanceRequest.objects.select_related(
-        'employee', 'processed_by'
+        'employee', 'employee__user', 'processed_by'
     ).order_by('-created_at')
-    
+    permission_classes = [IsEmployeeOrBackOffice]
+
     def get_queryset(self):
         user = self.request.user
         if user.is_admin:
