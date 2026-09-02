@@ -40,7 +40,8 @@ from .serializers import (
 # Canonical definitions live in apps.core.permissions. Re-exported here so the
 # historical ``from apps.employees.views import IsAdmin`` import keeps working.
 from apps.core.permissions import (  # noqa: F401
-    IsAdmin, IsAdminOrSelf, IsBackOffice, IsFinanceStaff, IsOperationsStaff,
+    IsAdmin, IsAdminOrReadOnly, IsAdminOrSelf, IsBackOffice, IsFinanceStaff,
+    IsOperationsStaff,
 )
 
 
@@ -134,7 +135,12 @@ class DocumentTypeViewSet(viewsets.ModelViewSet):
     
     queryset = DocumentType.objects.all().order_by('name')
     serializer_class = DocumentTypeSerializer
-    permission_classes = [IsAdmin]
+    # A reference list the employee app reads while completing a profile,
+    # logging work or adding a certificate. It carries no commercial or personal
+    # information, so any signed-in user may read it; only an admin maintains
+    # it. It used to be admin-only for reading too, which meant the app got a
+    # 403 and those screens could not be completed at all.
+    permission_classes = [IsAdminOrReadOnly]
 
 
 # =============================================================================
@@ -1052,7 +1058,12 @@ class AllowanceTypeViewSet(viewsets.ModelViewSet):
     """
     
     serializer_class = AllowanceTypeSerializer
-    permission_classes = [IsAdmin]
+    # A reference list the employee app reads while completing a profile,
+    # logging work or adding a certificate. It carries no commercial or personal
+    # information, so any signed-in user may read it; only an admin maintains
+    # it. It used to be admin-only for reading too, which meant the app got a
+    # 403 and those screens could not be completed at all.
+    permission_classes = [IsAdminOrReadOnly]
     
     def get_queryset(self):
         from apps.employees.models import AllowanceType

@@ -778,7 +778,12 @@ class PendingEarningsView(viewsets.ViewSet):
                 status__in=[WorkEntry.Status.SUBMITTED, WorkEntry.Status.APPROVED],
             )
             .exclude(id__in=paid_entry_ids)
-            .select_related('project', 'service')
+            # `calculated_employee_payment` reads the employee's rate and the
+            # customer's surcharges. Without these joins each row fetched them
+            # again: a year of history cost about two queries per entry, on the
+            # screen the mobile app opens most often.
+            .select_related('employee', 'employee__user', 'project',
+                            'project__customer', 'service')
             .order_by('-work_date')
         )
 
@@ -786,6 +791,14 @@ class PendingEarningsView(viewsets.ViewSet):
             WorkEntry.Status.SUBMITTED: {'count': 0, 'hours': Decimal('0'), 'amount': Decimal('0')},
             WorkEntry.Status.APPROVED: {'count': 0, 'hours': Decimal('0'), 'amount': Decimal('0')},
         }
+        # The totals cover everything outstanding; the rows are bounded, because
+        # nobody scrolls three years of shifts on a phone and the response
+        # should not grow without limit.
+        try:
+            row_limit = min(int(request.query_params.get('limit', 100)), 500)
+        except (TypeError, ValueError):
+            row_limit = 100
+
         results = []
         for entry in entries:
             hours = Decimal(str(entry.calculated_hours or 0))
@@ -794,15 +807,16 @@ class PendingEarningsView(viewsets.ViewSet):
             bucket['count'] += 1
             bucket['hours'] += hours
             bucket['amount'] += amount
-            results.append({
-                'id': str(entry.id),
-                'work_date': entry.work_date,
-                'status': entry.status,
-                'project': str(entry.project) if entry.project else None,
-                'service': str(entry.service) if entry.service else None,
-                'hours': f'{hours:.2f}',
-                'estimated_earnings': f'{amount:.2f}',
-            })
+            if len(results) < row_limit:
+                results.append({
+                    'id': str(entry.id),
+                    'work_date': entry.work_date,
+                    'status': entry.status,
+                    'project': str(entry.project) if entry.project else None,
+                    'service': str(entry.service) if entry.service else None,
+                    'hours': f'{hours:.2f}',
+                    'estimated_earnings': f'{amount:.2f}',
+                })
 
         submitted = buckets[WorkEntry.Status.SUBMITTED]
         approved = buckets[WorkEntry.Status.APPROVED]
@@ -815,5 +829,7 @@ class PendingEarningsView(viewsets.ViewSet):
             'approved_amount': f"{approved['amount']:.2f}",
             'total_pending_amount': f"{submitted['amount'] + approved['amount']:.2f}",
             'currency': 'EUR',
+            'entry_count': submitted['count'] + approved['count'],
+            'rows_returned': len(results),
             'results': results,
         })

@@ -50,14 +50,12 @@ class OutfolderSerializer(serializers.ModelSerializer):
 class CustomerListSerializer(MaskedSensitiveFieldsMixin, serializers.ModelSerializer):
     """Serializer for customer list view."""
     
+    # Annotated by the viewset in one statement; `source='outfolders.count'`
+    # issued a query per row.
     outfolders_count = serializers.IntegerField(
-        source='outfolders.count',
-        read_only=True
-    )
+        source='outfolders_total', read_only=True, default=0)
     projects_count = serializers.IntegerField(
-        source='projects.count',
-        read_only=True
-    )
+        source='projects_total', read_only=True, default=0)
     
     class Meta:
         model = Customer

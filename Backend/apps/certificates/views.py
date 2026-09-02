@@ -3,7 +3,7 @@ from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from apps.core.permissions import IsAdmin
+from apps.core.permissions import IsAdmin, IsAdminOrReadOnly
 from .models import CertificateType, EmployeeCertificate
 from .serializers import CertificateTypeSerializer, EmployeeCertificateSerializer
 
@@ -12,7 +12,12 @@ class CertificateTypeViewSet(viewsets.ModelViewSet):
     """ViewSet for certificate types (admin configurable)."""
     queryset = CertificateType.objects.order_by('sort_order', 'name')
     serializer_class = CertificateTypeSerializer
-    permission_classes = [IsAdmin]
+    # A reference list the employee app reads while completing a profile,
+    # logging work or adding a certificate. It carries no commercial or personal
+    # information, so any signed-in user may read it; only an admin maintains
+    # it. It used to be admin-only for reading too, which meant the app got a
+    # 403 and those screens could not be completed at all.
+    permission_classes = [IsAdminOrReadOnly]
 
     
     @action(detail=False, methods=['get'])

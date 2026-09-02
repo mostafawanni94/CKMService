@@ -113,6 +113,93 @@ def credit_work_entry(entry, actor=None):
     )
 
 
+@db_transaction.atomic
+def credit_work_entries(entries, actor=None):
+    """
+    Credit many approved entries at once.
+
+    One transaction and one balance recalculation per wallet, instead of both
+    per entry. Use this for payroll, a bulk approval or the backfill command;
+    `credit_work_entry` remains the right call when a single shift is approved.
+
+    Idempotent in the same way: an entry already credited is corrected, never
+    duplicated.
+
+    `balance_after` on a batch is the wallet's balance once the batch is
+    posted. For movements written at the same instant there is no meaningful
+    order between them, so a single figure is the honest one.
+    """
+    priced, skipped = {}, 0
+
+    for entry in entries:
+        if entry.employee_id is None:
+            skipped += 1
+            continue
+        amount = entry.calculated_employee_payment or Decimal('0.00')
+        if amount <= 0:
+            logger.info('Work entry %s pays 0. Is the hourly rate set for %s?',
+                        entry.pk, entry.employee_id)
+            skipped += 1
+            continue
+        priced[entry.pk] = (entry, amount)
+
+    if not priced:
+        return {'credited': 0, 'corrected': 0, 'skipped': skipped}
+
+    # One wallet lookup per employee, not per entry.
+    wallets = {}
+    for entry, _ in priced.values():
+        if entry.employee_id not in wallets:
+            wallets[entry.employee_id] = wallet_for(entry.employee)
+
+    # One query to find everything already credited.
+    existing = {
+        movement.reference_id: movement
+        for movement in WalletTransaction.objects.filter(
+            wallet__in=wallets.values(),
+            transaction_type=WalletTransaction.Type.EARNING,
+            reference_type='workentry',
+            reference_id__in=list(priced),
+        )
+    }
+
+    fresh, corrected = [], []
+    for entry_id, (entry, amount) in priced.items():
+        movement = existing.get(entry_id)
+        project = entry.project.name if entry.project else 'Werk'
+        if movement is None:
+            fresh.append(WalletTransaction(
+                wallet=wallets[entry.employee_id],
+                transaction_type=WalletTransaction.Type.EARNING,
+                amount=amount,
+                description=f'{project} ({entry.work_date})',
+                reference_type='workentry',
+                reference_id=entry_id,
+                status=WalletTransaction.Status.COMPLETED,
+                created_by=actor,
+            ))
+        elif movement.amount != amount:
+            movement.amount = amount
+            corrected.append(movement)
+
+    # bulk_create bypasses Model.save(), which is the point: save() recalculates
+    # the whole wallet on every insert, so a hundred entries meant a hundred
+    # aggregate queries.
+    if fresh:
+        WalletTransaction.objects.bulk_create(fresh, batch_size=500)
+    if corrected:
+        WalletTransaction.objects.bulk_update(corrected, ['amount'], batch_size=500)
+
+    for wallet in wallets.values():
+        balance = wallet.recalculate_balance()
+        WalletTransaction.objects.filter(
+            wallet=wallet, reference_type='workentry',
+            reference_id__in=list(priced), balance_after=Decimal('0.00'),
+        ).update(balance_after=balance)
+
+    return {'credited': len(fresh), 'corrected': len(corrected), 'skipped': skipped}
+
+
 def reverse_work_entry(entry, actor=None):
     """
     Undo the credit for an entry that is no longer approved.

@@ -75,31 +75,39 @@ class Wallet(TimeStampedModel):
         return f"Wallet: {self.employee} (€{self.balance})"
     
     def recalculate_balance(self):
-        """Recalculate balance from all transactions."""
-        from django.db.models import Sum
-        
+        """
+        Recompute the balance from the transactions.
+
+        One query, not three: the balance, the earnings and the advances used to
+        be three separate aggregates over the same rows, and this runs on every
+        transaction insert. Conditional aggregation gets all three in a single
+        pass, which matters when payroll credits a few hundred entries.
+        """
+        from django.db.models import Case, DecimalField, Sum, When
+
+        EARNING_TYPES = [
+            WalletTransaction.Type.EARNING,
+            WalletTransaction.Type.BONUS,
+            WalletTransaction.Type.REIMBURSEMENT,
+        ]
+        money = DecimalField(max_digits=12, decimal_places=2)
+
         totals = self.transactions.aggregate(
-            total=Sum('amount')
+            balance=Sum('amount'),
+            earnings=Sum(Case(
+                When(transaction_type__in=EARNING_TYPES, then='amount'),
+                output_field=money)),
+            advances=Sum(Case(
+                When(transaction_type=WalletTransaction.Type.ADVANCE, then='amount'),
+                output_field=money)),
         )
-        self.balance = totals['total'] or Decimal('0.00')
-        
-        # Calculate earnings and advances separately
-        earnings = self.transactions.filter(
-            transaction_type__in=[
-                WalletTransaction.Type.EARNING,
-                WalletTransaction.Type.BONUS,
-                WalletTransaction.Type.REIMBURSEMENT,
-            ]
-        ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
-        
-        advances = abs(self.transactions.filter(
-            transaction_type=WalletTransaction.Type.ADVANCE
-        ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00'))
-        
-        self.total_earnings = earnings
-        self.total_advances = advances
-        self.save(update_fields=['balance', 'total_earnings', 'total_advances', 'updated_at'])
-        
+
+        self.balance = totals['balance'] or Decimal('0.00')
+        self.total_earnings = totals['earnings'] or Decimal('0.00')
+        self.total_advances = abs(totals['advances'] or Decimal('0.00'))
+        self.save(update_fields=['balance', 'total_earnings', 'total_advances',
+                                 'updated_at'])
+
         return self.balance
 
 
@@ -225,14 +233,18 @@ class WalletTransaction(BaseModel):
         return f"{self.wallet.employee}: {sign}€{self.amount} ({self.get_transaction_type_display()})"
     
     def save(self, *args, **kwargs):
-        """Update wallet balance after saving."""
+        """
+        Record the movement, then restate the wallet it belongs to.
+
+        `balance_after` is written in the same statement as the rest of the row
+        where possible. It used to be a second UPDATE per transaction, on a path
+        that runs once per approved shift.
+        """
         is_new = self._state.adding
         super().save(*args, **kwargs)
-        
+
         if is_new and self.status == self.Status.COMPLETED:
-            # Update balance_after
-            self.wallet.recalculate_balance()
-            self.balance_after = self.wallet.balance
+            self.balance_after = self.wallet.recalculate_balance()
             super().save(update_fields=['balance_after'])
 
 

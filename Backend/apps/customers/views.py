@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django.utils import timezone
-from django.db.models import Case, When, Value, IntegerField, Q
+from django.db.models import Case, When, Value, IntegerField, Q, Count
 from rest_framework.permissions import IsAuthenticated
 
 from apps.core.permissions import IsAdmin
@@ -46,9 +46,15 @@ class CustomerViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Return optimized querysets based on action."""
         if self.action == 'list':
-            # Light query for list - only count aggregations, no nested data
+            # The list serializer reports how many outfolders and projects each
+            # customer has. Those were `outfolders.count` and `projects.count`
+            # on the instance — two extra queries per row — so a page of 20
+            # customers cost 41 queries. Counted in the same statement now.
             return Customer.objects.only(
                 'id', 'company_name', 'city', 'country', 'is_active', 'created_at'
+            ).annotate(
+                outfolders_total=Count('outfolders', distinct=True),
+                projects_total=Count('projects', distinct=True),
             ).order_by('-created_at')
         
         # Full query for detail view with prefetch for nested data

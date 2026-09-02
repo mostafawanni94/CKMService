@@ -28,64 +28,65 @@ class Command(BaseCommand):
         parser.add_argument('--employee', help='Limit to one employee id.')
 
     def handle(self, *args, **options):
+        """
+        Credit every approved entry that has not been credited yet.
+
+        Batched: one transaction per chunk and one balance recalculation per
+        wallet. Row-by-row this cost about eight queries per entry, which on a
+        year of history is tens of thousands of round trips.
+        """
+        from apps.wallet.services import credit_work_entries
+
         dry_run = options['dry_run']
 
         entries = (
             WorkEntry.objects
             .filter(status=WorkEntry.Status.APPROVED, employee__isnull=False)
-            .select_related('employee', 'project')
+            .select_related('employee', 'employee__user', 'project',
+                            'project__customer', 'service')
             .order_by('work_date')
         )
         if options.get('employee'):
             entries = entries.filter(employee_id=options['employee'])
 
-        created = corrected = skipped = unpaid = 0
-
-        for entry in entries:
-            amount = entry.calculated_employee_payment or Decimal('0.00')
-            if amount <= 0:
-                unpaid += 1
-                continue
-
-            existing = WalletTransaction.objects.filter(
+        if dry_run:
+            already = set(WalletTransaction.objects.filter(
                 reference_type='workentry',
-                reference_id=entry.id,
                 transaction_type=WalletTransaction.Type.EARNING,
-            ).first()
+            ).values_list('reference_id', flat=True))
 
-            if existing:
-                if existing.amount != amount:
-                    corrected += 1
-                    if not dry_run:
-                        existing.amount = amount
-                        existing.save()
+            would_create = would_correct = unpaid = correct = 0
+            for entry in entries.iterator(chunk_size=500):
+                amount = entry.calculated_employee_payment or Decimal('0.00')
+                if amount <= 0:
+                    unpaid += 1
+                elif entry.id not in already:
+                    would_create += 1
                 else:
-                    skipped += 1
-                continue
+                    correct += 1
 
-            created += 1
-            if dry_run:
-                continue
+            self.stdout.write(self.style.SUCCESS(
+                f'Would create {would_create}, already present {correct}, '
+                f'zero-pay (no hourly_rate) {unpaid}.'))
+            return
 
-            with db_transaction.atomic():
-                wallet, _ = Wallet.objects.get_or_create(employee=entry.employee)
-                WalletTransaction.objects.create(
-                    wallet=wallet,
-                    transaction_type=WalletTransaction.Type.EARNING,
-                    amount=amount,
-                    description=f'Work: {entry.project.name} ({entry.work_date})',
-                    reference_type='workentry',
-                    reference_id=entry.id,
-                    created_by=entry.approved_by,
-                )
+        created = corrected = skipped = 0
+        batch = []
+        for entry in entries.iterator(chunk_size=500):
+            batch.append(entry)
+            if len(batch) >= 500:
+                result = credit_work_entries(batch)
+                created += result['credited']
+                corrected += result['corrected']
+                skipped += result['skipped']
+                batch = []
 
-        if not dry_run:
-            for wallet in Wallet.objects.all():
-                wallet.recalculate_balance()
-                wallet.save()
+        if batch:
+            result = credit_work_entries(batch)
+            created += result['credited']
+            corrected += result['corrected']
+            skipped += result['skipped']
 
-        prefix = 'Would create' if dry_run else 'Created'
         self.stdout.write(self.style.SUCCESS(
-            f'{prefix} {created}, corrected {corrected}, already correct {skipped}, '
-            f'zero-pay (no hourly_rate) {unpaid}.'
-        ))
+            f'Created {created}, corrected {corrected}, '
+            f'zero-pay (no hourly_rate) {skipped}.'))
