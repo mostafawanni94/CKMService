@@ -295,6 +295,7 @@ no-ops; the apps still run.
 |---|---|
 | [CLAUDE.md](CLAUDE.md) | Architecture, conventions and gotchas — start here |
 | [BTW_AANGIFTE.md](BTW_AANGIFTE.md) | How VAT is decided, and how to file a quarter |
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Secrets, database, cron, backup and recovery |
 | [ENCRYPTION.md](ENCRYPTION.md) | The field-encryption key: configuring, backing up, rotating |
 | [DOCUMENTATION.md](DOCUMENTATION.md) | Per-endpoint API reference |
 | [DEPLOYMENT_NOTIFICATIONS.md](DEPLOYMENT_NOTIFICATIONS.md) | Cron jobs and email setup |
