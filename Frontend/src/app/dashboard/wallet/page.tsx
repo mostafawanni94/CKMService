@@ -73,7 +73,7 @@ export default function WalletPage() {
             <div className="space-y-6">
                 {/* Header */}
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Wallet Management</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">{t('Wallet Management')}</h1>
                     <p className="text-gray-500">Manage employee balances and advance requests</p>
                 </div>
 

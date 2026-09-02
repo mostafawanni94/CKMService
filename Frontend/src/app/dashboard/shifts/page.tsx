@@ -366,7 +366,7 @@ export default function ShiftsPage() {
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                     <div>
-                        <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#111827', margin: 0 }}>Shift Scheduling</h1>
+                        <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#111827', margin: 0 }}>{t('Shift Scheduling')}</h1>
                         <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '4px' }}>Schedule and manage employee shifts</p>
                     </div>
                     <Button onClick={() => router.push('/dashboard/shifts/new')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -526,7 +526,7 @@ export default function ShiftsPage() {
                         >
                             <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '24px' }}>
                                 <Calendar size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-                                Schedule New Shift
+                                {t('Schedule New Shift')}
                             </h2>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -671,7 +671,7 @@ export default function ShiftsPage() {
                                 {/* Service Type (when project selected) */}
                                 {formData.project && (
                                     <div>
-                                        <label style={labelStyle}>Service Type</label>
+                                        <label style={labelStyle}>{t('Service Type')}</label>
                                         <select
                                             value={formData.service}
                                             onChange={(e) => setFormData({ ...formData, service: e.target.value })}
@@ -716,7 +716,7 @@ export default function ShiftsPage() {
                                     return (
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                             <div>
-                                                <label style={labelStyle}><Phone size={14} style={{ marginRight: '4px' }} />Supervisor Phone</label>
+                                                <label style={labelStyle}><Phone size={14} style={{ marginRight: '4px' }} />{t('Supervisor Phone')}</label>
                                                 {phoneContacts.length > 0 ? (
                                                     <select
                                                         value={formData.supervisor_phone}
@@ -733,7 +733,7 @@ export default function ShiftsPage() {
                                                 )}
                                             </div>
                                             <div>
-                                                <label style={labelStyle}><Mail size={14} style={{ marginRight: '4px' }} />Supervisor Email</label>
+                                                <label style={labelStyle}><Mail size={14} style={{ marginRight: '4px' }} />{t('Supervisor Email')}</label>
                                                 {emailContacts.length > 0 ? (
                                                     <select
                                                         value={formData.supervisor_email}
@@ -766,7 +766,7 @@ export default function ShiftsPage() {
 
                                 {/* Special Instructions */}
                                 <div>
-                                    <label style={labelStyle}><AlertCircle size={14} style={{ marginRight: '4px' }} />Special Instructions</label>
+                                    <label style={labelStyle}><AlertCircle size={14} style={{ marginRight: '4px' }} />{t('Special Instructions')}</label>
                                     <textarea
                                         value={formData.special_instructions}
                                         onChange={(e) => setFormData({ ...formData, special_instructions: e.target.value })}

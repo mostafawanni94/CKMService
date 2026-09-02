@@ -594,7 +594,7 @@ export default function ProjectsPage() {
                 ) : filteredProjects.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '60px', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E5E7EB' }}>
                         <FolderKanban style={{ width: '48px', height: '48px', color: '#9CA3AF', margin: '0 auto 16px' }} />
-                        <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', marginBottom: '8px' }}>No Projects Found</h3>
+                        <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', marginBottom: '8px' }}>{t('No Projects Found')}</h3>
                         <p style={{ fontSize: '14px', color: '#9CA3AF', marginBottom: '16px' }}>
                             {selectedCustomers.length > 0 ? 'No projects found for selected customers' : 'Create your first project to get started'}
                         </p>
@@ -808,7 +808,7 @@ export default function ProjectsPage() {
                                 <div style={{ padding: '10px', backgroundColor: '#EFF6FF', borderRadius: '10px' }}>
                                     <FolderKanban style={{ width: '20px', height: '20px', color: '#2563EB' }} />
                                 </div>
-                                <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', margin: 0 }}>Create New Project</h2>
+                                <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', margin: 0 }}>{t('Create New Project')}</h2>
                             </div>
 
                             <form onSubmit={handleCreateProject}>

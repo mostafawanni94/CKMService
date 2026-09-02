@@ -367,7 +367,7 @@ export default function SurchargeTypesPage() {
                     gap: '20px',
                     marginBottom: '32px'
                 }}>
-                    <StatCard label="Total Types" value={stats.total} icon={Clock} color="#8B5CF6" />
+                    <StatCard label={t('Total Types')} value={stats.total} icon={Clock} color="#8B5CF6" />
                     <StatCard label={t('Active')} value={stats.active} icon={CheckCircle} color="#10B981" />
                     <StatCard label="Weekend" value={stats.weekend} icon={Sun} color="#F59E0B" />
                     <StatCard label="Night Shift" value={stats.nightShift} icon={Moon} color="#3B82F6" />
@@ -464,7 +464,7 @@ export default function SurchargeTypesPage() {
                         <div>Surcharge Type</div>
                         <div>{t('Category')}</div>
                         <div>Days / Time</div>
-                        <div>Specific Dates</div>
+                        <div>{t('Specific Dates')}</div>
                         <div style={{ textAlign: 'center' }}>{t('Status')}</div>
                         <div style={{ textAlign: 'center' }}>{t('Actions')}</div>
                     </div>
@@ -865,7 +865,7 @@ export default function SurchargeTypesPage() {
                                         </h3>
 
                                         {/* Time Window */}
-                                        <label style={{ ...labelStyle, color: '#1E40AF' }}>Time Window</label>
+                                        <label style={{ ...labelStyle, color: '#1E40AF' }}>{t('Time Window')}</label>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
                                             <input
                                                 type="time"
@@ -883,7 +883,7 @@ export default function SurchargeTypesPage() {
                                         </div>
 
                                         {/* Active Days */}
-                                        <label style={{ ...labelStyle, color: '#1E40AF' }}>Active Days</label>
+                                        <label style={{ ...labelStyle, color: '#1E40AF' }}>{t('Active Days')}</label>
                                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                                             {DAYS.map((day, i) => (
                                                 <button
@@ -926,7 +926,7 @@ export default function SurchargeTypesPage() {
                                         </h3>
 
                                         {/* Time Window (optional) */}
-                                        <label style={{ ...labelStyle, color: '#065F46' }}>Time Window <span style={{ fontWeight: 400, fontSize: '12px' }}>(leave empty for all day)</span></label>
+                                        <label style={{ ...labelStyle, color: '#065F46' }}>{t('Time Window')} <span style={{ fontWeight: 400, fontSize: '12px' }}>(leave empty for all day)</span></label>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
                                             <input
                                                 type="time"
@@ -1076,7 +1076,7 @@ export default function SurchargeTypesPage() {
                                         </p>
 
                                         {/* Active Days */}
-                                        <label style={{ ...labelStyle, color: '#991B1B', marginTop: '16px' }}>Active Days</label>
+                                        <label style={{ ...labelStyle, color: '#991B1B', marginTop: '16px' }}>{t('Active Days')}</label>
                                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                                             {DAYS.map((day, i) => (
                                                 <button
@@ -1116,7 +1116,7 @@ export default function SurchargeTypesPage() {
                                         </h3>
 
                                         {/* Time */}
-                                        <label style={{ ...labelStyle, color: '#5B21B6' }}>Time Window</label>
+                                        <label style={{ ...labelStyle, color: '#5B21B6' }}>{t('Time Window')}</label>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
                                             <input type="time" value={formData.time_from} onChange={(e) => setFormData({ ...formData, time_from: e.target.value })} style={{ ...inputStyle, backgroundColor: 'white' }} />
                                             <span style={{ fontSize: '16px', color: '#6B7280' }}>→</span>
@@ -1145,7 +1145,7 @@ export default function SurchargeTypesPage() {
                                         </div>
 
                                         {/* Holidays */}
-                                        <label style={{ ...labelStyle, color: '#5B21B6' }}>Specific Dates</label>
+                                        <label style={{ ...labelStyle, color: '#5B21B6' }}>{t('Specific Dates')}</label>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', maxHeight: '160px', overflowY: 'auto', padding: '10px', backgroundColor: 'white', borderRadius: '8px', border: '1px solid #DDD6FE' }}>
                                             {NL_PUBLIC_HOLIDAYS.map(holiday => (
                                                 <label key={holiday.date} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', padding: '4px 6px', borderRadius: '6px', backgroundColor: formData.specific_dates.includes(holiday.date) ? '#EDE9FE' : 'transparent' }}>

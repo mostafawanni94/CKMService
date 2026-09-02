@@ -139,7 +139,7 @@ export function ShareCredentialsModal({ vm }: { vm: ViewModel }) {
                             </div>
 
                             {/* Title */}
-                            <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>Employee Created!</h3>
+                            <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>{t('Employee Created!')}</h3>
                             <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
                                 Share these credentials with <strong>{createdEmployee.name}</strong>
                             </p>

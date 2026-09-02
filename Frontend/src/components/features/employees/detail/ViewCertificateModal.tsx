@@ -86,7 +86,7 @@ export function ViewCertificateModal({ vm }: { vm: ViewModel }) {
                                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
                             }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                                    <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', margin: 0 }}>Certificate Details</h3>
+                                    <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', margin: 0 }}>{t('Certificate Details')}</h3>
                                     <button onClick={() => setShowViewCertificateModal(false)}><X size={20} color="#6B7280" /></button>
                                 </div>
 

@@ -22,10 +22,12 @@ import {
 } from '@/components/features/employees/EmployeeHelpers';
 
 import type { useEmployeeDetail } from '@/hooks/useEmployeeDetail';
+import { useLanguage } from '@/lib/i18n';
 
 type ViewModel = ReturnType<typeof useEmployeeDetail>;
 
 export function CertificatesTab({ vm }: { vm: ViewModel }) {
+    const { t } = useLanguage();
     const {
         params, router, employee, setEmployee, loading, error, noPermission,
         activeTab, setActiveTab, isEditing, setIsEditing, saving,
@@ -106,7 +108,7 @@ export function CertificatesTab({ vm }: { vm: ViewModel }) {
                                         }}
                                     >
                                         <Plus size={16} />
-                                        Add Certificate
+                                        {t('Add Certificate')}
                                     </button>
                                 </div>
 

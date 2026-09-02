@@ -136,7 +136,7 @@ export function DeleteEmployeeModal({ vm }: { vm: ViewModel }) {
                             <div style={{ width: '64px', height: '64px', borderRadius: '32px', backgroundColor: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
                                 <AlertTriangle style={{ width: '32px', height: '32px', color: '#DC2626' }} />
                             </div>
-                            <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>Delete Employee</h3>
+                            <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>{t('Delete Employee')}</h3>
                             <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
                                 Are you sure you want to delete <strong>{selectedEmployee.full_name}</strong>? This action cannot be undone.
                             </p>

@@ -214,7 +214,7 @@ export default function AllowanceTypesPage() {
                         }}
                     >
                         <Plus size={18} />
-                        Add Allowance Type
+                        {t('Add Allowance Type')}
                     </button>
                 </div>
 
@@ -356,7 +356,7 @@ export default function AllowanceTypesPage() {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '24px' }}>
-                            {editingId ? 'Edit Allowance Type' : 'Add Allowance Type'}
+                            {editingId ? 'Edit Allowance Type' : t('Add Allowance Type')}
                         </h2>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

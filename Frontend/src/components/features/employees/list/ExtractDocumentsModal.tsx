@@ -142,7 +142,7 @@ export function ExtractDocumentsModal({ vm }: { vm: ViewModel }) {
                                     {extractEmployee.full_name?.split(' ').map(n => n[0]).join('') || '?'}
                                 </div>
                                 <div>
-                                    <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', margin: 0 }}>Extract Documents</h3>
+                                    <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', margin: 0 }}>{t('Extract Documents')}</h3>
                                     <p style={{ fontSize: '14px', color: '#6B7280', margin: '4px 0 0' }}>{extractEmployee.full_name}</p>
                                 </div>
                             </div>

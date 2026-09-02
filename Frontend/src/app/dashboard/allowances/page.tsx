@@ -256,7 +256,7 @@ export default function AllowancesPage() {
                         onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                     >
                         <Plus size={18} />
-                        Add Allowance Type
+                        {t('Add Allowance Type')}
                     </button>
                 </div>
 
@@ -267,7 +267,7 @@ export default function AllowancesPage() {
                     gap: '20px',
                     marginBottom: '32px'
                 }}>
-                    <StatCard label="Total Types" value={stats.total} icon={Gift} color="#DC2626" />
+                    <StatCard label={t('Total Types')} value={stats.total} icon={Gift} color="#DC2626" />
                     <StatCard label={t('Active')} value={stats.active} icon={CheckCircle} color="#10B981" />
                     <StatCard label="Avg. Rate" value={`€${(stats.totalValue / (stats.total || 1)).toFixed(2)}/hr`} icon={Euro} color="#6366F1" isText />
                 </div>
@@ -473,7 +473,7 @@ export default function AllowancesPage() {
                             {/* Modal Header */}
                             <div style={{ padding: '24px 24px 0', borderBottom: '1px solid #F3F4F6', paddingBottom: '20px' }}>
                                 <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#1F2937', margin: 0 }}>
-                                    {editingAllowance ? 'Edit Allowance Type' : 'Add Allowance Type'}
+                                    {editingAllowance ? 'Edit Allowance Type' : t('Add Allowance Type')}
                                 </h2>
                                 <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '4px' }}>
                                     {editingAllowance ? 'Update the allowance type details' : 'Create a new allowance type for customers'}

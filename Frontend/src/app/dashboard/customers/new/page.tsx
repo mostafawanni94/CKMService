@@ -31,7 +31,7 @@ export default function NewCustomerPage() {
                 <div style={{ marginBottom: '24px' }}>
                     <button onClick={() => router.push('/dashboard/customers')} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6B7280', fontSize: '14px', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', marginBottom: '16px' }}>
                         <ArrowLeft style={{ width: '16px', height: '16px' }} />
-                        Back to Customers
+                        {t('Back to Customers')}
                     </button>
 
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -50,7 +50,7 @@ export default function NewCustomerPage() {
                                 </div>
                             </div>
                             <div>
-                                <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: 0 }}>Add New Customer</h1>
+                                <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: 0 }}>{t('Add New Customer')}</h1>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
                                     <span style={{ fontSize: '14px', color: '#6B7280' }}>Create a new customer account</span>
                                     <span style={{ padding: '4px 10px', borderRadius: '9999px', fontSize: '12px', fontWeight: 600, backgroundColor: '#DCFCE7', color: '#16A34A' }}>
@@ -312,7 +312,7 @@ export default function NewCustomerPage() {
                         <div style={{ padding: '10px', backgroundColor: '#DCFCE7', borderRadius: '10px' }}>
                             <Briefcase style={{ width: '20px', height: '20px', color: '#16A34A' }} />
                         </div>
-                        <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>General Manager</h2>
+                        <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('General Manager')}</h2>
                     </div>
 
                     {/* Manager Name */}
@@ -388,7 +388,7 @@ export default function NewCustomerPage() {
                         </div>
                         {!showAddSupervisor && (
                             <button onClick={() => setShowAddSupervisor(true)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', backgroundColor: '#1E3A5F', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
-                                <Plus style={{ width: '14px', height: '14px' }} /> Add Supervisor
+                                <Plus style={{ width: '14px', height: '14px' }} /> {t('Add Supervisor')}
                             </button>
                         )}
                     </div>
@@ -497,7 +497,7 @@ export default function NewCustomerPage() {
                                     {t('Cancel')}
                                 </button>
                                 <button onClick={handleAddSupervisor} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', backgroundColor: '#16A34A', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
-                                    <Plus style={{ width: '14px', height: '14px' }} /> Add Supervisor
+                                    <Plus style={{ width: '14px', height: '14px' }} /> {t('Add Supervisor')}
                                 </button>
                             </div>
                         </div>
@@ -516,7 +516,7 @@ export default function NewCustomerPage() {
                             <Briefcase style={{ width: '20px', height: '20px', color: '#7C3AED' }} />
                         </div>
                         <div>
-                            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Services Configuration</h2>
+                            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Services Configuration')}</h2>
                             <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Select services and set prices for this customer</p>
                         </div>
                     </div>
@@ -730,7 +730,7 @@ export default function NewCustomerPage() {
                                 <Gift style={{ width: '20px', height: '20px', color: '#DC2626' }} />
                             </div>
                             <div>
-                                <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Allowances Configuration</h2>
+                                <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Allowances Configuration')}</h2>
                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Custom allowances for this customer (e.g., Mask, Hazard Pay)</p>
                             </div>
                         </div>
@@ -742,7 +742,7 @@ export default function NewCustomerPage() {
                                 border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer'
                             }}
                         >
-                            <Plus size={14} /> Add Allowance
+                            <Plus size={14} /> {t('Add Allowance')}
                         </button>
                     </div>
 

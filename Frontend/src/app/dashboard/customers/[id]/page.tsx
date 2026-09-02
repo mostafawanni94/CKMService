@@ -63,9 +63,9 @@ export default function CustomerDetailPage() {
             <DashboardLayout>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
                     <AlertTriangle style={{ width: '64px', height: '64px', color: '#EF4444', marginBottom: '16px' }} />
-                    <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#111827', marginBottom: '8px' }}>Customer Not Found</h2>
+                    <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#111827', marginBottom: '8px' }}>{t('Customer Not Found')}</h2>
                     <p style={{ color: '#6B7280', marginBottom: '16px' }}>The customer you're looking for doesn't exist.</p>
-                    <Button onClick={() => router.push('/dashboard/customers')} className="bg-[#1E3A5F]">Back to Customers</Button>
+                    <Button onClick={() => router.push('/dashboard/customers')} className="bg-[#1E3A5F]">{t('Back to Customers')}</Button>
                 </div>
             </DashboardLayout>
         );
@@ -78,7 +78,7 @@ export default function CustomerDetailPage() {
                 <div style={{ marginBottom: '24px' }}>
                     <button onClick={() => router.push('/dashboard/customers')} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6B7280', fontSize: '14px', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', marginBottom: '16px' }}>
                         <ArrowLeft style={{ width: '16px', height: '16px' }} />
-                        Back to Customers
+                        {t('Back to Customers')}
                     </button>
 
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -279,7 +279,7 @@ export default function CustomerDetailPage() {
                     <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #E5E7EB' }}>
                         <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
                             <input type="checkbox" checked={editForm.is_active} onChange={(e) => setEditForm(f => ({ ...f, is_active: e.target.checked }))} style={{ width: '20px', height: '20px' }} />
-                            <span style={{ fontSize: '14px', fontWeight: 500, color: '#374151' }}>Active Customer</span>
+                            <span style={{ fontSize: '14px', fontWeight: 500, color: '#374151' }}>{t('Active Customer')}</span>
                         </label>
                     </div>
                 </div>
@@ -289,7 +289,7 @@ export default function CustomerDetailPage() {
                         <div style={{ padding: '10px', backgroundColor: '#DCFCE7', borderRadius: '10px' }}>
                             <Briefcase style={{ width: '20px', height: '20px', color: '#16A34A' }} />
                         </div>
-                        <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>General Manager</h2>
+                        <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('General Manager')}</h2>
                     </div>
 
                     {/* Manager Name */}
@@ -384,7 +384,7 @@ export default function CustomerDetailPage() {
                         </div>
                         {!showAddOutfolder && !editingOutfolderId && (
                             <button onClick={() => setShowAddOutfolder(true)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', backgroundColor: '#1E3A5F', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
-                                <Plus style={{ width: '14px', height: '14px' }} /> Add Supervisor
+                                <Plus style={{ width: '14px', height: '14px' }} /> {t('Add Supervisor')}
                             </button>
                         )}
                     </div>
@@ -501,7 +501,7 @@ export default function CustomerDetailPage() {
                                     {t('Cancel')}
                                 </button>
                                 <button onClick={handleSaveOutfolder} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', backgroundColor: '#16A34A', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
-                                    <Check style={{ width: '14px', height: '14px' }} /> {editingOutfolderId ? 'Save Changes' : 'Add Supervisor'}
+                                    <Check style={{ width: '14px', height: '14px' }} /> {editingOutfolderId ? 'Save Changes' : t('Add Supervisor')}
                                 </button>
                             </div>
                         </div>
@@ -535,7 +535,7 @@ export default function CustomerDetailPage() {
                             <Briefcase style={{ width: '20px', height: '20px', color: '#7C3AED' }} />
                         </div>
                         <div>
-                            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Services Configuration</h2>
+                            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Services Configuration')}</h2>
                             <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Select services and set prices for this customer</p>
                         </div>
                     </div>
@@ -750,7 +750,7 @@ export default function CustomerDetailPage() {
                                 <Gift style={{ width: '20px', height: '20px', color: '#DC2626' }} />
                             </div>
                             <div>
-                                <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Allowances Configuration</h2>
+                                <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Allowances Configuration')}</h2>
                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Custom allowances for this customer (e.g., Mask, Hazard Pay)</p>
                             </div>
                         </div>
@@ -762,7 +762,7 @@ export default function CustomerDetailPage() {
                                 border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer'
                             }}
                         >
-                            <Plus size={14} /> Add Allowance
+                            <Plus size={14} /> {t('Add Allowance')}
                         </button>
                     </div>
 
@@ -1286,7 +1286,7 @@ export default function CustomerDetailPage() {
                     <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
                         <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setShowContractUploadModal(false)} />
                         <div style={{ position: 'relative', backgroundColor: 'white', borderRadius: '16px', padding: '32px', maxWidth: '500px', width: '100%' }}>
-                            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', marginBottom: '24px' }}>Upload New Contract</h3>
+                            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', marginBottom: '24px' }}>{t('Upload New Contract')}</h3>
 
                             <div style={{ marginBottom: '20px' }}>
                                 <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '8px' }}>Contract Document *</label>
@@ -1339,7 +1339,7 @@ export default function CustomerDetailPage() {
                             <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <UserCircle style={{ width: '20px', height: '20px', color: '#6366F1' }} />
                             </div>
-                            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Portal Access</h2>
+                            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Portal Access')}</h2>
                             <span style={{ fontSize: '12px', color: '#6B7280', backgroundColor: '#F3F4F6', padding: '2px 8px', borderRadius: '10px' }}>
                                 {portalUsers.length} user{portalUsers.length !== 1 ? 's' : ''}
                             </span>
@@ -1363,7 +1363,7 @@ export default function CustomerDetailPage() {
                     {/* Add Portal User Form */}
                     {showAddPortalUser && (
                         <div style={{ backgroundColor: '#F9FAFB', borderRadius: '12px', padding: '16px', marginBottom: '16px', border: '1px solid #E5E7EB' }}>
-                            <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#111827', margin: '0 0 12px 0' }}>New Portal Login</h3>
+                            <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#111827', margin: '0 0 12px 0' }}>{t('New Portal Login')}</h3>
                             {portalUserError && (
                                 <div style={{ padding: '8px 12px', backgroundColor: '#FEE2E2', borderRadius: '8px', color: '#DC2626', fontSize: '13px', marginBottom: '12px' }}>
                                     {portalUserError}
@@ -1496,7 +1496,7 @@ export default function CustomerDetailPage() {
                             <div style={{ width: '64px', height: '64px', borderRadius: '32px', backgroundColor: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
                                 <AlertTriangle style={{ width: '32px', height: '32px', color: '#DC2626' }} />
                             </div>
-                            <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>Delete Customer</h3>
+                            <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>{t('Delete Customer')}</h3>
                             <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
                                 Are you sure you want to delete <strong>{customer.company_name}</strong>? This action cannot be undone.
                             </p>

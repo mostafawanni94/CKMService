@@ -166,7 +166,7 @@ export function BillingTab({ invoices, loading, onGenerate, onRowClick }: Billin
 
       {/* Invoice list */}
       <SectionCard title={t('Agency Invoices')} actions={
-        <Button onClick={onGenerate} icon={<Plus size={16} />} size="sm">Generate Invoice</Button>
+        <Button onClick={onGenerate} icon={<Plus size={16} />} size="sm">{t('Generate Invoice')}</Button>
       }>
         <DataTable
           columns={invoiceColumns}
@@ -316,7 +316,7 @@ export function GenerateInvoiceModal({
       <>
         <Button variant="secondary" onClick={onClose}>{t('Cancel')}</Button>
         <Button onClick={onGenerate} loading={generating} disabled={!periodStart || !periodEnd}>
-          Generate Invoice
+          {t('Generate Invoice')}
         </Button>
       </>
     }>

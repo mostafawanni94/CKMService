@@ -349,7 +349,7 @@ export default function SettingsPage() {
                                 })}
                                 style={addButtonStyle}
                             >
-                                <Plus size={14} /> Add Email
+                                <Plus size={14} /> {t('Add Email')}
                             </button>
                         </div>
                         {settings.company_emails.map((email, index) => (
@@ -769,7 +769,7 @@ export default function SettingsPage() {
                                         })}
                                         style={addButtonStyle}
                                     >
-                                        <Plus size={14} /> Add Email
+                                        <Plus size={14} /> {t('Add Email')}
                                     </button>
                                 </div>
                                 {settings.notification_recipients.length === 0 && (

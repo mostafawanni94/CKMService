@@ -141,7 +141,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                             {selectedEmployee.full_name?.split(' ').map(n => n[0]).join('') || '?'}
                                         </div>
                                         <div>
-                                            <h2 className="text-xl font-bold text-white">Edit Employee Profile</h2>
+                                            <h2 className="text-xl font-bold text-white">{t('Edit Employee Profile')}</h2>
                                             <p className="text-white/70 text-sm mt-1">{selectedEmployee.user_email}</p>
                                         </div>
                                     </div>

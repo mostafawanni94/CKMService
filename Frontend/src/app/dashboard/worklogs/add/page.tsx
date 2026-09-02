@@ -42,10 +42,10 @@ export default function AddWorkLogPage() {
                                 cursor: 'pointer', fontSize: '14px', marginBottom: '16px'
                             }}
                         >
-                            <ArrowLeft size={16} /> Back to Work Logs
+                            <ArrowLeft size={16} /> {t('Back to Work Logs')}
                         </button>
                         <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'white', margin: 0 }}>
-                            Add Work Log
+                            {t('Add Work Log')}
                         </h1>
                         <p style={{ color: 'rgba(255,255,255,0.7)', margin: '8px 0 0', fontSize: '15px' }}>
                             Create a new work log entry by filling out the form below
@@ -84,7 +84,7 @@ export default function AddWorkLogPage() {
                             </div>
                             <div>
                                 <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>
-                                    Assignment Details
+                                    {t('Assignment Details')}
                                 </h2>
                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: '2px 0 0' }}>
                                     Select employee, customer, project and supervisor
@@ -339,7 +339,7 @@ export default function AddWorkLogPage() {
 
                                 {/* Service */}
                                 <div style={{ position: 'relative' }}>
-                                    <label style={labelStyle}>Service Type</label>
+                                    <label style={labelStyle}>{t('Service Type')}</label>
                                     <input
                                         type="text"
                                         value={serviceSearch}
@@ -396,7 +396,7 @@ export default function AddWorkLogPage() {
                                         type="text"
                                         value={location}
                                         onChange={(e) => setLocation(e.target.value)}
-                                        placeholder={!project ? 'Select project to auto-fill...' : 'Work location'}
+                                        placeholder={!project ? 'Select project to auto-fill...' : t('Work location')}
                                         style={inputStyle}
                                         disabled={!project}
                                     />
@@ -510,7 +510,7 @@ export default function AddWorkLogPage() {
                                         }}
                                     >
                                         <Plus size={14} />
-                                        Add Break
+                                        {t('Add Break')}
                                     </button>
                                 </div>
 
@@ -673,7 +673,7 @@ export default function AddWorkLogPage() {
                                 }}
                             >
                                 <Plus size={16} />
-                                Add Allowance
+                                {t('Add Allowance')}
                             </button>
                         </div>
 
@@ -691,13 +691,13 @@ export default function AddWorkLogPage() {
                                         }}>
                                             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr auto', gap: '16px', marginBottom: '16px' }}>
                                                 <div>
-                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>Allowance Type</label>
+                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>{t('Allowance Type')}</label>
                                                     <select
                                                         value={allowance.allowance_type || ''}
                                                         onChange={(e) => updateAllowance(index, 'allowance_type', e.target.value ? parseInt(e.target.value) : null)}
                                                         style={inputStyle}
                                                     >
-                                                        <option value="">Custom / Other</option>
+                                                        <option value="">{t('Custom / Other')}</option>
                                                         {allowanceTypes.map(at => (
                                                             <option key={at.id} value={at.id}>
                                                                 {at.name} (€{at.base_price}/hr)
@@ -773,7 +773,7 @@ export default function AddWorkLogPage() {
 
                                             {!allowance.allowance_type && (
                                                 <div>
-                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>Custom Allowance Name</label>
+                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>{t('Custom Allowance Name')}</label>
                                                     <input
                                                         type="text"
                                                         value={allowance.custom_allowance_name}

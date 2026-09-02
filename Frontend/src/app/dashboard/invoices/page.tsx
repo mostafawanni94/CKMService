@@ -88,7 +88,7 @@ export default function InvoicesPage() {
                         }}
                     >
                         <Download size={18} />
-                        Generate Invoice
+                        {t('Generate Invoice')}
                     </button>
                 </div>
 
@@ -362,7 +362,7 @@ export default function InvoicesPage() {
                                 <div>
                                     <div className="flex items-center gap-2 mb-3">
                                         <Users className="w-5 h-5 text-blue-600" />
-                                        <h3 className="font-semibold text-lg">Labor Hours</h3>
+                                        <h3 className="font-semibold text-lg">{t('Labor Hours')}</h3>
                                     </div>
                                     <div className="bg-white border rounded-xl overflow-hidden">
                                         <table className="w-full">
@@ -408,7 +408,7 @@ export default function InvoicesPage() {
                                                 <thead className="bg-purple-100/50">
                                                     <tr>
                                                         <th className="px-4 py-3 text-left text-xs font-medium text-purple-700 uppercase">{t('Employee')}</th>
-                                                        <th className="px-4 py-3 text-left text-xs font-medium text-purple-700 uppercase">Allowance Type</th>
+                                                        <th className="px-4 py-3 text-left text-xs font-medium text-purple-700 uppercase">{t('Allowance Type')}</th>
                                                         <th className="px-4 py-3 text-right text-xs font-medium text-purple-700 uppercase">{t('Hours')}</th>
                                                         <th className="px-4 py-3 text-right text-xs font-medium text-purple-700 uppercase">{t('Rate')}</th>
                                                         <th className="px-4 py-3 text-right text-xs font-medium text-purple-700 uppercase">{t('Total')}</th>
@@ -467,7 +467,7 @@ export default function InvoicesPage() {
                                     <div>
                                         <div className="flex items-center gap-2 mb-3">
                                             <Briefcase className="w-5 h-5 text-gray-600" />
-                                            <h3 className="font-semibold text-lg">Additional Costs</h3>
+                                            <h3 className="font-semibold text-lg">{t('Additional Costs')}</h3>
                                         </div>
                                         <div className="bg-white border rounded-xl overflow-hidden">
                                             <table className="w-full">

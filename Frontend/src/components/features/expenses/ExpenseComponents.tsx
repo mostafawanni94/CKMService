@@ -29,8 +29,8 @@ export function ExpenseStats({ count, total, totalVat }: ExpenseStatsProps) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: spacing.lg, marginBottom: spacing.xxl }}>
       <StatCard label={t('Expenses')} value={count} icon={<Receipt size={20} color={colors.primary} />} color={colors.primary} />
-      <StatCard label="Total (incl. BTW)" value={`€${total.toFixed(2)}`} icon={<Euro size={20} color={colors.danger} />} color={colors.dangerDark} />
-      <StatCard label="BTW Paid" value={`€${totalVat.toFixed(2)}`} icon={<Euro size={20} color={colors.info} />} color="#1E40AF" />
+      <StatCard label={t('Total (incl. BTW)')} value={`€${total.toFixed(2)}`} icon={<Euro size={20} color={colors.danger} />} color={colors.dangerDark} />
+      <StatCard label={t('BTW Paid')} value={`€${totalVat.toFixed(2)}`} icon={<Euro size={20} color={colors.info} />} color="#1E40AF" />
     </div>
   );
 }
@@ -141,7 +141,7 @@ export function ExpenseModal({
     <Modal open={open} onClose={onClose} title={title} width="640px" footer={
       <>
         <Button variant="secondary" onClick={onClose}>{t('Cancel')}</Button>
-        <Button onClick={onSave} loading={saving}>Save Expense</Button>
+        <Button onClick={onSave} loading={saving}>{t('Save Expense')}</Button>
       </>
     }>
       <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.xl }}>
@@ -160,16 +160,16 @@ export function ExpenseModal({
         <Input label={t('Description')} value={form.description} onChange={v => updateForm({ description: v })} />
 
         <FormGrid columns={3}>
-          <Input label="Amount (excl. BTW)" value={form.amount_excl_vat} onChange={v => updateForm({ amount_excl_vat: v })} type="number" step="0.01" required />
+          <Input label={t('Amount (excl. BTW)')} value={form.amount_excl_vat} onChange={v => updateForm({ amount_excl_vat: v })} type="number" step="0.01" required />
           <Select
-            label="BTW Rate"
+            label={t('BTW Rate')}
             value={form.vat_rate}
             onChange={v => updateForm({ vat_rate: v })}
             options={VAT_RATES.map(r => ({ value: r.value, label: r.label }))}
           />
           <div>
             <label style={{ display: 'block', fontSize: fontSize.md, fontWeight: fontWeight.semibold, color: colors.textSecondary, marginBottom: '6px' }}>
-              Total (incl. BTW)
+              {t('Total (incl. BTW)')}
             </label>
             <div style={{ padding: '10px 14px', background: colors.bgAlt, borderRadius: '8px', fontWeight: fontWeight.bold, fontSize: fontSize.lg }}>
               €{total.toFixed(2)}

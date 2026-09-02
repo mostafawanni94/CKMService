@@ -198,10 +198,10 @@ export default function ProjectDetailPage() {
             <DashboardLayout>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
                     <AlertTriangle style={{ width: '64px', height: '64px', color: '#EF4444', marginBottom: '16px' }} />
-                    <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#111827', marginBottom: '8px' }}>Project Not Found</h2>
+                    <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#111827', marginBottom: '8px' }}>{t('Project Not Found')}</h2>
                     <p style={{ color: '#6B7280', marginBottom: '16px' }}>The project you're looking for doesn't exist.</p>
                     <Button onClick={() => router.push('/dashboard/projects')} className="bg-[#1E3A5F]">
-                        Back to Projects
+                        {t('Back to Projects')}
                     </Button>
                 </div>
             </DashboardLayout>
@@ -236,7 +236,7 @@ export default function ProjectDetailPage() {
                     }}
                 >
                     <ArrowLeft style={{ width: '16px', height: '16px' }} />
-                    Back to Projects
+                    {t('Back to Projects')}
                 </button>
 
                 {/* Header */}
@@ -355,7 +355,7 @@ export default function ProjectDetailPage() {
                             <div style={{ padding: '10px', backgroundColor: '#EFF6FF', borderRadius: '10px' }}>
                                 <FolderKanban style={{ width: '20px', height: '20px', color: '#2563EB' }} />
                             </div>
-                            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Project Details</h2>
+                            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Project Details')}</h2>
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -541,7 +541,7 @@ export default function ProjectDetailPage() {
                             }}>
                                 <Trash2 style={{ width: '28px', height: '28px', color: '#DC2626' }} />
                             </div>
-                            <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#111827', marginBottom: '8px' }}>Delete Project</h3>
+                            <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#111827', marginBottom: '8px' }}>{t('Delete Project')}</h3>
                             <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
                                 Are you sure you want to delete "{project.name}"? This action cannot be undone.
                             </p>

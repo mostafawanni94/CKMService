@@ -26,8 +26,10 @@ import { apiDownload, apiFetch, apiGetAll } from '@/hooks/useApi';
 
 
 import type { InvoicesViewModel as ViewModel } from '@/hooks/useInvoices';
+import { useLanguage } from '@/lib/i18n';
 
 export function ExportInvoiceModal({ vm }: { vm: ViewModel }) {
+    const { t } = useLanguage();
     const {
         statusColors, customerSearch, customerSurcharges, customers, employeeSearch, employees, error, exportExcelForCustomer, exportExcelForEmployee, exportPDF, filter, filteredInvoices, generateInvoice, getFilteredHours, invoiceMessage, invoices, loadInvoiceDetail, loadInvoices, loadSupervisors, loading, loadingWorklogs, router, search, selectedCustomer, selectedEmployees, selectedInvoice, selectedSupervisor, setCustomerSearch, setEmployeeSearch, setFilter, setInvoiceMessage, setSearch, setSelectedCustomer, setSelectedEmployees, setSelectedInvoice, setSelectedSupervisor, setShowCustomerDropdown, setShowEmployeeDropdown, setShowExportModal, setShowFilters, setShowSupervisorDropdown, setSupervisorSearch, setSupervisors, setWeekEnd, setWeekStart, setWorklogStatusFilter, setWorklogs, showCustomerDropdown, showEmployeeDropdown, showExportModal, showFilters, showSupervisorDropdown, supervisorSearch, supervisors, weekEnd, weekStart, worklogStatusFilter, worklogs,
     } = vm;
@@ -56,7 +58,7 @@ export function ExportInvoiceModal({ vm }: { vm: ViewModel }) {
                     }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                             <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#1E3A5F', margin: 0 }}>
-                                Export Timesheet
+                                {t('Export Timesheet')}
                             </h2>
                             <button
                                 onClick={() => setShowExportModal(false)}
@@ -306,7 +308,7 @@ export function ExportInvoiceModal({ vm }: { vm: ViewModel }) {
                                 </div>
                                 <div>
                                     <p style={{ color: 'white', fontWeight: 600, fontSize: '16px', margin: 0 }}>
-                                        Create Invoice
+                                        {t('Create Invoice')}
                                     </p>
                                     <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', margin: '4px 0 0 0' }}>
                                         Generate invoice record from these worklogs

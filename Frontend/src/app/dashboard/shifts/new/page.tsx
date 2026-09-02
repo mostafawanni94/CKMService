@@ -249,7 +249,7 @@ export default function NewShiftPage() {
                     <div>
                         <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#111827', margin: 0 }}>
                             <Calendar size={28} style={{ marginRight: '12px', verticalAlign: 'middle' }} />
-                            Schedule New Shift
+                            {t('Schedule New Shift')}
                         </h1>
                         <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '4px' }}>
                             Create shifts for one or multiple employees
@@ -325,7 +325,7 @@ export default function NewShiftPage() {
                                 </div>
 
                                 <div>
-                                    <label style={labelStyle}>Service Type</label>
+                                    <label style={labelStyle}>{t('Service Type')}</label>
                                     <select
                                         value={formData.service}
                                         onChange={(e) => setFormData({ ...formData, service: e.target.value })}
@@ -344,7 +344,7 @@ export default function NewShiftPage() {
                         {formData.supervisor && (
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                 <div>
-                                    <label style={labelStyle}><Phone size={14} style={{ marginRight: '6px' }} />Supervisor Phone</label>
+                                    <label style={labelStyle}><Phone size={14} style={{ marginRight: '6px' }} />{t('Supervisor Phone')}</label>
                                     {phoneContacts.length > 0 ? (
                                         <select
                                             value={formData.supervisor_phone}
@@ -361,7 +361,7 @@ export default function NewShiftPage() {
                                     )}
                                 </div>
                                 <div>
-                                    <label style={labelStyle}><Mail size={14} style={{ marginRight: '6px' }} />Supervisor Email</label>
+                                    <label style={labelStyle}><Mail size={14} style={{ marginRight: '6px' }} />{t('Supervisor Email')}</label>
                                     {emailContacts.length > 0 ? (
                                         <select
                                             value={formData.supervisor_email}
@@ -570,7 +570,7 @@ export default function NewShiftPage() {
 
                         {/* Special Instructions */}
                         <div>
-                            <label style={labelStyle}><AlertCircle size={14} style={{ marginRight: '6px' }} />Special Instructions</label>
+                            <label style={labelStyle}><AlertCircle size={14} style={{ marginRight: '6px' }} />{t('Special Instructions')}</label>
                             <textarea
                                 value={formData.special_instructions}
                                 onChange={(e) => setFormData({ ...formData, special_instructions: e.target.value })}

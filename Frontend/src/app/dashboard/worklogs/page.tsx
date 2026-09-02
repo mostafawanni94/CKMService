@@ -78,7 +78,7 @@ export default function WorkLogsPage() {
                             }}
                         >
                             <Plus size={18} />
-                            Add Work Log
+                            {t('Add Work Log')}
                         </button>
                         <button
                             onClick={loadWorkLogs}
@@ -878,7 +878,7 @@ export default function WorkLogsPage() {
                             onClick={(e) => e.stopPropagation()}
                         >
                             <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '24px' }}>
-                                {editingId ? 'Edit Work Log' : 'Add Work Log'}
+                                {editingId ? 'Edit Work Log' : t('Add Work Log')}
                             </h2>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -1122,7 +1122,7 @@ export default function WorkLogsPage() {
                                             }}
                                         >
                                             <Plus size={14} />
-                                            Add Allowance
+                                            {t('Add Allowance')}
                                         </button>
                                     </div>
 
@@ -1141,13 +1141,13 @@ export default function WorkLogsPage() {
                                                 }}>
                                                     <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
                                                         <div style={{ flex: 2 }}>
-                                                            <label style={{ ...labelStyle, fontSize: '12px' }}>Allowance Type</label>
+                                                            <label style={{ ...labelStyle, fontSize: '12px' }}>{t('Allowance Type')}</label>
                                                             <select
                                                                 value={allowance.allowance_type || ''}
                                                                 onChange={(e) => updateAllowance(index, 'allowance_type', e.target.value ? parseInt(e.target.value) : null)}
                                                                 style={{ ...inputStyle, padding: '10px 12px' }}
                                                             >
-                                                                <option value="">Custom / Other</option>
+                                                                <option value="">{t('Custom / Other')}</option>
                                                                 {allowanceTypes.map(at => (
                                                                     <option key={at.id} value={at.id}>
                                                                         {at.name} (€{at.base_price}/hr)
@@ -1229,7 +1229,7 @@ export default function WorkLogsPage() {
 
                                                     {!allowance.allowance_type && (
                                                         <div>
-                                                            <label style={{ ...labelStyle, fontSize: '12px' }}>Custom Allowance Name</label>
+                                                            <label style={{ ...labelStyle, fontSize: '12px' }}>{t('Custom Allowance Name')}</label>
                                                             <input
                                                                 type="text"
                                                                 value={allowance.custom_allowance_name}

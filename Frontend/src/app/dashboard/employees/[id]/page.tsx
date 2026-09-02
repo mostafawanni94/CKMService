@@ -433,7 +433,7 @@ export default function EmployeeDetailPage() {
                                 </div>
                             </div>
                             <div style={{ padding: '16px 20px' }}>
-                                <label style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Rejection Reason</label>
+                                <label style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('Rejection Reason')}</label>
                                 <p style={{ fontSize: '14px', color: '#374151', marginTop: '8px', lineHeight: '1.6' }}>{employee.rejection_reason}</p>
                             </div>
                         </div>
@@ -476,7 +476,7 @@ export default function EmployeeDetailPage() {
                                     <CheckCircle style={{ width: '32px', height: '32px', color: '#16A34A' }} />
                                 </div>
 
-                                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>Approve Employee</h3>
+                                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>{t('Approve Employee')}</h3>
                                 <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
                                     Are you sure you want to approve <strong>{employee.first_name} {employee.last_name}</strong>?
                                     This will activate their account.
@@ -544,7 +544,7 @@ export default function EmployeeDetailPage() {
                                     <FileText style={{ width: '32px', height: '32px', color: '#D97706' }} />
                                 </div>
 
-                                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>Rate Change Detected</h3>
+                                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>{t('Rate Change Detected')}</h3>
                                 <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '8px' }}>
                                     You're changing the hourly rate to <strong>€{pendingRateChange}</strong>
                                 </p>
@@ -637,7 +637,7 @@ export default function EmployeeDetailPage() {
                                     <AlertTriangle style={{ width: '32px', height: '32px', color: '#DC2626' }} />
                                 </div>
 
-                                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>Reject Employee</h3>
+                                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>{t('Reject Employee')}</h3>
                                 <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '20px' }}>
                                     Please provide a reason for rejecting <strong>{employee.first_name} {employee.last_name}</strong>.
                                 </p>

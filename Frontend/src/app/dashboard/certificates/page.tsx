@@ -257,7 +257,7 @@ export default function CertificatesPage() {
                     marginBottom: '32px'
                 }}>
                     <StatCard
-                        label="Total Types"
+                        label={t('Total Types')}
                         value={stats.total}
                         icon={Award}
                         color="#6366F1"

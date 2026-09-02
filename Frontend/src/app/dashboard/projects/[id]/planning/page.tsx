@@ -1233,7 +1233,7 @@ export default function PlanningPage() {
                     <div>
                         <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
                             <h2 style={{ fontSize: '18px', fontWeight: 600, margin: '0 0 20px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <Plus size={20} /> Schedule Shifts
+                                <Plus size={20} /> {t('Schedule Shifts')}
                             </h2>
 
                             {/* Step indicator */}
@@ -1310,7 +1310,7 @@ export default function PlanningPage() {
                                     type="text"
                                     value={shiftLocation}
                                     onChange={e => setShiftLocation(e.target.value)}
-                                    placeholder="Work location"
+                                    placeholder={t('Work location')}
                                     style={{ width: '100%', padding: '12px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px' }}
                                 />
                             </div>
@@ -1452,7 +1452,7 @@ export default function PlanningPage() {
                                 ) : (
                                     <>
                                         <Save size={18} />
-                                        Schedule Shifts
+                                        {t('Schedule Shifts')}
                                     </>
                                 )}
                             </button>

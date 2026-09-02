@@ -265,10 +265,10 @@ export default function ContractTypesPage() {
                     gap: '20px',
                     marginBottom: '32px'
                 }}>
-                    <StatCard label="Total Types" value={stats.total} icon={FileText} color="#6366F1" />
+                    <StatCard label={t('Total Types')} value={stats.total} icon={FileText} color="#6366F1" />
                     <StatCard label={t('Active')} value={stats.active} icon={CheckCircle} color="#10B981" />
-                    <StatCard label="Requires Agency" value={stats.withAgency} icon={Building2} color="#F59E0B" />
-                    <StatCard label="Requires End Date" value={stats.withEndDate} icon={Calendar} color="#EC4899" />
+                    <StatCard label={t('Requires Agency')} value={stats.withAgency} icon={Building2} color="#F59E0B" />
+                    <StatCard label={t('Requires End Date')} value={stats.withEndDate} icon={Calendar} color="#EC4899" />
                 </div>
 
                 {/* Search & Filters */}
@@ -667,13 +667,13 @@ export default function ContractTypesPage() {
                                         onChange={(v) => setFormData({ ...formData, is_active: v })}
                                     />
                                     <ToggleOption
-                                        label="Requires End Date"
+                                        label={t('Requires End Date')}
                                         description="End date mandatory"
                                         checked={formData.requires_end_date}
                                         onChange={(v) => setFormData({ ...formData, requires_end_date: v })}
                                     />
                                     <ToggleOption
-                                        label="Requires Agency"
+                                        label={t('Requires Agency')}
                                         description="Agency dropdown shown"
                                         checked={formData.requires_agency}
                                         onChange={(v) => setFormData({ ...formData, requires_agency: v })}

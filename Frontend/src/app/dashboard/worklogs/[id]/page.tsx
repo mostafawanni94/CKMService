@@ -38,7 +38,7 @@ export default function WorkLogEditPage() {
                         <AlertCircle style={{ width: '64px', height: '64px', color: '#EF4444', margin: '0 auto 16px' }} />
                         <p style={{ color: '#6B7280', marginBottom: '16px' }}>{error || 'Work log not found'}</p>
                         <button onClick={() => router.push('/dashboard/worklogs')} style={{ padding: '10px 20px', backgroundColor: '#1E3A5F', color: 'white', borderRadius: '8px', border: 'none', cursor: 'pointer' }}>
-                            Back to Work Logs
+                            {t('Back to Work Logs')}
                         </button>
                     </div>
                 </div>
@@ -211,7 +211,7 @@ export default function WorkLogEditPage() {
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                                 <XCircle size={18} style={{ color: '#DC2626' }} />
-                                <span style={{ fontSize: '14px', fontWeight: 600, color: '#DC2626' }}>Rejection Reason</span>
+                                <span style={{ fontSize: '14px', fontWeight: 600, color: '#DC2626' }}>{t('Rejection Reason')}</span>
                             </div>
                             <p style={{ margin: 0, color: '#7F1D1D', fontSize: '14px' }}>{worklog.rejection_reason}</p>
                         </div>
@@ -234,7 +234,7 @@ export default function WorkLogEditPage() {
                             </div>
                             <div>
                                 <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>
-                                    Assignment Details
+                                    {t('Assignment Details')}
                                 </h2>
                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: '2px 0 0' }}>
                                     Project, supervisor and location information
@@ -496,7 +496,7 @@ export default function WorkLogEditPage() {
 
                                 {/* Service - Searchable */}
                                 <div style={{ position: 'relative' }}>
-                                    <label style={labelStyle}>Service Type</label>
+                                    <label style={labelStyle}>{t('Service Type')}</label>
                                     <input
                                         type="text"
                                         value={serviceSearch}
@@ -553,7 +553,7 @@ export default function WorkLogEditPage() {
                                         type="text"
                                         value={location}
                                         onChange={(e) => setLocation(e.target.value)}
-                                        placeholder="Work location"
+                                        placeholder={t('Work location')}
                                         style={inputStyle}
                                     />
                                 </div>
@@ -633,7 +633,7 @@ export default function WorkLogEditPage() {
                                         }}
                                     >
                                         <Plus size={14} />
-                                        Add Break
+                                        {t('Add Break')}
                                     </button>
                                 </div>
 
@@ -779,7 +779,7 @@ export default function WorkLogEditPage() {
                                 }}
                             >
                                 <Plus size={16} />
-                                Add Allowance
+                                {t('Add Allowance')}
                             </button>
                         </div>
 
@@ -797,13 +797,13 @@ export default function WorkLogEditPage() {
                                         }}>
                                             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr auto', gap: '16px', marginBottom: '16px' }}>
                                                 <div>
-                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>Allowance Type</label>
+                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>{t('Allowance Type')}</label>
                                                     <select
                                                         value={allowance.allowance_type || ''}
                                                         onChange={(e) => updateAllowance(index, 'allowance_type', e.target.value ? parseInt(e.target.value) : null)}
                                                         style={inputStyle}
                                                     >
-                                                        <option value="">Custom / Other</option>
+                                                        <option value="">{t('Custom / Other')}</option>
                                                         {allowanceTypes.map(at => (
                                                             <option key={at.id} value={at.id}>
                                                                 {at.name} (€{at.base_price}/hr)
@@ -878,7 +878,7 @@ export default function WorkLogEditPage() {
 
                                             {!allowance.allowance_type && (
                                                 <div>
-                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>Custom Allowance Name</label>
+                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>{t('Custom Allowance Name')}</label>
                                                     <input
                                                         type="text"
                                                         value={allowance.custom_allowance_name}

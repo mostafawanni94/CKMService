@@ -77,7 +77,7 @@ export function ContractUploader({
 
     return (
         <FormCard
-            title="Contract Documents"
+            title={t('Contract Documents')}
             subtitle={mode === 'create' ? 'Contracts will be uploaded after customer is created' : 'Upload contract documents'}
             icon={<FileText style={{ width: '20px', height: '20px', color: '#3B82F6' }} />}
             iconBgColor="#DBEAFE"
@@ -100,7 +100,7 @@ export function ContractUploader({
                         }}
                     >
                         <Upload style={{ width: '14px', height: '14px' }} />
-                        Add Contract
+                        {t('Add Contract')}
                     </button>
                 )
             }
@@ -296,7 +296,7 @@ export function ContractUploader({
                             }}
                         >
                             <Plus style={{ width: '14px', height: '14px' }} />
-                            Add Contract
+                            {t('Add Contract')}
                         </button>
                     </div>
                 </div>

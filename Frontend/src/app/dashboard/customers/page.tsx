@@ -176,7 +176,7 @@ export default function CustomersPage() {
                         </Button>
                         <Button onClick={() => window.location.href = '/dashboard/customers/new'} className="bg-[#1E3A5F] text-sm">
                             <Plus className="w-4 h-4 mr-2" />
-                            Add Customer
+                            {t('Add Customer')}
                         </Button>
                     </div>
                 </div>
@@ -344,7 +344,7 @@ export default function CustomersPage() {
                             {filter !== 'inactive' && (
                                 <Button onClick={() => window.location.href = '/dashboard/customers/new'} className="bg-[#1E3A5F]">
                                     <Plus className="w-4 h-4 mr-2" />
-                                    Add Customer
+                                    {t('Add Customer')}
                                 </Button>
                             )}
                         </div>
@@ -549,7 +549,7 @@ export default function CustomersPage() {
                         <div className="absolute inset-0 bg-black/50" onClick={() => setShowViewModal(false)} />
                         <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
                             <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-xl font-bold text-gray-900">Edit Customer</h2>
+                                <h2 className="text-xl font-bold text-gray-900">{t('Edit Customer')}</h2>
                                 <button onClick={() => setShowViewModal(false)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                                     <X className="w-5 h-5 text-gray-500" />
                                 </button>
@@ -704,7 +704,7 @@ export default function CustomersPage() {
                                             onChange={(e) => setEditForm(f => ({ ...f, is_active: e.target.checked }))}
                                             className="w-5 h-5 rounded"
                                         />
-                                        <span className="text-sm font-medium text-gray-700">Active Customer</span>
+                                        <span className="text-sm font-medium text-gray-700">{t('Active Customer')}</span>
                                     </label>
                                 </div>
 
@@ -736,7 +736,7 @@ export default function CustomersPage() {
                             <div style={{ width: '64px', height: '64px', borderRadius: '32px', backgroundColor: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
                                 <AlertTriangle style={{ width: '32px', height: '32px', color: '#DC2626' }} />
                             </div>
-                            <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>Delete Customer</h3>
+                            <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>{t('Delete Customer')}</h3>
                             <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
                                 Are you sure you want to delete <strong>{selectedCustomer.company_name}</strong>? This action cannot be undone.
                             </p>

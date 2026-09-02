@@ -416,7 +416,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
                         <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #E5E7EB' }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>
-                                    Worklog Status <span style={{ color: '#9CA3AF', fontWeight: 400 }}>({worklogStatusFilter === 'all' ? 'All' : worklogStatusFilter})</span>
+                                    {t('Worklog Status')} <span style={{ color: '#9CA3AF', fontWeight: 400 }}>({worklogStatusFilter === 'all' ? 'All' : worklogStatusFilter})</span>
                                 </label>
                             </div>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -537,7 +537,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
 
                                     {/* Employee Cost (Estimate) */}
                                     <div style={{ padding: '16px', backgroundColor: '#FEE2E2', borderRadius: '12px', border: '1px solid #FECACA' }}>
-                                        <p style={{ fontSize: '12px', color: '#DC2626', fontWeight: 600, margin: 0, textTransform: 'uppercase' }}>To Pay Employees</p>
+                                        <p style={{ fontSize: '12px', color: '#DC2626', fontWeight: 600, margin: 0, textTransform: 'uppercase' }}>{t('To Pay Employees')}</p>
                                         <p style={{ fontSize: '28px', fontWeight: 700, color: '#991B1B', margin: '4px 0 0 0' }}>
                                             €{worklogs.reduce((sum, w) => {
                                                 const hours = getFilteredHours(w);
@@ -549,7 +549,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
 
                                     {/* Customer Charge (Estimate) */}
                                     <div style={{ padding: '16px', backgroundColor: '#D1FAE5', borderRadius: '12px', border: '1px solid #6EE7B7' }}>
-                                        <p style={{ fontSize: '12px', color: '#059669', fontWeight: 600, margin: 0, textTransform: 'uppercase' }}>To Charge Customer</p>
+                                        <p style={{ fontSize: '12px', color: '#059669', fontWeight: 600, margin: 0, textTransform: 'uppercase' }}>{t('To Charge Customer')}</p>
                                         <p style={{ fontSize: '28px', fontWeight: 700, color: '#065F46', margin: '4px 0 0 0' }}>
                                             €{worklogs.reduce((sum, w) => {
                                                 const hours = getFilteredHours(w);
@@ -587,7 +587,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
                                                             </div>
                                                         ) : 'Added Value'}
                                                     </th>
-                                                    <th style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 600, color: '#374151', width: '11%' }}>To Charge</th>
+                                                    <th style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 600, color: '#374151', width: '11%' }}>{t('To Charge')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
