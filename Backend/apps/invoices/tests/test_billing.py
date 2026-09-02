@@ -487,19 +487,108 @@ class PdfTests(BillingSetup):
 
         self.assertEqual(nl_date(date(2026, 8, 12)), '12 augustus 2026')
 
-    def test_a_reverse_charged_invoice_renders_the_notice(self):
+    def _pdf_text(self, invoice):
+        import io
+
+        from PyPDF2 import PdfReader
+
         from apps.invoices.pdf import build_invoice_pdf
 
+        return PdfReader(io.BytesIO(build_invoice_pdf(invoice))).pages[0].extract_text()
+
+    def test_an_ordinary_invoice_states_the_rate_and_the_amounts(self):
+        text = self._pdf_text(self.invoice)
+        self.assertIn('FACTUUR', text)
+        self.assertIn('Btw 21%', text)
+        self.assertIn('CKMcleaning VOF', text)
+        self.assertIn('KvK 42074970', text)
+        self.assertIn('BTW NL869591071B01', text)
+        self.assertNotIn('verlegd', text.lower())
+
+    def test_a_reverse_charged_invoice_says_btw_verlegd_and_shows_no_vat(self):
+        """
+        The wording and the customer's VAT number are what make the shift
+        lawful. An invoice that merely charges 0% is not a reverse-charged
+        invoice — it looks like an unexplained zero rate.
+        """
         self.project.vat_treatment_code = 'REVERSE_CHARGE'
         self.project.is_staff_lending_or_subcontracting = True
         self.project.is_physical_work_on_immovable_property = True
         self.project.save()
         self.work(2)
-        second = generate_invoice(
+        invoice = generate_invoice(
             self.customer, start=MONDAY + timedelta(days=2),
             end=MONDAY + timedelta(days=2), actor=self.user)
-        self.assertTrue(second.has_reverse_charged_lines)
-        self.assertTrue(build_invoice_pdf(second).startswith(b'%PDF'))
+
+        self.assertTrue(invoice.has_reverse_charged_lines)
+        text = self._pdf_text(invoice)
+        self.assertIn('Btw verlegd', text)
+        self.assertIn('NL001538146B17', text)          # the customer's number
+        self.assertNotIn('Btw 21%', text)
+        self.assertNotIn('Btw 0%', text)
+
+    def test_the_treatment_survives_being_issued(self):
+        """
+        Issuing re-posts the invoice to the VAT ledger. The facts that decided
+        the treatment live on the project, so unless the line records them, the
+        re-post reclassifies it as unresolved and wipes the box — turning a
+        reverse-charged invoice into an unexplained 0%.
+        """
+        self.project.vat_treatment_code = 'REVERSE_CHARGE'
+        self.project.is_staff_lending_or_subcontracting = True
+        self.project.is_physical_work_on_immovable_property = True
+        self.project.save()
+        self.work(3)
+        invoice = generate_invoice(
+            self.customer, start=MONDAY + timedelta(days=3),
+            end=MONDAY + timedelta(days=3), actor=self.user)
+        issue_invoice(invoice, actor=self.user, issue_date=date(2026, 8, 17))
+        invoice.refresh_from_db()
+
+        line = invoice.lines.first()
+        self.assertEqual(line.vat_return_box, '1e')
+        self.assertEqual(line.vat_classification_status, 'CLASSIFIED')
+        self.assertTrue(invoice.has_reverse_charged_lines)
+        self.assertIn('Btw verlegd', self._pdf_text(invoice))
+
+    def test_the_ledger_agrees_with_the_issued_document(self):
+        from apps.vat.models import VatLedgerEntry
+
+        self.project.vat_treatment_code = 'REVERSE_CHARGE'
+        self.project.is_staff_lending_or_subcontracting = True
+        self.project.is_physical_work_on_immovable_property = True
+        self.project.save()
+        self.work(4)
+        invoice = generate_invoice(
+            self.customer, start=MONDAY + timedelta(days=4),
+            end=MONDAY + timedelta(days=4), actor=self.user)
+        issue_invoice(invoice, actor=self.user, issue_date=date(2026, 8, 17))
+
+        entry = VatLedgerEntry.objects.get(source_type='InvoiceLine',
+                                           source_id=str(invoice.pk))
+        self.assertEqual(entry.classification_status, 'CLASSIFIED')
+        self.assertEqual(entry.return_box.code, '1e')
+
+    def test_a_later_change_to_the_project_does_not_restate_an_issued_invoice(self):
+        """The issued document records the facts it was classified under."""
+        self.project.vat_treatment_code = 'REVERSE_CHARGE'
+        self.project.is_staff_lending_or_subcontracting = True
+        self.project.is_physical_work_on_immovable_property = True
+        self.project.save()
+        self.work(5)
+        invoice = generate_invoice(
+            self.customer, start=MONDAY + timedelta(days=5),
+            end=MONDAY + timedelta(days=5), actor=self.user)
+        issue_invoice(invoice, actor=self.user, issue_date=date(2026, 8, 17))
+
+        # Somebody decides this project is ordinary cleaning after all.
+        self.project.vat_treatment_code = 'NORMAL'
+        self.project.is_staff_lending_or_subcontracting = False
+        self.project.save()
+
+        invoice.refresh_from_db()
+        self.assertTrue(invoice.has_reverse_charged_lines)
+        self.assertEqual(invoice.lines.first().vat_return_box, '1e')
 
 
 class InvoiceApiTests(BillingSetup):

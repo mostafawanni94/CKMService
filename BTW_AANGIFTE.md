@@ -58,9 +58,15 @@ Invoice / IncomingInvoice / AgencyInvoice / Expense   ← most specific
     → Customer / Agency / ExpenseCategory             ← the default posture
 ```
 
-Set them in the dashboard on the customer or the project. A customer whose work
-is always ordinary cleaning gets `NORMAL`; a project that is always lent labour
-on a building site gets `REVERSE_CHARGE` plus the two facts.
+Set them in the dashboard, on the customer (**Klant → Btw-instellingen**) or on
+the project when that job differs. A customer whose work is always ordinary
+cleaning gets `NORMAL`; a project that is always lent labour on a building site
+gets `REVERSE_CHARGE` plus the two conditions.
+
+**An issued invoice records the facts it was classified under.** They are copied
+onto each line when the invoice is generated, so changing a project's settings
+later never restates an invoice that has already gone out — and re-posting an
+old invoice to the ledger reaches the same conclusion it did the first time.
 
 ## Filing a quarter
 

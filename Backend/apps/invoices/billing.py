@@ -225,7 +225,7 @@ def classify_line(invoice, amount, on_date, project=None):
     facts = resolve_facts(*chain)
     facts.counterparty_vat_number = vat_number
 
-    return classify_amount(
+    result = classify_amount(
         amount,
         treatment_code=resolve_treatment(*chain),
         on_date=on_date,
@@ -234,6 +234,26 @@ def classify_line(invoice, amount, on_date, project=None):
         reverse_charge_facts=facts,
         counterparty_vat_number=vat_number,
     )
+    return result, facts
+
+
+def freeze_facts(line, facts):
+    """
+    Record on the line the facts it was classified under.
+
+    The facts usually live on the project or the customer, and both can change
+    after an invoice has gone out. Copying them onto the line makes the issued
+    document self-contained: it says why it was treated the way it was, and
+    re-posting it to the VAT ledger reaches the same conclusion.
+
+    Without this the line was classified correctly at billing time and then
+    reclassified as unresolved when it was posted, wiping its box.
+    """
+    for field in FACT_FIELDS:
+        value = getattr(facts, field, None)
+        if value is not None and hasattr(line, field):
+            setattr(line, field, value)
+    return line
 
 
 def apply_classification(line, result):
@@ -374,7 +394,9 @@ def add_entry_line(invoice, entry, actor=None):
         created_by=actor,
     )
 
-    result = classify_line(invoice, priced['total'], entry.work_date, entry.project)
+    result, facts = classify_line(
+        invoice, priced['total'], entry.work_date, entry.project)
+    freeze_facts(line, facts)
     apply_classification(line, result)
     line.save()
     return line
@@ -401,8 +423,9 @@ def add_manual_line(invoice, *, description, quantity_hours, hourly_rate,
         price_mode=PriceMode.EXCLUDING_VAT,
         created_by=actor,
     )
-    result = classify_line(invoice, total, line.work_date or timezone.localdate(),
-                           line.project)
+    result, facts = classify_line(
+        invoice, total, line.work_date or timezone.localdate(), line.project)
+    freeze_facts(line, facts)
     apply_classification(line, result)
     line.save()
     invoice.calculate_totals()
