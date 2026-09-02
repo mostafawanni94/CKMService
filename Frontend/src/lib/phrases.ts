@@ -13,6 +13,20 @@ export type PhraseTable = Record<string, string>;
 
 /** English is the key space, so it needs no table of its own. */
 const nl: PhraseTable = {
+    // Wallet page
+    'Total Balance': 'Totaal saldo',
+    'Balance': 'Saldo',
+    'Advances': 'Voorschotten',
+    'Pending Advances': 'Openstaande voorschotten',
+    'Employee Wallets': 'Portemonnees medewerkers',
+    'Advance requests waiting for a decision': 'Voorschotaanvragen die op een besluit wachten',
+    'No pending advance requests': 'Geen openstaande voorschotaanvragen',
+    'Select a wallet to see its recent transactions': 'Selecteer een portemonnee om de recente transacties te zien',
+    'No wallets yet': 'Nog geen portemonnees',
+    'A wallet appears once an employee has approved hours': 'Een portemonnee verschijnt zodra een medewerker goedgekeurde uren heeft',
+    'No transactions yet': 'Nog geen transacties',
+    'Employee balances and advance requests': 'Saldi van medewerkers en voorschotaanvragen',
+
     // Reports warnings
     'Earnings are incomplete': 'Verdiensten zijn onvolledig',
     'These employees have no hourly rate on their profile, so their pay cannot be calculated': 'Deze medewerkers hebben geen uurtarief in hun profiel, dus hun loon kan niet worden berekend',
@@ -388,6 +402,20 @@ const nl: PhraseTable = {
 };
 
 const ar: PhraseTable = {
+    // Wallet page
+    'Total Balance': 'إجمالي الرصيد',
+    'Balance': 'الرصيد',
+    'Advances': 'السلف',
+    'Pending Advances': 'السلف المعلقة',
+    'Employee Wallets': 'محافظ الموظفين',
+    'Advance requests waiting for a decision': 'طلبات السلف بانتظار القرار',
+    'No pending advance requests': 'لا توجد طلبات سلف معلقة',
+    'Select a wallet to see its recent transactions': 'اختر محفظة لعرض معاملاتها الأخيرة',
+    'No wallets yet': 'لا توجد محافظ بعد',
+    'A wallet appears once an employee has approved hours': 'تظهر المحفظة بمجرد اعتماد ساعات الموظف',
+    'No transactions yet': 'لا توجد معاملات بعد',
+    'Employee balances and advance requests': 'أرصدة الموظفين وطلبات السلف',
+
     // Reports warnings
     'Earnings are incomplete': 'الأرباح غير مكتملة',
     'These employees have no hourly rate on their profile, so their pay cannot be calculated': 'لا يوجد أجر بالساعة في ملفات هؤلاء الموظفين، لذا لا يمكن حساب رواتبهم',
@@ -815,6 +843,20 @@ const ar: PhraseTable = {
 };
 
 const ru: PhraseTable = {
+    // Wallet page
+    'Total Balance': 'Общий баланс',
+    'Balance': 'Баланс',
+    'Advances': 'Авансы',
+    'Pending Advances': 'Ожидающие авансы',
+    'Employee Wallets': 'Кошельки сотрудников',
+    'Advance requests waiting for a decision': 'Заявки на аванс, ожидающие решения',
+    'No pending advance requests': 'Нет ожидающих заявок на аванс',
+    'Select a wallet to see its recent transactions': 'Выберите кошелёк, чтобы увидеть последние операции',
+    'No wallets yet': 'Кошельков пока нет',
+    'A wallet appears once an employee has approved hours': 'Кошелёк появляется после утверждения часов сотрудника',
+    'No transactions yet': 'Операций пока нет',
+    'Employee balances and advance requests': 'Балансы сотрудников и заявки на аванс',
+
     // Reports warnings
     'Earnings are incomplete': 'Данные о заработке неполны',
     'These employees have no hourly rate on their profile, so their pay cannot be calculated': 'У этих сотрудников не указана почасовая ставка, поэтому оплату рассчитать нельзя',
@@ -1242,6 +1284,20 @@ const ru: PhraseTable = {
 };
 
 const uk: PhraseTable = {
+    // Wallet page
+    'Total Balance': 'Загальний баланс',
+    'Balance': 'Баланс',
+    'Advances': 'Аванси',
+    'Pending Advances': 'Аванси в очікуванні',
+    'Employee Wallets': 'Гаманці працівників',
+    'Advance requests waiting for a decision': 'Заявки на аванс, що очікують рішення',
+    'No pending advance requests': 'Немає заявок на аванс',
+    'Select a wallet to see its recent transactions': 'Виберіть гаманець, щоб побачити останні операції',
+    'No wallets yet': 'Гаманців поки немає',
+    'A wallet appears once an employee has approved hours': 'Гаманець з\'являється після затвердження годин працівника',
+    'No transactions yet': 'Операцій поки немає',
+    'Employee balances and advance requests': 'Баланси працівників і заявки на аванс',
+
     // Reports warnings
     'Earnings are incomplete': 'Дані про заробіток неповні',
     'These employees have no hourly rate on their profile, so their pay cannot be calculated': 'У цих працівників не вказано погодинну ставку, тому оплату розрахувати неможливо',
