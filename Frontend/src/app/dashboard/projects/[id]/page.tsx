@@ -392,7 +392,7 @@ export default function ProjectDetailPage() {
                                     }}
                                     style={{ ...inputStyle, cursor: 'pointer' }}
                                 >
-                                    <option value="">Select a customer...</option>
+                                    <option value="">{t('Select a customer...')}</option>
                                     {customers.map((c) => (
                                         <option key={c.id} value={c.id}>
                                             {c.company_name}
@@ -439,12 +439,12 @@ export default function ProjectDetailPage() {
                             </div>
                         ) : loadingSupervisors ? (
                             <div style={{ padding: '24px', textAlign: 'center', color: '#6B7280', fontSize: '14px' }}>
-                                Loading supervisors...
+                                {t('Loading supervisors...')}
                             </div>
                         ) : customerSupervisors.length === 0 ? (
                             <div style={{ padding: '24px', textAlign: 'center' }}>
                                 <UserCircle style={{ width: '32px', height: '32px', color: '#D1D5DB', margin: '0 auto 8px' }} />
-                                <p style={{ fontSize: '14px', color: '#9CA3AF', margin: 0 }}>No supervisors found for this customer</p>
+                                <p style={{ fontSize: '14px', color: '#9CA3AF', margin: 0 }}>{t('No supervisors found for this customer')}</p>
                             </div>
                         ) : (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

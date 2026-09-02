@@ -191,10 +191,10 @@ export function ExpenseModal({
         </FormGrid>
 
         <FormGrid>
-          <Input label={t('Reference #')} value={form.reference_number} onChange={v => updateForm({ reference_number: v })} placeholder="Invoice / receipt number" />
+          <Input label={t('Reference #')} value={form.reference_number} onChange={v => updateForm({ reference_number: v })} placeholder={t('Invoice / receipt number')} />
           <div>
             <label style={{ display: 'block', fontSize: fontSize.md, fontWeight: fontWeight.semibold, color: colors.textSecondary, marginBottom: '6px' }}>
-              Receipt (Photo/PDF)
+              {t('Receipt (Photo/PDF)')}
             </label>
             <label style={{
               display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px',

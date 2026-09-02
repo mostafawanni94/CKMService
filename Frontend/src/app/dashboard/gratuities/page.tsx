@@ -256,7 +256,7 @@ export default function GratuitiesPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                     <div>
                         <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>
-                            Gratuities (Fooi)
+                            {t('Gratuities (Fooi)')}
                         </h1>
                         <p style={{ color: '#6B7280', fontSize: '15px' }}>
                             Track tips and bonuses from customers to employees
@@ -560,7 +560,7 @@ export default function GratuitiesPage() {
                             <div>
                                 <label style={labelStyle}>{t('Notes')}</label>
                                 <textarea
-                                    placeholder="Optional notes..."
+                                    placeholder={t('Optional notes...')}
                                     value={formData.notes}
                                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                                     style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}

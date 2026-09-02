@@ -228,10 +228,10 @@ export function ContractUploader({
                                 <>
                                     <Upload style={{ width: '32px', height: '32px', color: '#9CA3AF', margin: '0 auto 8px' }} />
                                     <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>
-                                        Click to upload or drag and drop
+                                        {t('Click to upload or drag and drop')}
                                     </p>
                                     <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '4px 0 0' }}>
-                                        PDF, DOC, DOCX up to 10MB
+                                        {t('PDF, DOC, DOCX up to 10MB')}
                                     </p>
                                 </>
                             )}
@@ -316,7 +316,7 @@ export function ContractUploader({
                     </p>
                     {mode === 'create' && (
                         <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '4px 0 0' }}>
-                            Contracts will be uploaded after the customer is created.
+                            {t('Contracts will be uploaded after the customer is created.')}
                         </p>
                     )}
                 </div>

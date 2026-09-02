@@ -262,7 +262,7 @@ export default function CustomerDetailPage() {
                         <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#F0FDF4', borderRadius: '12px', border: '1px solid #86EFAC' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                                 <Mail style={{ width: '16px', height: '16px', color: '#16A34A' }} />
-                                <label style={{ ...labelStyle, marginBottom: 0, color: '#16A34A' }}>HR Email (for Reports)</label>
+                                <label style={{ ...labelStyle, marginBottom: 0, color: '#16A34A' }}>{t('HR Email (for Reports)')}</label>
                             </div>
                             <input
                                 type="email"
@@ -271,7 +271,7 @@ export default function CustomerDetailPage() {
                                 placeholder="hr@company.com"
                                 style={{ ...inputStyle, backgroundColor: 'white', borderColor: '#86EFAC' }}
                             />
-                            <p style={{ fontSize: '11px', color: '#6B7280', margin: '6px 0 0' }}>This email will appear on HR export reports</p>
+                            <p style={{ fontSize: '11px', color: '#6B7280', margin: '6px 0 0' }}>{t('This email will appear on HR export reports')}</p>
                         </div>
                     </div>
 
@@ -440,7 +440,7 @@ export default function CustomerDetailPage() {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '20px' }}>
                                 <div><label style={labelStyle}>First Name *</label><input type="text" value={newOutfolder.first_name} onChange={(e) => setNewOutfolder(s => ({ ...s, first_name: e.target.value }))} placeholder="John" style={inputStyle} /></div>
                                 <div><label style={labelStyle}>Last Name *</label><input type="text" value={newOutfolder.last_name} onChange={(e) => setNewOutfolder(s => ({ ...s, last_name: e.target.value }))} placeholder="Doe" style={inputStyle} /></div>
-                                <div><label style={labelStyle}>Rayon Name</label><input type="text" value={newOutfolder.company_name} onChange={(e) => setNewOutfolder(s => ({ ...s, company_name: e.target.value }))} placeholder="e.g. Rotterdam Noord" style={inputStyle} /></div>
+                                <div><label style={labelStyle}>{t('Rayon Name')}</label><input type="text" value={newOutfolder.company_name} onChange={(e) => setNewOutfolder(s => ({ ...s, company_name: e.target.value }))} placeholder="e.g. Rotterdam Noord" style={inputStyle} /></div>
                             </div>
 
                             {/* Phone Numbers */}
@@ -536,7 +536,7 @@ export default function CustomerDetailPage() {
                         </div>
                         <div>
                             <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Services Configuration')}</h2>
-                            <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Select services and set prices for this customer</p>
+                            <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>{t('Select services and set prices for this customer')}</p>
                         </div>
                     </div>
 
@@ -556,8 +556,8 @@ export default function CustomerDetailPage() {
                         }}
                     >
                         <div>
-                            <p style={{ fontSize: '14px', fontWeight: 600, color: hasServiceSurcharges ? '#1F2937' : '#6B7280', margin: 0 }}>Enable Percentage Surcharges</p>
-                            <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '2px 0 0' }}>Add extra rates for weekends, nights, holidays on services</p>
+                            <p style={{ fontSize: '14px', fontWeight: 600, color: hasServiceSurcharges ? '#1F2937' : '#6B7280', margin: 0 }}>{t('Enable Percentage Surcharges')}</p>
+                            <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '2px 0 0' }}>{t('Add extra rates for weekends, nights, holidays on services')}</p>
                         </div>
                         <div style={{
                             width: '44px',
@@ -586,7 +586,7 @@ export default function CustomerDetailPage() {
                         <div style={{ marginBottom: '20px', padding: '16px', backgroundColor: '#F5F3FF', borderRadius: '10px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                                 <Percent size={14} color="#7C3AED" />
-                                <span style={{ fontSize: '12px', fontWeight: 600, color: '#7C3AED', textTransform: 'uppercase' }}>Service Surcharge Types</span>
+                                <span style={{ fontSize: '12px', fontWeight: 600, color: '#7C3AED', textTransform: 'uppercase' }}>{t('Service Surcharge Types')}</span>
                             </div>
                             <div style={{ display: 'grid', gap: '8px' }}>
                                 {surchargeTypes.map((st) => {
@@ -658,7 +658,7 @@ export default function CustomerDetailPage() {
 
                     {/* Services List */}
                     {availableServices.length === 0 ? (
-                        <p style={{ fontSize: '14px', color: '#9CA3AF', fontStyle: 'italic' }}>No services available. Add some in Services Management.</p>
+                        <p style={{ fontSize: '14px', color: '#9CA3AF', fontStyle: 'italic' }}>{t('No services available. Add some in Services Management.')}</p>
                     ) : (
                         <div style={{ display: 'grid', gap: '12px' }}>
                             {availableServices.map((svc) => {
@@ -751,7 +751,7 @@ export default function CustomerDetailPage() {
                             </div>
                             <div>
                                 <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Allowances Configuration')}</h2>
-                                <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Custom allowances for this customer (e.g., Mask, Hazard Pay)</p>
+                                <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>{t('Custom allowances for this customer (e.g., Mask, Hazard Pay)')}</p>
                             </div>
                         </div>
                         <button
@@ -782,8 +782,8 @@ export default function CustomerDetailPage() {
                         }}
                     >
                         <div>
-                            <p style={{ fontSize: '14px', fontWeight: 600, color: hasAllowanceSurcharges ? '#1F2937' : '#6B7280', margin: 0 }}>Enable Percentage Surcharges</p>
-                            <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '2px 0 0' }}>Add extra rates for weekends, nights, holidays on allowances</p>
+                            <p style={{ fontSize: '14px', fontWeight: 600, color: hasAllowanceSurcharges ? '#1F2937' : '#6B7280', margin: 0 }}>{t('Enable Percentage Surcharges')}</p>
+                            <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '2px 0 0' }}>{t('Add extra rates for weekends, nights, holidays on allowances')}</p>
                         </div>
                         <div style={{
                             width: '44px',
@@ -812,7 +812,7 @@ export default function CustomerDetailPage() {
                         <div style={{ marginBottom: '20px', padding: '16px', backgroundColor: '#FEF2F2', borderRadius: '10px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                                 <Percent size={14} color="#DC2626" />
-                                <span style={{ fontSize: '12px', fontWeight: 600, color: '#DC2626', textTransform: 'uppercase' }}>Allowance Surcharge Types</span>
+                                <span style={{ fontSize: '12px', fontWeight: 600, color: '#DC2626', textTransform: 'uppercase' }}>{t('Allowance Surcharge Types')}</span>
                             </div>
                             <div style={{ display: 'grid', gap: '8px' }}>
                                 {surchargeTypes.map((st) => {
@@ -946,7 +946,7 @@ export default function CustomerDetailPage() {
                                         <>
                                             <input
                                                 type="text"
-                                                placeholder="Name..."
+                                                placeholder={t('Name...')}
                                                 value={allowance.custom_name}
                                                 onChange={(e) => updateCustomAllowance(index, 'custom_name', e.target.value)}
                                                 style={{
@@ -960,7 +960,7 @@ export default function CustomerDetailPage() {
                                             />
                                             <input
                                                 type="text"
-                                                placeholder="Code..."
+                                                placeholder={t('Code...')}
                                                 value={allowance.custom_code || ''}
                                                 onChange={(e) => updateCustomAllowance(index, 'custom_code', e.target.value.toUpperCase())}
                                                 maxLength={10}
@@ -1498,7 +1498,7 @@ export default function CustomerDetailPage() {
                             </div>
                             <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>{t('Delete Customer')}</h3>
                             <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
-                                Are you sure you want to delete <strong>{customer.company_name}</strong>? This action cannot be undone.
+                                {t('Are you sure you want to delete')} <strong>{customer.company_name}</strong>? This action cannot be undone.
                             </p>
                             <div style={{ display: 'flex', gap: '12px' }}>
                                 <button onClick={() => setShowDeleteConfirm(false)} style={{ flex: 1, padding: '12px', backgroundColor: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>{t('Cancel')}</button>

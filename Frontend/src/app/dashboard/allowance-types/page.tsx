@@ -404,7 +404,7 @@ export default function AllowanceTypesPage() {
                             <div>
                                 <label style={labelStyle}>{t('Description')}</label>
                                 <textarea
-                                    placeholder="Optional description..."
+                                    placeholder={t('Optional description...')}
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}

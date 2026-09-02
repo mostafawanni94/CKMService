@@ -796,7 +796,7 @@ export default function WeeklyBoardPage() {
                                     value={employeeSearch}
                                     onChange={(e) => { setEmployeeSearch(e.target.value); setShowEmployeeDropdown(true); }}
                                     onFocus={() => setShowEmployeeDropdown(true)}
-                                    placeholder="Search employees…"
+                                    placeholder={t('Search employees…')}
                                     style={{
                                         width: '100%',
                                         padding: '9px 12px 9px 32px',

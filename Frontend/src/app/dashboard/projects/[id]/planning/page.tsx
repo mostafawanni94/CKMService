@@ -878,7 +878,7 @@ export default function PlanningPage() {
                                     value={filterEmpSearch}
                                     onChange={e => { setFilterEmpSearch(e.target.value); setShowFilterEmpDropdown(true); }}
                                     onFocus={() => setShowFilterEmpDropdown(true)}
-                                    placeholder="Search employees…"
+                                    placeholder={t('Search employees…')}
                                     style={{
                                         width: '100%',
                                         padding: '9px 12px 9px 32px',

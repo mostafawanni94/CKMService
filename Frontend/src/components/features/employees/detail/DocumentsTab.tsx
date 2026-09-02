@@ -95,7 +95,7 @@ export function DocumentsTab({ vm }: { vm: ViewModel }) {
                                 {/* Upload ID Document Section */}
                                 <div className="mt-2">
                                     <p className="text-sm font-medium text-gray-700 mb-1">Upload ID Document</p>
-                                    <p className="text-xs text-gray-400 mb-4">Upload front and back, or a single PDF</p>
+                                    <p className="text-xs text-gray-400 mb-4">{t('Upload front and back, or a single PDF')}</p>
 
                                     <div className="grid grid-cols-2 gap-4 mb-4">
                                         <DocSlot title={t('Front Side')} url={employee.id_document_front_url} field="id_document_front" accept="image/*" editing={isEditing} uploading={uploadingFile === 'id_document_front'} onUpload={handleFileUpload} onDelete={handleDeleteFile} />
@@ -165,7 +165,7 @@ export function DocumentsTab({ vm }: { vm: ViewModel }) {
                                         {/* Upload License Section */}
                                         <div className="mt-2">
                                             <p className="text-sm font-medium text-gray-700 mb-1">Upload License</p>
-                                            <p className="text-xs text-gray-400 mb-4">Upload front and back, or a single PDF</p>
+                                            <p className="text-xs text-gray-400 mb-4">{t('Upload front and back, or a single PDF')}</p>
 
                                             <div className="grid grid-cols-2 gap-4">
                                                 <DocSlot title={t('Front Side')} url={employee.drivers_license_front_url} field="drivers_license_front" accept="image/*" editing={isEditing} uploading={uploadingFile === 'drivers_license_front'} onUpload={handleFileUpload} onDelete={handleDeleteFile} />

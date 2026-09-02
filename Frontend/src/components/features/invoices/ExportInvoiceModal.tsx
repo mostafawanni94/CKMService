@@ -87,7 +87,7 @@ export function ExportInvoiceModal({ vm }: { vm: ViewModel }) {
                             {loadingWorklogs ? (
                                 <>
                                     <Clock size={20} style={{ color: '#D97706' }} />
-                                    <span style={{ color: '#92400E', fontWeight: 500 }}>Loading worklogs...</span>
+                                    <span style={{ color: '#92400E', fontWeight: 500 }}>{t('Loading worklogs...')}</span>
                                 </>
                             ) : worklogs.length > 0 ? (
                                 <>
@@ -97,7 +97,7 @@ export function ExportInvoiceModal({ vm }: { vm: ViewModel }) {
                             ) : (
                                 <>
                                     <AlertCircle size={20} style={{ color: '#DC2626' }} />
-                                    <span style={{ color: '#991B1B', fontWeight: 500 }}>No worklogs found. Please select filters first.</span>
+                                    <span style={{ color: '#991B1B', fontWeight: 500 }}>{t('No worklogs found. Please select filters first.')}</span>
                                 </>
                             )}
                         </div>
@@ -176,7 +176,7 @@ export function ExportInvoiceModal({ vm }: { vm: ViewModel }) {
                                 </div>
                                 <div>
                                     <p style={{ color: 'white', fontWeight: 600, fontSize: '16px', margin: 0 }}>
-                                        Export for HR
+                                        {t('Export for HR')}
                                     </p>
                                     <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', margin: '4px 0 0 0' }}>
                                         Hours overview with TOTAAL UREN (A-P)
@@ -214,7 +214,7 @@ export function ExportInvoiceModal({ vm }: { vm: ViewModel }) {
                                 </div>
                                 <div>
                                     <p style={{ color: 'white', fontWeight: 600, fontSize: '16px', margin: 0 }}>
-                                        Export for Finance
+                                        {t('Export for Finance')}
                                     </p>
                                     <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', margin: '4px 0 0 0' }}>
                                         Full report with surcharges and TOTAAL BEDRAG (A-O, Q-X)
@@ -252,7 +252,7 @@ export function ExportInvoiceModal({ vm }: { vm: ViewModel }) {
                                 </div>
                                 <div>
                                     <p style={{ color: '#1F2937', fontWeight: 600, fontSize: '16px', margin: 0 }}>
-                                        Export for Employee (Simple)
+                                        {t('Export for Employee (Simple)')}
                                     </p>
                                     <p style={{ color: '#6B7280', fontSize: '13px', margin: '4px 0 0 0' }}>
                                         Basic hours overview: date, start, end, break, total

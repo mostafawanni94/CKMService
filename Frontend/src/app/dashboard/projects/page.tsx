@@ -832,7 +832,7 @@ export default function ProjectsPage() {
                                                 cursor: 'pointer'
                                             }}
                                         >
-                                            <option value="">Select a customer...</option>
+                                            <option value="">{t('Select a customer...')}</option>
                                             {customers.map((customer) => (
                                                 <option key={customer.id} value={customer.id}>
                                                     {customer.company_name}
@@ -848,12 +848,12 @@ export default function ProjectsPage() {
                                             </label>
                                             {loadingSupervisors ? (
                                                 <div style={{ padding: '16px', textAlign: 'center', color: '#6B7280', fontSize: '14px' }}>
-                                                    Loading supervisors...
+                                                    {t('Loading supervisors...')}
                                                 </div>
                                             ) : customerSupervisors.length === 0 ? (
                                                 <div style={{ padding: '16px', backgroundColor: '#F9FAFB', borderRadius: '10px', border: '1px solid #E5E7EB', textAlign: 'center' }}>
                                                     <UserCircle style={{ width: '24px', height: '24px', color: '#9CA3AF', margin: '0 auto 8px' }} />
-                                                    <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>No supervisors found for this customer</p>
+                                                    <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>{t('No supervisors found for this customer')}</p>
                                                 </div>
                                             ) : (
                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

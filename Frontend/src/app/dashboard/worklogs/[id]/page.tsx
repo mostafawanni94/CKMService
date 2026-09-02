@@ -766,7 +766,7 @@ export default function WorkLogEditPage() {
                                     <Gift size={20} style={{ color: '#8B5CF6' }} />
                                 </div>
                                 <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>
-                                    Allowances (Toeslag)
+                                    {t('Allowances (Toeslag)')}
                                 </h2>
                             </div>
                             <button
@@ -883,7 +883,7 @@ export default function WorkLogEditPage() {
                                                         type="text"
                                                         value={allowance.custom_allowance_name}
                                                         onChange={(e) => updateAllowance(index, 'custom_allowance_name', e.target.value)}
-                                                        placeholder="Enter custom allowance name..."
+                                                        placeholder={t('Enter custom allowance name...')}
                                                         style={inputStyle}
                                                     />
                                                 </div>

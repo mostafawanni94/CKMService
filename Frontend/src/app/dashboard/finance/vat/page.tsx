@@ -39,7 +39,7 @@ export default function VatReturnPage() {
                     actions={
                         <>
                             <Select value={String(vm.year)} onChange={v => vm.setYear(parseInt(v))} options={YEAR_OPTIONS} />
-                            <Button onClick={vm.ensureYear} icon={<RefreshCw size={16} />}>Generate quarters</Button>
+                            <Button onClick={vm.ensureYear} icon={<RefreshCw size={16} />}>{t('Generate quarters')}</Button>
                         </>
                     }
                 />
@@ -57,7 +57,7 @@ export default function VatReturnPage() {
                     <EmptyState
                         title={`No VAT periods for ${vm.year}`}
                         subtitle="Generate the four quarters to start recording this year's return."
-                        action={<Button onClick={vm.ensureYear}>Generate quarters</Button>}
+                        action={<Button onClick={vm.ensureYear}>{t('Generate quarters')}</Button>}
                     />
                 ) : (
                     <>

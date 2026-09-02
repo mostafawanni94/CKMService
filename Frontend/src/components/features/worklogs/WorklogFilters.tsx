@@ -406,7 +406,7 @@ export function WorklogFilters({ vm }: { vm: ViewModel }) {
                                 <div style={{ position: 'relative' }}>
                                     <input
                                         type="text"
-                                        placeholder="Search and select employees..."
+                                        placeholder={t('Search and select employees...')}
                                         value={employeeSearchFilter}
                                         onChange={(e) => setEmployeeSearchFilter(e.target.value)}
                                         onFocus={() => setShowEmployeeDropdown(true)}

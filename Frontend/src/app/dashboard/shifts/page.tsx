@@ -578,7 +578,7 @@ export default function ShiftsPage() {
                                 {/* Supervisor (when project selected) */}
                                 {formData.project && (
                                     <div>
-                                        <label style={labelStyle}>Supervisor (Rayon)</label>
+                                        <label style={labelStyle}>{t('Supervisor (Rayon)')}</label>
                                         <select
                                             value={formData.supervisor}
                                             onChange={(e) => {
@@ -755,11 +755,11 @@ export default function ShiftsPage() {
 
                                 {/* Location Notes */}
                                 <div>
-                                    <label style={labelStyle}><MapPin size={14} style={{ marginRight: '4px' }} />Location / Address Notes</label>
+                                    <label style={labelStyle}><MapPin size={14} style={{ marginRight: '4px' }} />{t('Location / Address Notes')}</label>
                                     <textarea
                                         value={formData.location_notes}
                                         onChange={(e) => setFormData({ ...formData, location_notes: e.target.value })}
-                                        placeholder="Enter address, building, floor, etc..."
+                                        placeholder={t('Enter address, building, floor, etc...')}
                                         style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
                                     />
                                 </div>

@@ -427,7 +427,7 @@ function Sidebar({
                                     color: '#1F2937',
                                     margin: 0
                                 }}>
-                                    Admin User
+                                    {t('Admin User')}
                                 </h3>
                             </div>
                         )}
@@ -450,7 +450,7 @@ function Sidebar({
                             paddingLeft: isCollapsed ? '0' : '20px',
                             textAlign: isCollapsed ? 'center' : 'left'
                         }}>
-                            Main
+                            {t('Main')}
                         </p>
                         <div style={{
                             display: 'flex',

@@ -309,7 +309,7 @@ export default function NewShiftPage() {
                         {formData.project && (
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                 <div>
-                                    <label style={labelStyle}>Supervisor (Rayon)</label>
+                                    <label style={labelStyle}>{t('Supervisor (Rayon)')}</label>
                                     <select
                                         value={formData.supervisor}
                                         onChange={(e) => {
@@ -459,7 +459,7 @@ export default function NewShiftPage() {
                             <div style={{ position: 'relative' }}>
                                 <input
                                     type="text"
-                                    placeholder="Search and select employees..."
+                                    placeholder={t('Search and select employees...')}
                                     value={employeeSearch}
                                     onChange={(e) => setEmployeeSearch(e.target.value)}
                                     onFocus={() => setShowEmployeeDropdown(true)}
@@ -559,11 +559,11 @@ export default function NewShiftPage() {
 
                         {/* Location Notes */}
                         <div>
-                            <label style={labelStyle}><MapPin size={14} style={{ marginRight: '6px' }} />Location / Address Notes</label>
+                            <label style={labelStyle}><MapPin size={14} style={{ marginRight: '6px' }} />{t('Location / Address Notes')}</label>
                             <textarea
                                 value={formData.location_notes}
                                 onChange={(e) => setFormData({ ...formData, location_notes: e.target.value })}
-                                placeholder="Enter address, building, floor, etc..."
+                                placeholder={t('Enter address, building, floor, etc...')}
                                 style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
                             />
                         </div>

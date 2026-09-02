@@ -137,7 +137,7 @@ export default function AddWorkLogPage() {
                                         }}
                                         onFocus={() => setShowEmployeeDropdown(true)}
                                         onBlur={() => setTimeout(() => setShowEmployeeDropdown(false), 200)}
-                                        placeholder={loadingEmployees ? t('Loading...') : 'Search and select employees...'}
+                                        placeholder={loadingEmployees ? t('Loading...') : t('Search and select employees...')}
                                         style={{ ...inputStyle, borderColor: errors.employee ? '#EF4444' : '#E5E7EB' }}
                                     />
                                     {errors.employee && <span style={errorStyle}>{errors.employee}</span>}
@@ -656,7 +656,7 @@ export default function AddWorkLogPage() {
                                 </div>
                                 <div>
                                     <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>
-                                        Allowances (Toeslag)
+                                        {t('Allowances (Toeslag)')}
                                     </h2>
                                     <p style={{ fontSize: '13px', color: '#6B7280', margin: '2px 0 0' }}>
                                         Add special allowances for this work log
@@ -778,7 +778,7 @@ export default function AddWorkLogPage() {
                                                         type="text"
                                                         value={allowance.custom_allowance_name}
                                                         onChange={(e) => updateAllowance(index, 'custom_allowance_name', e.target.value)}
-                                                        placeholder="Enter custom allowance name..."
+                                                        placeholder={t('Enter custom allowance name...')}
                                                         style={inputStyle}
                                                     />
                                                 </div>

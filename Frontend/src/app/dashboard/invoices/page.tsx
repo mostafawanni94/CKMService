@@ -401,7 +401,7 @@ export default function InvoicesPage() {
                                     <div>
                                         <div className="flex items-center gap-2 mb-3">
                                             <Gift className="w-5 h-5 text-purple-600" />
-                                            <h3 className="font-semibold text-lg">Allowances (Toeslag)</h3>
+                                            <h3 className="font-semibold text-lg">{t('Allowances (Toeslag)')}</h3>
                                         </div>
                                         <div className="bg-purple-50 border border-purple-100 rounded-xl overflow-hidden">
                                             <table className="w-full">
@@ -437,7 +437,7 @@ export default function InvoicesPage() {
                                     <div>
                                         <div className="flex items-center gap-2 mb-3">
                                             <Coins className="w-5 h-5 text-amber-600" />
-                                            <h3 className="font-semibold text-lg">Gratuities (Fooi)</h3>
+                                            <h3 className="font-semibold text-lg">{t('Gratuities (Fooi)')}</h3>
                                         </div>
                                         <div className="bg-amber-50 border border-amber-100 rounded-xl overflow-hidden">
                                             <table className="w-full">
@@ -523,7 +523,7 @@ export default function InvoicesPage() {
                                                 <span>€{selectedInvoice.vat_amount.toLocaleString()}</span>
                                             </div>
                                             <div className="flex justify-between text-2xl font-bold pt-2 border-t border-blue-400/30 mt-2">
-                                                <span>TOTAL</span>
+                                                <span>{t('TOTAL')}</span>
                                                 <span>€{selectedInvoice.total.toLocaleString()}</span>
                                             </div>
                                         </div>

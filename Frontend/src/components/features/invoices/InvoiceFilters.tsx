@@ -691,7 +691,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
                                             <tfoot>
                                                 <tr style={{ backgroundColor: '#1E3A5F', color: 'white' }}>
                                                     <td colSpan={5} style={{ padding: '14px', fontWeight: 700, fontSize: '14px' }}>
-                                                        TOTAL
+                                                        {t('TOTAL')}
                                                     </td>
                                                     <td style={{ padding: '14px 8px', textAlign: 'center', fontWeight: 600, fontSize: '13px' }}>
                                                         {worklogs.reduce((sum, w) => {

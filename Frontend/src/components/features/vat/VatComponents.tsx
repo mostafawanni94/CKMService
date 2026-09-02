@@ -75,6 +75,7 @@ export function ReturnSummary({ vatReturn }: { vatReturn: VatReturn }) {
 }
 
 export function BlockerList({ blockers }: { blockers: VatBlocker[] }) {
+    const { t } = useLanguage();
     if (!blockers.length) {
         return (
             <div style={{
@@ -89,7 +90,7 @@ export function BlockerList({ blockers }: { blockers: VatBlocker[] }) {
         );
     }
     return (
-        <SectionCard title="Must be resolved before filing" icon={<AlertTriangle size={18} color={colors.warning} />}
+        <SectionCard title={t('Must be resolved before filing')} icon={<AlertTriangle size={18} color={colors.warning} />}
                      style={{ marginBottom: spacing.xl }}>
             {blockers.map(blocker => (
                 <div key={blocker.code} style={{ marginBottom: spacing.lg }}>

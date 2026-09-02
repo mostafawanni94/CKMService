@@ -530,7 +530,7 @@ export default function AllowancesPage() {
                                     <textarea
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        placeholder="Optional description..."
+                                        placeholder={t('Optional description...')}
                                         rows={2}
                                         style={{ width: '100%', padding: '12px 16px', fontSize: '14px', border: '1px solid #E5E7EB', borderRadius: '10px', outline: 'none', resize: 'vertical' }}
                                     />

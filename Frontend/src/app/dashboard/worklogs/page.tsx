@@ -1087,7 +1087,7 @@ export default function WorkLogsPage() {
                                     <textarea
                                         value={formData.notes}
                                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                                        placeholder="Optional notes..."
+                                        placeholder={t('Optional notes...')}
                                         style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }}
                                     />
                                 </div>
@@ -1102,7 +1102,7 @@ export default function WorkLogsPage() {
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                             <Gift size={18} style={{ color: '#8B5CF6' }} />
-                                            <span style={{ fontSize: '15px', fontWeight: 600, color: '#111827' }}>Allowances (Toeslag)</span>
+                                            <span style={{ fontSize: '15px', fontWeight: 600, color: '#111827' }}>{t('Allowances (Toeslag)')}</span>
                                         </div>
                                         <button
                                             type="button"
@@ -1234,7 +1234,7 @@ export default function WorkLogsPage() {
                                                                 type="text"
                                                                 value={allowance.custom_allowance_name}
                                                                 onChange={(e) => updateAllowance(index, 'custom_allowance_name', e.target.value)}
-                                                                placeholder="Enter custom allowance name..."
+                                                                placeholder={t('Enter custom allowance name...')}
                                                                 style={{ ...inputStyle, padding: '10px 12px' }}
                                                             />
                                                         </div>

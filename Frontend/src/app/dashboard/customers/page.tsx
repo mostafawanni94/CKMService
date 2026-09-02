@@ -738,7 +738,7 @@ export default function CustomersPage() {
                             </div>
                             <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>{t('Delete Customer')}</h3>
                             <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
-                                Are you sure you want to delete <strong>{selectedCustomer.company_name}</strong>? This action cannot be undone.
+                                {t('Are you sure you want to delete')} <strong>{selectedCustomer.company_name}</strong>? This action cannot be undone.
                             </p>
                             <div style={{ display: 'flex', gap: '12px' }}>
                                 <button onClick={() => setShowDeleteModal(false)} style={{ flex: 1, padding: '12px', backgroundColor: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>{t('Cancel')}</button>

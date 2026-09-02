@@ -346,7 +346,7 @@ export default function ReportsPage() {
                                 {earningsData.length > 0 && (
                                     <tfoot className="bg-[#1E3A5F] text-white">
                                         <tr>
-                                            <td className="px-6 py-4 font-semibold">TOTAL</td>
+                                            <td className="px-6 py-4 font-semibold">{t('TOTAL')}</td>
                                             <td className="px-6 py-4 text-right font-bold">{totalHours.toFixed(1)}h</td>
                                             <td className="px-6 py-4 text-right">
                                                 {earningsData.reduce((sum, e) => sum + e.approved_logs, 0)}
