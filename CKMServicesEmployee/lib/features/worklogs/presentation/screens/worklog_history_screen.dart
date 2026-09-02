@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../data/worklog_service.dart';
 import '../../../../core/widgets/app_widgets.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class WorkLogHistoryScreen extends StatefulWidget {
   const WorkLogHistoryScreen({super.key});
@@ -148,7 +149,7 @@ class _WorkLogHistoryScreenState extends State<WorkLogHistoryScreen> with Single
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Work History'),
+        title: Text(context.strings.workHistory),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         bottom: TabBar(

@@ -9,6 +9,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../data/shift_service.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class MyAssignedShiftsScreen extends StatefulWidget {
   const MyAssignedShiftsScreen({super.key});
@@ -160,7 +161,7 @@ class _MyAssignedShiftsScreenState extends State<MyAssignedShiftsScreen> {
               ElevatedButton.icon(
                 onPressed: _loadShifts,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: Text(context.strings.retry),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1E3A5F),
                   foregroundColor: Colors.white,
@@ -297,7 +298,7 @@ class _MyAssignedShiftsScreenState extends State<MyAssignedShiftsScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(color: shiftColor, borderRadius: BorderRadius.circular(12)),
-                      child: const Text('TODAY', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 11)),
+                      child: Text(context.strings.today, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 11)),
                     ),
                 ],
               ),
@@ -373,7 +374,7 @@ class _MyAssignedShiftsScreenState extends State<MyAssignedShiftsScreen> {
                 child: ElevatedButton.icon(
                   onPressed: () => _openWorkLog(shift),
                   icon: const Icon(Icons.edit_note_rounded, size: 20),
-                  label: const Text('Fill Work Log'),
+                  label: Text(context.strings.fillWorkLog),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: shiftColor,
                     foregroundColor: Colors.white,
@@ -446,7 +447,7 @@ class _MyAssignedShiftsScreenState extends State<MyAssignedShiftsScreen> {
                         child: ElevatedButton.icon(
                           onPressed: () { Navigator.pop(context); _openWorkLog(shift); },
                           icon: const Icon(Icons.edit_note_rounded),
-                          label: const Text('Fill Work Log'),
+                          label: Text(context.strings.fillWorkLog),
                           style: ElevatedButton.styleFrom(backgroundColor: shiftColor, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                         ),
                       )

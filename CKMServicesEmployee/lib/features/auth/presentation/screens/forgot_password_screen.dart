@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import '../../../../core/widgets/app_widgets.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -80,8 +81,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Check Your Email',
+            Text(
+              context.strings.checkYourEmail,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -149,8 +150,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 const SizedBox(height: 24),
 
                 // Title
-                const Text(
-                  'Forgot Password?',
+                Text(
+                  context.strings.forgotPassword,
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,

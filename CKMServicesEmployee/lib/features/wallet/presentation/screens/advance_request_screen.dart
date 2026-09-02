@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/wallet_viewmodel.dart';
 import '../../../../core/widgets/app_widgets.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class AdvanceRequestScreen extends StatefulWidget {
   const AdvanceRequestScreen({super.key});
@@ -132,7 +133,7 @@ class _AdvanceRequestScreenState extends State<AdvanceRequestScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Request Advance'),
+        title: Text(context.strings.requestAdvance),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,

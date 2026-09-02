@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class LogWorkScreen extends StatefulWidget {
   const LogWorkScreen({super.key});
@@ -346,7 +347,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
   Future<void> _submitWorkLog() async {
     if (_selectedProjectId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a project')),
+        SnackBar(content: Text(context.strings.pleaseSelectProject)),
       );
       return;
     }
@@ -650,7 +651,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                       ),
                       child: _isSubmitting
                           ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                          : const Text('Submit for Approval', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                          : Text(context.strings.submitForApproval, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -773,7 +774,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
             TextButton.icon(
               onPressed: _addAllowance,
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add'),
+              label: Text(context.strings.add),
             ),
           ],
         ),
@@ -790,7 +791,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
             child: Row(children: [
               Icon(Icons.info_outline, color: Colors.purple.shade700, size: 20),
               const SizedBox(width: 12),
-              Expanded(child: Text('Tap "Add" to add allowances', style: TextStyle(color: Colors.purple.shade700))),
+              Expanded(child: Text(context.strings.tapAddToAddAllowances, style: TextStyle(color: Colors.purple.shade700))),
             ]),
           ),
         
@@ -990,7 +991,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Submitted Today', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+            Text(context.strings.submittedToday, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
             Text('${_dayWorklogs.length} entry', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
           ],
         ),
@@ -1078,10 +1079,10 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Work Time', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey)),
+        Text(context.strings.workTime, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey)),
         const SizedBox(height: 8),
         Row(children: [
-          Expanded(child: _TimePickerField(label: 'Start', time: _startTime, onTap: () async {
+          Expanded(child: _TimePickerField(label: context.strings.home, time: _startTime, onTap: () async {
             final t = await showTimePicker(
               context: context,
               initialTime: _startTime,
@@ -1093,7 +1094,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
             if (t != null) setState(() => _startTime = t);
           })),
           const SizedBox(width: 12),
-          Expanded(child: _TimePickerField(label: 'End', time: _endTime, onTap: () async {
+          Expanded(child: _TimePickerField(label: context.strings.end, time: _endTime, onTap: () async {
             final t = await showTimePicker(
               context: context,
               initialTime: _endTime,
@@ -1183,7 +1184,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Start', style: TextStyle(fontSize: 10, color: Colors.grey.shade500)),
+                            Text(context.strings.home, style: TextStyle(fontSize: 10, color: Colors.grey.shade500)),
                             Text(brk.start != null ? '${brk.start!.hour.toString().padLeft(2, '0')}:${brk.start!.minute.toString().padLeft(2, '0')}' : '--:--',
                               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                           ],
@@ -1209,7 +1210,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('End', style: TextStyle(fontSize: 10, color: Colors.grey.shade500)),
+                              Text(context.strings.end, style: TextStyle(fontSize: 10, color: Colors.grey.shade500)),
                               Text(brk.end != null ? '${brk.end!.hour.toString().padLeft(2, '0')}:${brk.end!.minute.toString().padLeft(2, '0')}' : '--:--',
                                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                             ],
@@ -1266,7 +1267,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                   child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                     Icon(Icons.add_a_photo, color: Colors.grey.shade400, size: 28),
                     const SizedBox(height: 4),
-                    Text('Add Photo', style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+                    Text(context.strings.addPhoto, style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
                   ]),
                 ),
               ),
@@ -1300,7 +1301,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Add Photo', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(context.strings.addPhoto, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -245,6 +245,41 @@ class AppStrings {
   String get checkStatus => _t('Status bekijken', 'Check Status', 'تحقق من الحالة', 'Проверить статус');
   String get pullToRefresh => _t('Trek omlaag om te vernieuwen', 'Pull down to refresh', 'اسحب للتحديث', 'Потяните вниз для обновления');
 
+  // ===================
+  // SCREEN COPY
+  // ===================
+  String get retry => _t('Opnieuw', 'Retry', 'إعادة المحاولة', 'Повторить');
+  String get add => _t('Toevoegen', 'Add', 'إضافة', 'Добавить');
+  String get select => _t('Selecteren', 'Select', 'اختيار', 'Выбрать');
+  String get start => _t('Start', 'Start', 'البداية', 'Начало');
+  String get end => _t('Einde', 'End', 'النهاية', 'Конец');
+  String get time => _t('Tijd', 'Time', 'الوقت', 'Время');
+  String get signOut => _t('Afmelden', 'Sign out', 'تسجيل الخروج', 'Выйти');
+  String get viewAll => _t('Alles bekijken', 'View All', 'عرض الكل', 'Показать все');
+  String get loadMore => _t('Meer laden', 'Load more', 'تحميل المزيد', 'Загрузить ещё');
+  String get workHistory => _t('Werkgeschiedenis', 'Work History', 'سجل العمل', 'История работы');
+  String get workTime => _t('Werktijd', 'Work Time', 'وقت العمل', 'Рабочее время');
+  String get totalHours => _t('Totaal uren', 'Total Hours', 'إجمالي الساعات', 'Всего часов');
+  String get upcomingShifts => _t('Komende diensten', 'Upcoming Shifts', 'المناوبات القادمة', 'Предстоящие смены');
+  String get fillWorkLog => _t('Uren invullen', 'Fill Work Log', 'تعبئة سجل العمل', 'Заполнить учёт часов');
+  String get addPhoto => _t('Foto toevoegen', 'Add Photo', 'إضافة صورة', 'Добавить фото');
+  String get addCertificate => _t('Certificaat toevoegen', 'Add Certificate', 'إضافة شهادة', 'Добавить сертификат');
+  String get uploadCertificate => _t('Certificaat uploaden', 'Upload Certificate', 'رفع شهادة', 'Загрузить сертификат');
+  String get allowances => _t('Toeslagen', 'Allowances', 'البدلات', 'Надбавки');
+  String get submitShift => _t('Dienst versturen?', 'Submit Shift?', 'إرسال المناوبة؟', 'Отправить смену?');
+  String get submittedToday => _t('Vandaag ingediend', 'Submitted Today', 'مُقدَّم اليوم', 'Отправлено сегодня');
+  String get today => _t('VANDAAG', 'TODAY', 'اليوم', 'СЕГОДНЯ');
+  String get settingsSaved => _t('Instellingen opgeslagen', 'Settings saved', 'تم حفظ الإعدادات', 'Настройки сохранены');
+  String get usePinInstead => _t('Gebruik in plaats daarvan een pincode', 'Use PIN instead', 'استخدم رمز PIN بدلاً من ذلك', 'Использовать PIN');
+  String get tapToViewEarnings => _t('Tik om verdiensten te bekijken', 'Tap to view earnings', 'اضغط لعرض الأرباح', 'Нажмите, чтобы увидеть заработок');
+  String get profileSubmittedMessage => _t('Profiel ter goedkeuring verstuurd!', 'Profile submitted for approval!', 'تم إرسال الملف للموافقة!', 'Профиль отправлен на утверждение!');
+  String get workLogSubmittedMessage => _t('Werkuren ter goedkeuring verstuurd', 'Work log submitted for approval', 'تم إرسال سجل العمل للموافقة', 'Учёт часов отправлен на утверждение');
+  String get pleaseSelectProject => _t('Selecteer een project', 'Please select a project', 'يرجى اختيار مشروع', 'Пожалуйста, выберите проект');
+  String get completePersonalInfoFirst => _t('Vul eerst je persoonlijke gegevens in', 'Please complete Personal Information first', 'يرجى إكمال المعلومات الشخصية أولاً', 'Сначала заполните личные данные');
+  String get uploadFrontAndBack => _t('Upload voor- en achterkant, of één pdf', 'Upload front and back, or a single PDF', 'ارفع الوجهين أو ملف PDF واحد', 'Загрузите обе стороны или один PDF');
+  String get selectCertificateType => _t('Kies een certificaattype en upload de documenten', 'Select certificate type and upload documents', 'اختر نوع الشهادة وارفع المستندات', 'Выберите тип сертификата и загрузите документы');
+  String get tapAddToAddAllowances => _t('Tik op "Toevoegen" om toeslagen toe te voegen', 'Tap "Add" to add allowances', 'اضغط "إضافة" لإضافة البدلات', 'Нажмите «Добавить», чтобы добавить надбавки');
+
   /// Pick the string for the active language.
   String _t(String nl, String en, String ar, String ru) {
     switch (language) {

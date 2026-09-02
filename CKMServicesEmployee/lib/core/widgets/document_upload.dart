@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
+import '../../core/localization/app_strings.dart';
 
 /// EU Driver's License Categories
 const List<Map<String, String>> driverLicenseCategories = [
@@ -583,7 +584,7 @@ class DocumentUploadSection extends StatelessWidget {
           children: [
             Expanded(
               child: DocumentUploadBox(
-                label: 'Front Side',
+                label: context.strings.frontSide,
                 imagePath: frontPath,
                 onTap: () => _pickImage(context, onFrontUploaded),
                 onDelete: onFrontDelete,
@@ -593,7 +594,7 @@ class DocumentUploadSection extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: DocumentUploadBox(
-                label: 'Back Side',
+                label: context.strings.backSide,
                 imagePath: backPath,
                 onTap: () => _pickImage(context, onBackUploaded),
                 onDelete: onBackDelete,

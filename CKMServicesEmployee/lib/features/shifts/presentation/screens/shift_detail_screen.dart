@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../data/shift_service.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class ShiftDetailScreen extends StatefulWidget {
   final Shift shift;
@@ -167,7 +168,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Submit Shift?'),
+        title: Text(context.strings.submitShift),
         content: const Text(
           'Once submitted, you cannot edit this shift. '
           'Your supervisor will review and approve it.',
@@ -175,7 +176,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(context.strings.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -183,7 +184,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
               backgroundColor: const Color(0xFF10B981),
               foregroundColor: Colors.white,
             ),
-            child: const Text('Submit'),
+            child: Text(context.strings.submit),
           ),
         ],
       ),
@@ -360,8 +361,8 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
                 color: const Color(0xFF10B981),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Text(
-                'TODAY',
+              child: Text(
+                context.strings.today,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -998,13 +999,13 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
                           valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
-                    : const Row(
+                    : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.send_rounded, size: 18),
                           SizedBox(width: 8),
                           Text(
-                            'Submit for Approval',
+                            context.strings.submitForApproval,
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,

@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/shift_service.dart';
 import 'fill_work_times_screen.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class AssignedShiftDetailScreen extends StatefulWidget {
   final AssignedShift shift;
@@ -878,13 +879,13 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
                               ),
                             ],
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.email_rounded, color: Colors.white, size: 20),
                               SizedBox(width: 8),
                               Text(
-                                'Email',
+                                context.strings.email,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,

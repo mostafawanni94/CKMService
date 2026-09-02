@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import 'forgot_password_screen.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -224,7 +225,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Email Field
                   AppTextField(
-                    label: 'Email',
+                    label: context.strings.email,
                     hint: 'Enter your email',
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -235,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Password Field
                   AppTextField(
-                    label: 'Password',
+                    label: context.strings.password,
                     hint: 'Enter your password',
                     controller: _passwordController,
                     obscureText: _obscurePassword,
@@ -256,8 +257,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: _navigateToForgotPassword,
-                      child: const Text(
-                        'Forgot Password?',
+                      child: Text(
+                        context.strings.forgotPassword,
                         style: TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w600,
@@ -326,8 +327,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildWelcomeText() {
     return Column(
       children: [
-        const Text(
-          'Welcome Back',
+        Text(
+          context.strings.welcomeBack,
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
@@ -336,7 +337,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Sign in to continue to CKM Services',
+          context.strings.signInToContinue,
           style: TextStyle(
             fontSize: 15,
             color: Colors.grey.shade600,
@@ -350,7 +351,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Column(
       children: [
         Text(
-          'Contact your administrator if you need help.',
+          context.strings.contactAdmin,
           style: TextStyle(
             fontSize: 13,
             color: Colors.grey.shade500,

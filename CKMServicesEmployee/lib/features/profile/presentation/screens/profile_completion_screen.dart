@@ -15,6 +15,7 @@ import '../../../../core/widgets/country_picker.dart';
 import '../../../../core/widgets/document_upload.dart';
 import 'package:intl/intl.dart';
 import '../../data/profile_service.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class ProfileCompletionScreen extends StatefulWidget {
   const ProfileCompletionScreen({super.key});
@@ -263,11 +264,11 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
       _currentCard = originalCard;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Row(
+          content: Row(
             children: [
               Icon(Icons.warning_amber_rounded, color: Colors.white),
               SizedBox(width: 12),
-              Text('Please complete Personal Information first'),
+              Text(context.strings.completePersonalInfoFirst),
             ],
           ),
           backgroundColor: Colors.red.shade600,
@@ -361,7 +362,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
               children: [
                 const Icon(Icons.check_circle, color: Colors.white),
                 const SizedBox(width: 12),
-                const Text('Profile submitted for approval!'),
+                Text(context.strings.profileSubmittedMessage),
               ],
             ),
             backgroundColor: Colors.green.shade600,
@@ -613,7 +614,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: _buildCard(
-        title: 'Personal Information',
+        title: context.strings.personalInfo,
         subtitle: 'Enter your personal details',
         icon: Icons.person_outline,
         color: Colors.blue,
@@ -746,7 +747,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
             const SizedBox(height: 16),
             
             CountryPickerField(
-              label: 'Nationality',
+              label: context.strings.nationality,
               value: _nationality,
               onChanged: (v) => setState(() => _nationality = v),
               required: true,
@@ -804,7 +805,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                 _buildSectionTitle('Upload ID Document'),
                 const SizedBox(height: 8),
                 Text(
-                  'Upload front and back, or a single PDF',
+                  context.strings.uploadFrontAndBack,
                   style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 16),
@@ -868,7 +869,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                 _buildSectionTitle('Upload License'),
                 const SizedBox(height: 8),
                 Text(
-                  'Upload front and back, or a single PDF',
+                  context.strings.uploadFrontAndBack,
                   style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 16),
@@ -1016,7 +1017,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
               child: OutlinedButton.icon(
                 onPressed: _showAddCertificateSheet,
                 icon: const Icon(Icons.add_circle_outline),
-                label: const Text('Add Certificate'),
+                label: Text(context.strings.addCertificate),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
                   side: const BorderSide(color: AppColors.primary, width: 1.5),
@@ -1074,7 +1075,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Add Certificate', 
+                    Text(context.strings.addCertificate, 
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1E3A5F))),
                     IconButton(
                       onPressed: () => Navigator.of(context).pop(),
@@ -1087,7 +1088,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text('Select certificate type and upload documents',
+                Text(context.strings.selectCertificateType,
                   style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
                 const SizedBox(height: 24),
                 
@@ -1194,7 +1195,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                 Text('Upload Certificate *', 
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
                 const SizedBox(height: 8),
-                Text('Upload front and back, or a single PDF',
+                Text(context.strings.uploadFrontAndBack,
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
                 const SizedBox(height: 12),
                 
@@ -1244,7 +1245,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                     child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Add Certificate', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                    Text(context.strings.addCertificate, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                   ]),
                 ),
                 )],
@@ -1443,7 +1444,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: value,
-              hint: Text('Select', style: TextStyle(color: Colors.grey.shade400)),
+              hint: Text(context.strings.select, style: TextStyle(color: Colors.grey.shade400)),
               isExpanded: true,
               icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade400),
               items: items.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
@@ -1483,7 +1484,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                               color: Colors.red.shade100,
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: Text('Required', style: TextStyle(fontSize: 10, color: Colors.red.shade700, fontWeight: FontWeight.w600)),
+                            child: Text(context.strings.required, style: TextStyle(fontSize: 10, color: Colors.red.shade700, fontWeight: FontWeight.w600)),
                           ),
                         ],
                       ],
@@ -1526,7 +1527,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Back'),
+              child: Text(context.strings.back),
             ),
           if (_currentCard > 0) const SizedBox(width: 12),
           

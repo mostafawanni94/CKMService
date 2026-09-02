@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import '../../data/worklog_service.dart';
 import '../../../../core/widgets/app_widgets.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class WorkLogSubmissionScreen extends StatefulWidget {
   const WorkLogSubmissionScreen({super.key});
@@ -92,7 +93,7 @@ class _WorkLogSubmissionScreenState extends State<WorkLogSubmissionScreen> {
     if (mounted) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Work log submitted for approval')),
+        SnackBar(content: Text(context.strings.workLogSubmittedMessage)),
       );
     }
   }
@@ -102,7 +103,7 @@ class _WorkLogSubmissionScreenState extends State<WorkLogSubmissionScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Log Work'),
+        title: Text(context.strings.logWork),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -172,7 +173,7 @@ class _WorkLogSubmissionScreenState extends State<WorkLogSubmissionScreen> {
             const SizedBox(height: 24),
 
             // Time
-            const Text('Time', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(context.strings.time, style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -197,7 +198,7 @@ class _WorkLogSubmissionScreenState extends State<WorkLogSubmissionScreen> {
                       ),
                       child: Column(
                         children: [
-                          const Text('Start', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                          Text(context.strings.home, style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                           const SizedBox(height: 4),
                           Text(_formatTime(_startTime), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                         ],
@@ -227,7 +228,7 @@ class _WorkLogSubmissionScreenState extends State<WorkLogSubmissionScreen> {
                       ),
                       child: Column(
                         children: [
-                          const Text('End', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                          Text(context.strings.end, style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                           const SizedBox(height: 4),
                           Text(_formatTime(_endTime), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                         ],
@@ -280,7 +281,7 @@ class _WorkLogSubmissionScreenState extends State<WorkLogSubmissionScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Total Hours', style: TextStyle(fontWeight: FontWeight.w600)),
+                  Text(context.strings.totalHours, style: TextStyle(fontWeight: FontWeight.w600)),
                   Text(
                     '${_hoursWorked.toStringAsFixed(1)} hours',
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primary),
@@ -298,7 +299,7 @@ class _WorkLogSubmissionScreenState extends State<WorkLogSubmissionScreen> {
                 TextButton.icon(
                   onPressed: _addAllowance,
                   icon: const Icon(Icons.add, size: 18),
-                  label: const Text('Add'),
+                  label: Text(context.strings.add),
                 ),
               ],
             ),

@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'app_widgets.dart';
+import '../../core/localization/app_strings.dart';
 
 /// Wallet Balance Widget with Color Indicator
 class WalletBalanceWidget extends StatelessWidget {
@@ -92,13 +93,13 @@ class WalletBalanceWidget extends StatelessWidget {
                 child: const Icon(Icons.account_balance_wallet, color: Colors.orange, size: 28),
               ),
               const SizedBox(width: 16),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Wallet Balance', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-                    SizedBox(height: 4),
-                    Text('Tap to view earnings', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                    Text(context.strings.walletBalance, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                    const SizedBox(height: 4),
+                    Text(context.strings.tapToViewEarnings, style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                   ],
                 ),
               ),
@@ -136,7 +137,7 @@ class WalletBalanceWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Wallet Balance', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                  Text(context.strings.walletBalance, style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                   const SizedBox(height: 4),
                   Text(
                     '€ ${balance.toStringAsFixed(2)}',

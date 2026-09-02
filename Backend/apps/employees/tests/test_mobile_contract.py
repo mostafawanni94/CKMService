@@ -29,6 +29,8 @@ EMPLOYEE_APP_PATHS = [
     ('POST', '/api/employees/profiles/submit/'),
     ('POST', '/api/employees/profiles/upload_document/'),
     ('GET', '/api/employees/profiles/my_assignments/'),
+    ('GET', '/api/employees/profiles/my_notification_settings/'),
+    ('PATCH', '/api/employees/profiles/update_notification_settings/'),
     ('GET', '/api/employees/document-types/'),
     ('GET', '/api/employees/allowance-types/'),
     ('GET', '/api/certificates/types/'),

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../data/shift_service.dart';
 import '../../../worklogs/data/worklog_service.dart';
+import '../../../../core/localization/app_strings.dart';
 
 /// Helper class for break time entries
 class _BreakTime {
@@ -255,8 +256,8 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text(
-                    'Done',
+                  child: Text(
+                    context.strings.done,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -1071,8 +1072,8 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Start',
+                  Text(
+                    context.strings.home,
                     style: TextStyle(
                       fontSize: 12,
                       color: Color(0xFF94A3B8),
@@ -1110,8 +1111,8 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'End',
+                    Text(
+                      context.strings.end,
                       style: TextStyle(
                         fontSize: 12,
                         color: Color(0xFF94A3B8),

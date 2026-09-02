@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import '../../../../core/widgets/app_widgets.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -219,7 +220,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> with Single
                   
                   // Current Password
                   _buildPasswordField(
-                    label: 'Current Password',
+                    label: context.strings.currentPassword,
                     hint: 'Enter temporary password',
                     controller: _currentPasswordController,
                     obscure: _obscureCurrent,
@@ -231,7 +232,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> with Single
                   
                   // New Password
                   _buildPasswordField(
-                    label: 'New Password',
+                    label: context.strings.newPassword,
                     hint: 'Create a strong password',
                     controller: _newPasswordController,
                     obscure: _obscureNew,
@@ -253,7 +254,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> with Single
                   
                   // Confirm Password
                   _buildPasswordField(
-                    label: 'Confirm Password',
+                    label: context.strings.confirmPassword,
                     hint: 'Re-enter new password',
                     controller: _confirmPasswordController,
                     obscure: _obscureConfirm,

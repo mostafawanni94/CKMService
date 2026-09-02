@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../viewmodels/invoice_viewmodel.dart';
 import '../../data/invoice_service.dart';
 import '../../../../core/widgets/app_widgets.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class InvoicesScreen extends StatefulWidget {
   const InvoicesScreen({super.key});
@@ -32,7 +33,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('My Earnings'),
+        title: Text(context.strings.myEarnings),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -137,7 +138,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
           const SizedBox(height: 24),
           
           // Pending Invoices
-          const Text('Upcoming Payments', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(context.strings.upcomingPayments, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           
           if (vm.pendingInvoices.isEmpty)
@@ -177,7 +178,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
             children: [
               const Icon(Icons.schedule, color: Colors.white70),
               const SizedBox(width: 8),
-              const Text('Next Payout', style: TextStyle(color: Colors.white70)),
+              Text(context.strings.nextPayout, style: TextStyle(color: Colors.white70)),
             ],
           ),
           const SizedBox(height: 12),
@@ -419,7 +420,7 @@ class _InvoiceDetailsSheet extends StatelessWidget {
           const SizedBox(height: 24),
           
           // Work Breakdown
-          const Text('Work Breakdown', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(context.strings.workBreakdown, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           ...invoice.lines.map((line) => Container(
             margin: const EdgeInsets.only(bottom: 8),

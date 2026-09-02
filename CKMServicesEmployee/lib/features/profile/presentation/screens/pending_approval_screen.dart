@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../auth/presentation/viewmodels/auth_viewmodel.dart';
 import '../../../../core/widgets/app_widgets.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class PendingApprovalScreen extends StatefulWidget {
   const PendingApprovalScreen({super.key});
@@ -110,7 +111,7 @@ class _PendingApprovalScreenState extends State<PendingApprovalScreen>
                     
                     // Title
                     Text(
-                      'Profile Under Review',
+                      context.strings.profilePending,
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -200,7 +201,7 @@ class _PendingApprovalScreenState extends State<PendingApprovalScreen>
                     Column(
                       children: [
                         Text(
-                          'Pull down to refresh',
+                          context.strings.pullToRefresh,
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey.shade400,
@@ -232,7 +233,7 @@ class _PendingApprovalScreenState extends State<PendingApprovalScreen>
                         TextButton.icon(
                           onPressed: () => context.read<AuthViewModel>().logout(),
                           icon: const Icon(Icons.logout, size: 18),
-                          label: const Text('Logout'),
+                          label: Text(context.strings.logout),
                           style: TextButton.styleFrom(
                             foregroundColor: AppColors.error,
                           ),

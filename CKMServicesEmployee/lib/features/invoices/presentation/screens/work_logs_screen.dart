@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../viewmodels/invoice_viewmodel.dart';
 import '../../data/invoice_service.dart';
 import '../../../../core/widgets/app_widgets.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class WorkLogsScreen extends StatefulWidget {
   const WorkLogsScreen({super.key});
@@ -159,7 +160,7 @@ class _WorkLogsScreenState extends State<WorkLogsScreen> with SingleTickerProvid
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Work History'),
+        title: Text(context.strings.workHistory),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         bottom: TabBar(
@@ -222,7 +223,7 @@ class _WorkLogsScreenState extends State<WorkLogsScreen> with SingleTickerProvid
                                       ? const CircularProgressIndicator()
                                       : TextButton(
                                           onPressed: () => vm.loadMoreWorkLogs(),
-                                          child: const Text('Load more'),
+                                          child: Text(context.strings.loadMore),
                                         ),
                                 ),
                               );

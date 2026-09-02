@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/widgets/app_widgets.dart';
+import '../../../../core/localization/app_strings.dart';
 
 /// Notification Settings Screen
 /// 
@@ -75,7 +76,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Settings saved'),
+            content: Text(context.strings.settingsSaved),
             backgroundColor: AppColors.success,
           ),
         );
@@ -112,7 +113,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Save'),
+                : Text(context.strings.save),
             ),
         ],
       ),
@@ -127,7 +128,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: _loadSettings,
-                    child: const Text('Retry'),
+                    child: Text(context.strings.retry),
                   ),
                 ],
               ),

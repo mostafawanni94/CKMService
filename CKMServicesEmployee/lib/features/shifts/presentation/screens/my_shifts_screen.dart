@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../data/shift_service.dart';
 import 'assigned_shift_detail_screen.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class MyShiftsScreen extends StatefulWidget {
   const MyShiftsScreen({super.key});
@@ -272,7 +273,7 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
               ElevatedButton.icon(
                 onPressed: _loadShifts,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: Text(context.strings.retry),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1E3A5F),
                   foregroundColor: Colors.white,
@@ -351,7 +352,7 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
                     ? const CircularProgressIndicator()
                     : TextButton(
                         onPressed: _loadMoreShifts,
-                        child: const Text('Load more'),
+                        child: Text(context.strings.loadMore),
                       ),
               ),
             );

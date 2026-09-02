@@ -62,7 +62,7 @@ class CKMServicesEmployeeApp extends StatelessWidget {
       child: Consumer<LocalizationProvider>(
         builder: (context, localization, _) {
           return MaterialApp(
-            title: 'CKM Services',
+            title: context.strings.appName,
             debugShowCheckedModeBanner: false,
             theme: _buildTheme(),
             
@@ -229,7 +229,7 @@ class _SplashScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'CKM Services',
+              context.strings.appName,
               style: TextStyle(
                 color: Colors.white.withOpacity(0.9),
                 fontSize: 18,

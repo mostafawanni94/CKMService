@@ -17,6 +17,7 @@ import '../../../shifts/presentation/screens/assigned_shift_detail_screen.dart';
 import '../../../settings/presentation/screens/notification_settings_screen.dart';
 import '../../../../core/widgets/app_widgets.dart';
 import '../../../../core/widgets/wallet_widgets.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -78,11 +79,11 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: AppColors.primary,
         unselectedItemColor: Colors.grey.shade400,
         elevation: 0,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.access_time_outlined), activeIcon: Icon(Icons.access_time), label: 'Work'),
-          BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long), label: 'Earnings'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: 'Profile'),
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: context.strings.home),
+          BottomNavigationBarItem(icon: Icon(Icons.access_time_outlined), activeIcon: Icon(Icons.access_time), label: context.strings.work),
+          BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long), label: context.strings.earnings),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: context.strings.profile),
         ],
       ),
     );
@@ -130,7 +131,7 @@ class _DashboardTab extends StatelessWidget {
                           'Hello, ${auth.user?.firstName ?? 'User'}!',
                           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                         ),
-                        const Text('CKM Services', style: TextStyle(color: AppColors.textSecondary)),
+                        Text(context.strings.appName, style: TextStyle(color: AppColors.textSecondary)),
                       ],
                     ),
                   ),
@@ -150,14 +151,14 @@ class _DashboardTab extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Quick Actions
-              const Text('Quick Actions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(context.strings.quickActions, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
                     child: _QuickActionCard(
                       icon: Icons.add_circle_outline,
-                      title: 'Log Work',
+                      title: context.strings.logWork,
                       color: AppColors.primary,
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LogWorkScreen())),
                     ),
@@ -188,10 +189,10 @@ class _DashboardTab extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Upcoming Shifts', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(context.strings.upcomingShifts, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   TextButton(
                     onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyShiftsScreen())),
-                    child: Text('View All', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+                    child: Text(context.strings.viewAll, style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
                   ),
                 ],
               ),
@@ -287,7 +288,7 @@ class _ProfileTab extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: () => _showLogoutDialog(context),
                 icon: const Icon(Icons.logout, color: AppColors.error),
-                label: const Text('Logout', style: TextStyle(color: AppColors.error)),
+                label: Text(context.strings.logout, style: TextStyle(color: AppColors.error)),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: AppColors.error),
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -500,8 +501,8 @@ class _UpcomingShiftsListState extends State<_UpcomingShiftsList> {
                             color: const Color(0xFF10B981),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Text(
-                            'TODAY',
+                          child: Text(
+                            context.strings.today,
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
