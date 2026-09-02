@@ -260,9 +260,42 @@ prefer `useQuery`; the existing `useFetch`/`useMutation` helpers still work.
 `src/proxy.ts` (Next 16's renamed middleware) redirects unauthenticated
 navigation using a non-credential `ckm_session` cookie hint.
 
+### Translations
+
+Five languages: Dutch (default), English, Arabic (RTL), Ukrainian, Russian.
+`t()` from `@/lib/i18n` takes either a camelCase key from the table in
+`i18n.tsx` or an English phrase from `src/lib/phrases.ts` — and returns the key
+unchanged when neither matches, so an unwired string still reads correctly.
+
+Phrase keys live in two key spaces, because screens were authored in two
+languages: `phrases.nl` is keyed by English source strings, `phrases.en` by the
+Dutch ones used on the finance, VAT and invoice screens. `phrases.ar/ru/uk` must
+cover both — `src/lib/i18n.test.tsx` fails if one falls behind.
+
+**Wrap new user-visible text in `t()` and add the phrase to every table.**
+
+Both Flutter apps carry the same idea in
+`lib/core/localization/app_strings.dart`: a `LocalizationProvider` registered in
+`main.dart`, and `context.strings.<key>` inside any `build()` or `State` method.
+`context.strings` *watches* the provider, so outside the widget tree use
+`context.stringsOnce`. A literal inside a `const` expression cannot be swapped
+for a translation — drop the `const` on the enclosing widget.
+
 ---
 
 ## Gotchas
+
+- Contact rows in `SystemConfig.company_emails` / `company_phones` are
+  `{label, value}`. They have also been stored as `{label, email}` and
+  `{label, number}`; read them through `config.contact_emails` /
+  `contact_phones`, which tolerate all three, and write only the canonical
+  shape.
+- The `/api/worklogs/` list narrows to **today onwards** unless the request
+  carries `start_date`, `end_date` or `include_past=true`. A report over a past
+  period that omits them gets an empty list, not an error.
+- List serializers are deliberately thin. Never fill an edit form from a list
+  row and then PATCH the whole form back — the fields the list omitted are sent
+  as blanks and overwrite what is stored. Fetch the detail endpoint first.
 
 - `SystemConfig` is a runtime singleton (`SystemConfig.objects.get_config()`) —
   SMTP, Firebase, company details and `frontend_url` are configured in the dashboard,
