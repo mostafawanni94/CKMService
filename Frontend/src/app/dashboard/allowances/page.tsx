@@ -60,12 +60,14 @@ export default function AllowancesPage() {
         setLoading(true);
         setError(null);
         try {
-            const response = await apiFetch(`/employees/allowance-types/`);
-            if (!response.ok) throw new Error('Failed to load allowance types');
-            const data = await response.json();
             // Every page, not just the first: DRF pages at 20, and this list is
             // filtered in the browser, so a partial fetch silently hid rows.
-            setAllowances(await apiGetAll('/customers/allowances/'));
+            //
+            // This used to fetch allowance types, discard them, and then list
+            // /customers/allowances/ instead — a different model with no name,
+            // code or is_active — so the search box crashed on undefined and
+            // every row rendered blank.
+            setAllowances(await apiGetAll<AllowanceType>('/employees/allowance-types/'));
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load allowance types');
         } finally {
@@ -75,8 +77,9 @@ export default function AllowancesPage() {
 
     // Filter allowances
     const filteredAllowances = allowances.filter(a => {
-        const matchesSearch = a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            a.code.toLowerCase().includes(searchQuery.toLowerCase());
+        const needle = searchQuery.toLowerCase();
+        const matchesSearch = (a.name || '').toLowerCase().includes(needle) ||
+            (a.code || '').toLowerCase().includes(needle);
         const matchesFilter = filterActive === 'all' ||
             (filterActive === 'active' && a.is_active) ||
             (filterActive === 'inactive' && !a.is_active);
