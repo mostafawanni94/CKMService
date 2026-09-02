@@ -392,7 +392,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFF1E3A5F).withOpacity(0.1) : null,
+                        color: isSelected ? const Color(0xFF1E3A5F).withValues(alpha: 0.1) : null,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(

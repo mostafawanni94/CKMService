@@ -45,7 +45,7 @@ class AppColors {
 class AppShadows {
   static List<BoxShadow> get sm => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.04),
+      color: Colors.black.withValues(alpha: 0.04),
       blurRadius: 4,
       offset: const Offset(0, 2),
     ),
@@ -53,12 +53,12 @@ class AppShadows {
   
   static List<BoxShadow> get md => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.06),
+      color: Colors.black.withValues(alpha: 0.06),
       blurRadius: 8,
       offset: const Offset(0, 4),
     ),
     BoxShadow(
-      color: Colors.black.withOpacity(0.04),
+      color: Colors.black.withValues(alpha: 0.04),
       blurRadius: 4,
       offset: const Offset(0, 2),
     ),
@@ -66,7 +66,7 @@ class AppShadows {
   
   static List<BoxShadow> get lg => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.1),
+      color: Colors.black.withValues(alpha: 0.1),
       blurRadius: 16,
       offset: const Offset(0, 8),
     ),
@@ -112,7 +112,7 @@ class PrimaryButton extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             disabledBackgroundColor: Colors.transparent,
-            disabledForegroundColor: Colors.white.withOpacity(0.6),
+            disabledForegroundColor: Colors.white.withValues(alpha: 0.6),
           ),
           child: isLoading
               ? const SizedBox(
@@ -313,26 +313,26 @@ class StatusBadge extends StatelessWidget {
   });
 
   Color get _backgroundColor {
-    if (color != null) return color!.withOpacity(0.1);
+    if (color != null) return color!.withValues(alpha: 0.1);
     switch (status.toLowerCase()) {
       case 'approved':
       case 'active':
       case 'completed':
       case 'success':
-        return AppColors.success.withOpacity(0.1);
+        return AppColors.success.withValues(alpha: 0.1);
       case 'pending':
       case 'submitted':
       case 'in_progress':
-        return AppColors.warning.withOpacity(0.15);
+        return AppColors.warning.withValues(alpha: 0.15);
       case 'rejected':
       case 'error':
       case 'failed':
-        return AppColors.danger.withOpacity(0.1);
+        return AppColors.danger.withValues(alpha: 0.1);
       case 'draft':
       case 'incomplete':
-        return AppColors.secondary.withOpacity(0.1);
+        return AppColors.secondary.withValues(alpha: 0.1);
       default:
-        return Colors.grey.withOpacity(0.1);
+        return Colors.grey.withValues(alpha: 0.1);
     }
   }
 
@@ -368,7 +368,7 @@ class StatusBadge extends StatelessWidget {
         color: _backgroundColor,
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: _textColor.withOpacity(0.2),
+          color: _textColor.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -413,7 +413,7 @@ class InfoCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor ?? Colors.white,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border.withOpacity(0.5)),
+          border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
           boxShadow: AppShadows.sm,
         ),
         child: Row(
@@ -421,7 +421,7 @@ class InfoCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: (iconColor ?? AppColors.primary).withOpacity(0.1),
+                color: (iconColor ?? AppColors.primary).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: iconColor ?? AppColors.primary, size: 24),
@@ -489,7 +489,7 @@ class AppCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor ?? Colors.white,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border.withOpacity(0.5)),
+          border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
           boxShadow: hasShadow ? AppShadows.sm : null,
         ),
         child: child,

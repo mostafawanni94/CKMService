@@ -92,7 +92,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
           color: isSelected ? AppColors.primary : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(25),
           boxShadow: isSelected
-              ? [BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 2))]
+              ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))]
               : null,
         ),
         child: Text(
@@ -265,7 +265,7 @@ class _InvoiceCard extends StatelessWidget {
               width: 4,
             ),
           ),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8)],
         ),
         child: Row(
           children: [
@@ -273,7 +273,7 @@ class _InvoiceCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: (isPaid ? AppColors.success : Colors.orange).withOpacity(0.1),
+                color: (isPaid ? AppColors.success : Colors.orange).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -373,7 +373,7 @@ class _InvoiceDetailsSheet extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: invoice.isPaid ? AppColors.success.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+                  color: invoice.isPaid ? AppColors.success.withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(

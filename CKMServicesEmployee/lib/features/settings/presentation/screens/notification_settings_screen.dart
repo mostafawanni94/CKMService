@@ -196,7 +196,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: _pushEnabled
-            ? [AppColors.primary, AppColors.primary.withOpacity(0.8)]
+            ? [AppColors.primary, AppColors.primary.withValues(alpha: 0.8)]
             : [Colors.grey, Colors.grey.shade600],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -208,7 +208,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -233,7 +233,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 Text(
                   _pushEnabled ? 'Enabled' : 'Disabled',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     fontSize: 14,
                   ),
                 ),
@@ -244,7 +244,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
             value: _pushEnabled,
             onChanged: (v) => setState(() => _pushEnabled = v),
             activeColor: Colors.white,
-            activeTrackColor: Colors.white.withOpacity(0.3),
+            activeTrackColor: Colors.white.withValues(alpha: 0.3),
           ),
         ],
       ),
@@ -276,7 +276,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: value ? iconColor.withOpacity(0.3) : AppColors.border,
+          color: value ? iconColor.withValues(alpha: 0.3) : AppColors.border,
         ),
       ),
       child: ListTile(
@@ -284,7 +284,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         leading: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.1),
+            color: iconColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: iconColor, size: 24),

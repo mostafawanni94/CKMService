@@ -418,7 +418,7 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -484,7 +484,7 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
-                          color: shiftColor.withOpacity(0.1),
+                          color: shiftColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -534,9 +534,9 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: _getWorkLogStatusColor(shift.latestWorkLogStatus).withOpacity(0.1),
+                        color: _getWorkLogStatusColor(shift.latestWorkLogStatus).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: _getWorkLogStatusColor(shift.latestWorkLogStatus).withOpacity(0.3)),
+                        border: Border.all(color: _getWorkLogStatusColor(shift.latestWorkLogStatus).withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         children: [
@@ -658,7 +658,7 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

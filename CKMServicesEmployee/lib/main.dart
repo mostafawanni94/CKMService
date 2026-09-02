@@ -204,7 +204,7 @@ class _SplashScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -231,7 +231,7 @@ class _SplashScreen extends StatelessWidget {
             Text(
               context.strings.appName,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
               ),

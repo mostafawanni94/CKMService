@@ -204,7 +204,7 @@ class _WorkLogHistoryScreenState extends State<WorkLogHistoryScreen> with Single
         color: AppColors.primary,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -214,7 +214,7 @@ class _WorkLogHistoryScreenState extends State<WorkLogHistoryScreen> with Single
         children: [
           // Previous week button
           Material(
-            color: Colors.white.withOpacity(0.15),
+            color: Colors.white.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
             child: InkWell(
               borderRadius: BorderRadius.circular(8),
@@ -242,7 +242,7 @@ class _WorkLogHistoryScreenState extends State<WorkLogHistoryScreen> with Single
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -260,7 +260,7 @@ class _WorkLogHistoryScreenState extends State<WorkLogHistoryScreen> with Single
           
           // Next week button
           Material(
-            color: Colors.white.withOpacity(0.15),
+            color: Colors.white.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
             child: InkWell(
               borderRadius: BorderRadius.circular(8),
@@ -284,7 +284,7 @@ class _WorkLogHistoryScreenState extends State<WorkLogHistoryScreen> with Single
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      color: AppColors.primary.withOpacity(0.9),
+      color: AppColors.primary.withValues(alpha: 0.9),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: List.generate(7, (index) {
@@ -307,10 +307,10 @@ class _WorkLogHistoryScreenState extends State<WorkLogHistoryScreen> with Single
                 decoration: BoxDecoration(
                   color: isSelected 
                       ? Colors.orange 
-                      : (isToday ? Colors.white.withOpacity(0.15) : Colors.transparent),
+                      : (isToday ? Colors.white.withValues(alpha: 0.15) : Colors.transparent),
                   borderRadius: BorderRadius.circular(12),
                   border: isToday && !isSelected 
-                      ? Border.all(color: Colors.white.withOpacity(0.5), width: 1)
+                      ? Border.all(color: Colors.white.withValues(alpha: 0.5), width: 1)
                       : null,
                 ),
                 child: Column(
@@ -478,7 +478,7 @@ class _WorkLogHistoryScreenState extends State<WorkLogHistoryScreen> with Single
         border: Border(left: BorderSide(color: statusColor, width: 4)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -509,9 +509,9 @@ class _WorkLogHistoryScreenState extends State<WorkLogHistoryScreen> with Single
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.1),
+                        color: statusColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: statusColor.withOpacity(0.3)),
+                        border: Border.all(color: statusColor.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -756,9 +756,9 @@ class _WorkLogHistoryScreenState extends State<WorkLogHistoryScreen> with Single
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
         text,

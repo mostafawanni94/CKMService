@@ -118,9 +118,9 @@ class _SourceOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 24),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Column(
           children: [
@@ -177,7 +177,7 @@ class DocumentUploadBox extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: hasImage ? Colors.green.shade50 : const Color(0xFF1E3A5F).withOpacity(0.1),
+                color: hasImage ? Colors.green.shade50 : const Color(0xFF1E3A5F).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(
@@ -234,7 +234,7 @@ class DocumentUploadBox extends StatelessWidget {
               boxShadow: hasImage
                   ? [
                       BoxShadow(
-                        color: Colors.green.withOpacity(0.15),
+                        color: Colors.green.withValues(alpha: 0.15),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -262,7 +262,7 @@ class DocumentUploadBox extends StatelessWidget {
                               end: Alignment.bottomCenter,
                               colors: [
                                 Colors.transparent,
-                                Colors.black.withOpacity(0.3),
+                                Colors.black.withValues(alpha: 0.3),
                               ],
                             ),
                           ),
@@ -314,7 +314,7 @@ class DocumentUploadBox extends StatelessWidget {
                               borderRadius: BorderRadius.circular(14),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF1E3A5F).withOpacity(0.3),
+                                  color: const Color(0xFF1E3A5F).withValues(alpha: 0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 3),
                                 ),
@@ -424,7 +424,7 @@ class _ActionButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-              color: bgColor.withOpacity(0.4),
+              color: bgColor.withValues(alpha: 0.4),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),

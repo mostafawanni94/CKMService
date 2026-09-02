@@ -453,14 +453,14 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                 height: 56,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppColors.primary, AppColors.primary.withOpacity(0.7)],
+                    colors: [AppColors.primary, AppColors.primary.withValues(alpha: 0.7)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.3),
+                      color: AppColors.primary.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -561,7 +561,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                     shape: BoxShape.circle,
                     boxShadow: isCurrent ? [
                       BoxShadow(
-                        color: AppColors.primary.withOpacity(0.3),
+                        color: AppColors.primary.withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -648,13 +648,13 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
                         gradient: isSelected ? LinearGradient(
-                          colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
+                          colors: [AppColors.primary, AppColors.primary.withValues(alpha: 0.8)],
                         ) : null,
                         color: isSelected ? null : Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: isSelected ? [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.3),
+                            color: AppColors.primary.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -968,7 +968,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                     border: Border.all(color: Colors.grey.shade200),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
+                        color: Colors.black.withValues(alpha: 0.04),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -1273,7 +1273,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -1287,7 +1287,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
+                colors: [color.withValues(alpha: 0.1), color.withValues(alpha: 0.05)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -1301,7 +1301,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.2),
+                    color: color.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(icon, color: color, size: 24),
@@ -1509,7 +1509,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),

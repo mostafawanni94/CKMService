@@ -302,7 +302,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
+                color: iconColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: iconColor, size: 24),
@@ -707,7 +707,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
             ),
             child: Row(
               children: [
@@ -746,7 +746,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
           ),
           child: TextField(
             controller: controller,
@@ -886,7 +886,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
               IconButton(
                 icon: Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
                   child: const Icon(Icons.chevron_left, color: Colors.white, size: 20),
                 ),
                 onPressed: _previousWeek,
@@ -899,7 +899,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
               IconButton(
                 icon: Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
                   child: const Icon(Icons.chevron_right, color: Colors.white, size: 20),
                 ),
                 onPressed: _nextWeek,
@@ -1035,14 +1035,14 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border(left: BorderSide(color: statusColor, width: 4)),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5)],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 5)],
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
+                    color: statusColor.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(statusIcon, color: statusColor, size: 18),
@@ -1061,7 +1061,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
+                    color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(statusLabel, style: TextStyle(color: statusColor, fontSize: 11, fontWeight: FontWeight.w600)),
@@ -1126,7 +1126,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -1351,7 +1351,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 32),
@@ -1386,7 +1386,7 @@ class _TimePickerField extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)]),
         child: Row(children: [
           const Icon(Icons.access_time, color: AppColors.primary, size: 20),
           const SizedBox(width: 12),
@@ -1588,7 +1588,7 @@ class _SearchableDropdownSheetState<T> extends State<_SearchableDropdownSheet<T>
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                           decoration: BoxDecoration(
-                            color: isSelected ? AppColors.primary.withOpacity(0.08) : null,
+                            color: isSelected ? AppColors.primary.withValues(alpha: 0.08) : null,
                             border: Border(
                               bottom: BorderSide(color: Colors.grey.shade100),
                             ),

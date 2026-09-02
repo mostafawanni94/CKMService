@@ -28,9 +28,9 @@ class WalletBalanceWidget extends StatelessWidget {
   }
 
   Color get _backgroundColor {
-    if (balance > 0) return AppColors.success.withOpacity(0.1);
-    if (balance == 0) return Colors.orange.withOpacity(0.1);
-    return AppColors.error.withOpacity(0.1);
+    if (balance > 0) return AppColors.success.withValues(alpha: 0.1);
+    if (balance == 0) return Colors.orange.withValues(alpha: 0.1);
+    return AppColors.error.withValues(alpha: 0.1);
   }
 
   IconData get _icon {
@@ -79,7 +79,7 @@ class WalletBalanceWidget extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+              BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10),
             ],
           ),
           child: Row(
@@ -87,7 +87,7 @@ class WalletBalanceWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.account_balance_wallet, color: Colors.orange, size: 28),
@@ -119,7 +119,7 @@ class WalletBalanceWidget extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+            BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10),
           ],
         ),
         child: Row(

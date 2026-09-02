@@ -99,16 +99,16 @@ class _NotificationCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: notification.isRead ? Colors.white : AppColors.primary.withOpacity(0.05),
+        color: notification.isRead ? Colors.white : AppColors.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: notification.isRead ? null : Border.all(color: AppColors.primary.withOpacity(0.2)),
+        border: notification.isRead ? null : Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
       ),
       child: ListTile(
         onTap: onTap,
         leading: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: _iconColor.withOpacity(0.1),
+            color: _iconColor.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(_icon, color: _iconColor, size: 20),

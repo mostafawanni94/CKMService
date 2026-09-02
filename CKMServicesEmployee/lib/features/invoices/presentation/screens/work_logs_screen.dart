@@ -251,7 +251,7 @@ class _WorkLogsScreenState extends State<WorkLogsScreen> with SingleTickerProvid
         color: AppColors.primary,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -261,7 +261,7 @@ class _WorkLogsScreenState extends State<WorkLogsScreen> with SingleTickerProvid
         children: [
           // Previous week button
           Material(
-            color: Colors.white.withOpacity(0.15),
+            color: Colors.white.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
             child: InkWell(
               borderRadius: BorderRadius.circular(8),
@@ -289,7 +289,7 @@ class _WorkLogsScreenState extends State<WorkLogsScreen> with SingleTickerProvid
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -307,7 +307,7 @@ class _WorkLogsScreenState extends State<WorkLogsScreen> with SingleTickerProvid
           
           // Next week button
           Material(
-            color: Colors.white.withOpacity(0.15),
+            color: Colors.white.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
             child: InkWell(
               borderRadius: BorderRadius.circular(8),
@@ -331,7 +331,7 @@ class _WorkLogsScreenState extends State<WorkLogsScreen> with SingleTickerProvid
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      color: AppColors.primary.withOpacity(0.9),
+      color: AppColors.primary.withValues(alpha: 0.9),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: List.generate(7, (index) {
@@ -354,10 +354,10 @@ class _WorkLogsScreenState extends State<WorkLogsScreen> with SingleTickerProvid
                 decoration: BoxDecoration(
                   color: isSelected 
                       ? Colors.orange 
-                      : (isToday ? Colors.white.withOpacity(0.15) : Colors.transparent),
+                      : (isToday ? Colors.white.withValues(alpha: 0.15) : Colors.transparent),
                   borderRadius: BorderRadius.circular(12),
                   border: isToday && !isSelected 
-                      ? Border.all(color: Colors.white.withOpacity(0.5), width: 1)
+                      ? Border.all(color: Colors.white.withValues(alpha: 0.5), width: 1)
                       : null,
                 ),
                 child: Column(
@@ -478,7 +478,7 @@ class _WorkLogCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border(left: BorderSide(color: _statusColor, width: 4)),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8)],
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -527,7 +527,7 @@ class _WorkLogCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Row(
@@ -550,7 +550,7 @@ class _WorkLogCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.error.withOpacity(0.1),
+                    color: AppColors.error.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -586,16 +586,16 @@ class _WorkLogCard extends StatelessWidget {
     Color textColor;
     
     if (workLog.isDone) {
-      bgColor = AppColors.success.withOpacity(0.1);
+      bgColor = AppColors.success.withValues(alpha: 0.1);
       textColor = AppColors.success;
     } else if (workLog.isPending) {
-      bgColor = Colors.orange.withOpacity(0.1);
+      bgColor = Colors.orange.withValues(alpha: 0.1);
       textColor = Colors.orange;
     } else if (workLog.needsEdit) {
-      bgColor = AppColors.error.withOpacity(0.1);
+      bgColor = AppColors.error.withValues(alpha: 0.1);
       textColor = AppColors.error;
     } else {
-      bgColor = Colors.grey.withOpacity(0.1);
+      bgColor = Colors.grey.withValues(alpha: 0.1);
       textColor = Colors.grey;
     }
     
@@ -668,7 +668,7 @@ class _WorkLogDetailsSheet extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.work, color: AppColors.primary),
@@ -724,9 +724,9 @@ class _WorkLogDetailsSheet extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.error.withOpacity(0.1),
+                  color: AppColors.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                  border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

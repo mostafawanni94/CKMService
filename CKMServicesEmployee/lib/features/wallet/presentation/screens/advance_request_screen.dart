@@ -87,7 +87,7 @@ class _AdvanceRequestScreenState extends State<AdvanceRequestScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.1),
+                color: AppColors.success.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -149,9 +149,9 @@ class _AdvanceRequestScreenState extends State<AdvanceRequestScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.05),
+                  color: AppColors.primary.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.primary.withOpacity(0.1)),
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.1)),
                 ),
                 child: Row(
                   children: [
@@ -234,7 +234,7 @@ class _AdvanceRequestScreenState extends State<AdvanceRequestScreen> {
                   return OutlinedButton(
                     onPressed: () => _amountController.text = amount.toString(),
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: AppColors.primary.withOpacity(0.3)),
+                      side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),

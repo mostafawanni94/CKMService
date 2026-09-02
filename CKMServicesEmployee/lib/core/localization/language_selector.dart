@@ -81,7 +81,7 @@ class LanguageSelector extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.grey.shade50,
+                  color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected ? AppColors.primary : Colors.grey.shade200,
@@ -107,7 +107,7 @@ class LanguageSelector extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.1),
+                          color: Colors.orange.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Text('RTL', style: TextStyle(fontSize: 10, color: Colors.orange)),

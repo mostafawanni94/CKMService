@@ -313,16 +313,16 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color(_shift.statusColor).withOpacity(0.1),
+        color: Color(_shift.statusColor).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Color(_shift.statusColor).withOpacity(0.2)),
+        border: Border.all(color: Color(_shift.statusColor).withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Color(_shift.statusColor).withOpacity(0.2),
+              color: Color(_shift.statusColor).withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -395,7 +395,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -477,7 +477,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -579,14 +579,14 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFE0F2FE),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF0EA5E9).withOpacity(0.3)),
+        border: Border.all(color: const Color(0xFF0EA5E9).withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF0EA5E9).withOpacity(0.1),
+              color: const Color(0xFF0EA5E9).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -654,7 +654,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -856,7 +856,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -945,7 +945,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
