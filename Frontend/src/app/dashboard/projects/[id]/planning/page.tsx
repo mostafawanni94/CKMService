@@ -423,7 +423,11 @@ export default function PlanningPage() {
         if (!confirm('Delete this work entry?')) return;
 
         try {
-            await apiFetch(`/worklogs/entries/${entryId}/`, { method: 'DELETE' });
+            const res = await apiFetch(`/worklogs/entries/${entryId}/`, { method: 'DELETE' });
+            if (!res.ok && res.status !== 204) {
+                alert('Kon de werkuren niet verwijderen.');
+                return;
+            }
             loadData();
             // Remove from day entries view
             setDayEntries(prev => prev.filter(e => e.id !== entryId));
@@ -608,7 +612,11 @@ export default function PlanningPage() {
         if (!confirm(`Remove ${employeeName} from this date?`)) return;
 
         try {
-            await apiFetch(`/worklogs/entries/${entryId}/`, { method: 'DELETE' });
+            const res = await apiFetch(`/worklogs/entries/${entryId}/`, { method: 'DELETE' });
+            if (!res.ok && res.status !== 204) {
+                alert('Kon de medewerker niet van deze datum verwijderen.');
+                return;
+            }
             loadData();
             if (viewingDate) loadDayEntries(viewingDate);
         } catch (err) {

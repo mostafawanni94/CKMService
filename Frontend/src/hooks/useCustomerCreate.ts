@@ -618,10 +618,16 @@ export function useCustomerCreate() {
                 contractFormData.append('effective_from', contract.effectiveFrom);
                 if (contract.notes) contractFormData.append('notes', contract.notes);
 
-                await apiFetch(`/customers/customers/${createdCustomer.id}/upload_contract/`, {
+                const res = await apiFetch(`/customers/customers/${createdCustomer.id}/upload_contract/`, {
                     method: 'POST',
                     body: contractFormData
                 });
+                // The customer exists by now, so a failed upload must be named
+                // rather than swallowed — otherwise the contract is silently lost.
+                if (!res.ok) {
+                    throw new Error(
+                        `De klant is aangemaakt, maar het contract "${contract.file.name}" kon niet worden geüpload.`);
+                }
             }
 
             router.push('/dashboard/customers');

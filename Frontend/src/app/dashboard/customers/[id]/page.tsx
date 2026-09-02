@@ -1467,9 +1467,13 @@ export default function CustomerDetailPage() {
                                     <button
                                         onClick={async () => {
                                             const action = u.is_active ? 'deactivate' : 'activate';
-                                            await apiFetch(`/employees/customer-users/${u.id}/${action}/`, {
+                                            const res = await apiFetch(`/employees/customer-users/${u.id}/${action}/`, {
                                                 method: 'POST'
                                             });
+                                            if (!res.ok) {
+                                                alert('Kon de portaaltoegang niet wijzigen.');
+                                                return;
+                                            }
                                             const listRes = await apiFetch(`/employees/customer-users/?customer=${params.id}`);
                                             if (listRes.ok) setPortalUsers(await listRes.json());
                                         }}

@@ -87,6 +87,22 @@ const DEFAULT_OUTFOLDER: Outfolder = {
 const DEFAULT_PORTAL_FORM = { email: '', password: '', first_name: '', last_name: '' };
 
 // ─── Hook ───────────────────────────────────────────────────
+/**
+ * Every write on this page used to be fired and forgotten, so a rejected
+ * request still ended in "Customer updated successfully!".
+ */
+async function must(label: string, response: Promise<Response>): Promise<Response> {
+  const r = await response;
+  if (!r.ok && r.status !== 204) {
+    const detail = await r.json().catch(() => null);
+    const reason = detail?.detail
+      || (detail && typeof detail === 'object' ? Object.values(detail).flat().join(' ') : '')
+      || `HTTP ${r.status}`;
+    throw new Error(`${label}: ${reason}`);
+  }
+  return r;
+}
+
 export function useCustomerDetail() {
   const params = useParams();
   const router = useRouter();
@@ -423,10 +439,10 @@ export function useCustomerDetail() {
         });
         if (!r.ok) throw new Error('Failed to update supervisor');
         for (const c of newOutfolder.contacts) {
-          if (c.value.trim() && !c.id) await apiFetch(`/customers/outfolders/${editingOutfolderId}/add_contact/`, {
+          if (c.value.trim() && !c.id) await must('Supervisor contact', apiFetch(`/customers/outfolders/${editingOutfolderId}/add_contact/`, {
             method: 'POST', 
             body: JSON.stringify({ contact_type: c.contact_type, value: c.value, label: c.label || '', is_primary: c.is_primary })
-          });
+          }));
         }
         setEditingOutfolderId(null);
         alert('Supervisor updated successfully!');
@@ -438,10 +454,10 @@ export function useCustomerDetail() {
         if (!r.ok) throw new Error(await readApiError(r));
         const created = await r.json();
         for (const c of newOutfolder.contacts) {
-          if (c.value.trim()) await apiFetch(`/customers/outfolders/${created.id}/add_contact/`, {
+          if (c.value.trim()) await must('Supervisor contact', apiFetch(`/customers/outfolders/${created.id}/add_contact/`, {
             method: 'POST', 
             body: JSON.stringify({ contact_type: c.contact_type, value: c.value, label: c.label || '', is_primary: c.is_primary })
-          });
+          }));
         }
         setShowAddOutfolder(false);
         alert('Supervisor added successfully!');
@@ -513,7 +529,7 @@ export function useCustomerDetail() {
       if (!r.ok) throw new Error('Failed to save');
 
       // Billing JSON call
-      await apiFetch(`/customers/customers/${params.id}/`, {
+      await must('Billing settings', apiFetch(`/customers/customers/${params.id}/`, {
         method: 'PATCH', 
         body: JSON.stringify({
           has_surcharges: hasSurcharges,
@@ -528,37 +544,39 @@ export function useCustomerDetail() {
             price: a.price, is_enabled: a.is_enabled, apply_surcharges: a.apply_surcharges
           }))
         })
-      });
+      }));
 
       // Contacts
       for (const c of newCustomerContacts) {
-        if (c.value.trim()) await apiFetch(`/customers/customers/${params.id}/add_contact/`, {
+        if (c.value.trim()) await must('Company contact', apiFetch(`/customers/customers/${params.id}/add_contact/`, {
           method: 'POST', 
           body: JSON.stringify({ contact_type: c.contact_type, value: c.value, label: 'company', is_primary: c.is_primary })
-        });
+        }));
       }
       for (const c of newManagerContacts) {
-        if (c.value.trim()) await apiFetch(`/customers/customers/${params.id}/add_contact/`, {
+        if (c.value.trim()) await must('Manager contact', apiFetch(`/customers/customers/${params.id}/add_contact/`, {
           method: 'POST', 
           body: JSON.stringify({ contact_type: c.contact_type, value: c.value, label: 'manager', is_primary: c.is_primary })
-        });
+        }));
       }
 
       // HR email
       if (hrEmail.trim()) {
         if (existingHrContactId) {
-          await apiFetch(`/customers/contacts/${existingHrContactId}/`, { method: 'PATCH',  body: JSON.stringify({ value: hrEmail.trim() }) });
+          await must('HR e-mail', apiFetch(`/customers/contacts/${existingHrContactId}/`, { method: 'PATCH',  body: JSON.stringify({ value: hrEmail.trim() }) }));
         } else {
-          await apiFetch(`/customers/customers/${params.id}/add_contact/`, { method: 'POST',  body: JSON.stringify({ contact_type: 'email', value: hrEmail.trim(), label: 'hr', is_primary: false }) });
+          await must('HR e-mail', apiFetch(`/customers/customers/${params.id}/add_contact/`, { method: 'POST',  body: JSON.stringify({ contact_type: 'email', value: hrEmail.trim(), label: 'hr', is_primary: false }) }));
         }
       } else if (existingHrContactId) {
-        await apiFetch(`/customers/contacts/${existingHrContactId}/`, { method: 'DELETE', });
+        await must('HR e-mail', apiFetch(`/customers/contacts/${existingHrContactId}/`, { method: 'DELETE', }));
       }
 
       setLogo(null);
       await loadCustomer();
       alert('Customer updated successfully!');
-    } catch { alert('Failed to save customer'); }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to save customer');
+    }
     finally { setSaving(false); }
   }
 
