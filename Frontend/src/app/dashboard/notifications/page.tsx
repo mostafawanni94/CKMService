@@ -83,6 +83,9 @@ export default function NotificationsPage() {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
+    // Failures used to go to the console only, so a rejected action looked
+    // like it had worked.
+    const [actionError, setActionError] = useState<string | null>(null);
     const [nextPage, setNextPage] = useState<string | null>(null);
     const [totalCount, setTotalCount] = useState(0);
     const [readFilter, setReadFilter] = useState<'all' | 'unread'>('all');
@@ -117,28 +120,33 @@ export default function NotificationsPage() {
             console.error('Failed to load notifications:', err);
         } finally {
             setLoading(false);
+            setLoadingMore(false);
         }
     }
 
     async function markAsRead(id: string) {
         try {
-            await apiFetch(`/notifications/notifications/${id}/mark_read/`, {
+            const response = await apiFetch(`/notifications/notifications/${id}/mark_read/`, {
                 method: 'POST'
             });
+            if (!response.ok) throw new Error(`mark_read failed (${response.status})`);
             setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
         } catch (err) {
             console.error('Failed to mark as read:', err);
+            setActionError('Kon de melding niet als gelezen markeren.');
         }
     }
 
     async function markAllAsRead() {
         try {
-            await apiFetch(`/notifications/notifications/mark_all_read/`, {
+            const response = await apiFetch(`/notifications/notifications/mark_all_read/`, {
                 method: 'POST'
             });
+            if (!response.ok) throw new Error(`mark_all_read failed (${response.status})`);
             setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
         } catch (err) {
             console.error('Failed to mark all as read:', err);
+            setActionError('Kon niet alles als gelezen markeren.');
         }
     }
 
@@ -161,36 +169,43 @@ export default function NotificationsPage() {
 
     async function markSelectedAsRead() {
         try {
-            await Promise.all(
+            const results = await Promise.all(
                 Array.from(selectedIds).map(id =>
                     apiFetch(`/notifications/notifications/${id}/mark_read/`, {
                         method: 'POST'
                     })
                 )
             );
+            if (results.some(r => !r.ok)) throw new Error('Some notifications could not be marked read');
             setNotifications(prev => prev.map(n =>
                 selectedIds.has(n.id) ? { ...n, is_read: true } : n
             ));
             setSelectedIds(new Set());
         } catch (err) {
             console.error('Failed to mark selected as read:', err);
+            setActionError('Kon de selectie niet als gelezen markeren.');
         }
     }
 
     async function deleteSelected() {
         if (!confirm(`Delete ${selectedIds.size} notification(s)?`)) return;
         try {
-            await Promise.all(
+            const results = await Promise.all(
                 Array.from(selectedIds).map(id =>
                     apiFetch(`/notifications/notifications/${id}/`, {
                         method: 'DELETE'
                     })
                 )
             );
+            // 204 and 200 both mean gone; anything else must not vanish from the list.
+            if (results.some(r => !r.ok && r.status !== 204)) {
+                throw new Error('Some notifications could not be deleted');
+            }
             setNotifications(prev => prev.filter(n => !selectedIds.has(n.id)));
             setSelectedIds(new Set());
         } catch (err) {
             console.error('Failed to delete notifications:', err);
+            setActionError('Kon de meldingen niet verwijderen.');
         }
     }
 
@@ -230,6 +245,35 @@ export default function NotificationsPage() {
     return (
         <DashboardLayout>
             <div style={{ padding: '0 0 32px 0' }}>
+                {actionError && (
+                    <div
+                        role="alert"
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            gap: '16px',
+                            padding: '12px 16px',
+                            marginBottom: '24px',
+                            background: '#FEE2E2',
+                            border: '1px solid #FECACA',
+                            borderRadius: '8px',
+                            color: '#B91C1C',
+                        }}
+                    >
+                        <span>{actionError}</span>
+                        <button
+                            onClick={() => setActionError(null)}
+                            style={{
+                                background: 'none', border: 'none', cursor: 'pointer',
+                                color: 'inherit', fontWeight: 600,
+                            }}
+                        >
+                            {t('Close')}
+                        </button>
+                    </div>
+                )}
+
                 {/* Header */}
                 <div style={{
                     display: 'flex',
