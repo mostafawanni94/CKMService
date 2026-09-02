@@ -328,7 +328,7 @@ export default function InvoicesPage() {
                                         onClick={() => router.push(`/dashboard/invoices/${selectedInvoice.id}`)}
                                         className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg font-medium"
                                     >
-                                        Open volledige factuur
+                                        {t('Open volledige factuur')}
                                     </button>
                                     <button
                                         onClick={exportPDF}

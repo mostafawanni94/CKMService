@@ -122,7 +122,7 @@ export default function SettingsPage() {
         invoice_number_prefix: 'F',
         credit_note_number_prefix: 'CN',
         invoice_footer_text: '',
-        invoice_reverse_charge_text: 'Btw verlegd',
+        invoice_reverse_charge_text: t('Btw verlegd'),
         company_emails: [{ label: 'Main', value: 'info@ckmservices.nl' }],
         company_phones: [{ label: 'Main', value: '+31 6 26607384' }],
         company_address: 'Businesspark 10, Amsterdam',
@@ -542,7 +542,7 @@ export default function SettingsPage() {
                     icon={FileText}
                     iconColor="#0EA5E9"
                     iconBg="#E0F2FE"
-                    title="Facturatie en bedrijfsgegevens"
+                    title={t('Facturatie en bedrijfsgegevens')}
                     description="Wat op elke factuur en creditnota komt te staan. Wettelijk verplicht op een Nederlandse factuur."
                 >
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
@@ -552,7 +552,7 @@ export default function SettingsPage() {
                         <InputField label="KvK-nummer" icon={FileText}
                             value={settings.company_kvk_number}
                             onChange={(v) => setSettings({ ...settings, company_kvk_number: v })} />
-                        <InputField label="Btw-identificatienummer" icon={FileText}
+                        <InputField label={t('Btw-identificatienummer')} icon={FileText}
                             value={settings.company_btw_number}
                             onChange={(v) => setSettings({ ...settings, company_btw_number: v })} />
                         <InputField label="IBAN (versleuteld opgeslagen)" icon={FileText}
@@ -564,7 +564,7 @@ export default function SettingsPage() {
                         <InputField label="Plaats" icon={MapPin}
                             value={settings.company_city}
                             onChange={(v) => setSettings({ ...settings, company_city: v })} />
-                        <InputField label="Betaaltermijn (dagen)" icon={Clock}
+                        <InputField label={t('Betaaltermijn (dagen)')} icon={Clock}
                             value={String(settings.invoice_payment_terms_days)}
                             onChange={(v) => setSettings({ ...settings, invoice_payment_terms_days: parseInt(v) || 14 })} />
                         <InputField label="Factuurnummer-voorvoegsel" icon={FileText}
@@ -572,11 +572,11 @@ export default function SettingsPage() {
                             onChange={(v) => setSettings({ ...settings, invoice_number_prefix: v })} />
                     </div>
                     <div style={{ fontSize: '13px', color: '#6B7280', marginBottom: '20px' }}>
-                        Facturen worden genummerd als <strong>{settings.invoice_number_prefix}{new Date().getFullYear()}-001</strong>,
+                        {t('Facturen worden genummerd als')} <strong>{settings.invoice_number_prefix}{new Date().getFullYear()}-001</strong>,
                         creditnota&apos;s als <strong>{settings.credit_note_number_prefix}{new Date().getFullYear()}-001</strong>.
                         Een uitgegeven nummer wordt nooit opnieuw gebruikt.
                     </div>
-                    <InputField label="Voettekst op de factuur" icon={FileText}
+                    <InputField label={t('Voettekst op de factuur')} icon={FileText}
                         value={settings.invoice_footer_text}
                         onChange={(v) => setSettings({ ...settings, invoice_footer_text: v })} />
                 </SettingsCard>

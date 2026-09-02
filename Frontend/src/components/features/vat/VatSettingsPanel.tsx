@@ -15,6 +15,7 @@ import { AlertTriangle, Check, Info } from 'lucide-react';
 import { Button, SectionCard, Select, TextArea } from '@/components/ui/shared';
 import { apiGet, apiMutate } from '@/hooks/useApi';
 import { colors, fontSize, fontWeight, radius, spacing } from '@/styles/tokens';
+import { useLanguage } from '@/lib/i18n';
 
 export interface VatFacts {
     vat_treatment_code: string;
@@ -79,6 +80,7 @@ export function VatSettingsPanel({ endpoint, title, subtitle }: {
     title?: string;
     subtitle?: string;
 }) {
+    const { t } = useLanguage();
     const [facts, setFacts] = useState<VatFacts | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -176,7 +178,7 @@ export function VatSettingsPanel({ endpoint, title, subtitle }: {
 
             <div style={{ maxWidth: 520, marginBottom: spacing.xl }}>
                 <Select
-                    label="Btw-behandeling"
+                    label={t('Btw-behandeling')}
                     value={facts.vat_treatment_code || 'UNKNOWN'}
                     onChange={value => update('vat_treatment_code', value)}
                     options={TREATMENTS}
@@ -187,7 +189,7 @@ export function VatSettingsPanel({ endpoint, title, subtitle }: {
                 <>
                     <h4 style={{ fontSize: fontSize.md, fontWeight: fontWeight.bold,
                                  margin: `0 0 ${spacing.sm}` }}>
-                        Voorwaarden voor verlegging
+                        {t('Voorwaarden voor verlegging')}
                     </h4>
                     <p style={{ fontSize: fontSize.sm, color: colors.textSecondary,
                                 margin: `0 0 ${spacing.lg}` }}>
@@ -214,7 +216,7 @@ export function VatSettingsPanel({ endpoint, title, subtitle }: {
 
                     <h4 style={{ fontSize: fontSize.md, fontWeight: fontWeight.bold,
                                  margin: `0 0 ${spacing.sm}` }}>
-                        Uitzonderingen
+                        {t('Uitzonderingen')}
                     </h4>
                     <p style={{ fontSize: fontSize.sm, color: colors.textSecondary,
                                 margin: `0 0 ${spacing.lg}` }}>
@@ -258,7 +260,7 @@ export function VatSettingsPanel({ endpoint, title, subtitle }: {
 
             <div style={{ maxWidth: 640 }}>
                 <TextArea
-                    label="Onderbouwing"
+                    label={t('Onderbouwing')}
                     value={facts.vat_notes ?? ''}
                     onChange={value => update('vat_notes', value)}
                     placeholder="Waarop is deze behandeling gebaseerd? Bijvoorbeeld: wat het werk inhoudt, of de tekst op het contract."

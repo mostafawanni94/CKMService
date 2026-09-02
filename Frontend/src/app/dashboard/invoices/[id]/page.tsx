@@ -19,8 +19,10 @@ import {
 import { useInvoiceDetail } from '@/hooks/useInvoiceDetail';
 import { colors, spacing } from '@/styles/tokens';
 import styles from '../../finance/page.module.css';
+import { useLanguage } from '@/lib/i18n';
 
 export default function InvoiceDetailPage() {
+    const { t } = useLanguage();
     const { id } = useParams<{ id: string }>();
     const router = useRouter();
     const vm = useInvoiceDetail(id);
@@ -43,20 +45,20 @@ export default function InvoiceDetailPage() {
                 <Button variant="ghost" icon={<ArrowLeft size={16} />}
                         onClick={() => router.push('/dashboard/invoices')}
                         style={{ marginBottom: spacing.md }}>
-                    Terug naar facturen
+                    {t('Terug naar facturen')}
                 </Button>
 
                 <PageHeader
                     title={invoice?.invoice_number ?? 'Factuur'}
                     subtitle={invoice?.document_type === 'credit_note'
-                        ? 'Creditnota' : 'Verkoopfactuur'}
+                        ? t('Creditnota') : 'Verkoopfactuur'}
                     actions={invoice ? (
                         <>
                             <Button variant="secondary" icon={<Download size={16} />}
                                     onClick={vm.downloadPdf}>PDF</Button>
                             {!invoice.is_issued && invoice.document_type === 'invoice' && (
                                 <Button icon={<Send size={16} />} disabled={!vm.canIssue || vm.busy}
-                                        onClick={vm.issue}>Versturen</Button>
+                                        onClick={vm.issue}>{t('Versturen')}</Button>
                             )}
                             {invoice.is_issued && (
                                 <>
@@ -116,7 +118,7 @@ export default function InvoiceDetailPage() {
                        footer={
                            <>
                                <Button variant="secondary" onClick={() => setCreditOpen(false)}>
-                                   Annuleren
+                                   {t('Annuleren')}
                                </Button>
                                <Button variant="danger"
                                        disabled={reason.trim().length < 10 || vm.busy}
@@ -130,7 +132,7 @@ export default function InvoiceDetailPage() {
                                                router.push(`/dashboard/invoices/${created.credit_note.id}`);
                                            }
                                        }}>
-                                   Creditnota maken
+                                   {t('Creditnota maken')}
                                </Button>
                            </>
                        }>
@@ -141,7 +143,7 @@ export default function InvoiceDetailPage() {
                         leeg om de hele factuur te crediteren.
                     </p>
                     <TextArea label="Reden (verplicht)" value={reason} onChange={setReason}
-                              placeholder="Waarom wordt deze factuur gecrediteerd?" rows={2} required />
+                              placeholder={t('Waarom wordt deze factuur gecrediteerd?')} rows={2} required />
                     {invoice && (
                         <div style={{ marginTop: spacing.lg }}>
                             <LineTable lines={invoice.lines} selectable
@@ -154,7 +156,7 @@ export default function InvoiceDetailPage() {
                        footer={
                            <>
                                <Button variant="secondary" onClick={() => setPayOpen(false)}>
-                                   Annuleren
+                                   {t('Annuleren')}
                                </Button>
                                <Button disabled={!amount || vm.busy}
                                        onClick={async () => {
@@ -163,22 +165,22 @@ export default function InvoiceDetailPage() {
                                        }}>Vastleggen</Button>
                            </>
                        }>
-                    <Input label="Ontvangen bedrag (€)" type="number" value={amount}
+                    <Input label={t('Ontvangen bedrag (€)')} type="number" value={amount}
                            onChange={setAmount} />
                 </Modal>
 
                 <Modal open={sendOpen} onClose={() => setSendOpen(false)}
-                       title="Factuur e-mailen"
+                       title={t('Factuur e-mailen')}
                        footer={
                            <>
                                <Button variant="secondary" onClick={() => setSendOpen(false)}>
-                                   Annuleren
+                                   {t('Annuleren')}
                                </Button>
                                <Button disabled={vm.busy}
                                        onClick={async () => {
                                            await vm.send(email || undefined);
                                            setSendOpen(false);
-                                       }}>Versturen</Button>
+                                       }}>{t('Versturen')}</Button>
                            </>
                        }>
                     <p style={{ color: colors.textSecondary, marginBottom: spacing.lg }}>

@@ -8,6 +8,7 @@ import { AlertTriangle, CheckCircle2, FileText } from 'lucide-react';
 import { Badge, SectionCard } from '@/components/ui/shared';
 import { colors, fontSize, fontWeight, radius, spacing } from '@/styles/tokens';
 import type { InvoiceDetail, InvoiceLine, IssueBlocker } from '@/hooks/useInvoiceDetail';
+import { useLanguage } from '@/lib/i18n';
 
 export const euro = (value: string | number | null) =>
     `€${Number(value ?? 0).toLocaleString('nl-NL', {
@@ -25,6 +26,7 @@ const STATUS: Record<string, { label: string; color: string; bg: string }> = {
 };
 
 export function InvoiceHeader({ invoice }: { invoice: InvoiceDetail }) {
+    const { t } = useLanguage();
     const tone = STATUS[invoice.status] ?? STATUS.draft;
     const facts: Array<[string, string]> = [
         ['Klant', invoice.customer_name],
@@ -49,10 +51,10 @@ export function InvoiceHeader({ invoice }: { invoice: InvoiceDetail }) {
                         </h2>
                         <Badge color={tone.color} bg={tone.bg}>{tone.label}</Badge>
                         {invoice.document_type === 'credit_note' && (
-                            <Badge color={colors.dangerDark} bg={colors.dangerBg}>Creditnota</Badge>
+                            <Badge color={colors.dangerDark} bg={colors.dangerBg}>{t('Creditnota')}</Badge>
                         )}
                         {invoice.has_reverse_charged_lines && (
-                            <Badge color={colors.primary} bg={colors.infoBg}>Btw verlegd</Badge>
+                            <Badge color={colors.primary} bg={colors.infoBg}>{t('Btw verlegd')}</Badge>
                         )}
                     </div>
                     {invoice.sent_at && (
@@ -110,6 +112,7 @@ const BLOCKER_TITLES: Record<string, string> = {
 };
 
 export function IssueGate({ blockers }: { blockers: IssueBlocker[] }) {
+    const { t } = useLanguage();
     if (!blockers.length) {
         return (
             <div style={{
@@ -118,12 +121,12 @@ export function IssueGate({ blockers }: { blockers: IssueBlocker[] }) {
                 background: colors.successBg, border: `1px solid ${colors.successBorder}`,
                 color: colors.successDark,
             }}>
-                <CheckCircle2 size={18} /> Deze factuur kan worden verstuurd.
+                <CheckCircle2 size={18} /> {t('Deze factuur kan worden verstuurd.')}
             </div>
         );
     }
     return (
-        <SectionCard title="Eerst oplossen"
+        <SectionCard title={t('Eerst oplossen')}
                      icon={<AlertTriangle size={18} color={colors.warning} />}
                      style={{ marginBottom: spacing.xl }}>
             {blockers.map(blocker => (
@@ -151,11 +154,12 @@ export function IssueGate({ blockers }: { blockers: IssueBlocker[] }) {
 }
 
 function LineVatBadge({ line }: { line: InvoiceLine }) {
+    const { t } = useLanguage();
     if (line.vat_classification_status !== 'CLASSIFIED') {
-        return <Badge color={colors.warning} bg={colors.warningBg}>Vast te stellen</Badge>;
+        return <Badge color={colors.warning} bg={colors.warningBg}>{t('Vast te stellen')}</Badge>;
     }
     if (line.vat_return_box === '1e') {
-        return <Badge color={colors.primary} bg={colors.infoBg}>Verlegd</Badge>;
+        return <Badge color={colors.primary} bg={colors.infoBg}>{t('Verlegd')}</Badge>;
     }
     return (
         <Badge color={colors.textSecondary} bg={colors.bgAlt}>
@@ -170,20 +174,21 @@ export function LineTable({ lines, selectable, selected, onToggle }: {
     selected?: string[];
     onToggle?: (id: string) => void;
 }) {
+    const { t } = useLanguage();
     return (
-        <SectionCard title="Regels" subtitle={`${lines.length} regels`}>
+        <SectionCard title={t('Regels')} subtitle={`${lines.length} regels`}>
             <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse',
                                 fontVariantNumeric: 'tabular-nums' }}>
                     <thead>
                         <tr style={{ textAlign: 'left', borderBottom: `1px solid ${colors.border}` }}>
                             {selectable && <th style={{ padding: spacing.sm, width: 34 }} />}
-                            <th style={{ padding: spacing.sm, width: 96 }}>Datum</th>
+                            <th style={{ padding: spacing.sm, width: 96 }}>{t('Datum')}</th>
                             <th style={{ padding: spacing.sm }}>Omschrijving</th>
-                            <th style={{ padding: spacing.sm, textAlign: 'right', width: 62 }}>Uren</th>
-                            <th style={{ padding: spacing.sm, textAlign: 'right', width: 84 }}>Tarief</th>
+                            <th style={{ padding: spacing.sm, textAlign: 'right', width: 62 }}>{t('Uren')}</th>
+                            <th style={{ padding: spacing.sm, textAlign: 'right', width: 84 }}>{t('Tarief')}</th>
                             <th style={{ padding: spacing.sm, textAlign: 'center', width: 96 }}>Btw</th>
-                            <th style={{ padding: spacing.sm, textAlign: 'right', width: 100 }}>Bedrag</th>
+                            <th style={{ padding: spacing.sm, textAlign: 'right', width: 100 }}>{t('Bedrag')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -249,6 +254,7 @@ export function LineTable({ lines, selectable, selected, onToggle }: {
 }
 
 export function TotalsPanel({ invoice }: { invoice: InvoiceDetail }) {
+    const { t } = useLanguage();
     const rows: Array<[string, string, boolean?]> = [
         ['Subtotaal', euro(invoice.subtotal)],
     ];
@@ -262,7 +268,7 @@ export function TotalsPanel({ invoice }: { invoice: InvoiceDetail }) {
     rows.push(['Totaal', euro(invoice.total), true]);
 
     return (
-        <SectionCard title="Totalen">
+        <SectionCard title={t('Totalen')}>
             {rows.map(([label, value, strong]) => (
                 <div key={label} style={{
                     display: 'flex', justifyContent: 'space-between',
@@ -284,9 +290,10 @@ export function CreditNoteList({ notes, onOpen }: {
     notes: InvoiceDetail['credit_notes'];
     onOpen: (id: string) => void;
 }) {
+    const { t } = useLanguage();
     if (!notes?.length) return null;
     return (
-        <SectionCard title="Creditnota's" icon={<FileText size={18} color={colors.primary} />}
+        <SectionCard title={t("Creditnota's")} icon={<FileText size={18} color={colors.primary} />}
                      style={{ marginTop: spacing.xl }}>
             {notes.map(note => (
                 <button key={note.id} onClick={() => onOpen(note.id)} style={{

@@ -298,6 +298,7 @@ interface ModalProps {
 }
 
 export function Modal({ open, onClose, title, children, footer, width = '560px' }: ModalProps) {
+    const { t } = useLanguage();
   const titleId = React.useId();
   const panelRef = React.useRef<HTMLDivElement>(null);
 
@@ -350,7 +351,7 @@ export function Modal({ open, onClose, title, children, footer, width = '560px' 
           <h2 id={titleId} style={{ fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.textPrimary, margin: 0 }}>
             {title}
           </h2>
-          <button type="button" onClick={onClose} aria-label="Sluiten" style={{
+          <button type="button" onClick={onClose} aria-label={t('Sluiten')} style={{
             background: 'none', border: 'none', cursor: 'pointer',
             padding: spacing.sm, borderRadius: radius.md,
             color: colors.textMuted

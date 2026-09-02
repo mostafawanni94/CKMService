@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { SectionCard, StatCard, Badge } from '@/components/ui/shared';
 import { colors, fontSize, fontWeight, radius, spacing } from '@/styles/tokens';
+import { useLanguage } from '@/lib/i18n';
 import type {
     CostBlock, FinanceDashboard, MonthPoint, Payables, Receivables, RevenueBlock,
     VatPeriodSummary,
@@ -22,6 +23,7 @@ export const euro = (value: string | number) =>
 export function HeadlineCards({ revenue, costs, margin }: {
     revenue: RevenueBlock; costs: CostBlock; margin: string;
 }) {
+    const { t } = useLanguage();
     const marginPct = Number(revenue.net_revenue) > 0
         ? (Number(margin) / Number(revenue.net_revenue)) * 100
         : 0;
@@ -30,7 +32,7 @@ export function HeadlineCards({ revenue, costs, margin }: {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
                       gap: spacing.lg, marginBottom: spacing.xl }}>
             <StatCard
-                label="Omzet (excl. btw)"
+                label={t('Omzet (excl. btw)')}
                 value={euro(revenue.net_revenue)}
                 icon={<ArrowUpRight size={20} color={colors.success} />}
                 color={colors.successDark}
@@ -40,14 +42,14 @@ export function HeadlineCards({ revenue, costs, margin }: {
                         : '')}
             />
             <StatCard
-                label="Kosten (excl. btw)"
+                label={t('Kosten (excl. btw)')}
                 value={euro(costs.total_net)}
                 icon={<ArrowDownRight size={20} color={colors.danger} />}
                 color={colors.dangerDark}
                 subtitle={`Inkoop ${euro(costs.supplier_net)} · Uitzend ${euro(costs.agency_net)} · Overig ${euro(costs.expense_net)}`}
             />
             <StatCard
-                label="Brutomarge"
+                label={t('Brutomarge')}
                 value={euro(margin)}
                 color={Number(margin) >= 0 ? colors.primary : colors.dangerDark}
                 subtitle={`${marginPct.toFixed(1)}% van de omzet`}
@@ -75,9 +77,10 @@ export function ReviewBanner({ count }: { count: number }) {
 export function VatQuarters({ periods, onOpen }: {
     periods: VatPeriodSummary[]; onOpen: (id: string) => void;
 }) {
+    const { t } = useLanguage();
     if (!periods.length) return null;
     const label: Record<string, string> = {
-        OPEN: 'Open', REVIEW_REQUIRED: 'Vast te stellen',
+        OPEN: 'Open', REVIEW_REQUIRED: t('Vast te stellen'),
         READY_TO_FINALIZE: 'Klaar om vast te zetten',
         FINALIZED: 'Vastgezet', LOCKED: 'Definitief',
     };
@@ -90,7 +93,7 @@ export function VatQuarters({ periods, onOpen }: {
     };
 
     return (
-        <SectionCard title="Btw per kwartaal" subtitle="Berekend uit het btw-grootboek"
+        <SectionCard title={t('Btw per kwartaal')} subtitle="Berekend uit het btw-grootboek"
                      style={{ marginBottom: spacing.xl }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
                           gap: spacing.md }}>
@@ -117,7 +120,7 @@ export function VatQuarters({ periods, onOpen }: {
                                 {euro(Math.abs(Number(period.vat_position)))}
                             </div>
                             <div style={{ fontSize: fontSize.sm, color: colors.textSecondary }}>
-                                {payable ? 'Te betalen' : period.outcome === 'REFUNDABLE'
+                                {payable ? t('Te betalen') : period.outcome === 'REFUNDABLE'
                                     ? 'Terug te ontvangen' : 'Saldo nihil'}
                             </div>
                             {period.requires_review_count > 0 && (
@@ -137,18 +140,19 @@ export function VatQuarters({ periods, onOpen }: {
 export function CashPosition({ receivables, payables }: {
     receivables: Receivables; payables: Payables;
 }) {
+    const { t } = useLanguage();
     const ageing = [
-        { label: 'Nog niet vervallen', value: receivables.ageing.current, tone: colors.textSecondary },
-        { label: '1–30 dagen', value: receivables.ageing.days_1_30, tone: colors.warning },
-        { label: '31–60 dagen', value: receivables.ageing.days_31_60, tone: colors.warning },
-        { label: '61–90 dagen', value: receivables.ageing.days_61_90, tone: colors.danger },
-        { label: '90+ dagen', value: receivables.ageing.days_90_plus, tone: colors.dangerDark },
+        { label: t('Nog niet vervallen'), value: receivables.ageing.current, tone: colors.textSecondary },
+        { label: t('1–30 dagen'), value: receivables.ageing.days_1_30, tone: colors.warning },
+        { label: t('31–60 dagen'), value: receivables.ageing.days_31_60, tone: colors.warning },
+        { label: t('61–90 dagen'), value: receivables.ageing.days_61_90, tone: colors.danger },
+        { label: t('90+ dagen'), value: receivables.ageing.days_90_plus, tone: colors.dangerDark },
     ];
 
     return (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: spacing.lg,
                       marginBottom: spacing.xl }}>
-            <SectionCard title="Te ontvangen" icon={<Clock size={18} color={colors.primary} />}
+            <SectionCard title={t('Te ontvangen')} icon={<Clock size={18} color={colors.primary} />}
                          subtitle={`${receivables.overdue_count} facturen vervallen`}>
                 <div style={{ fontSize: fontSize.heading, fontWeight: fontWeight.extrabold,
                               color: colors.primary, marginBottom: spacing.lg }}>
@@ -169,15 +173,15 @@ export function CashPosition({ receivables, payables }: {
                 ))}
             </SectionCard>
 
-            <SectionCard title="Te betalen" icon={<WalletIcon size={18} color={colors.primary} />}>
+            <SectionCard title={t('Te betalen')} icon={<WalletIcon size={18} color={colors.primary} />}>
                 <div style={{ fontSize: fontSize.heading, fontWeight: fontWeight.extrabold,
                               color: colors.dangerDark, marginBottom: spacing.lg }}>
                     {euro(payables.total)}
                 </div>
                 {[
-                    { label: 'Inkoopfacturen', value: payables.supplier_outstanding },
-                    { label: 'Uitzendbureaus', value: payables.agency_outstanding },
-                    { label: 'Medewerkers (wallet)', value: payables.employee_wallets },
+                    { label: t('Inkoopfacturen'), value: payables.supplier_outstanding },
+                    { label: t('Uitzendbureaus'), value: payables.agency_outstanding },
+                    { label: t('Medewerkers (wallet)'), value: payables.employee_wallets },
                 ].map(row => (
                     <div key={row.label} style={{
                         display: 'flex', justifyContent: 'space-between',
@@ -197,11 +201,12 @@ export function CashPosition({ receivables, payables }: {
 }
 
 export function MonthlyChart({ points }: { points: MonthPoint[] }) {
+    const { t } = useLanguage();
     const peak = Math.max(
         1, ...points.map(p => Math.max(Number(p.revenue), Number(p.costs))));
 
     return (
-        <SectionCard title="Omzet en kosten per maand">
+        <SectionCard title={t('Omzet en kosten per maand')}>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: spacing.sm,
                           height: 200, padding: `${spacing.lg} 0` }}>
                 {points.map(point => (
@@ -230,10 +235,10 @@ export function MonthlyChart({ points }: { points: MonthPoint[] }) {
                           color: colors.textSecondary }}>
                 <span><span style={{ display: 'inline-block', width: 10, height: 10,
                                      background: colors.primary, borderRadius: 2,
-                                     marginRight: 6 }} />Omzet</span>
+                                     marginRight: 6 }} />{t('Omzet')}</span>
                 <span><span style={{ display: 'inline-block', width: 10, height: 10,
                                      background: colors.warning, borderRadius: 2,
-                                     marginRight: 6 }} />Kosten</span>
+                                     marginRight: 6 }} />{t('Kosten')}</span>
             </div>
         </SectionCard>
     );
@@ -242,9 +247,10 @@ export function MonthlyChart({ points }: { points: MonthPoint[] }) {
 export function TopCustomers({ rows }: {
     rows: FinanceDashboard['top_customers'];
 }) {
+    const { t } = useLanguage();
     if (!rows.length) return null;
     return (
-        <SectionCard title="Grootste klanten" icon={<Users size={18} color={colors.primary} />}>
+        <SectionCard title={t('Grootste klanten')} icon={<Users size={18} color={colors.primary} />}>
             {rows.map(row => (
                 <div key={row.customer_id} style={{
                     display: 'flex', justifyContent: 'space-between',

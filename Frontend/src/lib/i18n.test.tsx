@@ -53,10 +53,16 @@ describe('t()', () => {
         expect(screen.getByTestId('out').textContent).toBe('Some Untranslated Heading');
     });
 
-    it('gives every non-English table the same keys, so no language lags behind', () => {
-        const reference = Object.keys(phrases.nl).sort();
+    it('covers every phrase in every language, so no language lags behind', () => {
+        // Screens were authored in English or in Dutch, so both are key spaces.
+        // A key never needs a translation into the language it is written in.
+        // phrases.nl is keyed by the English source strings, phrases.en by the
+        // Dutch ones. Dutch and English each already read correctly in their own
+        // key space, so only the other languages must cover both.
+        const all = [...new Set([...Object.keys(phrases.nl), ...Object.keys(phrases.en)])];
         for (const lang of ['ar', 'ru', 'uk']) {
-            expect(Object.keys(phrases[lang]).sort(), `${lang} phrase coverage`).toEqual(reference);
+            const missing = all.filter(k => !(k in phrases[lang]));
+            expect(missing, `${lang} is missing translations`).toEqual([]);
         }
     });
 

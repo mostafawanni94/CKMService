@@ -10,6 +10,7 @@ import { AlertTriangle, ChevronDown, ChevronRight, Lock, CheckCircle2 } from 'lu
 import { SectionCard, Badge, StatCard } from '@/components/ui/shared';
 import { colors, spacing, radius, fontSize, fontWeight } from '@/styles/tokens';
 import type { VatBlocker, VatBox, VatEvent, VatPeriod, VatReturn } from '@/hooks/useVatPeriods';
+import { useLanguage } from '@/lib/i18n';
 
 const euro = (value: string | number) =>
     `€${Number(value).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -55,6 +56,7 @@ export function PeriodTabs({ periods, selectedId, onSelect }: {
 }
 
 export function ReturnSummary({ vatReturn }: { vatReturn: VatReturn }) {
+    const { t } = useLanguage();
     const payable = vatReturn.outcome === 'PAYABLE';
     return (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: spacing.lg, marginBottom: spacing.xl }}>
@@ -63,7 +65,7 @@ export function ReturnSummary({ vatReturn }: { vatReturn: VatReturn }) {
             <StatCard label="5b — Voorbelasting" value={euro(vatReturn.box_5b)}
                       subtitle="Deductible input VAT" />
             <StatCard
-                label={payable ? 'Te betalen' : vatReturn.outcome === 'REFUNDABLE' ? 'Terug te ontvangen' : 'Saldo'}
+                label={payable ? t('Te betalen') : vatReturn.outcome === 'REFUNDABLE' ? 'Terug te ontvangen' : 'Saldo'}
                 value={euro(payable ? vatReturn.amount_payable : vatReturn.amount_refundable)}
                 color={payable ? colors.dangerDark : colors.successDark}
                 subtitle={`Rules ${vatReturn.rules_version} · 5a − 5b`}
@@ -112,17 +114,18 @@ export function BoxTable({ boxes, expandedBox, boxEntries, onToggle }: {
     boxEntries: Record<string, unknown[]>;
     onToggle: (code: string) => void;
 }) {
+    const { t } = useLanguage();
     return (
-        <SectionCard title="Rubrieken" subtitle="Click a rubriek to see the transactions behind it">
+        <SectionCard title={t('Rubrieken')} subtitle="Click a rubriek to see the transactions behind it">
             <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontVariantNumeric: 'tabular-nums' }}>
                     <thead>
                         <tr style={{ textAlign: 'left', borderBottom: `1px solid ${colors.border}` }}>
-                            <th style={{ padding: spacing.md, width: 60 }}>Rubriek</th>
+                            <th style={{ padding: spacing.md, width: 60 }}>{t('Rubriek')}</th>
                             <th style={{ padding: spacing.md }}>Omschrijving</th>
-                            <th style={{ padding: spacing.md, textAlign: 'right' }}>Bedrag</th>
-                            <th style={{ padding: spacing.md, textAlign: 'right' }}>Omzetbelasting</th>
-                            <th style={{ padding: spacing.md, textAlign: 'right', width: 90 }}>Posten</th>
+                            <th style={{ padding: spacing.md, textAlign: 'right' }}>{t('Bedrag')}</th>
+                            <th style={{ padding: spacing.md, textAlign: 'right' }}>{t('Omzetbelasting')}</th>
+                            <th style={{ padding: spacing.md, textAlign: 'right', width: 90 }}>{t('Posten')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -188,9 +191,10 @@ export function BoxTable({ boxes, expandedBox, boxEntries, onToggle }: {
 }
 
 export function AuditTrail({ events }: { events: VatEvent[] }) {
+    const { t } = useLanguage();
     if (!events.length) return null;
     return (
-        <SectionCard title="Audit trail" style={{ marginTop: spacing.xl }}>
+        <SectionCard title={t('Audit trail')} style={{ marginTop: spacing.xl }}>
             {events.map((event, index) => (
                 <div key={index} style={{
                     display: 'flex', gap: spacing.lg, padding: `${spacing.sm} 0`,
