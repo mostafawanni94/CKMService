@@ -7,6 +7,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'app_lock_service.dart';
+import '../../core/localization/app_strings.dart';
 
 class AppLockScreen extends StatefulWidget {
   const AppLockScreen({
@@ -201,7 +202,7 @@ class _AppLockScreenState extends State<AppLockScreen> {
                           ? UnlockResult.needsPin
                           : UnlockResult.needsPinSetup);
                     },
-                    child: const Text('Use PIN instead',
+                    child: Text(context.strings.usePinInstead,
                         style: TextStyle(color: Colors.white70)),
                   ),
                 TextButton(

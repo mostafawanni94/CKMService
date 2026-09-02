@@ -5,6 +5,7 @@ import '../data/project_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
 import 'screens/project_detail_screen.dart';
+import '../../../core/localization/app_strings.dart';
 
 class ProjectsDashboard extends StatefulWidget {
   const ProjectsDashboard({super.key});
@@ -299,7 +300,7 @@ class _ProjectsDashboardState extends State<ProjectsDashboard> {
         children: [
           Icon(Icons.folder_open_rounded, size: 64, color: AppTheme.textMuted.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
-          const Text('No projects found', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)),
+          Text(context.strings.noProjectsFound, style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)),
         ],
       ),
     );
@@ -312,9 +313,9 @@ class _ProjectsDashboardState extends State<ProjectsDashboard> {
         children: [
           const Icon(Icons.error_outline, size: 48, color: AppTheme.accentRed),
           const SizedBox(height: 16),
-          const Text('Failed to load projects', style: TextStyle(color: AppTheme.textSecondary)),
+          Text(context.strings.failedToLoadProjects, style: TextStyle(color: AppTheme.textSecondary)),
           const SizedBox(height: 16),
-          ElevatedButton(onPressed: _loadProjects, child: const Text('Retry')),
+          ElevatedButton(onPressed: _loadProjects, child: Text(context.strings.retry)),
         ],
       ),
     );

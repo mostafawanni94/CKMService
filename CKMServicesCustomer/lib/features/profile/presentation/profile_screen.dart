@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../auth/data/auth_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/shared_widgets.dart';
+import '../../../core/localization/app_strings.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -76,6 +77,8 @@ class ProfileScreen extends StatelessWidget {
             GlassCard(
               child: Column(
                 children: [
+                  _buildLanguagePicker(context),
+                  const Divider(color: AppTheme.dividerColor, height: 1),
                   _buildMenuItem(Icons.info_outline, 'App Version', subtitle: '1.0.0'),
                   const Divider(color: AppTheme.dividerColor, height: 1),
                   _buildMenuItem(Icons.support_agent_outlined, 'Contact Support'),
@@ -92,7 +95,7 @@ class ProfileScreen extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: () => _showLogoutDialog(context),
                 icon: const Icon(Icons.logout, color: AppTheme.accentRed),
-                label: const Text('Sign Out', style: TextStyle(color: AppTheme.accentRed)),
+                label: Text(context.strings.signOut, style: TextStyle(color: AppTheme.accentRed)),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: AppTheme.accentRed),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -125,6 +128,42 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(text, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+  /// The portal ships in four languages; without this the choice was
+  /// unreachable and every customer saw Dutch.
+  Widget _buildLanguagePicker(BuildContext context) {
+    final localization = context.watch<LocalizationProvider>();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          const Icon(Icons.translate, size: 20, color: AppTheme.textSecondary),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(context.strings.languageLabel,
+                style: const TextStyle(color: AppTheme.textPrimary)),
+          ),
+          DropdownButton<AppLanguage>(
+            value: localization.currentLanguage,
+            underline: const SizedBox.shrink(),
+            dropdownColor: AppTheme.deepNavy,
+            style: const TextStyle(color: AppTheme.textPrimary),
+            onChanged: (language) {
+              if (language != null) localization.setLanguage(language);
+            },
+            items: [
+              for (final language in AppLanguage.values)
+                DropdownMenuItem(
+                  value: language,
+                  child: Text(language.nativeName),
+                ),
+            ],
           ),
         ],
       ),

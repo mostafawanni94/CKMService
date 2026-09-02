@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../data/auth_service.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/localization/app_strings.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -187,8 +188,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
             style: const TextStyle(color: AppTheme.textPrimary),
-            decoration: const InputDecoration(
-              labelText: 'Email',
+            decoration: InputDecoration(
+              labelText: context.strings.email,
               prefixIcon: Icon(Icons.email_outlined, color: AppTheme.textMuted),
             ),
             validator: (v) => v == null || v.isEmpty ? 'Email is required' : null,
@@ -201,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             obscureText: _obscurePassword,
             style: const TextStyle(color: AppTheme.textPrimary),
             decoration: InputDecoration(
-              labelText: 'Password',
+              labelText: context.strings.password,
               prefixIcon: const Icon(Icons.lock_outlined, color: AppTheme.textMuted),
               suffixIcon: IconButton(
                 icon: Icon(
@@ -229,7 +230,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         color: Colors.white,
                       ),
                     )
-                  : const Text('Sign In'),
+                  : Text(context.strings.signIn),
             ),
           ),
         ],

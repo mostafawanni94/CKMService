@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class PhotoGalleryScreen extends StatefulWidget {
   final List<Map<String, dynamic>> photos;
@@ -69,13 +70,13 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
                         child: CircularProgressIndicator(color: AppTheme.electricBlue),
                       );
                     },
-                    errorBuilder: (_, __, ___) => const Center(
+                    errorBuilder: (_, __, ___) => Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.broken_image, size: 48, color: Colors.white38),
                           SizedBox(height: 8),
-                          Text('Failed to load image', style: TextStyle(color: Colors.white38)),
+                          Text(context.strings.failedToLoadImage, style: TextStyle(color: Colors.white38)),
                         ],
                       ),
                     ),

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/shared_widgets.dart';
 import 'photo_gallery_screen.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class WorkDayScreen extends StatelessWidget {
   final String projectId;
@@ -144,7 +145,7 @@ class WorkDayScreen extends StatelessWidget {
                   builder: (_) => PhotoGalleryScreen(photos: allPhotos),
                 ),
               ),
-              child: const Text('View All', style: TextStyle(color: AppTheme.electricBlue, fontSize: 13)),
+              child: Text(context.strings.viewAll, style: TextStyle(color: AppTheme.electricBlue, fontSize: 13)),
             ),
           ],
         ),

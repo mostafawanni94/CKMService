@@ -10,6 +10,7 @@ import '../../data/project_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/shared_widgets.dart';
 import '../../../work_entries/presentation/screens/work_day_screen.dart';
+import '../../../../core/localization/app_strings.dart';
 
 class ProjectDetailScreen extends StatefulWidget {
   final String projectId;
@@ -127,12 +128,12 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                           ),
                         ],
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.download_rounded, size: 16, color: Colors.white),
                           SizedBox(width: 6),
-                          Text('Export', style: TextStyle(
+                          Text(context.strings.export, style: TextStyle(
                             color: Colors.white,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -213,14 +214,14 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
               child: const Icon(Icons.error_outline, size: 32, color: AppTheme.accentRed),
             ),
             const SizedBox(height: 16),
-            const Text('Failed to load project', style: TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
+            Text(context.strings.failedToLoadProject, style: TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             Text(_error ?? '', style: const TextStyle(color: AppTheme.textMuted, fontSize: 13), textAlign: TextAlign.center),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: _loadData,
               icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Retry'),
+              label: Text(context.strings.retry),
             ),
           ],
         ),
@@ -466,12 +467,12 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                 child: const Icon(Icons.filter_alt_rounded, size: 14, color: Color(0xFFF59E0B)),
               ),
               const SizedBox(width: 10),
-              const Text('Filters', style: TextStyle(color: AppTheme.textPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
+              Text(context.strings.filters, style: TextStyle(color: AppTheme.textPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
               const Spacer(),
               if (hasFilters)
                 TextButton.icon(
                   icon: const Icon(Icons.clear_all, size: 16),
-                  label: const Text('Clear', style: TextStyle(fontSize: 12)),
+                  label: Text(context.strings.clear, style: TextStyle(fontSize: 12)),
                   style: TextButton.styleFrom(
                     foregroundColor: AppTheme.textMuted,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -580,9 +581,9 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                   child: Icon(Icons.work_off_outlined, size: 28, color: AppTheme.textMuted.withValues(alpha: 0.5)),
                 ),
                 const SizedBox(height: 12),
-                const Text('No work entries found', style: TextStyle(color: AppTheme.textSecondary, fontSize: 14, fontWeight: FontWeight.w500)),
+                Text(context.strings.noWorkEntriesFound, style: TextStyle(color: AppTheme.textSecondary, fontSize: 14, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 4),
-                const Text('Try adjusting your filters', style: TextStyle(color: AppTheme.textMuted, fontSize: 12)),
+                Text(context.strings.tryAdjustingFilters, style: TextStyle(color: AppTheme.textMuted, fontSize: 12)),
               ],
             ),
           ),
@@ -794,16 +795,16 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                       child: const Icon(Icons.table_chart_rounded, color: Colors.white, size: 22),
                     ),
                     const SizedBox(width: 14),
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Export to Excel', style: TextStyle(
+                        Text(context.strings.exportToExcel, style: TextStyle(
                           color: AppTheme.textPrimary,
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
                         )),
                         SizedBox(height: 2),
-                        Text('Download work report as .xlsx', style: TextStyle(
+                        Text(context.strings.downloadWorkReport, style: TextStyle(
                           color: AppTheme.textMuted,
                           fontSize: 13,
                         )),
@@ -836,7 +837,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                 const SizedBox(height: 16),
                 
                 // Date range pickers
-                const Text('Select Period', style: TextStyle(color: AppTheme.textSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
+                Text(context.strings.selectPeriod, style: TextStyle(color: AppTheme.textSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 10),
                 
                 Row(
@@ -893,12 +894,12 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                     ),
                     child: _isExporting
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Row(
+                        : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.download_rounded, size: 20),
                               SizedBox(width: 8),
-                              Text('Download Excel Report', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                              Text(context.strings.downloadExcelReport, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                             ],
                           ),
                   ),

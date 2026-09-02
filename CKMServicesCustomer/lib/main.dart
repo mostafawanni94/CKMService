@@ -13,6 +13,7 @@ import 'features/projects/presentation/projects_dashboard.dart';
 import 'features/profile/presentation/profile_screen.dart';
 import 'core/security/app_lock_gate.dart';
 import 'core/security/app_lock_service.dart';
+import 'core/localization/app_strings.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,8 +26,11 @@ void main() {
   ));
   
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => AuthService()..init(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthService()..init()),
+        ChangeNotifierProvider(create: (_) => LocalizationProvider()..load()),
+      ],
       child: CKMCustomerPortalApp(),
     ),
   );
@@ -39,10 +43,17 @@ class CKMCustomerPortalApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Arabic is right-to-left, so the whole tree is mirrored for it.
+    final localization = context.watch<LocalizationProvider>();
     return MaterialApp(
       title: 'CKM Customer Portal',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
+      locale: localization.locale,
+      builder: (context, child) => Directionality(
+        textDirection: localization.textDirection,
+        child: child ?? const SizedBox.shrink(),
+      ),
       home: Consumer<AuthService>(
         builder: (ctx, auth, _) {
           // Behind sign-in everything sits under the lock gate: biometrics on
