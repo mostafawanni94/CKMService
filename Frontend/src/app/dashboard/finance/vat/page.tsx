@@ -18,10 +18,12 @@ import {
 import { useVatPeriods } from '@/hooks/useVatPeriods';
 import { colors, spacing } from '@/styles/tokens';
 import styles from '../page.module.css';
+import { useLanguage } from '@/lib/i18n';
 
 const YEAR_OPTIONS = [2024, 2025, 2026, 2027, 2028].map(y => ({ value: String(y), label: String(y) }));
 
 export default function VatReturnPage() {
+    const { t } = useLanguage();
     const vm = useVatPeriods();
     const [reopenOpen, setReopenOpen] = useState(false);
     const [reason, setReason] = useState('');
@@ -32,7 +34,7 @@ export default function VatReturnPage() {
         <DashboardLayout>
             <div className={styles.container}>
                 <PageHeader
-                    title="BTW Aangifte"
+                    title={t('BTW Aangifte')}
                     subtitle="Quarterly VAT return — calculated from the VAT ledger, not from invoice totals"
                     actions={
                         <>
@@ -113,7 +115,7 @@ export default function VatReturnPage() {
                     title={`Reopen ${period?.label ?? ''}`}
                     footer={
                         <>
-                            <Button variant="secondary" onClick={() => setReopenOpen(false)}>Cancel</Button>
+                            <Button variant="secondary" onClick={() => setReopenOpen(false)}>{t('Cancel')}</Button>
                             <Button
                                 disabled={reason.trim().length < 15 || vm.busy}
                                 onClick={async () => {

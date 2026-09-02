@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/shared';
 import { useAttendance, type AttendanceRecord } from '@/hooks/useHr';
 import styles from '../page.module.css';
+import { useLanguage } from '@/lib/i18n';
 
 const STATUS_OPTIONS = [
     { value: 'all', label: 'All statuses' },
@@ -25,22 +26,23 @@ const STATUS_OPTIONS = [
 ];
 
 export default function HRAttendancePage() {
+    const { t } = useLanguage();
     const vm = useAttendance();
 
     const columns = [
         {
             key: 'date',
-            header: 'Date',
+            header: t('Date'),
             render: (row: AttendanceRecord) => row.date,
         },
         {
             key: 'employee_name',
-            header: 'Employee',
+            header: t('Employee'),
             render: (row: AttendanceRecord) => row.employee_name || '—',
         },
         {
             key: 'status',
-            header: 'Status',
+            header: t('Status'),
             render: (row: AttendanceRecord) => <StatusBadge status={row.status} />,
         },
         {
@@ -62,7 +64,7 @@ export default function HRAttendancePage() {
         },
         {
             key: 'hours',
-            header: 'Hours',
+            header: t('Hours'),
             align: 'right' as const,
             render: (row: AttendanceRecord) => Number(row.hours || 0).toFixed(2),
         },
@@ -77,7 +79,7 @@ export default function HRAttendancePage() {
         <DashboardLayout>
             <div className={styles.container}>
                 <PageHeader
-                    title="Attendance"
+                    title={t('Attendance')}
                     subtitle="Derived from work entries and approved leave"
                 />
 
@@ -93,11 +95,11 @@ export default function HRAttendancePage() {
                     <SearchBar
                         value={vm.searchQuery}
                         onChange={vm.setSearchQuery}
-                        placeholder="Search employee..."
+                        placeholder={t('Search employee...')}
                         style={{ flex: 1, minWidth: 220 }}
                     />
-                    <Input type="date" value={vm.dateFrom} onChange={vm.setDateFrom} label="From" />
-                    <Input type="date" value={vm.dateTo} onChange={vm.setDateTo} label="To" />
+                    <Input type="date" value={vm.dateFrom} onChange={vm.setDateFrom} label={t('From')} />
+                    <Input type="date" value={vm.dateTo} onChange={vm.setDateTo} label={t('To')} />
                     <Select
                         value={vm.statusFilter}
                         onChange={vm.setStatusFilter}

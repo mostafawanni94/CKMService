@@ -2,6 +2,7 @@
 
 import { Phone, Mail, Plus, X } from 'lucide-react';
 import { inputStyle, labelStyle } from './FormCard';
+import { useLanguage } from '@/lib/i18n';
 
 interface Contact {
     contact_type: 'phone' | 'email' | 'mobile';
@@ -29,6 +30,7 @@ export function ContactListEditor({
     onRemove,
     showLabels = true
 }: ContactListEditorProps) {
+    const { t } = useLanguage();
     const phones = contacts.filter(c => c.contact_type === 'phone' || c.contact_type === 'mobile');
     const emails = contacts.filter(c => c.contact_type === 'email');
 
@@ -37,7 +39,7 @@ export function ContactListEditor({
             {/* Phone Numbers */}
             <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    {showLabels && <label style={{ ...labelStyle, marginBottom: 0 }}>Phone Numbers</label>}
+                    {showLabels && <label style={{ ...labelStyle, marginBottom: 0 }}>{t('Phone Numbers')}</label>}
                     <button
                         onClick={() => onAdd('phone')}
                         style={{
@@ -54,7 +56,7 @@ export function ContactListEditor({
                             cursor: 'pointer'
                         }}
                     >
-                        <Plus style={{ width: '12px', height: '12px' }} /> Add
+                        <Plus style={{ width: '12px', height: '12px' }} /> {t('Add')}
                     </button>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -109,7 +111,7 @@ export function ContactListEditor({
             {/* Email Addresses */}
             <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    {showLabels && <label style={{ ...labelStyle, marginBottom: 0 }}>Email Addresses</label>}
+                    {showLabels && <label style={{ ...labelStyle, marginBottom: 0 }}>{t('Email Addresses')}</label>}
                     <button
                         onClick={() => onAdd('email')}
                         style={{
@@ -126,7 +128,7 @@ export function ContactListEditor({
                             cursor: 'pointer'
                         }}
                     >
-                        <Plus style={{ width: '12px', height: '12px' }} /> Add
+                        <Plus style={{ width: '12px', height: '12px' }} /> {t('Add')}
                     </button>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

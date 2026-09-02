@@ -57,7 +57,7 @@ export default function WorkLogsPage() {
                 {/* Header */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
                     <div>
-                        <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: 0 }}>Work Logs</h1>
+                        <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: 0 }}>{t('Work Logs')}</h1>
                         <p style={{ fontSize: '14px', color: '#6B7280', margin: '4px 0 0' }}>Review and approve employee work submissions</p>
                     </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
@@ -93,7 +93,7 @@ export default function WorkLogsPage() {
                                 cursor: 'pointer'
                             }}
                         >
-                            Refresh
+                            {t('Refresh')}
                         </button>
                     </div>
                 </div>
@@ -144,7 +144,7 @@ export default function WorkLogsPage() {
                                 <AlertCircle style={{ width: '24px', height: '24px', color: '#ca8a04' }} />
                             </div>
                             <div>
-                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>Pending</p>
+                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>{t('Pending')}</p>
                                 <p style={{ fontSize: '28px', fontWeight: 700, color: '#ca8a04', margin: 0 }}>{stats.pending}</p>
                             </div>
                         </div>
@@ -166,7 +166,7 @@ export default function WorkLogsPage() {
                                 <CheckCircle style={{ width: '24px', height: '24px', color: '#16a34a' }} />
                             </div>
                             <div>
-                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>Approved</p>
+                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>{t('Approved')}</p>
                                 <p style={{ fontSize: '28px', fontWeight: 700, color: '#16a34a', margin: 0 }}>{stats.approved}</p>
                             </div>
                         </div>
@@ -188,7 +188,7 @@ export default function WorkLogsPage() {
                                 <XCircle style={{ width: '24px', height: '24px', color: '#dc2626' }} />
                             </div>
                             <div>
-                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>Rejected</p>
+                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>{t('Rejected')}</p>
                                 <p style={{ fontSize: '28px', fontWeight: 700, color: '#dc2626', margin: 0 }}>{stats.rejected}</p>
                             </div>
                         </div>
@@ -316,17 +316,17 @@ export default function WorkLogsPage() {
                                                     style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                                                 />
                                             </th>
-                                            <th style={{ padding: '16px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Employee</th>
-                                            <th style={{ padding: '16px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Customer</th>
-                                            <th style={{ padding: '16px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Project</th>
-                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Date</th>
-                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Time</th>
-                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Pause</th>
-                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Hours</th>
-                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Allowances</th>
-                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Price</th>
-                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Status</th>
-                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Actions</th>
+                                            <th style={{ padding: '16px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Employee')}</th>
+                                            <th style={{ padding: '16px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Customer')}</th>
+                                            <th style={{ padding: '16px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Project')}</th>
+                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Date')}</th>
+                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Time')}</th>
+                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Pause')}</th>
+                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Hours')}</th>
+                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Allowances')}</th>
+                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Price')}</th>
+                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Status')}</th>
+                                            <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Actions')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -664,7 +664,7 @@ export default function WorkLogsPage() {
                                                                 }}
                                                             >
                                                                 <Edit2 style={{ width: '14px', height: '14px' }} />
-                                                                Edit
+                                                                {t('Edit')}
                                                             </button>
 
                                                             {/* Delete button for all statuses */}
@@ -685,7 +685,7 @@ export default function WorkLogsPage() {
                                                                 }}
                                                             >
                                                                 <Trash2 style={{ width: '14px', height: '14px' }} />
-                                                                Delete
+                                                                {t('Delete')}
                                                             </button>
                                                         </div>
                                                     </td>
@@ -900,7 +900,7 @@ export default function WorkLogsPage() {
                                             }
                                         }}
                                         onFocus={() => setShowEmployeeDropdown(true)}
-                                        placeholder="Search employee..."
+                                        placeholder={t('Search employee...')}
                                         style={inputStyle}
                                     />
                                     {showEmployeeDropdown && (
@@ -941,7 +941,7 @@ export default function WorkLogsPage() {
                                                 ))}
                                             {employees.filter(emp => emp.full_name.toLowerCase().includes(employeeSearch.toLowerCase())).length === 0 && (
                                                 <div style={{ padding: '10px 14px', color: '#9CA3AF', fontStyle: 'italic' }}>
-                                                    No employees found
+                                                    {t('No employees found')}
                                                 </div>
                                             )}
                                         </div>
@@ -960,7 +960,7 @@ export default function WorkLogsPage() {
                                         }}
                                         style={inputStyle}
                                     >
-                                        <option value="">Select customer...</option>
+                                        <option value="">{t('Select customer...')}</option>
                                         {customers.map(c => (
                                             <option key={c.id} value={c.id}>{c.company_name}</option>
                                         ))}
@@ -979,7 +979,7 @@ export default function WorkLogsPage() {
                                             }}
                                             style={inputStyle}
                                         >
-                                            <option value="">Select project...</option>
+                                            <option value="">{t('Select project...')}</option>
                                             {projects
                                                 .filter((p: any) => String(p.customer) === String(formData.customer) || String(p.customer_id) === String(formData.customer))
                                                 .map(p => (
@@ -998,7 +998,7 @@ export default function WorkLogsPage() {
                                             onChange={(e) => setFormData({ ...formData, supervisor: e.target.value })}
                                             style={inputStyle}
                                         >
-                                            <option value="">Select supervisor...</option>
+                                            <option value="">{t('Select supervisor...')}</option>
                                             {supervisors.map(s => (
                                                 <option key={s.id} value={s.id}>{s.full_name}</option>
                                             ))}
@@ -1015,7 +1015,7 @@ export default function WorkLogsPage() {
                                             onChange={(e) => setFormData({ ...formData, service: e.target.value })}
                                             style={inputStyle}
                                         >
-                                            <option value="">Select service...</option>
+                                            <option value="">{t('Select service...')}</option>
                                             {services.map(s => (
                                                 <option key={s.id} value={s.id}>{s.name}</option>
                                             ))}
@@ -1083,7 +1083,7 @@ export default function WorkLogsPage() {
 
                                 {/* Notes */}
                                 <div>
-                                    <label style={labelStyle}>Notes</label>
+                                    <label style={labelStyle}>{t('Notes')}</label>
                                     <textarea
                                         value={formData.notes}
                                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -1156,7 +1156,7 @@ export default function WorkLogsPage() {
                                                             </select>
                                                         </div>
                                                         <div style={{ flex: 1 }}>
-                                                            <label style={{ ...labelStyle, fontSize: '12px' }}>Hours</label>
+                                                            <label style={{ ...labelStyle, fontSize: '12px' }}>{t('Hours')}</label>
                                                             <input
                                                                 type="number"
                                                                 min="0"
@@ -1186,7 +1186,7 @@ export default function WorkLogsPage() {
                                                     {/* From/To Time for auto-calculating hours */}
                                                     <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
                                                         <div style={{ flex: 1 }}>
-                                                            <label style={{ ...labelStyle, fontSize: '12px' }}>From Time</label>
+                                                            <label style={{ ...labelStyle, fontSize: '12px' }}>{t('From Time')}</label>
                                                             <input
                                                                 type="time"
                                                                 value={allowance.start_time || ''}
@@ -1206,7 +1206,7 @@ export default function WorkLogsPage() {
                                                             />
                                                         </div>
                                                         <div style={{ flex: 1 }}>
-                                                            <label style={{ ...labelStyle, fontSize: '12px' }}>To Time</label>
+                                                            <label style={{ ...labelStyle, fontSize: '12px' }}>{t('To Time')}</label>
                                                             <input
                                                                 type="time"
                                                                 value={allowance.end_time || ''}
@@ -1262,7 +1262,7 @@ export default function WorkLogsPage() {
                                         cursor: 'pointer'
                                     }}
                                 >
-                                    Cancel
+                                    {t('Cancel')}
                                 </button>
                                 <button
                                     onClick={handleSubmit}

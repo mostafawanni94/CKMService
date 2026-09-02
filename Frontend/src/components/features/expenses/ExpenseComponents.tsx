@@ -14,6 +14,7 @@ import { colors, spacing, fontSize, fontWeight } from '@/styles/tokens';
 import type { Expense, ExpenseCategory } from '@/lib/types';
 import { PAYMENT_METHODS, VAT_RATES } from '@/lib/types';
 import type { ExpenseForm } from '@/hooks/useExpenses';
+import { useLanguage } from '@/lib/i18n';
 
 // ─── Stat Cards Row ─────────────────────────────────────────
 
@@ -24,9 +25,10 @@ interface ExpenseStatsProps {
 }
 
 export function ExpenseStats({ count, total, totalVat }: ExpenseStatsProps) {
+    const { t } = useLanguage();
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: spacing.lg, marginBottom: spacing.xxl }}>
-      <StatCard label="Expenses" value={count} icon={<Receipt size={20} color={colors.primary} />} color={colors.primary} />
+      <StatCard label={t('Expenses')} value={count} icon={<Receipt size={20} color={colors.primary} />} color={colors.primary} />
       <StatCard label="Total (incl. BTW)" value={`€${total.toFixed(2)}`} icon={<Euro size={20} color={colors.danger} />} color={colors.dangerDark} />
       <StatCard label="BTW Paid" value={`€${totalVat.toFixed(2)}`} icon={<Euro size={20} color={colors.info} />} color="#1E40AF" />
     </div>
@@ -43,9 +45,10 @@ interface ExpenseTableProps {
 }
 
 export function ExpenseTable({ expenses, loading, onEdit, onDelete }: ExpenseTableProps) {
+    const { t } = useLanguage();
   const columns: Column<Expense>[] = [
     {
-      key: 'date', header: 'Date',
+      key: 'date', header: t('Date'),
       render: (e) => <span style={{ fontWeight: fontWeight.semibold }}>{e.expense_date}</span>
     },
     {
@@ -58,7 +61,7 @@ export function ExpenseTable({ expenses, loading, onEdit, onDelete }: ExpenseTab
       )
     },
     {
-      key: 'category', header: 'Category',
+      key: 'category', header: t('Category'),
       render: (e) => (
         <Badge color={e.category_color || colors.textSecondary} bg={`${e.category_color}18` || colors.bgAlt}>
           {e.category_name}
@@ -66,7 +69,7 @@ export function ExpenseTable({ expenses, loading, onEdit, onDelete }: ExpenseTab
       )
     },
     {
-      key: 'amount', header: 'Amount', align: 'right',
+      key: 'amount', header: t('Amount'), align: 'right',
       render: (e) => (
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontWeight: fontWeight.bold }}>€{parseFloat(e.total_amount).toFixed(2)}</div>
@@ -127,6 +130,7 @@ export function ExpenseModal({
   open, onClose, title, form, updateForm,
   categories, receiptFile, setReceiptFile, onSave, saving
 }: ExpenseModalProps) {
+    const { t } = useLanguage();
   // Calculate preview
   const amountExcl = parseFloat(form.amount_excl_vat) || 0;
   const vatRate = parseFloat(form.vat_rate) || 0;
@@ -136,24 +140,24 @@ export function ExpenseModal({
   return (
     <Modal open={open} onClose={onClose} title={title} width="640px" footer={
       <>
-        <Button variant="secondary" onClick={onClose}>Cancel</Button>
+        <Button variant="secondary" onClick={onClose}>{t('Cancel')}</Button>
         <Button onClick={onSave} loading={saving}>Save Expense</Button>
       </>
     }>
       <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.xl }}>
         <FormGrid>
           <Select
-            label="Category"
+            label={t('Category')}
             value={form.category}
             onChange={v => updateForm({ category: v })}
             options={categories.map(c => ({ value: c.id, label: c.name }))}
-            placeholder="Select category..."
+            placeholder={t('Select category...')}
             required
           />
-          <Input label="Vendor Name" value={form.vendor_name} onChange={v => updateForm({ vendor_name: v })} required />
+          <Input label={t('Vendor Name')} value={form.vendor_name} onChange={v => updateForm({ vendor_name: v })} required />
         </FormGrid>
 
-        <Input label="Description" value={form.description} onChange={v => updateForm({ description: v })} />
+        <Input label={t('Description')} value={form.description} onChange={v => updateForm({ description: v })} />
 
         <FormGrid columns={3}>
           <Input label="Amount (excl. BTW)" value={form.amount_excl_vat} onChange={v => updateForm({ amount_excl_vat: v })} type="number" step="0.01" required />
@@ -177,9 +181,9 @@ export function ExpenseModal({
         </FormGrid>
 
         <FormGrid>
-          <Input label="Date" value={form.expense_date} onChange={v => updateForm({ expense_date: v })} type="date" required />
+          <Input label={t('Date')} value={form.expense_date} onChange={v => updateForm({ expense_date: v })} type="date" required />
           <Select
-            label="Payment Method"
+            label={t('Payment Method')}
             value={form.payment_method}
             onChange={v => updateForm({ payment_method: v })}
             options={PAYMENT_METHODS.map(p => ({ value: p.value, label: p.label }))}
@@ -187,7 +191,7 @@ export function ExpenseModal({
         </FormGrid>
 
         <FormGrid>
-          <Input label="Reference #" value={form.reference_number} onChange={v => updateForm({ reference_number: v })} placeholder="Invoice / receipt number" />
+          <Input label={t('Reference #')} value={form.reference_number} onChange={v => updateForm({ reference_number: v })} placeholder="Invoice / receipt number" />
           <div>
             <label style={{ display: 'block', fontSize: fontSize.md, fontWeight: fontWeight.semibold, color: colors.textSecondary, marginBottom: '6px' }}>
               Receipt (Photo/PDF)

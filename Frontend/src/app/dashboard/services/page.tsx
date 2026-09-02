@@ -19,6 +19,7 @@ import {
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { Button } from '@/components/ui';
 import { apiFetch, readApiError, apiGetAll } from '@/hooks/useApi';
+import { useLanguage } from '@/lib/i18n';
 
 // Types
 interface CertificateType {
@@ -37,6 +38,7 @@ interface Service {
 }
 
 export default function ServicesPage() {
+    const { t } = useLanguage();
     const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -224,7 +226,7 @@ export default function ServicesPage() {
                 }}>
                     <div>
                         <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1F2937', margin: 0 }}>
-                            Services
+                            {t('Services')}
                         </h1>
                         <p style={{ fontSize: '15px', color: '#6B7280', marginTop: '6px' }}>
                             Manage billing services offered to customers
@@ -250,7 +252,7 @@ export default function ServicesPage() {
                         }}
                     >
                         {showAddForm ? <X size={18} /> : <Plus size={18} />}
-                        {showAddForm ? 'Cancel' : 'Add Service'}
+                        {showAddForm ? t('Cancel') : 'Add Service'}
                     </button>
                 </div>
 
@@ -312,7 +314,7 @@ export default function ServicesPage() {
                         </div>
 
                         <div style={{ marginBottom: '20px' }}>
-                            <label style={labelStyle}>Description</label>
+                            <label style={labelStyle}>{t('Description')}</label>
                             <textarea
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -392,7 +394,7 @@ export default function ServicesPage() {
                                     variant="outline"
                                     className="border-gray-200 text-gray-600 hover:bg-gray-50"
                                 >
-                                    Cancel
+                                    {t('Cancel')}
                                 </Button>
                                 <Button
                                     onClick={saveService}
@@ -505,10 +507,10 @@ export default function ServicesPage() {
                     }}>
                         <div></div>
                         <div>Service Name</div>
-                        <div>Code</div>
-                        <div>Description</div>
-                        <div style={{ textAlign: 'center' }}>Status</div>
-                        <div style={{ textAlign: 'center' }}>Actions</div>
+                        <div>{t('Code')}</div>
+                        <div>{t('Description')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('Status')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('Actions')}</div>
                     </div>
 
                     {/* Table Body */}
@@ -520,7 +522,7 @@ export default function ServicesPage() {
                     ) : filteredServices.length === 0 ? (
                         <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>
                             <CreditCard size={48} style={{ marginBottom: '16px', opacity: 0.5, margin: '0 auto' }} />
-                            <p style={{ fontSize: '16px', fontWeight: 500 }}>No services found</p>
+                            <p style={{ fontSize: '16px', fontWeight: 500 }}>{t('No services found')}</p>
                             <p style={{ fontSize: '14px', marginTop: '4px' }}>
                                 {searchQuery ? 'Try a different search term' : 'Click "Add Service" to create one'}
                             </p>
@@ -639,7 +641,7 @@ export default function ServicesPage() {
                                         }}
                                     >
                                         {service.is_active ? <CheckCircle size={12} /> : <XCircle size={12} />}
-                                        {service.is_active ? 'Active' : 'Inactive'}
+                                        {service.is_active ? t('Active') : t('Inactive')}
                                     </button>
                                 </div>
 
@@ -660,7 +662,7 @@ export default function ServicesPage() {
                                             borderRadius: '6px',
                                             cursor: 'pointer'
                                         }}
-                                        title="Edit"
+                                        title={t('Edit')}
                                     >
                                         <Edit2 size={16} />
                                     </button>
@@ -674,7 +676,7 @@ export default function ServicesPage() {
                                             borderRadius: '6px',
                                             cursor: 'pointer'
                                         }}
-                                        title="Delete"
+                                        title={t('Delete')}
                                     >
                                         <Trash2 size={16} />
                                     </button>

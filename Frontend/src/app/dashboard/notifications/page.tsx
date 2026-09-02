@@ -21,6 +21,7 @@ import {
     RefreshCw
 } from 'lucide-react';
 import { apiFetch } from '@/hooks/useApi';
+import { useLanguage } from '@/lib/i18n';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -78,6 +79,7 @@ const categoryTabs = [
 ];
 
 export default function NotificationsPage() {
+    const { t } = useLanguage();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
@@ -237,7 +239,7 @@ export default function NotificationsPage() {
                 }}>
                     <div>
                         <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1F2937', margin: 0 }}>
-                            Notifications
+                            {t('Notifications')}
                         </h1>
                         <p style={{ fontSize: '15px', color: '#6B7280', marginTop: '6px' }}>
                             {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up!'}
@@ -262,7 +264,7 @@ export default function NotificationsPage() {
                             }}
                         >
                             <RefreshCw size={16} />
-                            Refresh
+                            {t('Refresh')}
                         </button>
                         {unreadCount > 0 && (
                             <button
@@ -296,7 +298,7 @@ export default function NotificationsPage() {
                     gap: '20px',
                     marginBottom: '32px'
                 }}>
-                    <StatCard label="Total" value={stats.total} icon={Bell} color="#6366F1" />
+                    <StatCard label={t('Total')} value={stats.total} icon={Bell} color="#6366F1" />
                     <StatCard label="Unread" value={stats.unread} icon={AlertCircle} color="#F59E0B" />
                     <StatCard label="Read" value={stats.read} icon={Check} color="#10B981" />
                 </div>
@@ -448,7 +450,7 @@ export default function NotificationsPage() {
                                     }}
                                 >
                                     <Trash2 size={14} />
-                                    Delete
+                                    {t('Delete')}
                                 </button>
                             </div>
                         )}
@@ -629,7 +631,7 @@ export default function NotificationsPage() {
                                             cursor: loadingMore ? 'not-allowed' : 'pointer'
                                         }}
                                     >
-                                        {loadingMore ? 'Loading...' : `Load More (${notifications.length} of ${totalCount})`}
+                                        {loadingMore ? t('Loading...') : `Load More (${notifications.length} of ${totalCount})`}
                                     </button>
                                 </div>
                             )}

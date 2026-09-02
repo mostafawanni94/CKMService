@@ -266,7 +266,7 @@ export default function ContractTypesPage() {
                     marginBottom: '32px'
                 }}>
                     <StatCard label="Total Types" value={stats.total} icon={FileText} color="#6366F1" />
-                    <StatCard label="Active" value={stats.active} icon={CheckCircle} color="#10B981" />
+                    <StatCard label={t('Active')} value={stats.active} icon={CheckCircle} color="#10B981" />
                     <StatCard label="Requires Agency" value={stats.withAgency} icon={Building2} color="#F59E0B" />
                     <StatCard label="Requires End Date" value={stats.withEndDate} icon={Calendar} color="#EC4899" />
                 </div>
@@ -359,19 +359,19 @@ export default function ContractTypesPage() {
                         textTransform: 'uppercase',
                         letterSpacing: '0.05em'
                     }}>
-                        <div>Contract Type</div>
-                        <div>Code</div>
-                        <div>Description</div>
-                        <div style={{ textAlign: 'center' }}>Status</div>
-                        <div style={{ textAlign: 'center' }}>End Date</div>
-                        <div style={{ textAlign: 'center' }}>Agency</div>
-                        <div style={{ textAlign: 'center' }}>Actions</div>
+                        <div>{t('Contract Type')}</div>
+                        <div>{t('Code')}</div>
+                        <div>{t('Description')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('Status')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('End Date')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('Agency')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('Actions')}</div>
                     </div>
 
                     {/* Table Body */}
                     {isLoading ? (
                         <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>
-                            Loading...
+                            {t('Loading...')}
                         </div>
                     ) : filteredTypes.length === 0 ? (
                         <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>
@@ -475,7 +475,7 @@ export default function ContractTypesPage() {
                                         }}
                                     >
                                         {type.is_active ? <CheckCircle size={12} /> : <XCircle size={12} />}
-                                        {type.is_active ? 'Active' : 'Inactive'}
+                                        {type.is_active ? t('Active') : t('Inactive')}
                                     </button>
                                 </div>
 
@@ -494,7 +494,7 @@ export default function ContractTypesPage() {
                                             borderRadius: '6px'
                                         }}>
                                             <Calendar size={12} />
-                                            Required
+                                            {t('Required')}
                                         </span>
                                     ) : (
                                         <span style={{ color: '#D1D5DB', fontSize: '13px' }}>-</span>
@@ -516,7 +516,7 @@ export default function ContractTypesPage() {
                                             borderRadius: '6px'
                                         }}>
                                             <Building2 size={12} />
-                                            Required
+                                            {t('Required')}
                                         </span>
                                     ) : (
                                         <span style={{ color: '#D1D5DB', fontSize: '13px' }}>-</span>
@@ -540,7 +540,7 @@ export default function ContractTypesPage() {
                                             borderRadius: '6px',
                                             cursor: 'pointer'
                                         }}
-                                        title="Edit"
+                                        title={t('Edit')}
                                     >
                                         <Edit2 size={16} />
                                     </button>
@@ -554,7 +554,7 @@ export default function ContractTypesPage() {
                                             borderRadius: '6px',
                                             cursor: 'pointer'
                                         }}
-                                        title="Delete"
+                                        title={t('Delete')}
                                     >
                                         <Trash2 size={16} />
                                     </button>
@@ -643,7 +643,7 @@ export default function ContractTypesPage() {
 
                                 {/* Description */}
                                 <div style={{ marginBottom: '20px' }}>
-                                    <label style={labelStyle}>Description</label>
+                                    <label style={labelStyle}>{t('Description')}</label>
                                     <textarea
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -661,7 +661,7 @@ export default function ContractTypesPage() {
                                     marginBottom: '20px'
                                 }}>
                                     <ToggleOption
-                                        label="Is Active"
+                                        label={t('Is Active')}
                                         description="Show in dropdown"
                                         checked={formData.is_active}
                                         onChange={(v) => setFormData({ ...formData, is_active: v })}
@@ -709,7 +709,7 @@ export default function ContractTypesPage() {
 
                                 {/* Sort Order */}
                                 <div style={{ marginBottom: '24px' }}>
-                                    <label style={labelStyle}>Sort Order</label>
+                                    <label style={labelStyle}>{t('Sort Order')}</label>
                                     <input
                                         type="number"
                                         value={formData.sort_order}
@@ -734,7 +734,7 @@ export default function ContractTypesPage() {
                                             cursor: 'pointer'
                                         }}
                                     >
-                                        Cancel
+                                        {t('Cancel')}
                                     </button>
                                     <button
                                         onClick={saveContractType}

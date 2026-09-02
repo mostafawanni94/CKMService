@@ -77,7 +77,7 @@ export function WorklogFilters({ vm }: { vm: ViewModel }) {
                             }}>
                                 {/* Customer Filter - Searchable */}
                                 <div style={{ position: 'relative' }}>
-                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>Customer</label>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>{t('Customer')}</label>
                                     {filterCustomer ? (
                                         <div style={{
                                             display: 'flex',
@@ -100,7 +100,7 @@ export function WorklogFilters({ vm }: { vm: ViewModel }) {
                                         <>
                                             <input
                                                 type="text"
-                                                placeholder="Search customers..."
+                                                placeholder={t('Search customers...')}
                                                 value={customerSearchFilter}
                                                 onChange={(e) => setCustomerSearchFilter(e.target.value)}
                                                 onFocus={() => setShowCustomerDropdown(true)}
@@ -158,7 +158,7 @@ export function WorklogFilters({ vm }: { vm: ViewModel }) {
                                                         ))
                                                     }
                                                     {customers.filter(c => c.company_name.toLowerCase().includes(customerSearchFilter.toLowerCase())).length === 0 && (
-                                                        <div style={{ padding: '10px 14px', color: '#9CA3AF', fontSize: '14px' }}>No customers found</div>
+                                                        <div style={{ padding: '10px 14px', color: '#9CA3AF', fontSize: '14px' }}>{t('No customers found')}</div>
                                                     )}
                                                 </div>
                                             )}
@@ -253,7 +253,7 @@ export function WorklogFilters({ vm }: { vm: ViewModel }) {
                                                         ))
                                                     }
                                                     {filterSupervisors.filter(s => s.full_name.toLowerCase().includes(supervisorSearchFilter.toLowerCase())).length === 0 && (
-                                                        <div style={{ padding: '10px 14px', color: '#9CA3AF', fontSize: '14px' }}>No supervisors found</div>
+                                                        <div style={{ padding: '10px 14px', color: '#9CA3AF', fontSize: '14px' }}>{t('No supervisors found')}</div>
                                                     )}
                                                 </div>
                                             )}
@@ -263,7 +263,7 @@ export function WorklogFilters({ vm }: { vm: ViewModel }) {
 
                                 {/* Week Range - From */}
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>From Week</label>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>{t('From Week')}</label>
                                     <input
                                         type="week"
                                         value={filterStartWeek}
@@ -282,7 +282,7 @@ export function WorklogFilters({ vm }: { vm: ViewModel }) {
 
                                 {/* Week Range - To */}
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>To Week</label>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>{t('To Week')}</label>
                                     <input
                                         type="week"
                                         value={filterEndWeek}
@@ -357,7 +357,7 @@ export function WorklogFilters({ vm }: { vm: ViewModel }) {
                                                 cursor: 'pointer'
                                             }}
                                         >
-                                            Clear All
+                                            {t('Clear All')}
                                         </button>
                                     )}
                                 </div>
@@ -510,7 +510,7 @@ export function WorklogFilters({ vm }: { vm: ViewModel }) {
                                                 cursor: 'pointer'
                                             }}
                                         >
-                                            Clear
+                                            {t('Clear')}
                                         </button>
                                     )}
                                 </div>
@@ -519,12 +519,12 @@ export function WorklogFilters({ vm }: { vm: ViewModel }) {
                                         { value: 'planned', label: 'Planned', color: '#3B82F6', bg: '#EFF6FF' },
                                         { value: 'confirmed', label: 'Confirmed', color: '#4F46E5', bg: '#E0E7FF' },
                                         { value: 'in_progress', label: 'In Progress', color: '#2563EB', bg: '#DBEAFE' },
-                                        { value: 'draft', label: 'Draft', color: '#7C3AED', bg: '#F3E8FF' },
-                                        { value: 'pending', label: 'Pending', color: '#F59E0B', bg: '#FEF3C7' },
-                                        { value: 'submitted', label: 'Submitted', color: '#D97706', bg: '#FEF3C7' },
-                                        { value: 'approved', label: 'Approved', color: '#10B981', bg: '#D1FAE5' },
-                                        { value: 'rejected', label: 'Rejected', color: '#EF4444', bg: '#FEE2E2' },
-                                        { value: 'cancelled', label: 'Cancelled', color: '#6B7280', bg: '#F3F4F6' },
+                                        { value: 'draft', label: t('Draft'), color: '#7C3AED', bg: '#F3E8FF' },
+                                        { value: 'pending', label: t('Pending'), color: '#F59E0B', bg: '#FEF3C7' },
+                                        { value: 'submitted', label: t('Submitted'), color: '#D97706', bg: '#FEF3C7' },
+                                        { value: 'approved', label: t('Approved'), color: '#10B981', bg: '#D1FAE5' },
+                                        { value: 'rejected', label: t('Rejected'), color: '#EF4444', bg: '#FEE2E2' },
+                                        { value: 'cancelled', label: t('Cancelled'), color: '#6B7280', bg: '#F3F4F6' },
                                         { value: 'no_show', label: 'No Show', color: '#EF4444', bg: '#FEE2E2' },
                                     ].map(statusOption => (
                                         <label

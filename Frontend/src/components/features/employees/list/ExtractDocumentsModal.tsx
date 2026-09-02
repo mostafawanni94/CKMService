@@ -213,7 +213,7 @@ export function ExtractDocumentsModal({ vm }: { vm: ViewModel }) {
                                     onClick={() => setShowExtractModal(false)}
                                     style={{ flex: 1, padding: '14px', backgroundColor: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
                                 >
-                                    Cancel
+                                    {t('Cancel')}
                                 </button>
                                 <button
                                     onClick={async () => {

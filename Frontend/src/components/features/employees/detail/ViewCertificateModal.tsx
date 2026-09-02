@@ -21,10 +21,12 @@ import {
 } from '@/components/features/employees/EmployeeHelpers';
 
 import type { useEmployeeDetail } from '@/hooks/useEmployeeDetail';
+import { useLanguage } from '@/lib/i18n';
 
 type ViewModel = ReturnType<typeof useEmployeeDetail>;
 
 export function ViewCertificateModal({ vm }: { vm: ViewModel }) {
+    const { t } = useLanguage();
     const {
         params, router, employee, setEmployee, loading, error, noPermission,
         activeTab, setActiveTab, isEditing, setIsEditing, saving,
@@ -90,11 +92,11 @@ export function ViewCertificateModal({ vm }: { vm: ViewModel }) {
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
                                     <div>
-                                        <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', marginBottom: '4px' }}>Type</p>
+                                        <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', marginBottom: '4px' }}>{t('Type')}</p>
                                         <p style={{ fontSize: '15px', fontWeight: 600, color: '#1F2937' }}>{selectedCertificate.certificate_type_name}</p>
                                     </div>
                                     <div>
-                                        <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', marginBottom: '4px' }}>Status</p>
+                                        <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', marginBottom: '4px' }}>{t('Status')}</p>
                                         <span style={{
                                             display: 'inline-flex',
                                             alignItems: 'center',
@@ -105,11 +107,11 @@ export function ViewCertificateModal({ vm }: { vm: ViewModel }) {
                                             backgroundColor: selectedCertificate.is_expired ? '#FEE2E2' : '#DCFCE7',
                                             color: selectedCertificate.is_expired ? '#991B1B' : '#166534'
                                         }}>
-                                            {selectedCertificate.is_expired ? 'Expired' : 'Active'}
+                                            {selectedCertificate.is_expired ? 'Expired' : t('Active')}
                                         </span>
                                     </div>
                                     <div>
-                                        <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', marginBottom: '4px' }}>Start Date</p>
+                                        <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', marginBottom: '4px' }}>{t('Start Date')}</p>
                                         <p style={{ fontSize: '14px', color: '#1F2937' }}>{selectedCertificate.issue_date || 'N/A'}</p>
                                     </div>
                                     <div>
@@ -149,7 +151,7 @@ export function ViewCertificateModal({ vm }: { vm: ViewModel }) {
                                                     />
                                                 </div>
                                                 <div style={{ padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                    <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>Front Side</span>
+                                                    <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>{t('Front Side')}</span>
                                                     <a
                                                         href={selectedCertificate.certificate_file}
                                                         target="_blank"
@@ -167,7 +169,7 @@ export function ViewCertificateModal({ vm }: { vm: ViewModel }) {
                                                             boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
                                                         }}
                                                     >
-                                                        View
+                                                        {t('View')}
                                                     </a>
                                                 </div>
                                             </div>
@@ -194,7 +196,7 @@ export function ViewCertificateModal({ vm }: { vm: ViewModel }) {
                                                     />
                                                 </div>
                                                 <div style={{ padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                    <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>Back Side</span>
+                                                    <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>{t('Back Side')}</span>
                                                     <a
                                                         href={selectedCertificate.certificate_file_back!}
                                                         target="_blank"
@@ -212,7 +214,7 @@ export function ViewCertificateModal({ vm }: { vm: ViewModel }) {
                                                             boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
                                                         }}
                                                     >
-                                                        View
+                                                        {t('View')}
                                                     </a>
                                                 </div>
                                             </div>
@@ -245,7 +247,7 @@ export function ViewCertificateModal({ vm }: { vm: ViewModel }) {
                                                     <p style={{ fontSize: '14px', fontWeight: 500, color: '#374151', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px' }}>
                                                         {selectedCertificate.certificate_file.split('/').pop()}
                                                     </p>
-                                                    <p style={{ fontSize: '13px', color: '#6B7280' }}>PDF Document</p>
+                                                    <p style={{ fontSize: '13px', color: '#6B7280' }}>{t('PDF Document')}</p>
                                                 </div>
                                             </div>
                                             <a
@@ -265,7 +267,7 @@ export function ViewCertificateModal({ vm }: { vm: ViewModel }) {
                                                     boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
                                                 }}
                                             >
-                                                Download
+                                                {t('Download')}
                                             </a>
                                         </div>
                                     )}

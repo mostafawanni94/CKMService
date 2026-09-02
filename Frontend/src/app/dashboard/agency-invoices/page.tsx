@@ -15,6 +15,7 @@ import { useAgencyInvoices } from '@/hooks/useAgencyInvoices';
 import { colors, spacing, fontWeight } from '@/styles/tokens';
 import type { AgencyInvoice } from '@/lib/types';
 import styles from './page.module.css';
+import { useLanguage } from '@/lib/i18n';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All Statuses' },
@@ -26,6 +27,7 @@ const STATUS_OPTIONS = [
 ];
 
 export default function AgencyInvoicesPage() {
+    const { t } = useLanguage();
   const vm = useAgencyInvoices();
   const router = useRouter();
 
@@ -35,7 +37,7 @@ export default function AgencyInvoicesPage() {
       render: (inv) => <span style={{ fontWeight: fontWeight.bold, color: colors.primary }}>{inv.invoice_number}</span>
     },
     {
-      key: 'agency', header: 'Agency',
+      key: 'agency', header: t('Agency'),
       render: (inv) => (
         <div>
           <div style={{ fontWeight: fontWeight.semibold }}>{inv.agency_name}</div>
@@ -44,27 +46,27 @@ export default function AgencyInvoicesPage() {
       )
     },
     {
-      key: 'period', header: 'Period',
+      key: 'period', header: t('Period'),
       render: (inv) => <span className={styles.mutedText}>{inv.period_start} → {inv.period_end}</span>
     },
-    { key: 'hours', header: 'Hours', render: (inv) => <span>{parseFloat(inv.total_hours).toFixed(1)}h</span> },
+    { key: 'hours', header: t('Hours'), render: (inv) => <span>{parseFloat(inv.total_hours).toFixed(1)}h</span> },
     {
-      key: 'total', header: 'Total', align: 'right',
+      key: 'total', header: t('Total'), align: 'right',
       render: (inv) => <span style={{ fontWeight: fontWeight.bold }}>€{parseFloat(inv.total).toFixed(2)}</span>
     },
     {
-      key: 'paid', header: 'Paid', align: 'right',
+      key: 'paid', header: t('Paid'), align: 'right',
       render: (inv) => <span className={styles.successText}>€{parseFloat(inv.amount_paid).toFixed(2)}</span>
     },
     {
-      key: 'status', header: 'Status',
+      key: 'status', header: t('Status'),
       render: (inv) => <StatusBadge status={inv.status} label={inv.status_display} />
     },
     {
       key: 'actions', header: '',
       render: (inv) => (
         <Button variant="ghost" size="sm" icon={<Eye size={14} />} onClick={() => router.push(`/dashboard/agencies/${inv.agency}`)}>
-          View
+          {t('View')}
         </Button>
       )
     },
@@ -73,7 +75,7 @@ export default function AgencyInvoicesPage() {
   return (
     <DashboardLayout>
       <div className={styles.container}>
-        <PageHeader title="Agency Invoices" subtitle="Manage invoices for recruitment agencies" />
+        <PageHeader title={t('Agency Invoices')} subtitle="Manage invoices for recruitment agencies" />
 
         <div className={styles.filterRow}>
           <SearchBar value={vm.searchQuery} onChange={vm.setSearchQuery} placeholder="Search invoice # or agency..." style={{ flex: 1 }} />

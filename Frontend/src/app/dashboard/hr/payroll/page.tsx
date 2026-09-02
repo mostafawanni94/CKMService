@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/shared';
 import { usePayroll, type PayrollPeriod, type Payslip } from '@/hooks/useHr';
 import styles from '../page.module.css';
+import { useLanguage } from '@/lib/i18n';
 
 const STATUS_OPTIONS = [
     { value: 'all', label: 'All statuses' },
@@ -31,6 +32,7 @@ const euro = (value: string | number) =>
 const emptyForm = { name: '', start_date: '', end_date: '', notes: '' };
 
 export default function HRPayrollPage() {
+    const { t } = useLanguage();
     const vm = usePayroll();
     const [showModal, setShowModal] = useState(false);
     const [form, setForm] = useState(emptyForm);
@@ -55,7 +57,7 @@ export default function HRPayrollPage() {
     }
 
     const periodColumns = [
-        { key: 'name', header: 'Period', render: (row: PayrollPeriod) => row.name },
+        { key: 'name', header: t('Period'), render: (row: PayrollPeriod) => row.name },
         {
             key: 'range',
             header: 'Range',
@@ -63,7 +65,7 @@ export default function HRPayrollPage() {
         },
         {
             key: 'employee_count',
-            header: 'Employees',
+            header: t('Employees'),
             align: 'right' as const,
             render: (row: PayrollPeriod) => `${row.employee_count}`,
         },
@@ -75,7 +77,7 @@ export default function HRPayrollPage() {
         },
         {
             key: 'status',
-            header: 'Status',
+            header: t('Status'),
             render: (row: PayrollPeriod) => <StatusBadge status={row.status} />,
         },
         {
@@ -84,7 +86,7 @@ export default function HRPayrollPage() {
             render: (row: PayrollPeriod) => (
                 <div className={styles.rowActions}>
                     <Button variant="ghost" onClick={() => vm.loadPayslips(row.id)}>
-                        Payslips
+                        {t('Payslips')}
                     </Button>
                     {row.status !== 'paid' && (
                         <Button
@@ -93,7 +95,7 @@ export default function HRPayrollPage() {
                             disabled={vm.busy}
                             icon={<Play size={14} />}
                         >
-                            Generate
+                            {t('Generate')}
                         </Button>
                     )}
                     {row.status === 'pending' && (
@@ -112,10 +114,10 @@ export default function HRPayrollPage() {
     ];
 
     const payslipColumns = [
-        { key: 'employee_name', header: 'Employee', render: (row: Payslip) => row.employee_name },
+        { key: 'employee_name', header: t('Employee'), render: (row: Payslip) => row.employee_name },
         {
             key: 'total_hours',
-            header: 'Hours',
+            header: t('Hours'),
             align: 'right' as const,
             render: (row: Payslip) => Number(row.total_hours || 0).toFixed(2),
         },
@@ -139,7 +141,7 @@ export default function HRPayrollPage() {
         },
         {
             key: 'status',
-            header: 'Status',
+            header: t('Status'),
             render: (row: Payslip) => <StatusBadge status={row.status} />,
         },
     ];
@@ -148,7 +150,7 @@ export default function HRPayrollPage() {
         <DashboardLayout>
             <div className={styles.container}>
                 <PageHeader
-                    title="Payroll"
+                    title={t('Payroll')}
                     subtitle="Build pay runs from approved work entries"
                     actions={
                         <Button onClick={() => setShowModal(true)} icon={<CreditCard size={16} />}>
@@ -159,8 +161,8 @@ export default function HRPayrollPage() {
 
                 <div className={styles.statRow}>
                     <StatCard label="Periods" value={vm.totals.periods} />
-                    <StatCard label="Pending" value={vm.totals.pending} />
-                    <StatCard label="Paid" value={vm.totals.paid} />
+                    <StatCard label={t('Pending')} value={vm.totals.pending} />
+                    <StatCard label={t('Paid')} value={vm.totals.paid} />
                     <StatCard label="Gross total" value={euro(vm.totals.grossTotal)} />
                 </div>
 
@@ -185,7 +187,7 @@ export default function HRPayrollPage() {
                 </SectionCard>
 
                 {vm.selectedPeriod && (
-                    <SectionCard title="Payslips">
+                    <SectionCard title={t('Payslips')}>
                         <DataTable<Payslip>
                             data={vm.payslips}
                             columns={payslipColumns}
@@ -203,16 +205,16 @@ export default function HRPayrollPage() {
                     footer={
                         <>
                             <Button variant="secondary" onClick={() => setShowModal(false)}>
-                                Cancel
+                                {t('Cancel')}
                             </Button>
                             <Button onClick={handleCreate} loading={vm.busy}>
-                                Create
+                                {t('Create')}
                             </Button>
                         </>
                     }
                 >
                     <FormGrid columns={2}>
-                        <Input label="Name" value={form.name} onChange={update('name')} required />
+                        <Input label={t('Name')} value={form.name} onChange={update('name')} required />
                         <Input
                             label="Start date"
                             type="date"
@@ -228,7 +230,7 @@ export default function HRPayrollPage() {
                             required
                         />
                     </FormGrid>
-                    <TextArea label="Notes" value={form.notes} onChange={update('notes')} />
+                    <TextArea label={t('Notes')} value={form.notes} onChange={update('notes')} />
                     {formError && (
                         <p style={{ color: '#DC2626', fontSize: 13, marginTop: 8 }}>{formError}</p>
                     )}

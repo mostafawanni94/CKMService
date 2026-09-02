@@ -12,6 +12,7 @@ import { PageHeader, Select, Button, LoadingSpinner } from '@/components/ui/shar
 import { TopCards, BtwBox, MonthlyChart, CategoryBreakdown } from '@/components/features/finance/FinanceComponents';
 import { useFinanceSummary } from '@/hooks/useFinanceSummary';
 import styles from './page.module.css';
+import { useLanguage } from '@/lib/i18n';
 
 const YEAR_OPTIONS = [2024, 2025, 2026, 2027].map(y => ({ value: String(y), label: String(y) }));
 const QUARTER_OPTIONS = [
@@ -23,13 +24,14 @@ const QUARTER_OPTIONS = [
 ];
 
 export default function FinancialOverviewPage() {
+    const { t } = useLanguage();
   const vm = useFinanceSummary();
 
   return (
     <DashboardLayout>
       <div className={styles.container}>
         <PageHeader
-          title="Financial Overview"
+          title={t('Financial Overview')}
           subtitle="Income, expenses, and BTW summary for Aangifte"
           actions={
             <>

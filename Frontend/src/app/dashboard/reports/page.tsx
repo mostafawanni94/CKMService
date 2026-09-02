@@ -5,6 +5,7 @@ import { DashboardLayout } from '@/components/layout/dashboard';
 import { Card, Button, Input } from '@/components/ui';
 import { BarChart3, Users, Clock, DollarSign, Download, Calendar, Filter, TrendingUp, Building2 } from 'lucide-react';
 import { apiFetch, apiGetAll } from '@/hooks/useApi';
+import { useLanguage } from '@/lib/i18n';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -42,6 +43,7 @@ function num(value: unknown): number {
 }
 
 export default function ReportsPage() {
+    const { t } = useLanguage();
     const [activeReport, setActiveReport] = useState<'earnings' | 'project-hours' | 'employee-hours'>('earnings');
     const [loading, setLoading] = useState(false);
     const [dateFrom, setDateFrom] = useState(() => {
@@ -190,12 +192,12 @@ export default function ReportsPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
+                        <h1 className="text-2xl font-bold text-gray-900">{t('Reports')}</h1>
                         <p className="text-gray-500">View earnings, hours, and performance reports</p>
                     </div>
                     <Button onClick={exportToCSV}>
                         <Download className="w-4 h-4 mr-2" />
-                        Export CSV
+                        {t('Export CSV')}
                     </Button>
                 </div>
 
@@ -218,7 +220,7 @@ export default function ReportsPage() {
                                 <Clock className="w-6 h-6 text-purple-600" />
                             </div>
                             <div>
-                                <p className="text-sm text-gray-500">Total Hours</p>
+                                <p className="text-sm text-gray-500">{t('Total Hours')}</p>
                                 <p className="text-2xl font-bold text-gray-900">{totalHours.toFixed(1)}h</p>
                             </div>
                         </div>
@@ -300,7 +302,7 @@ export default function ReportsPage() {
                             <table className="w-full">
                                 <thead className="bg-gray-50 border-b">
                                     <tr>
-                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Employee</th>
+                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">{t('Employee')}</th>
                                         <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Hours Worked</th>
                                         <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Approved Logs</th>
                                         <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Est. Earnings</th>
@@ -360,9 +362,9 @@ export default function ReportsPage() {
                             <table className="w-full">
                                 <thead className="bg-gray-50 border-b">
                                     <tr>
-                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Project</th>
-                                        <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Total Hours</th>
-                                        <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Employees</th>
+                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">{t('Project')}</th>
+                                        <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">{t('Total Hours')}</th>
+                                        <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">{t('Employees')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y">

@@ -11,6 +11,7 @@ import {
 import { StatCard, SectionCard } from '@/components/ui/shared';
 import { colors, spacing, radius, fontSize, fontWeight, presets } from '@/styles/tokens';
 import type { FinancialSummary } from '@/lib/types';
+import { useLanguage } from '@/lib/i18n';
 
 // ─── Top Stat Cards Row ─────────────────────────────────────
 
@@ -111,6 +112,7 @@ interface MonthlyChartProps {
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export function MonthlyChart({ breakdown }: MonthlyChartProps) {
+    const { t } = useLanguage();
   const maxVal = Math.max(...(breakdown || []).map(m => Math.max(m.income, m.expenses)), 1);
 
   return (
@@ -140,7 +142,7 @@ export function MonthlyChart({ breakdown }: MonthlyChartProps) {
           </div>
           <div style={{ display: 'flex', gap: spacing.lg, justifyContent: 'center', marginTop: spacing.lg }}>
             <LegendDot color="#10B981" label="Income" />
-            <LegendDot color="#EF4444" label="Expenses" />
+            <LegendDot color="#EF4444" label={t('Expenses')} />
           </div>
         </>
       )}

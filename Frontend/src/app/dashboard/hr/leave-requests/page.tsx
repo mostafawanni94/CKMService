@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/shared';
 import { useLeaveRequests, type LeaveRequest } from '@/hooks/useHr';
 import styles from '../page.module.css';
+import { useLanguage } from '@/lib/i18n';
 
 const STATUS_OPTIONS = [
     { value: 'all', label: 'All statuses' },
@@ -25,32 +26,33 @@ const STATUS_OPTIONS = [
 ];
 
 export default function HRLeaveRequestsPage() {
+    const { t } = useLanguage();
     const vm = useLeaveRequests();
 
     const columns = [
         {
             key: 'employee_name',
-            header: 'Employee',
+            header: t('Employee'),
             render: (row: LeaveRequest) => row.employee_name || '—',
         },
         {
             key: 'leave_type_name',
-            header: 'Type',
+            header: t('Type'),
             render: (row: LeaveRequest) => row.leave_type_name || '—',
         },
         {
             key: 'period',
-            header: 'Period',
+            header: t('Period'),
             render: (row: LeaveRequest) => `${row.start_date} → ${row.end_date}`,
         },
         {
             key: 'total_days',
-            header: 'Days',
+            header: t('Days'),
             render: (row: LeaveRequest) => `${row.total_days}`,
         },
         {
             key: 'status',
-            header: 'Status',
+            header: t('Status'),
             render: (row: LeaveRequest) => <StatusBadge status={row.status} />,
         },
         {
@@ -65,7 +67,7 @@ export default function HRLeaveRequestsPage() {
                             disabled={vm.busyId === row.id}
                             icon={<Check size={14} />}
                         >
-                            Approve
+                            {t('Approve')}
                         </Button>
                         <Button
                             variant="danger"
@@ -73,7 +75,7 @@ export default function HRLeaveRequestsPage() {
                             disabled={vm.busyId === row.id}
                             icon={<X size={14} />}
                         >
-                            Reject
+                            {t('Reject')}
                         </Button>
                     </div>
                 ) : (
@@ -88,15 +90,15 @@ export default function HRLeaveRequestsPage() {
         <DashboardLayout>
             <div className={styles.container}>
                 <PageHeader
-                    title="Leave Requests"
+                    title={t('Leave Requests')}
                     subtitle="Review and decide on employee time-off requests"
                 />
 
                 <div className={styles.statRow}>
-                    <StatCard label="Total" value={vm.counts.total} />
-                    <StatCard label="Pending" value={vm.counts.pending} />
-                    <StatCard label="Approved" value={vm.counts.approved} />
-                    <StatCard label="Rejected" value={vm.counts.rejected} />
+                    <StatCard label={t('Total')} value={vm.counts.total} />
+                    <StatCard label={t('Pending')} value={vm.counts.pending} />
+                    <StatCard label={t('Approved')} value={vm.counts.approved} />
+                    <StatCard label={t('Rejected')} value={vm.counts.rejected} />
                 </div>
 
                 <div className={styles.filterRow}>

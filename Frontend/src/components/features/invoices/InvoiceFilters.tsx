@@ -26,8 +26,10 @@ import { apiDownload, apiFetch, apiGetAll } from '@/hooks/useApi';
 
 
 import type { InvoicesViewModel as ViewModel } from '@/hooks/useInvoices';
+import { useLanguage } from '@/lib/i18n';
 
 export function InvoiceFilters({ vm }: { vm: ViewModel }) {
+    const { t } = useLanguage();
     const {
         statusColors, customerSearch, customerSurcharges, customers, employeeSearch, employees, error, exportExcelForCustomer, exportExcelForEmployee, exportPDF, filter, filteredInvoices, generateInvoice, getFilteredHours, invoiceMessage, invoices, loadInvoiceDetail, loadInvoices, loadSupervisors, loading, loadingWorklogs, router, search, selectedCustomer, selectedEmployees, selectedInvoice, selectedSupervisor, setCustomerSearch, setEmployeeSearch, setFilter, setInvoiceMessage, setSearch, setSelectedCustomer, setSelectedEmployees, setSelectedInvoice, setSelectedSupervisor, setShowCustomerDropdown, setShowEmployeeDropdown, setShowExportModal, setShowFilters, setShowSupervisorDropdown, setSupervisorSearch, setSupervisors, setWeekEnd, setWeekStart, setWorklogStatusFilter, setWorklogs, showCustomerDropdown, showEmployeeDropdown, showExportModal, showFilters, showSupervisorDropdown, supervisorSearch, supervisors, weekEnd, weekStart, worklogStatusFilter, worklogs,
     } = vm;
@@ -50,7 +52,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
                         }}>
                             {/* Customer Filter - Searchable */}
                             <div style={{ position: 'relative' }}>
-                                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>Customer</label>
+                                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>{t('Customer')}</label>
                                 {selectedCustomer ? (
                                     <div style={{
                                         display: 'flex',
@@ -73,7 +75,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
                                     <>
                                         <input
                                             type="text"
-                                            placeholder="Search customers..."
+                                            placeholder={t('Search customers...')}
                                             value={customerSearch}
                                             onChange={(e) => setCustomerSearch(e.target.value)}
                                             onFocus={() => setShowCustomerDropdown(true)}
@@ -131,7 +133,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
                                                     ))
                                                 }
                                                 {customers.filter(c => c.company_name.toLowerCase().includes(customerSearch.toLowerCase())).length === 0 && (
-                                                    <div style={{ padding: '10px 14px', color: '#9CA3AF', fontSize: '14px' }}>No customers found</div>
+                                                    <div style={{ padding: '10px 14px', color: '#9CA3AF', fontSize: '14px' }}>{t('No customers found')}</div>
                                                 )}
                                             </div>
                                         )}
@@ -226,7 +228,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
                                                     ))
                                                 }
                                                 {supervisors.filter(s => s.full_name.toLowerCase().includes(supervisorSearch.toLowerCase())).length === 0 && (
-                                                    <div style={{ padding: '10px 14px', color: '#9CA3AF', fontSize: '14px' }}>No supervisors found</div>
+                                                    <div style={{ padding: '10px 14px', color: '#9CA3AF', fontSize: '14px' }}>{t('No supervisors found')}</div>
                                                 )}
                                             </div>
                                         )}
@@ -236,7 +238,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
 
                             {/* From Week */}
                             <div>
-                                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>From Week</label>
+                                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>{t('From Week')}</label>
                                 <input
                                     type="week"
                                     value={weekStart}
@@ -255,7 +257,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
 
                             {/* To Week */}
                             <div>
-                                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>To Week</label>
+                                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>{t('To Week')}</label>
                                 <input
                                     type="week"
                                     value={weekEnd}
@@ -292,7 +294,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
                                             cursor: 'pointer'
                                         }}
                                     >
-                                        Clear All
+                                        {t('Clear All')}
                                     </button>
                                 )}
                             </div>
@@ -420,9 +422,9 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                                 {[
                                     { key: 'all', label: 'All', color: '#6B7280' },
-                                    { key: 'approved', label: 'Approved', color: '#059669' },
-                                    { key: 'pending', label: 'Pending', color: '#D97706' },
-                                    { key: 'rejected', label: 'Rejected', color: '#DC2626' },
+                                    { key: 'approved', label: t('Approved'), color: '#059669' },
+                                    { key: 'pending', label: t('Pending'), color: '#D97706' },
+                                    { key: 'rejected', label: t('Rejected'), color: '#DC2626' },
                                 ].map((status) => (
                                     <button
                                         key={status.key}
@@ -483,7 +485,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
                                 }}
                             >
                                 <X size={16} />
-                                Clear Filters
+                                {t('Clear Filters')}
                             </button>
                         </div>
 
@@ -518,7 +520,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
                                         onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
                                         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                                     >
-                                        <p style={{ fontSize: '12px', color: '#3B82F6', fontWeight: 600, margin: 0, textTransform: 'uppercase' }}>Employees</p>
+                                        <p style={{ fontSize: '12px', color: '#3B82F6', fontWeight: 600, margin: 0, textTransform: 'uppercase' }}>{t('Employees')}</p>
                                         <p style={{ fontSize: '28px', fontWeight: 700, color: '#1E40AF', margin: '4px 0 0 0' }}>
                                             {new Set(worklogs.map(w => w.employee_id)).size}
                                         </p>
@@ -527,7 +529,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
 
                                     {/* Total Hours */}
                                     <div style={{ padding: '16px', backgroundColor: '#FEF3C7', borderRadius: '12px', border: '1px solid #FCD34D' }}>
-                                        <p style={{ fontSize: '12px', color: '#D97706', fontWeight: 600, margin: 0, textTransform: 'uppercase' }}>Total Hours</p>
+                                        <p style={{ fontSize: '12px', color: '#D97706', fontWeight: 600, margin: 0, textTransform: 'uppercase' }}>{t('Total Hours')}</p>
                                         <p style={{ fontSize: '28px', fontWeight: 700, color: '#92400E', margin: '4px 0 0 0' }}>
                                             {worklogs.reduce((sum, w) => sum + getFilteredHours(w), 0).toFixed(1)}h
                                         </p>
@@ -567,14 +569,14 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
                                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                                             <thead>
                                                 <tr style={{ backgroundColor: '#F3F4F6' }}>
-                                                    <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#374151', width: '14%' }}>Employee</th>
-                                                    <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#374151', width: '12%' }}>Project</th>
-                                                    <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: 600, color: '#374151', width: '12%' }}>Service</th>
-                                                    <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: 600, color: '#374151', width: '4%' }}>Day</th>
-                                                    <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: 600, color: '#374151', width: '10%' }}>Time</th>
-                                                    <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: 600, color: '#374151', width: '6%' }}>Pause</th>
-                                                    <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: 600, color: '#374151', width: '7%' }}>Hours</th>
-                                                    <th style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 600, color: '#374151', width: '10%' }}>Normal Hours</th>
+                                                    <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#374151', width: '14%' }}>{t('Employee')}</th>
+                                                    <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#374151', width: '12%' }}>{t('Project')}</th>
+                                                    <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: 600, color: '#374151', width: '12%' }}>{t('Service')}</th>
+                                                    <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: 600, color: '#374151', width: '4%' }}>{t('Day')}</th>
+                                                    <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: 600, color: '#374151', width: '10%' }}>{t('Time')}</th>
+                                                    <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: 600, color: '#374151', width: '6%' }}>{t('Pause')}</th>
+                                                    <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: 600, color: '#374151', width: '7%' }}>{t('Hours')}</th>
+                                                    <th style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 600, color: '#374151', width: '10%' }}>{t('Normal Hours')}</th>
                                                     <th style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 600, color: '#374151', width: '13%' }}>
                                                         {customerSurcharges.length > 0 ? (
                                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '10px' }}>

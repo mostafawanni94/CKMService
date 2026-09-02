@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { FileText, Upload, X, Calendar, File, Eye, Trash2, Plus } from 'lucide-react';
 import { FormCard, inputStyle, labelStyle } from './FormCard';
+import { useLanguage } from '@/lib/i18n';
 
 export interface PendingContract {
     file: File;
@@ -27,6 +28,7 @@ export function ContractUploader({
     onRemove,
     mode = 'create'
 }: ContractUploaderProps) {
+    const { t } = useLanguage();
     const [showUploadForm, setShowUploadForm] = useState(false);
     const [newContract, setNewContract] = useState<{
         file: File | null;
@@ -153,7 +155,7 @@ export function ContractUploader({
                                 fontSize: '12px',
                                 fontWeight: 500
                             }}>
-                                Pending
+                                {t('Pending')}
                             </span>
                             <button
                                 onClick={() => onRemove(idx)}
@@ -247,7 +249,7 @@ export function ContractUploader({
                             />
                         </div>
                         <div>
-                            <label style={labelStyle}>Notes (Optional)</label>
+                            <label style={labelStyle}>{t('Notes (Optional)')}</label>
                             <input
                                 type="text"
                                 value={newContract.notes}
@@ -275,7 +277,7 @@ export function ContractUploader({
                                 cursor: 'pointer'
                             }}
                         >
-                            Cancel
+                            {t('Cancel')}
                         </button>
                         <button
                             onClick={handleAdd}

@@ -6,8 +6,10 @@ import { Building2, ArrowLeft, MapPin, Save, Trash2, CreditCard, AlertTriangle, 
 import { useCustomerDetail } from '@/hooks/useCustomerDetail';
 import { VatSettingsPanel } from '@/components/features/vat/VatSettingsPanel';
 import { apiFetch, readApiError } from '@/hooks/useApi';
+import { useLanguage } from '@/lib/i18n';
 
 export default function CustomerDetailPage() {
+    const { t } = useLanguage();
     const vm = useCustomerDetail();
     const {
         params, router, customer, loading, saving, deleting,
@@ -100,7 +102,7 @@ export default function CustomerDetailPage() {
                                     <MapPin style={{ width: '14px', height: '14px', color: '#9CA3AF' }} />
                                     <span style={{ fontSize: '14px', color: '#6B7280' }}>{customer.city}, {customer.country}</span>
                                     <span style={{ marginLeft: '8px', padding: '4px 10px', borderRadius: '9999px', fontSize: '12px', fontWeight: 600, backgroundColor: customer.is_active ? '#DCFCE7' : '#F3F4F6', color: customer.is_active ? '#16A34A' : '#6B7280' }}>
-                                        {customer.is_active ? 'Active' : 'Inactive'}
+                                        {customer.is_active ? t('Active') : t('Inactive')}
                                     </span>
                                 </div>
                             </div>
@@ -108,7 +110,7 @@ export default function CustomerDetailPage() {
 
                         <div style={{ display: 'flex', gap: '12px' }}>
                             <button onClick={() => setShowDeleteConfirm(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: 'white', color: '#DC2626', border: '1px solid #FCA5A5', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
-                                <Trash2 style={{ width: '16px', height: '16px' }} /> Delete
+                                <Trash2 style={{ width: '16px', height: '16px' }} /> {t('Delete')}
                             </button>
                             <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: '#1E3A5F', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
                                 <Save style={{ width: '16px', height: '16px' }} /> {saving ? 'Saving...' : 'Save Changes'}
@@ -123,11 +125,11 @@ export default function CustomerDetailPage() {
                         <div style={{ padding: '10px', backgroundColor: '#EFF6FF', borderRadius: '10px' }}>
                             <Building2 style={{ width: '20px', height: '20px', color: '#2563EB' }} />
                         </div>
-                        <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Company Information</h2>
+                        <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Company Information')}</h2>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                        <div><label style={labelStyle}>Company Name</label><input type="text" value={editForm.company_name} onChange={(e) => setEditForm(f => ({ ...f, company_name: e.target.value }))} style={inputStyle} /></div>
+                        <div><label style={labelStyle}>{t('Company Name')}</label><input type="text" value={editForm.company_name} onChange={(e) => setEditForm(f => ({ ...f, company_name: e.target.value }))} style={inputStyle} /></div>
 
                         {/* Street Name with Icon */}
                         <div>
@@ -165,8 +167,8 @@ export default function CustomerDetailPage() {
                             </div>
                         </div>
 
-                        <div><label style={labelStyle}>City</label><input type="text" value={editForm.city} onChange={(e) => setEditForm(f => ({ ...f, city: e.target.value }))} style={inputStyle} /></div>
-                        <div><label style={labelStyle}>Postcode</label><input type="text" value={editForm.postcode} onChange={(e) => setEditForm(f => ({ ...f, postcode: e.target.value.toUpperCase() }))} style={{ ...inputStyle, textTransform: 'uppercase' }} /></div>
+                        <div><label style={labelStyle}>{t('City')}</label><input type="text" value={editForm.city} onChange={(e) => setEditForm(f => ({ ...f, city: e.target.value }))} style={inputStyle} /></div>
+                        <div><label style={labelStyle}>{t('Postcode')}</label><input type="text" value={editForm.postcode} onChange={(e) => setEditForm(f => ({ ...f, postcode: e.target.value.toUpperCase() }))} style={{ ...inputStyle, textTransform: 'uppercase' }} /></div>
 
                         {/* Website with Link Icon */}
                         <div>
@@ -187,16 +189,16 @@ export default function CustomerDetailPage() {
                             <div style={{ padding: '8px', backgroundColor: '#FEF3C7', borderRadius: '8px' }}>
                                 <PhoneCall style={{ width: '16px', height: '16px', color: '#D97706' }} />
                             </div>
-                            <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#374151', margin: 0 }}>Contact Information</h3>
+                            <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#374151', margin: 0 }}>{t('Contact Information')}</h3>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                             {/* Phone Numbers */}
                             <div>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                    <label style={{ ...labelStyle, marginBottom: 0 }}>Phone Numbers</label>
+                                    <label style={{ ...labelStyle, marginBottom: 0 }}>{t('Phone Numbers')}</label>
                                     <button onClick={() => addCustomerContact('phone')} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', backgroundColor: '#EFF6FF', color: '#2563EB', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-                                        <Plus style={{ width: '12px', height: '12px' }} /> Add
+                                        <Plus style={{ width: '12px', height: '12px' }} /> {t('Add')}
                                     </button>
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -226,9 +228,9 @@ export default function CustomerDetailPage() {
                             {/* Email Addresses */}
                             <div>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                    <label style={{ ...labelStyle, marginBottom: 0 }}>Email Addresses</label>
+                                    <label style={{ ...labelStyle, marginBottom: 0 }}>{t('Email Addresses')}</label>
                                     <button onClick={() => addCustomerContact('email')} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', backgroundColor: '#EFF6FF', color: '#2563EB', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-                                        <Plus style={{ width: '12px', height: '12px' }} /> Add
+                                        <Plus style={{ width: '12px', height: '12px' }} /> {t('Add')}
                                     </button>
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -292,16 +294,16 @@ export default function CustomerDetailPage() {
 
                     {/* Manager Name */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                        <div><label style={labelStyle}>First Name</label><input type="text" value={manager.first_name} onChange={(e) => setManager(m => ({ ...m, first_name: e.target.value }))} placeholder="John" style={inputStyle} /></div>
-                        <div><label style={labelStyle}>Last Name</label><input type="text" value={manager.last_name} onChange={(e) => setManager(m => ({ ...m, last_name: e.target.value }))} placeholder="Doe" style={inputStyle} /></div>
+                        <div><label style={labelStyle}>{t('First Name')}</label><input type="text" value={manager.first_name} onChange={(e) => setManager(m => ({ ...m, first_name: e.target.value }))} placeholder="John" style={inputStyle} /></div>
+                        <div><label style={labelStyle}>{t('Last Name')}</label><input type="text" value={manager.last_name} onChange={(e) => setManager(m => ({ ...m, last_name: e.target.value }))} placeholder="Doe" style={inputStyle} /></div>
                     </div>
 
                     {/* Manager Phone Numbers */}
                     <div style={{ marginBottom: '20px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                            <label style={{ ...labelStyle, marginBottom: 0 }}>Phone Numbers</label>
+                            <label style={{ ...labelStyle, marginBottom: 0 }}>{t('Phone Numbers')}</label>
                             <button onClick={() => addManagerContact('phone')} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', backgroundColor: '#EFF6FF', color: '#2563EB', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-                                <Plus style={{ width: '12px', height: '12px' }} /> Add
+                                <Plus style={{ width: '12px', height: '12px' }} /> {t('Add')}
                             </button>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -331,9 +333,9 @@ export default function CustomerDetailPage() {
                     {/* Manager Email Addresses */}
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                            <label style={{ ...labelStyle, marginBottom: 0 }}>Email Addresses</label>
+                            <label style={{ ...labelStyle, marginBottom: 0 }}>{t('Email Addresses')}</label>
                             <button onClick={() => addManagerContact('email')} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', backgroundColor: '#EFF6FF', color: '#2563EB', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-                                <Plus style={{ width: '12px', height: '12px' }} /> Add
+                                <Plus style={{ width: '12px', height: '12px' }} /> {t('Add')}
                             </button>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -377,7 +379,7 @@ export default function CustomerDetailPage() {
                             <div style={{ padding: '10px', backgroundColor: '#F3E8FF', borderRadius: '10px' }}>
                                 <UserCircle style={{ width: '20px', height: '20px', color: '#9333EA' }} />
                             </div>
-                            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Supervisors</h2>
+                            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Supervisors')}</h2>
                             <span style={{ fontSize: '13px', color: '#9CA3AF' }}>({outfolders.length})</span>
                         </div>
                         {!showAddOutfolder && !editingOutfolderId && (
@@ -444,9 +446,9 @@ export default function CustomerDetailPage() {
                             {/* Phone Numbers */}
                             <div style={{ marginBottom: '20px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                    <label style={{ ...labelStyle, marginBottom: 0 }}>Phone Numbers</label>
+                                    <label style={{ ...labelStyle, marginBottom: 0 }}>{t('Phone Numbers')}</label>
                                     <button onClick={() => addOutfolderContact('phone')} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', backgroundColor: '#EFF6FF', color: '#2563EB', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-                                        <Plus style={{ width: '12px', height: '12px' }} /> Add
+                                        <Plus style={{ width: '12px', height: '12px' }} /> {t('Add')}
                                     </button>
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -469,9 +471,9 @@ export default function CustomerDetailPage() {
                             {/* Email Addresses */}
                             <div style={{ marginBottom: '20px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                    <label style={{ ...labelStyle, marginBottom: 0 }}>Email Addresses</label>
+                                    <label style={{ ...labelStyle, marginBottom: 0 }}>{t('Email Addresses')}</label>
                                     <button onClick={() => addOutfolderContact('email')} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', backgroundColor: '#EFF6FF', color: '#2563EB', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-                                        <Plus style={{ width: '12px', height: '12px' }} /> Add
+                                        <Plus style={{ width: '12px', height: '12px' }} /> {t('Add')}
                                     </button>
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -496,7 +498,7 @@ export default function CustomerDetailPage() {
 
                             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
                                 <button onClick={() => { setShowAddOutfolder(false); cancelEdit(); }} style={{ padding: '10px 16px', backgroundColor: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
-                                    Cancel
+                                    {t('Cancel')}
                                 </button>
                                 <button onClick={handleSaveOutfolder} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', backgroundColor: '#16A34A', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
                                     <Check style={{ width: '14px', height: '14px' }} /> {editingOutfolderId ? 'Save Changes' : 'Add Supervisor'}
@@ -506,7 +508,7 @@ export default function CustomerDetailPage() {
                     )}
 
                     {outfolders.length === 0 && !showAddOutfolder && !editingOutfolderId && (
-                        <p style={{ fontSize: '14px', color: '#9CA3AF', textAlign: 'center', margin: 0 }}>No supervisors added yet</p>
+                        <p style={{ fontSize: '14px', color: '#9CA3AF', textAlign: 'center', margin: 0 }}>{t('No supervisors added yet')}</p>
                     )}
                 </div>
 
@@ -516,14 +518,14 @@ export default function CustomerDetailPage() {
                         <div style={{ padding: '10px', backgroundColor: '#F0FDF4', borderRadius: '10px' }}>
                             <CreditCard style={{ width: '20px', height: '20px', color: '#16A34A' }} />
                         </div>
-                        <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Financial Information</h2>
+                        <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Financial Information')}</h2>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                        <div><label style={labelStyle}>IBAN</label><input type="text" value={editForm.iban} onChange={(e) => setEditForm(f => ({ ...f, iban: e.target.value.toUpperCase() }))} placeholder="NL00BANK0000000000" style={inputStyle} /></div>
-                        <div><label style={labelStyle}>G-Rekening</label><input type="text" value={editForm.g_rekening} onChange={(e) => setEditForm(f => ({ ...f, g_rekening: e.target.value.toUpperCase() }))} placeholder="NL00BANK0000000000" style={inputStyle} /></div>
-                        <div><label style={labelStyle}>BTW Number</label><input type="text" value={editForm.btw_number} onChange={(e) => setEditForm(f => ({ ...f, btw_number: e.target.value.toUpperCase() }))} placeholder="NL123456789B01" style={inputStyle} /></div>
-                        <div><label style={labelStyle}>KvK Number</label><input type="text" value={editForm.kvk_number} onChange={(e) => setEditForm(f => ({ ...f, kvk_number: e.target.value }))} placeholder="12345678" maxLength={8} style={inputStyle} /></div>
+                        <div><label style={labelStyle}>{t('IBAN')}</label><input type="text" value={editForm.iban} onChange={(e) => setEditForm(f => ({ ...f, iban: e.target.value.toUpperCase() }))} placeholder="NL00BANK0000000000" style={inputStyle} /></div>
+                        <div><label style={labelStyle}>{t('G-Rekening')}</label><input type="text" value={editForm.g_rekening} onChange={(e) => setEditForm(f => ({ ...f, g_rekening: e.target.value.toUpperCase() }))} placeholder="NL00BANK0000000000" style={inputStyle} /></div>
+                        <div><label style={labelStyle}>{t('BTW Number')}</label><input type="text" value={editForm.btw_number} onChange={(e) => setEditForm(f => ({ ...f, btw_number: e.target.value.toUpperCase() }))} placeholder="NL123456789B01" style={inputStyle} /></div>
+                        <div><label style={labelStyle}>{t('KvK Number')}</label><input type="text" value={editForm.kvk_number} onChange={(e) => setEditForm(f => ({ ...f, kvk_number: e.target.value }))} placeholder="12345678" maxLength={8} style={inputStyle} /></div>
                     </div>
                 </div>
                 {/* Services Configuration Card (with integrated surcharges) */}
@@ -1204,7 +1206,7 @@ export default function CustomerDetailPage() {
                                 <FileText style={{ width: '20px', height: '20px', color: '#3B82F6' }} />
                             </div>
                             <div>
-                                <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Contract History</h2>
+                                <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Contract History')}</h2>
                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>All contracts and rate changes</p>
                             </div>
                         </div>
@@ -1229,11 +1231,11 @@ export default function CustomerDetailPage() {
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
                             <thead>
                                 <tr style={{ borderBottom: '1px solid #E5E7EB', color: '#6B7280', textAlign: 'left' }}>
-                                    <th style={{ padding: '12px 8px', fontWeight: 600 }}>Effective From</th>
-                                    <th style={{ padding: '12px 8px', fontWeight: 600 }}>Effective To</th>
-                                    <th style={{ padding: '12px 8px', fontWeight: 600 }}>Services</th>
-                                    <th style={{ padding: '12px 8px', fontWeight: 600 }}>Uploaded By</th>
-                                    <th style={{ padding: '12px 8px', fontWeight: 600 }}>Document</th>
+                                    <th style={{ padding: '12px 8px', fontWeight: 600 }}>{t('Effective From')}</th>
+                                    <th style={{ padding: '12px 8px', fontWeight: 600 }}>{t('Effective To')}</th>
+                                    <th style={{ padding: '12px 8px', fontWeight: 600 }}>{t('Services')}</th>
+                                    <th style={{ padding: '12px 8px', fontWeight: 600 }}>{t('Uploaded By')}</th>
+                                    <th style={{ padding: '12px 8px', fontWeight: 600 }}>{t('Document')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1243,7 +1245,7 @@ export default function CustomerDetailPage() {
                                         <td style={{ padding: '12px 8px', color: '#374151' }}>
                                             {contract.effective_to
                                                 ? new Date(contract.effective_to).toLocaleDateString()
-                                                : <span style={{ color: '#059669', fontWeight: 500, backgroundColor: '#D1FAE5', padding: '2px 8px', borderRadius: '4px', fontSize: '12px' }}>Current</span>
+                                                : <span style={{ color: '#059669', fontWeight: 500, backgroundColor: '#D1FAE5', padding: '2px 8px', borderRadius: '4px', fontSize: '12px' }}>{t('Current')}</span>
                                             }
                                         </td>
                                         <td style={{ padding: '12px 8px', color: '#6B7280' }}>
@@ -1262,7 +1264,7 @@ export default function CustomerDetailPage() {
                                                     style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#3B82F6', textDecoration: 'none', fontSize: '13px', fontWeight: 500 }}
                                                 >
                                                     <Eye size={14} />
-                                                    View
+                                                    {t('View')}
                                                 </a>
                                             )}
                                         </td>
@@ -1312,7 +1314,7 @@ export default function CustomerDetailPage() {
                                     onClick={() => setShowContractUploadModal(false)}
                                     style={{ padding: '10px 20px', border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: 'white', cursor: 'pointer' }}
                                 >
-                                    Cancel
+                                    {t('Cancel')}
                                 </button>
                                 <button
                                     onClick={handleUploadContract}
@@ -1369,13 +1371,13 @@ export default function CustomerDetailPage() {
                             )}
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
                                 <input
-                                    type="text" placeholder="First name"
+                                    type="text" placeholder={t('First name')}
                                     value={portalUserForm.first_name}
                                     onChange={e => setPortalUserForm({ ...portalUserForm, first_name: e.target.value })}
                                     style={{ padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px' }}
                                 />
                                 <input
-                                    type="text" placeholder="Last name"
+                                    type="text" placeholder={t('Last name')}
                                     value={portalUserForm.last_name}
                                     onChange={e => setPortalUserForm({ ...portalUserForm, last_name: e.target.value })}
                                     style={{ padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px' }}
@@ -1399,7 +1401,7 @@ export default function CustomerDetailPage() {
                                 <button
                                     onClick={() => { setShowAddPortalUser(false); setPortalUserError(null); }}
                                     style={{ padding: '8px 16px', backgroundColor: 'white', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '13px', cursor: 'pointer' }}
-                                >Cancel</button>
+                                >{t('Cancel')}</button>
                                 <button
                                     onClick={async () => {
                                         if (!portalUserForm.email || !portalUserForm.password) {
@@ -1458,7 +1460,7 @@ export default function CustomerDetailPage() {
                                             {u.first_name || u.last_name ? `${u.first_name} ${u.last_name}`.trim() : u.email}
                                         </div>
                                         <div style={{ fontSize: '12px', color: '#6B7280' }}>
-                                            {u.email} • {u.is_active ? 'Active' : 'Inactive'}
+                                            {u.email} • {u.is_active ? t('Active') : t('Inactive')}
                                             {u.last_login ? ` • Last login: ${new Date(u.last_login).toLocaleDateString()}` : ' • Never logged in'}
                                         </div>
                                     </div>
@@ -1499,9 +1501,9 @@ export default function CustomerDetailPage() {
                                 Are you sure you want to delete <strong>{customer.company_name}</strong>? This action cannot be undone.
                             </p>
                             <div style={{ display: 'flex', gap: '12px' }}>
-                                <button onClick={() => setShowDeleteConfirm(false)} style={{ flex: 1, padding: '12px', backgroundColor: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                                <button onClick={() => setShowDeleteConfirm(false)} style={{ flex: 1, padding: '12px', backgroundColor: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>{t('Cancel')}</button>
                                 <button onClick={handleDelete} disabled={deleting} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', backgroundColor: '#DC2626', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? 0.7 : 1 }}>
-                                    <Trash2 style={{ width: '16px', height: '16px' }} /> {deleting ? 'Deleting...' : 'Delete'}
+                                    <Trash2 style={{ width: '16px', height: '16px' }} /> {deleting ? 'Deleting...' : t('Delete')}
                                 </button>
                             </div>
                         </div>

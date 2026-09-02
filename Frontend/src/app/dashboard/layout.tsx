@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { setSessionExpiredHandler } from '@/hooks/useApi';
 import { clearTokens, hasSession, isBackOffice, isTokenExpired } from '@/lib/auth';
+import { useLanguage } from '@/lib/i18n';
 
 /**
  * Client-side session gate for the dashboard.
@@ -22,6 +23,7 @@ export default function DashboardRootLayout({
 }: {
     children: React.ReactNode;
 }) {
+    const { t } = useLanguage();
     const router = useRouter();
     const [isReady, setIsReady] = useState(false);
 
@@ -66,7 +68,7 @@ export default function DashboardRootLayout({
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
                 <div className="text-center">
                     <div className="w-8 h-8 border-4 border-[#1E3A5F] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-gray-500">Loading...</p>
+                    <p className="text-gray-500">{t('Loading...')}</p>
                 </div>
             </div>
         );

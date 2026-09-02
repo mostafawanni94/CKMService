@@ -21,10 +21,12 @@ import {
 } from '@/components/features/employees/EmployeeHelpers';
 
 import type { useEmployeeDetail } from '@/hooks/useEmployeeDetail';
+import { useLanguage } from '@/lib/i18n';
 
 type ViewModel = ReturnType<typeof useEmployeeDetail>;
 
 export function AddCertificateModal({ vm }: { vm: ViewModel }) {
+    const { t } = useLanguage();
     const {
         params, router, employee, setEmployee, loading, error, noPermission,
         activeTab, setActiveTab, isEditing, setIsEditing, saving,
@@ -185,7 +187,7 @@ export function AddCertificateModal({ vm }: { vm: ViewModel }) {
                                                     transition: 'all 0.2s'
                                                 }}
                                             >
-                                                PDF Document
+                                                {t('PDF Document')}
                                             </button>
                                             <button
                                                 type="button"
@@ -299,7 +301,7 @@ export function AddCertificateModal({ vm }: { vm: ViewModel }) {
                                                 cursor: 'pointer'
                                             }}
                                         >
-                                            Cancel
+                                            {t('Cancel')}
                                         </button>
                                         <button
                                             type="submit"

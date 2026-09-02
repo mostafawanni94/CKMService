@@ -147,11 +147,11 @@ export function ShareCredentialsModal({ vm }: { vm: ViewModel }) {
                             {/* Credentials Card */}
                             <div style={{ backgroundColor: '#F9FAFB', borderRadius: '12px', padding: '20px', border: '1px solid #E5E7EB', marginBottom: '24px', textAlign: 'left' }}>
                                 <div style={{ marginBottom: '16px' }}>
-                                    <label style={{ fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email Address</label>
+                                    <label style={{ fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('Email Address')}</label>
                                     <p style={{ fontSize: '15px', fontWeight: 600, color: '#111827', marginTop: '4px' }}>{createdEmployee.email}</p>
                                 </div>
                                 <div style={{ borderTop: '1px solid #E5E7EB', paddingTop: '16px' }}>
-                                    <label style={{ fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Password</label>
+                                    <label style={{ fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('Password')}</label>
                                     <p style={{ fontSize: '15px', fontWeight: 600, color: '#111827', marginTop: '4px', fontFamily: 'monospace', letterSpacing: '1px' }}>{createdEmployee.password}</p>
                                 </div>
                             </div>
@@ -215,7 +215,7 @@ export function ShareCredentialsModal({ vm }: { vm: ViewModel }) {
                                         cursor: 'pointer'
                                     }}
                                 >
-                                    Done
+                                    {t('Done')}
                                 </button>
                             </div>
                         </div>

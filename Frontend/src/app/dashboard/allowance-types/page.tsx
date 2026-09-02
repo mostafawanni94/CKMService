@@ -220,9 +220,9 @@ export default function AllowanceTypesPage() {
 
                 {/* Stats */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
-                    <StatCard label="Total" value={allowanceTypes.length} icon={Gift} color="#8B5CF6" />
-                    <StatCard label="Active" value={totalActive} icon={CheckCircle} color="#059669" />
-                    <StatCard label="Inactive" value={totalInactive} icon={XCircle} color="#EF4444" />
+                    <StatCard label={t('Total')} value={allowanceTypes.length} icon={Gift} color="#8B5CF6" />
+                    <StatCard label={t('Active')} value={totalActive} icon={CheckCircle} color="#059669" />
+                    <StatCard label={t('Inactive')} value={totalInactive} icon={XCircle} color="#EF4444" />
                 </div>
 
                 {/* Search */}
@@ -230,7 +230,7 @@ export default function AllowanceTypesPage() {
                     <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} size={18} />
                     <input
                         type="text"
-                        placeholder="Search allowance types..."
+                        placeholder={t('Search allowance types...')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         style={{
@@ -249,11 +249,11 @@ export default function AllowanceTypesPage() {
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
                             <tr style={{ backgroundColor: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
-                                <th style={thStyle}>Name</th>
-                                <th style={thStyle}>Code</th>
-                                <th style={thStyle}>Base Price</th>
-                                <th style={thStyle}>Status</th>
-                                <th style={thStyle}>Actions</th>
+                                <th style={thStyle}>{t('Name')}</th>
+                                <th style={thStyle}>{t('Code')}</th>
+                                <th style={thStyle}>{t('Base Price')}</th>
+                                <th style={thStyle}>{t('Status')}</th>
+                                <th style={thStyle}>{t('Actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -298,7 +298,7 @@ export default function AllowanceTypesPage() {
                                             }}
                                         >
                                             {type.is_active ? <CheckCircle size={14} /> : <XCircle size={14} />}
-                                            {type.is_active ? 'Active' : 'Inactive'}
+                                            {type.is_active ? t('Active') : t('Inactive')}
                                         </button>
                                     </td>
                                     <td style={tdStyle}>
@@ -402,7 +402,7 @@ export default function AllowanceTypesPage() {
 
                             {/* Description */}
                             <div>
-                                <label style={labelStyle}>Description</label>
+                                <label style={labelStyle}>{t('Description')}</label>
                                 <textarea
                                     placeholder="Optional description..."
                                     value={formData.description}
@@ -424,7 +424,7 @@ export default function AllowanceTypesPage() {
                                     cursor: 'pointer'
                                 }}
                             >
-                                <span style={{ fontWeight: 500, color: '#374151' }}>Active</span>
+                                <span style={{ fontWeight: 500, color: '#374151' }}>{t('Active')}</span>
                                 <div style={{
                                     width: '44px',
                                     height: '24px',
@@ -463,7 +463,7 @@ export default function AllowanceTypesPage() {
                                     cursor: 'pointer'
                                 }}
                             >
-                                Cancel
+                                {t('Cancel')}
                             </button>
                             <button
                                 onClick={saveAllowanceType}
@@ -481,7 +481,7 @@ export default function AllowanceTypesPage() {
                                     opacity: saving ? 0.7 : 1
                                 }}
                             >
-                                {saving ? 'Saving...' : (editingId ? 'Update' : 'Create')}
+                                {saving ? 'Saving...' : (editingId ? t('Update') : t('Create'))}
                             </button>
                         </div>
                     </div>

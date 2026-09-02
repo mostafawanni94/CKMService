@@ -225,7 +225,7 @@ export function CreateEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 value={createForm.first_name}
                                                 onChange={(e) => setCreateForm(f => ({ ...f, first_name: e.target.value }))}
                                                 required
-                                                placeholder="First name"
+                                                placeholder={t('First name')}
                                                 style={{
                                                     width: '100%',
                                                     height: '52px',
@@ -241,7 +241,7 @@ export function CreateEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 value={createForm.last_name}
                                                 onChange={(e) => setCreateForm(f => ({ ...f, last_name: e.target.value }))}
                                                 required
-                                                placeholder="Last name"
+                                                placeholder={t('Last name')}
                                                 style={{
                                                     width: '100%',
                                                     height: '52px',
@@ -267,7 +267,7 @@ export function CreateEmployeeModal({ vm }: { vm: ViewModel }) {
                                             letterSpacing: '0.05em',
                                             marginBottom: '12px'
                                         }}>
-                                            Email Address
+                                            {t('Email Address')}
                                         </label>
                                         <div style={{ position: 'relative' }}>
                                             <Mail style={{
@@ -327,7 +327,7 @@ export function CreateEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 }}
                                             >
                                                 <Plus style={{ width: '14px', height: '14px' }} />
-                                                Generate
+                                                {t('Generate')}
                                             </button>
                                         </div>
                                         <input
@@ -376,7 +376,7 @@ export function CreateEmployeeModal({ vm }: { vm: ViewModel }) {
                                             onClick={() => setShowCreateModal(false)}
                                             style={{ flex: 1, height: '52px', fontSize: '15px' }}
                                         >
-                                            Cancel
+                                            {t('Cancel')}
                                         </Button>
                                         <Button
                                             type="submit"

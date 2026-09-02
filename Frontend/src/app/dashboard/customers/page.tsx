@@ -167,12 +167,12 @@ export default function CustomersPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Customers</h1>
+                        <h1 className="text-2xl font-bold text-gray-900">{t('Customers')}</h1>
                         <p className="text-gray-500 text-sm mt-1">Manage your customer accounts and contracts</p>
                     </div>
                     <div className="flex gap-3">
                         <Button variant="outline" onClick={() => loadCustomers()} className="text-sm">
-                            Refresh
+                            {t('Refresh')}
                         </Button>
                         <Button onClick={() => window.location.href = '/dashboard/customers/new'} className="bg-[#1E3A5F] text-sm">
                             <Plus className="w-4 h-4 mr-2" />
@@ -215,7 +215,7 @@ export default function CustomersPage() {
                                 <Building2 style={{ width: '24px', height: '24px', color: '#16a34a' }} />
                             </div>
                             <div>
-                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>Active</p>
+                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>{t('Active')}</p>
                                 <p style={{ fontSize: '28px', fontWeight: 700, color: '#16a34a', margin: 0 }}>{stats.active}</p>
                             </div>
                         </div>
@@ -231,7 +231,7 @@ export default function CustomersPage() {
                                 <Building2 style={{ width: '24px', height: '24px', color: '#4b5563' }} />
                             </div>
                             <div>
-                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>Inactive</p>
+                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>{t('Inactive')}</p>
                                 <p style={{ fontSize: '28px', fontWeight: 700, color: '#4b5563', margin: 0 }}>{stats.inactive}</p>
                             </div>
                         </div>
@@ -273,7 +273,7 @@ export default function CustomersPage() {
                                     }}
                                 >
                                     {status === 'all' ? 'All' :
-                                        status === 'active' ? 'Active' : 'Inactive'}
+                                        status === 'active' ? t('Active') : t('Inactive')}
                                 </button>
                             ))}
                         </div>
@@ -292,7 +292,7 @@ export default function CustomersPage() {
                             }} />
                             <input
                                 type="text"
-                                placeholder="Search customers..."
+                                placeholder={t('Search customers...')}
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 style={{
@@ -327,15 +327,14 @@ export default function CustomersPage() {
                     ) : error ? (
                         <div className="p-8 text-center">
                             <p className="text-red-600 mb-4">{error}</p>
-                            <Button onClick={() => loadCustomers()}>Retry</Button>
+                            <Button onClick={() => loadCustomers()}>{t('Retry')}</Button>
                         </div>
                     ) : filteredCustomers.length === 0 ? (
                         <div className="p-12 text-center">
                             <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                             <p className="text-gray-900 font-semibold text-lg mb-2">
                                 {filter === 'inactive' ? 'No inactive customers' :
-                                    filter === 'active' ? 'No active customers' :
-                                        'No customers found'}
+                                    filter === 'active' ? 'No active customers' : t('No customers found')}
                             </p>
                             <p className="text-gray-500 mb-6">
                                 {filter === 'inactive' ? 'All your customers are currently active' :
@@ -355,9 +354,9 @@ export default function CustomersPage() {
                                 <thead style={{ backgroundColor: '#F9FAFB', borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB' }}>
                                     <tr>
                                         <th style={{ width: '30%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Company</th>
-                                        <th style={{ width: '25%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Location</th>
-                                        <th style={{ width: '15%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th style={{ width: '30%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                                        <th style={{ width: '25%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('Location')}</th>
+                                        <th style={{ width: '15%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('Status')}</th>
+                                        <th style={{ width: '30%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('Actions')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
@@ -393,7 +392,7 @@ export default function CustomersPage() {
                                                     : 'bg-gray-100 text-gray-600'
                                                     }`}>
                                                     <span className={`w-1.5 h-1.5 rounded-full ${customer.is_active ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-                                                    {customer.is_active ? 'Active' : 'Inactive'}
+                                                    {customer.is_active ? t('Active') : t('Inactive')}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
@@ -416,7 +415,7 @@ export default function CustomersPage() {
                                                         }}
                                                     >
                                                         <Eye style={{ width: '14px', height: '14px' }} />
-                                                        View
+                                                        {t('View')}
                                                     </button>
                                                     <button
                                                         onClick={() => {
@@ -439,7 +438,7 @@ export default function CustomersPage() {
                                                         }}
                                                     >
                                                         <Trash2 style={{ width: '14px', height: '14px' }} />
-                                                        Delete
+                                                        {t('Delete')}
                                                     </button>
                                                 </div>
                                             </td>
@@ -480,7 +479,7 @@ export default function CustomersPage() {
                                             }}
                                         >
                                             <ChevronLeft style={{ width: '16px', height: '16px' }} />
-                                            Previous
+                                            {t('Previous')}
                                         </button>
 
                                         {/* Page Numbers */}
@@ -534,7 +533,7 @@ export default function CustomersPage() {
                                                 cursor: nextPage ? 'pointer' : 'not-allowed'
                                             }}
                                         >
-                                            Next
+                                            {t('Next')}
                                             <ChevronRight style={{ width: '16px', height: '16px' }} />
                                         </button>
                                     </div>
@@ -612,7 +611,7 @@ export default function CustomersPage() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-500 uppercase mb-2">Company Name</label>
+                                    <label className="block text-xs font-medium text-gray-500 uppercase mb-2">{t('Company Name')}</label>
                                     <input
                                         type="text"
                                         value={editForm.company_name}
@@ -623,7 +622,7 @@ export default function CustomersPage() {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-500 uppercase mb-2">City</label>
+                                        <label className="block text-xs font-medium text-gray-500 uppercase mb-2">{t('City')}</label>
                                         <input
                                             type="text"
                                             value={editForm.city}
@@ -632,7 +631,7 @@ export default function CustomersPage() {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-500 uppercase mb-2">Postcode</label>
+                                        <label className="block text-xs font-medium text-gray-500 uppercase mb-2">{t('Postcode')}</label>
                                         <input
                                             type="text"
                                             value={editForm.postcode}
@@ -643,7 +642,7 @@ export default function CustomersPage() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-500 uppercase mb-2">Address</label>
+                                    <label className="block text-xs font-medium text-gray-500 uppercase mb-2">{t('Address')}</label>
                                     <input
                                         type="text"
                                         value={editForm.address}
@@ -654,10 +653,10 @@ export default function CustomersPage() {
 
                                 {/* Financial Info */}
                                 <div className="border-t pt-4">
-                                    <p className="text-xs font-medium text-gray-500 uppercase mb-4">Financial Information</p>
+                                    <p className="text-xs font-medium text-gray-500 uppercase mb-4">{t('Financial Information')}</p>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-500 uppercase mb-2">IBAN</label>
+                                            <label className="block text-xs font-medium text-gray-500 uppercase mb-2">{t('IBAN')}</label>
                                             <input
                                                 type="text"
                                                 value={editForm.iban}
@@ -666,7 +665,7 @@ export default function CustomersPage() {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-500 uppercase mb-2">G-Rekening</label>
+                                            <label className="block text-xs font-medium text-gray-500 uppercase mb-2">{t('G-Rekening')}</label>
                                             <input
                                                 type="text"
                                                 value={editForm.g_rekening}
@@ -675,7 +674,7 @@ export default function CustomersPage() {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-500 uppercase mb-2">BTW Number</label>
+                                            <label className="block text-xs font-medium text-gray-500 uppercase mb-2">{t('BTW Number')}</label>
                                             <input
                                                 type="text"
                                                 value={editForm.btw_number}
@@ -684,7 +683,7 @@ export default function CustomersPage() {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-500 uppercase mb-2">KvK Number</label>
+                                            <label className="block text-xs font-medium text-gray-500 uppercase mb-2">{t('KvK Number')}</label>
                                             <input
                                                 type="text"
                                                 value={editForm.kvk_number}
@@ -712,7 +711,7 @@ export default function CustomersPage() {
                                 {/* Buttons */}
                                 <div className="flex gap-3 pt-4">
                                     <Button type="button" variant="outline" className="flex-1" onClick={() => setShowViewModal(false)}>
-                                        Cancel
+                                        {t('Cancel')}
                                     </Button>
                                     <Button
                                         type="button"
@@ -742,9 +741,9 @@ export default function CustomersPage() {
                                 Are you sure you want to delete <strong>{selectedCustomer.company_name}</strong>? This action cannot be undone.
                             </p>
                             <div style={{ display: 'flex', gap: '12px' }}>
-                                <button onClick={() => setShowDeleteModal(false)} style={{ flex: 1, padding: '12px', backgroundColor: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                                <button onClick={() => setShowDeleteModal(false)} style={{ flex: 1, padding: '12px', backgroundColor: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>{t('Cancel')}</button>
                                 <button onClick={handleDeleteCustomer} disabled={deleting} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', backgroundColor: '#DC2626', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? 0.7 : 1 }}>
-                                    <Trash2 style={{ width: '16px', height: '16px' }} /> {deleting ? 'Deleting...' : 'Delete'}
+                                    <Trash2 style={{ width: '16px', height: '16px' }} /> {deleting ? 'Deleting...' : t('Delete')}
                                 </button>
                             </div>
                         </div>

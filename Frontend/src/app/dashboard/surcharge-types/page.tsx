@@ -324,7 +324,7 @@ export default function SurchargeTypesPage() {
                             color: '#1F2937',
                             margin: 0
                         }}>
-                            Day Payment Types
+                            {t('Day Payment Types')}
                         </h1>
                         <p style={{
                             fontSize: '15px',
@@ -368,7 +368,7 @@ export default function SurchargeTypesPage() {
                     marginBottom: '32px'
                 }}>
                     <StatCard label="Total Types" value={stats.total} icon={Clock} color="#8B5CF6" />
-                    <StatCard label="Active" value={stats.active} icon={CheckCircle} color="#10B981" />
+                    <StatCard label={t('Active')} value={stats.active} icon={CheckCircle} color="#10B981" />
                     <StatCard label="Weekend" value={stats.weekend} icon={Sun} color="#F59E0B" />
                     <StatCard label="Night Shift" value={stats.nightShift} icon={Moon} color="#3B82F6" />
                 </div>
@@ -462,17 +462,17 @@ export default function SurchargeTypesPage() {
                         letterSpacing: '0.05em'
                     }}>
                         <div>Surcharge Type</div>
-                        <div>Category</div>
+                        <div>{t('Category')}</div>
                         <div>Days / Time</div>
                         <div>Specific Dates</div>
-                        <div style={{ textAlign: 'center' }}>Status</div>
-                        <div style={{ textAlign: 'center' }}>Actions</div>
+                        <div style={{ textAlign: 'center' }}>{t('Status')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('Actions')}</div>
                     </div>
 
                     {/* Table Body */}
                     {isLoading ? (
                         <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>
-                            Loading...
+                            {t('Loading...')}
                         </div>
                     ) : filteredTypes.length === 0 ? (
                         <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>
@@ -582,7 +582,7 @@ export default function SurchargeTypesPage() {
                                             }}
                                         >
                                             {type.is_active ? <CheckCircle size={12} /> : <XCircle size={12} />}
-                                            {type.is_active ? 'Active' : 'Inactive'}
+                                            {type.is_active ? t('Active') : t('Inactive')}
                                         </button>
                                     </div>
 
@@ -603,7 +603,7 @@ export default function SurchargeTypesPage() {
                                                 borderRadius: '6px',
                                                 cursor: 'pointer'
                                             }}
-                                            title="Edit"
+                                            title={t('Edit')}
                                         >
                                             <Edit2 size={16} />
                                         </button>
@@ -617,7 +617,7 @@ export default function SurchargeTypesPage() {
                                                 borderRadius: '6px',
                                                 cursor: 'pointer'
                                             }}
-                                            title="Delete"
+                                            title={t('Delete')}
                                         >
                                             <Trash2 size={16} />
                                         </button>
@@ -695,7 +695,7 @@ export default function SurchargeTypesPage() {
 
                                 {/* Category Cards */}
                                 <div style={{ marginBottom: '24px' }}>
-                                    <label style={labelStyle}>Category</label>
+                                    <label style={labelStyle}>{t('Category')}</label>
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
                                         {CATEGORIES.map(cat => {
                                             const CatIcon = cat.icon;
@@ -734,7 +734,7 @@ export default function SurchargeTypesPage() {
 
                                 {/* Description */}
                                 <div style={{ marginBottom: '20px' }}>
-                                    <label style={labelStyle}>Description</label>
+                                    <label style={labelStyle}>{t('Description')}</label>
                                     <textarea
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -954,14 +954,14 @@ export default function SurchargeTypesPage() {
                                                 }}
                                                 style={{ padding: '6px 12px', fontSize: '12px', fontWeight: 500, color: '#10B981', backgroundColor: '#D1FAE5', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
                                             >
-                                                Select All
+                                                {t('Select All')}
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={() => setFormData(f => ({ ...f, specific_dates: [] }))}
                                                 style={{ padding: '6px 12px', fontSize: '12px', fontWeight: 500, color: '#6B7280', backgroundColor: '#F3F4F6', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
                                             >
-                                                Clear All
+                                                {t('Clear All')}
                                             </button>
                                         </div>
                                         <div style={{
@@ -1019,15 +1019,15 @@ export default function SurchargeTypesPage() {
                                                             </select>
                                                         </div>
                                                         <div>
-                                                            <label style={{ fontSize: '11px', color: '#6B7280', fontWeight: 500 }}>Day</label>
+                                                            <label style={{ fontSize: '11px', color: '#6B7280', fontWeight: 500 }}>{t('Day')}</label>
                                                             <select value={customDateDay} onChange={(e) => setCustomDateDay(e.target.value)} style={{ display: 'block', padding: '8px', fontSize: '13px', border: '1px solid #E5E7EB', borderRadius: '8px', marginTop: '4px' }}>
                                                                 {Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0')).map(d => (
                                                                     <option key={d} value={d}>{d}</option>
                                                                 ))}
                                                             </select>
                                                         </div>
-                                                        <button type="button" onClick={addSpecificDate} style={{ padding: '8px 14px', fontSize: '13px', fontWeight: 500, color: 'white', backgroundColor: '#10B981', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Add</button>
-                                                        <button type="button" onClick={() => setShowCustomDateForm(false)} style={{ padding: '8px 14px', fontSize: '13px', fontWeight: 500, color: '#6B7280', backgroundColor: '#F3F4F6', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
+                                                        <button type="button" onClick={addSpecificDate} style={{ padding: '8px 14px', fontSize: '13px', fontWeight: 500, color: 'white', backgroundColor: '#10B981', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>{t('Add')}</button>
+                                                        <button type="button" onClick={() => setShowCustomDateForm(false)} style={{ padding: '8px 14px', fontSize: '13px', fontWeight: 500, color: '#6B7280', backgroundColor: '#F3F4F6', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>{t('Cancel')}</button>
                                                     </div>
                                                 </div>
                                             )}
@@ -1160,7 +1160,7 @@ export default function SurchargeTypesPage() {
                                 {/* Active Toggle */}
                                 <div style={{ marginBottom: '24px' }}>
                                     <ToggleOption
-                                        label="Is Active"
+                                        label={t('Is Active')}
                                         description="Show in agency surcharge selection"
                                         checked={formData.is_active}
                                         onChange={(v) => setFormData({ ...formData, is_active: v })}
@@ -1182,7 +1182,7 @@ export default function SurchargeTypesPage() {
                                             cursor: 'pointer'
                                         }}
                                     >
-                                        Cancel
+                                        {t('Cancel')}
                                     </button>
                                     <button
                                         onClick={saveSurchargeType}

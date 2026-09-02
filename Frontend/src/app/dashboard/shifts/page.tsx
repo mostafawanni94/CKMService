@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/components/layout/dashboard';
 import { Button } from '@/components/ui';
 import { Calendar, Clock, MapPin, User, Building2, Phone, Mail, Plus, Check, X, AlertCircle, Search, Filter } from 'lucide-react';
 import { apiFetch, apiGetAll } from '@/hooks/useApi';
+import { useLanguage } from '@/lib/i18n';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -61,6 +62,7 @@ interface Service {
 }
 
 export default function ShiftsPage() {
+    const { t } = useLanguage();
     const router = useRouter();
     const [shifts, setShifts] = useState<Shift[]>([]);
     const [pendingShifts, setPendingShifts] = useState<Shift[]>([]);
@@ -425,18 +427,18 @@ export default function ShiftsPage() {
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
                             <tr style={{ backgroundColor: '#F9FAFB' }}>
-                                <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Date</th>
-                                <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Employee</th>
-                                <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Project</th>
-                                <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Time</th>
+                                <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Date')}</th>
+                                <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Employee')}</th>
+                                <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Project')}</th>
+                                <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Time')}</th>
                                 <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Actual Time</th>
-                                <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Status</th>
-                                <th style={{ padding: '14px 16px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Actions</th>
+                                <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Status')}</th>
+                                <th style={{ padding: '14px 16px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
-                                <tr><td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: '#9CA3AF' }}>Loading...</td></tr>
+                                <tr><td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: '#9CA3AF' }}>{t('Loading...')}</td></tr>
                             ) : filteredShifts.length === 0 ? (
                                 <tr><td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: '#9CA3AF' }}>No shifts found</td></tr>
                             ) : (
@@ -482,13 +484,13 @@ export default function ShiftsPage() {
                                                         onClick={() => handleApprove(shift.id)}
                                                         style={{ padding: '6px 12px', backgroundColor: '#10B981', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
                                                     >
-                                                        <Check size={14} /> Approve
+                                                        <Check size={14} /> {t('Approve')}
                                                     </button>
                                                     <button
                                                         onClick={() => handleReject(shift.id)}
                                                         style={{ padding: '6px 12px', backgroundColor: '#EF4444', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
                                                     >
-                                                        <X size={14} /> Reject
+                                                        <X size={14} /> {t('Reject')}
                                                     </button>
                                                 </div>
                                             )}
@@ -544,7 +546,7 @@ export default function ShiftsPage() {
                                         }}
                                         style={inputStyle}
                                     >
-                                        <option value="">Select customer...</option>
+                                        <option value="">{t('Select customer...')}</option>
                                         {customers.map(c => (
                                             <option key={c.id} value={c.id}>{c.company_name}</option>
                                         ))}
@@ -563,7 +565,7 @@ export default function ShiftsPage() {
                                             }}
                                             style={inputStyle}
                                         >
-                                            <option value="">Select project...</option>
+                                            <option value="">{t('Select project...')}</option>
                                             {(projects as any[])
                                                 .filter((p: any) => String(p.customer) === String(formData.customer))
                                                 .map(p => (
@@ -592,7 +594,7 @@ export default function ShiftsPage() {
                                             }}
                                             style={inputStyle}
                                         >
-                                            <option value="">Select supervisor...</option>
+                                            <option value="">{t('Select supervisor...')}</option>
                                             {supervisors.map(s => (
                                                 <option key={s.id} value={s.id}>{s.company_name || s.full_name}</option>
                                             ))}
@@ -610,7 +612,7 @@ export default function ShiftsPage() {
                                         type="text"
                                         value={employeeSearch}
                                         onChange={(e) => setEmployeeSearch(e.target.value)}
-                                        placeholder="Search employees..."
+                                        placeholder={t('Search employees...')}
                                         style={{ ...inputStyle, marginBottom: '8px' }}
                                     />
                                     <div style={{
@@ -660,7 +662,7 @@ export default function ShiftsPage() {
                                             })}
                                         {employees.filter(emp => emp.full_name.toLowerCase().includes(employeeSearch.toLowerCase())).length === 0 && (
                                             <div style={{ padding: '14px', color: '#9CA3AF', textAlign: 'center' }}>
-                                                No employees found
+                                                {t('No employees found')}
                                             </div>
                                         )}
                                     </div>
@@ -675,7 +677,7 @@ export default function ShiftsPage() {
                                             onChange={(e) => setFormData({ ...formData, service: e.target.value })}
                                             style={inputStyle}
                                         >
-                                            <option value="">Select service...</option>
+                                            <option value="">{t('Select service...')}</option>
                                             {services.map(s => (
                                                 <option key={s.id} value={s.id}>{s.name}</option>
                                             ))}
@@ -695,7 +697,7 @@ export default function ShiftsPage() {
                                         />
                                     </div>
                                     <div>
-                                        <label style={labelStyle}><Clock size={14} style={{ marginRight: '4px' }} />End Date/Time</label>
+                                        <label style={labelStyle}><Clock size={14} style={{ marginRight: '4px' }} />{t('End Date/Time')}</label>
                                         <input
                                             type="datetime-local"
                                             value={formData.scheduled_end_datetime}
@@ -721,13 +723,13 @@ export default function ShiftsPage() {
                                                         onChange={(e) => setFormData({ ...formData, supervisor_phone: e.target.value })}
                                                         style={inputStyle}
                                                     >
-                                                        <option value="">Select phone...</option>
+                                                        <option value="">{t('Select phone...')}</option>
                                                         {phoneContacts.map((c, idx) => (
                                                             <option key={idx} value={c.value}>{c.value}</option>
                                                         ))}
                                                     </select>
                                                 ) : (
-                                                    <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0, padding: '10px 0' }}>No phone numbers available</p>
+                                                    <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0, padding: '10px 0' }}>{t('No phone numbers available')}</p>
                                                 )}
                                             </div>
                                             <div>
@@ -738,13 +740,13 @@ export default function ShiftsPage() {
                                                         onChange={(e) => setFormData({ ...formData, supervisor_email: e.target.value })}
                                                         style={inputStyle}
                                                     >
-                                                        <option value="">Select email...</option>
+                                                        <option value="">{t('Select email...')}</option>
                                                         {emailContacts.map((c, idx) => (
                                                             <option key={idx} value={c.value}>{c.value}</option>
                                                         ))}
                                                     </select>
                                                 ) : (
-                                                    <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0, padding: '10px 0' }}>No email addresses available</p>
+                                                    <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0, padding: '10px 0' }}>{t('No email addresses available')}</p>
                                                 )}
                                             </div>
                                         </div>
@@ -780,7 +782,7 @@ export default function ShiftsPage() {
                                     onClick={() => setShowModal(false)}
                                     style={{ padding: '12px 24px', backgroundColor: '#F3F4F6', color: '#374151', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
                                 >
-                                    Cancel
+                                    {t('Cancel')}
                                 </button>
                                 <button
                                     onClick={handleCreateShift}

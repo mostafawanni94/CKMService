@@ -6,6 +6,7 @@
 
 import React, { useRef } from 'react';
 import { FileText, Eye, Trash2, Upload } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 // ─── Constants ──────────────────────────────────────────────
 
@@ -123,6 +124,7 @@ const fieldInputStyle = {
 };
 
 export function Field({ label, value, editing, onChange, type = 'text', options = [], optionLabels = {}, optionObjects = [] }: FieldProps) {
+    const { t } = useLanguage();
   if (editing && onChange) {
     if (type === 'select') {
       if (optionObjects.length > 0) {
@@ -130,7 +132,7 @@ export function Field({ label, value, editing, onChange, type = 'text', options 
           <div>
             <label style={fieldLabelStyle}>{label}</label>
             <select value={value || ''} onChange={e => onChange(e.target.value)} style={fieldInputStyle}>
-              <option value="">Select...</option>
+              <option value="">{t('Select...')}</option>
               {optionObjects.map(o => <option key={o.name} value={o.name}>{o.flag ? `${o.flag} ${o.name}` : o.name}</option>)}
             </select>
           </div>
@@ -140,7 +142,7 @@ export function Field({ label, value, editing, onChange, type = 'text', options 
         <div>
           <label style={fieldLabelStyle}>{label}</label>
           <select value={value || ''} onChange={e => onChange(e.target.value)} style={fieldInputStyle}>
-            <option value="">Select...</option>
+            <option value="">{t('Select...')}</option>
             {options.map(o => <option key={o} value={o}>{optionLabels[o] || o}</option>)}
           </select>
         </div>
@@ -199,6 +201,7 @@ interface DocSlotProps {
 }
 
 export function DocSlot({ title, url, field, accept, type = 'image', editing, uploading, onUpload, onDelete }: DocSlotProps) {
+    const { t } = useLanguage();
   const ref = useRef<HTMLInputElement>(null);
 
   if (url) {
@@ -215,7 +218,7 @@ export function DocSlot({ title, url, field, accept, type = 'image', editing, up
               <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mb-2">
                 <FileText className="w-6 h-6 text-red-500" />
               </div>
-              <span className="text-sm text-gray-500">PDF Document</span>
+              <span className="text-sm text-gray-500">{t('PDF Document')}</span>
             </div>
           )}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">

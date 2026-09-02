@@ -10,10 +10,12 @@ import { ExpenseStats, ExpenseTable, ExpenseModal } from '@/components/features/
 import { useExpenses } from '@/hooks/useExpenses';
 import styles from './page.module.css';
 import { spacing } from '@/styles/tokens';
+import { useLanguage } from '@/lib/i18n';
 
 const YEAR_OPTIONS = [2024, 2025, 2026, 2027].map(y => ({ value: String(y), label: String(y) }));
 
 export default function ExpensesPage() {
+    const { t } = useLanguage();
   const vm = useExpenses();
 
   const categoryOptions = vm.categories.map(c => ({ value: c.id, label: c.name }));
@@ -22,11 +24,11 @@ export default function ExpensesPage() {
     <DashboardLayout>
       <div className={styles.container}>
         <PageHeader
-          title="Expenses"
+          title={t('Expenses')}
           subtitle="Track and manage business expenses for Aangifte"
           actions={
             <>
-              <Button variant="secondary" onClick={vm.handleExport} icon={<Download size={16} />}>Export</Button>
+              <Button variant="secondary" onClick={vm.handleExport} icon={<Download size={16} />}>{t('Export')}</Button>
               <Button onClick={vm.openCreate} icon={<Plus size={16} />}>Add Expense</Button>
             </>
           }

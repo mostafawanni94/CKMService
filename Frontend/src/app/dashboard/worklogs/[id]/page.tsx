@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/components/layout/dashboard';
 import { useWorklogDetail } from '@/hooks/useWorklogDetail';
 import { ArrowLeft, Plus, Gift, Trash2, Coffee, User, Clock, FileText, AlertCircle, CheckCircle, XCircle, MapPin, Camera, Image, X } from 'lucide-react';
 import { apiFetch } from '@/hooks/useApi';
+import { useLanguage } from '@/lib/i18n';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -13,6 +14,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 
 export default function WorkLogEditPage() {
+    const { t } = useLanguage();
     const vm = useWorklogDetail();
     const {
         statusStyles, addAllowance, addBreak, allowanceTypes, allowances, breaks, customer, customerSearch, customers, employee, employeeSearch, employees, endDatetime, error, errors, fileInputRef, handleApprove, handlePhotoDelete, handlePhotoUpload, handleReject, handleSave, hasChanges, loadProjectDetails, loading, loadingServices, loadingSupervisors, location, notes, photos, project, projectSearch, projects, removeAllowance, removeBreak, router, saving, service, serviceSearch, services, setCustomer, setCustomerSearch, setEmployee, setEmployeeSearch, setEndDatetime, setLocation, setNotes, setProject, setProjectSearch, setService, setServiceSearch, setShowCustomerDropdown, setShowEmployeeDropdown, setShowProjectDropdown, setShowServiceDropdown, setShowSupervisorDropdown, setStartDatetime, setStatus, setSupervisor, setSupervisorSearch, showCustomerDropdown, showEmployeeDropdown, showProjectDropdown, showServiceDropdown, showSupervisorDropdown, startDatetime, status, supervisor, supervisorSearch, supervisors, updateAllowance, updateBreak, uploadingPhoto, worklog,
@@ -69,7 +71,7 @@ export default function WorkLogEditPage() {
                                     transition: 'all 0.2s'
                                 }}
                             >
-                                <ArrowLeft size={14} /> Back
+                                <ArrowLeft size={14} /> {t('Back')}
                             </button>
 
                             {status !== 'approved' && status !== 'cancelled' && (
@@ -85,7 +87,7 @@ export default function WorkLogEditPage() {
                                             opacity: saving ? 0.7 : 1
                                         }}
                                     >
-                                        <CheckCircle size={14} /> {['pending', 'submitted'].includes(status) ? 'Approve' : 'Force Approve'}
+                                        <CheckCircle size={14} /> {['pending', 'submitted'].includes(status) ? t('Approve') : 'Force Approve'}
                                     </button>
                                     <button
                                         onClick={handleReject}
@@ -98,7 +100,7 @@ export default function WorkLogEditPage() {
                                             opacity: saving ? 0.7 : 1
                                         }}
                                     >
-                                        <XCircle size={14} /> Reject
+                                        <XCircle size={14} /> {t('Reject')}
                                     </button>
                                 </div>
                             )}
@@ -137,7 +139,7 @@ export default function WorkLogEditPage() {
                             {/* Right: Status badge */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    Status
+                                    {t('Status')}
                                 </span>
                                 <div style={{
                                     display: 'inline-flex',
@@ -177,9 +179,9 @@ export default function WorkLogEditPage() {
                                     title="Change status"
                                 >
                                     <option value="planned" style={{ color: '#333' }}>Planned</option>
-                                    <option value="pending" style={{ color: '#333' }}>Pending</option>
-                                    <option value="approved" style={{ color: '#333' }}>Approved</option>
-                                    <option value="rejected" style={{ color: '#333' }}>Rejected</option>
+                                    <option value="pending" style={{ color: '#333' }}>{t('Pending')}</option>
+                                    <option value="approved" style={{ color: '#333' }}>{t('Approved')}</option>
+                                    <option value="rejected" style={{ color: '#333' }}>{t('Rejected')}</option>
                                 </select>
 
                             </div>
@@ -244,7 +246,7 @@ export default function WorkLogEditPage() {
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
                                 {/* Customer - Searchable */}
                                 <div style={{ position: 'relative' }}>
-                                    <label style={labelStyle}>Customer <span style={{ color: '#EF4444' }}>*</span></label>
+                                    <label style={labelStyle}>{t('Customer')} <span style={{ color: '#EF4444' }}>*</span></label>
                                     <input
                                         type="text"
                                         value={customerSearch}
@@ -296,7 +298,7 @@ export default function WorkLogEditPage() {
                                                 ))}
                                             {customers.filter(c => c.company_name.toLowerCase().includes(customerSearch.toLowerCase())).length === 0 && (
                                                 <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
-                                                    No customers found
+                                                    {t('No customers found')}
                                                 </div>
                                             )}
                                         </div>
@@ -305,7 +307,7 @@ export default function WorkLogEditPage() {
 
                                 {/* Project - Searchable */}
                                 <div style={{ position: 'relative' }}>
-                                    <label style={labelStyle}>Project <span style={{ color: '#EF4444' }}>*</span></label>
+                                    <label style={labelStyle}>{t('Project')} <span style={{ color: '#EF4444' }}>*</span></label>
                                     <input
                                         type="text"
                                         value={projectSearch}
@@ -366,7 +368,7 @@ export default function WorkLogEditPage() {
                                                 ))}
                                             {projects.filter(p => String(p.customer || p.customer_id) === customer).filter(p => p.name.toLowerCase().includes(projectSearch.toLowerCase())).length === 0 && (
                                                 <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
-                                                    No projects found
+                                                    {t('No projects found')}
                                                 </div>
                                             )}
                                         </div>
@@ -375,7 +377,7 @@ export default function WorkLogEditPage() {
 
                                 {/* Employee - Searchable with chip display */}
                                 <div style={{ position: 'relative' }}>
-                                    <label style={labelStyle}>Employee <span style={{ color: '#EF4444' }}>*</span></label>
+                                    <label style={labelStyle}>{t('Employee')} <span style={{ color: '#EF4444' }}>*</span></label>
 
                                     {/* Selected employee chip */}
                                     {employee && (
@@ -412,7 +414,7 @@ export default function WorkLogEditPage() {
                                         }}
                                         onFocus={() => setShowEmployeeDropdown(true)}
                                         onBlur={() => setTimeout(() => setShowEmployeeDropdown(false), 200)}
-                                        placeholder={employee ? 'Change employee...' : 'Search employee...'}
+                                        placeholder={employee ? 'Change employee...' : t('Search employee...')}
                                         style={{ ...inputStyle, borderColor: errors.employee ? '#EF4444' : '#E5E7EB' }}
                                     />
                                     {errors.employee && <p style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px' }}>{errors.employee}</p>}
@@ -436,7 +438,7 @@ export default function WorkLogEditPage() {
                                                 ))}
                                             {employees.filter(emp => emp.full_name.toLowerCase().includes(employeeSearch.toLowerCase())).length === 0 && (
                                                 <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
-                                                    No employees found
+                                                    {t('No employees found')}
                                                 </div>
                                             )}
                                         </div>
@@ -445,7 +447,7 @@ export default function WorkLogEditPage() {
 
                                 {/* Supervisor - Searchable */}
                                 <div style={{ position: 'relative' }}>
-                                    <label style={labelStyle}>Supervisor</label>
+                                    <label style={labelStyle}>{t('Supervisor')}</label>
                                     <input
                                         type="text"
                                         value={supervisorSearch}
@@ -461,7 +463,7 @@ export default function WorkLogEditPage() {
                                         }}
                                         onFocus={() => setShowSupervisorDropdown(true)}
                                         onBlur={() => setTimeout(() => setShowSupervisorDropdown(false), 200)}
-                                        placeholder={!project ? 'Select project first...' : loadingSupervisors ? 'Loading...' : 'Search supervisor...'}
+                                        placeholder={!project ? 'Select project first...' : loadingSupervisors ? t('Loading...') : 'Search supervisor...'}
                                         style={inputStyle}
                                         disabled={!project || loadingSupervisors}
                                     />
@@ -485,7 +487,7 @@ export default function WorkLogEditPage() {
                                                 ))}
                                             {supervisors.filter(s => s.full_name.toLowerCase().includes(supervisorSearch.toLowerCase())).length === 0 && (
                                                 <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
-                                                    No supervisors found
+                                                    {t('No supervisors found')}
                                                 </div>
                                             )}
                                         </div>
@@ -510,7 +512,7 @@ export default function WorkLogEditPage() {
                                         }}
                                         onFocus={() => setShowServiceDropdown(true)}
                                         onBlur={() => setTimeout(() => setShowServiceDropdown(false), 200)}
-                                        placeholder={!project ? 'Select project first...' : loadingServices ? 'Loading...' : 'Search service...'}
+                                        placeholder={!project ? 'Select project first...' : loadingServices ? t('Loading...') : 'Search service...'}
                                         style={inputStyle}
                                         disabled={!project || loadingServices}
                                     />
@@ -534,7 +536,7 @@ export default function WorkLogEditPage() {
                                                 ))}
                                             {services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase())).length === 0 && (
                                                 <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
-                                                    No services found
+                                                    {t('No services found')}
                                                 </div>
                                             )}
                                         </div>
@@ -545,7 +547,7 @@ export default function WorkLogEditPage() {
                                 <div>
                                     <label style={labelStyle}>
                                         <MapPin size={14} style={{ display: 'inline', marginRight: '4px' }} />
-                                        Location
+                                        {t('Location')}
                                     </label>
                                     <input
                                         type="text"
@@ -576,7 +578,7 @@ export default function WorkLogEditPage() {
                             </div>
                             <div>
                                 <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>
-                                    Date & Time
+                                    {t('Date & Time')}
                                 </h2>
                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: '2px 0 0' }}>
                                     Work hours and break times
@@ -592,7 +594,7 @@ export default function WorkLogEditPage() {
                         <div style={{ padding: '24px' }}>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '24px' }}>
                                 <div>
-                                    <label style={labelStyle}>Start Date/Time</label>
+                                    <label style={labelStyle}>{t('Start Date/Time')}</label>
                                     <input
                                         type="datetime-local"
                                         value={startDatetime}
@@ -601,7 +603,7 @@ export default function WorkLogEditPage() {
                                     />
                                 </div>
                                 <div>
-                                    <label style={labelStyle}>End Date/Time</label>
+                                    <label style={labelStyle}>{t('End Date/Time')}</label>
                                     <input
                                         type="datetime-local"
                                         value={endDatetime}
@@ -619,7 +621,7 @@ export default function WorkLogEditPage() {
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <Coffee size={18} style={{ color: '#D97706' }} />
-                                        <span style={{ fontSize: '15px', fontWeight: 600, color: '#92400E' }}>Breaks</span>
+                                        <span style={{ fontSize: '15px', fontWeight: 600, color: '#92400E' }}>{t('Breaks')}</span>
                                     </div>
                                     <button
                                         type="button"
@@ -652,7 +654,7 @@ export default function WorkLogEditPage() {
                                             <div key={index}>
                                                 <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
                                                     <div style={{ flex: 1 }}>
-                                                        <label style={{ ...labelStyle, fontSize: '12px', color: breakError ? '#DC2626' : '#92400E' }}>Start</label>
+                                                        <label style={{ ...labelStyle, fontSize: '12px', color: breakError ? '#DC2626' : '#92400E' }}>{t('Start')}</label>
                                                         <input
                                                             type="time"
                                                             value={brk.start}
@@ -666,7 +668,7 @@ export default function WorkLogEditPage() {
                                                         />
                                                     </div>
                                                     <div style={{ flex: 1 }}>
-                                                        <label style={{ ...labelStyle, fontSize: '12px', color: breakError ? '#DC2626' : '#92400E' }}>End</label>
+                                                        <label style={{ ...labelStyle, fontSize: '12px', color: breakError ? '#DC2626' : '#92400E' }}>{t('End')}</label>
                                                         <input
                                                             type="time"
                                                             value={brk.end}
@@ -734,7 +736,7 @@ export default function WorkLogEditPage() {
                                 <FileText size={20} style={{ color: '#6B7280' }} />
                             </div>
                             <div>
-                                <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Notes</h2>
+                                <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Notes')}</h2>
                             </div>
                         </div>
                         <div style={{ padding: '24px' }}>
@@ -810,7 +812,7 @@ export default function WorkLogEditPage() {
                                                     </select>
                                                 </div>
                                                 <div>
-                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>Hours</label>
+                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>{t('Hours')}</label>
                                                     <input
                                                         type="number"
                                                         min="0"
@@ -835,7 +837,7 @@ export default function WorkLogEditPage() {
 
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: allowance.allowance_type ? '0' : '16px' }}>
                                                 <div>
-                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>From Time</label>
+                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>{t('From Time')}</label>
                                                     <input
                                                         type="time"
                                                         value={allowance.start_time || ''}
@@ -854,7 +856,7 @@ export default function WorkLogEditPage() {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>To Time</label>
+                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>{t('To Time')}</label>
                                                     <input
                                                         type="time"
                                                         value={allowance.end_time || ''}
@@ -1054,7 +1056,7 @@ export default function WorkLogEditPage() {
                                     cursor: 'pointer'
                                 }}
                             >
-                                Cancel
+                                {t('Cancel')}
                             </button>
                             <button
                                 onClick={handleSave}

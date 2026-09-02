@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/components/layout/dashboard';
 import { useWorklogCreate } from '@/hooks/useWorklogCreate';
 import { ArrowLeft, Plus, Gift, Trash2, Coffee, User, Building2, Briefcase, MapPin, Clock, FileText, AlertCircle } from 'lucide-react';
 import { apiFetch } from '@/hooks/useApi';
+import { useLanguage } from '@/lib/i18n';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -17,6 +18,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 
 export default function AddWorkLogPage() {
+    const { t } = useLanguage();
     const vm = useWorklogCreate();
     const {
         addAllowance, addBreak, allowanceTypes, allowances, breaks, customer, customerSearch, customers, employeeSearch, employees, endDatetime, errors, filteredProjects, getEmployeeName, handleSubmit, loadingCustomers, loadingEmployees, loadingProjects, loadingServices, loadingSupervisors, location, notes, originalLocation, project, projectSearch, projects, removeAllowance, removeBreak, returnUrl, router, saving, selectedEmployees, service, serviceSearch, services, setCustomer, setCustomerSearch, setEmployeeSearch, setEndDatetime, setLocation, setNotes, setProject, setProjectSearch, setService, setServiceSearch, setShowCustomerDropdown, setShowEmployeeDropdown, setShowProjectDropdown, setShowServiceDropdown, setShowSupervisorDropdown, setStartDatetime, setSupervisor, setSupervisorSearch, showCustomerDropdown, showEmployeeDropdown, showProjectDropdown, showServiceDropdown, showSupervisorDropdown, startDatetime, supervisor, supervisorSearch, supervisors, toggleEmployee, updateAllowance, updateBreak,
@@ -95,7 +97,7 @@ export default function AddWorkLogPage() {
                                 {/* Multi-Employee Selection */}
                                 <div style={{ position: 'relative', gridColumn: 'span 2' }}>
                                     <label style={labelStyle}>
-                                        Employees <span style={{ color: '#EF4444' }}>*</span>
+                                        {t('Employees')} <span style={{ color: '#EF4444' }}>*</span>
                                         {selectedEmployees.length > 0 && (
                                             <span style={{ color: '#6B7280', fontWeight: 400, marginLeft: '8px' }}>
                                                 ({selectedEmployees.length} selected)
@@ -135,7 +137,7 @@ export default function AddWorkLogPage() {
                                         }}
                                         onFocus={() => setShowEmployeeDropdown(true)}
                                         onBlur={() => setTimeout(() => setShowEmployeeDropdown(false), 200)}
-                                        placeholder={loadingEmployees ? 'Loading...' : 'Search and select employees...'}
+                                        placeholder={loadingEmployees ? t('Loading...') : 'Search and select employees...'}
                                         style={{ ...inputStyle, borderColor: errors.employee ? '#EF4444' : '#E5E7EB' }}
                                     />
                                     {errors.employee && <span style={errorStyle}>{errors.employee}</span>}
@@ -176,7 +178,7 @@ export default function AddWorkLogPage() {
                                                 <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
                                                     {selectedEmployees.length > 0 && employees.filter(emp => emp.full_name.toLowerCase().includes(employeeSearch.toLowerCase())).length === employees.length
                                                         ? 'All matching employees selected'
-                                                        : 'No employees found'}
+                                                        : t('No employees found')}
                                                 </div>
                                             )}
                                         </div>
@@ -186,7 +188,7 @@ export default function AddWorkLogPage() {
                                 {/* Customer */}
                                 <div style={{ position: 'relative' }}>
                                     <label style={labelStyle}>
-                                        Customer <span style={{ color: '#EF4444' }}>*</span>
+                                        {t('Customer')} <span style={{ color: '#EF4444' }}>*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -203,7 +205,7 @@ export default function AddWorkLogPage() {
                                         }}
                                         onFocus={() => setShowCustomerDropdown(true)}
                                         onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
-                                        placeholder={loadingCustomers ? 'Loading...' : 'Search customer...'}
+                                        placeholder={loadingCustomers ? t('Loading...') : 'Search customer...'}
                                         style={{ ...inputStyle, borderColor: errors.customer ? '#EF4444' : '#E5E7EB' }}
                                     />
                                     {errors.customer && <span style={errorStyle}>{errors.customer}</span>}
@@ -227,7 +229,7 @@ export default function AddWorkLogPage() {
                                                 ))}
                                             {customers.filter(c => c.company_name.toLowerCase().includes(customerSearch.toLowerCase())).length === 0 && (
                                                 <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
-                                                    No customers found
+                                                    {t('No customers found')}
                                                 </div>
                                             )}
                                         </div>
@@ -237,7 +239,7 @@ export default function AddWorkLogPage() {
                                 {/* Project */}
                                 <div style={{ position: 'relative' }}>
                                     <label style={labelStyle}>
-                                        Project <span style={{ color: '#EF4444' }}>*</span>
+                                        {t('Project')} <span style={{ color: '#EF4444' }}>*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -254,7 +256,7 @@ export default function AddWorkLogPage() {
                                         }}
                                         onFocus={() => setShowProjectDropdown(true)}
                                         onBlur={() => setTimeout(() => setShowProjectDropdown(false), 200)}
-                                        placeholder={!customer ? 'Select customer first...' : loadingProjects ? 'Loading...' : 'Search project...'}
+                                        placeholder={!customer ? 'Select customer first...' : loadingProjects ? t('Loading...') : 'Search project...'}
                                         style={{ ...inputStyle, borderColor: errors.project ? '#EF4444' : '#E5E7EB' }}
                                         disabled={!customer}
                                     />
@@ -279,7 +281,7 @@ export default function AddWorkLogPage() {
                                                 ))}
                                             {filteredProjects.filter(p => p.name.toLowerCase().includes(projectSearch.toLowerCase())).length === 0 && (
                                                 <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
-                                                    No projects found
+                                                    {t('No projects found')}
                                                 </div>
                                             )}
                                         </div>
@@ -288,7 +290,7 @@ export default function AddWorkLogPage() {
 
                                 {/* Supervisor */}
                                 <div style={{ position: 'relative' }}>
-                                    <label style={labelStyle}>Supervisor</label>
+                                    <label style={labelStyle}>{t('Supervisor')}</label>
                                     <input
                                         type="text"
                                         value={supervisorSearch}
@@ -304,7 +306,7 @@ export default function AddWorkLogPage() {
                                         }}
                                         onFocus={() => setShowSupervisorDropdown(true)}
                                         onBlur={() => setTimeout(() => setShowSupervisorDropdown(false), 200)}
-                                        placeholder={!project ? 'Select project first...' : loadingSupervisors ? 'Loading...' : 'Search supervisor...'}
+                                        placeholder={!project ? 'Select project first...' : loadingSupervisors ? t('Loading...') : 'Search supervisor...'}
                                         style={inputStyle}
                                         disabled={!project}
                                     />
@@ -328,7 +330,7 @@ export default function AddWorkLogPage() {
                                                 ))}
                                             {supervisors.filter(s => s.full_name.toLowerCase().includes(supervisorSearch.toLowerCase())).length === 0 && (
                                                 <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
-                                                    No supervisors found
+                                                    {t('No supervisors found')}
                                                 </div>
                                             )}
                                         </div>
@@ -353,7 +355,7 @@ export default function AddWorkLogPage() {
                                         }}
                                         onFocus={() => setShowServiceDropdown(true)}
                                         onBlur={() => setTimeout(() => setShowServiceDropdown(false), 200)}
-                                        placeholder={!project ? 'Select project first...' : loadingServices ? 'Loading...' : 'Search service...'}
+                                        placeholder={!project ? 'Select project first...' : loadingServices ? t('Loading...') : 'Search service...'}
                                         style={inputStyle}
                                         disabled={!project}
                                     />
@@ -377,7 +379,7 @@ export default function AddWorkLogPage() {
                                                 ))}
                                             {services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase())).length === 0 && (
                                                 <div style={{ padding: '12px 16px', color: '#9CA3AF', fontStyle: 'italic' }}>
-                                                    No services found
+                                                    {t('No services found')}
                                                 </div>
                                             )}
                                         </div>
@@ -388,7 +390,7 @@ export default function AddWorkLogPage() {
                                 <div>
                                     <label style={labelStyle}>
                                         <MapPin size={14} style={{ display: 'inline', marginRight: '4px' }} />
-                                        Location
+                                        {t('Location')}
                                     </label>
                                     <input
                                         type="text"
@@ -447,7 +449,7 @@ export default function AddWorkLogPage() {
                             </div>
                             <div>
                                 <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>
-                                    Date & Time
+                                    {t('Date & Time')}
                                 </h2>
                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: '2px 0 0' }}>
                                     Set work hours and break times
@@ -460,7 +462,7 @@ export default function AddWorkLogPage() {
                                 {/* Start DateTime */}
                                 <div>
                                     <label style={labelStyle}>
-                                        Start Date/Time <span style={{ color: '#EF4444' }}>*</span>
+                                        {t('Start Date/Time')} <span style={{ color: '#EF4444' }}>*</span>
                                     </label>
                                     <input
                                         type="datetime-local"
@@ -474,7 +476,7 @@ export default function AddWorkLogPage() {
                                 {/* End DateTime */}
                                 <div>
                                     <label style={labelStyle}>
-                                        End Date/Time <span style={{ color: '#EF4444' }}>*</span>
+                                        {t('End Date/Time')} <span style={{ color: '#EF4444' }}>*</span>
                                     </label>
                                     <input
                                         type="datetime-local"
@@ -495,7 +497,7 @@ export default function AddWorkLogPage() {
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <Coffee size={18} style={{ color: '#D97706' }} />
                                         <span style={{ fontSize: '15px', fontWeight: 600, color: '#92400E' }}>
-                                            Breaks <span style={{ color: '#EF4444' }}>*</span>
+                                            {t('Breaks')} <span style={{ color: '#EF4444' }}>*</span>
                                         </span>
                                     </div>
                                     <button
@@ -535,7 +537,7 @@ export default function AddWorkLogPage() {
                                             <div key={index}>
                                                 <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
                                                     <div style={{ flex: 1 }}>
-                                                        <label style={{ ...labelStyle, fontSize: '12px', color: breakError ? '#DC2626' : '#92400E' }}>Start</label>
+                                                        <label style={{ ...labelStyle, fontSize: '12px', color: breakError ? '#DC2626' : '#92400E' }}>{t('Start')}</label>
                                                         <input
                                                             type="time"
                                                             value={brk.start}
@@ -549,7 +551,7 @@ export default function AddWorkLogPage() {
                                                         />
                                                     </div>
                                                     <div style={{ flex: 1 }}>
-                                                        <label style={{ ...labelStyle, fontSize: '12px', color: breakError ? '#DC2626' : '#92400E' }}>End</label>
+                                                        <label style={{ ...labelStyle, fontSize: '12px', color: breakError ? '#DC2626' : '#92400E' }}>{t('End')}</label>
                                                         <input
                                                             type="time"
                                                             value={brk.end}
@@ -618,7 +620,7 @@ export default function AddWorkLogPage() {
                             </div>
                             <div>
                                 <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>
-                                    Notes
+                                    {t('Notes')}
                                 </h2>
                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: '2px 0 0' }}>
                                     Additional information about this work log
@@ -704,7 +706,7 @@ export default function AddWorkLogPage() {
                                                     </select>
                                                 </div>
                                                 <div>
-                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>Hours</label>
+                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>{t('Hours')}</label>
                                                     <input
                                                         type="number"
                                                         min="0"
@@ -730,7 +732,7 @@ export default function AddWorkLogPage() {
 
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: allowance.allowance_type ? '0' : '16px' }}>
                                                 <div>
-                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>From Time</label>
+                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>{t('From Time')}</label>
                                                     <input
                                                         type="time"
                                                         value={allowance.start_time || ''}
@@ -749,7 +751,7 @@ export default function AddWorkLogPage() {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>To Time</label>
+                                                    <label style={{ ...labelStyle, fontSize: '12px' }}>{t('To Time')}</label>
                                                     <input
                                                         type="time"
                                                         value={allowance.end_time || ''}
@@ -802,7 +804,7 @@ export default function AddWorkLogPage() {
                                 cursor: 'pointer'
                             }}
                         >
-                            Cancel
+                            {t('Cancel')}
                         </button>
                         <button
                             onClick={handleSubmit}

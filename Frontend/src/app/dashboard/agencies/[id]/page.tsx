@@ -15,6 +15,7 @@ import {
 } from '@/components/features/agencies/AgencyComponents';
 import { useAgencyDetail } from '@/hooks/useAgencyDetail';
 import styles from './page.module.css';
+import { useLanguage } from '@/lib/i18n';
 
 const TABS = [
   { key: 'overview', label: 'Overview', icon: <Building2 size={15} /> },
@@ -24,6 +25,7 @@ const TABS = [
 ];
 
 export default function AgencyDetailPage() {
+    const { t } = useLanguage();
   const vm = useAgencyDetail();
   const router = useRouter();
 
@@ -37,7 +39,7 @@ export default function AgencyDetailPage() {
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerLeft}>
-            <Button variant="secondary" size="sm" icon={<ArrowLeft size={16} />} onClick={vm.goBack}>Back</Button>
+            <Button variant="secondary" size="sm" icon={<ArrowLeft size={16} />} onClick={vm.goBack}>{t('Back')}</Button>
             <div>
               <h1 className={styles.title}>{vm.isNew ? 'New Agency' : vm.formData.name}</h1>
               {!vm.isNew && vm.formData.code && (
@@ -46,7 +48,7 @@ export default function AgencyDetailPage() {
             </div>
           </div>
           <Button onClick={vm.handleSave} loading={vm.saving} icon={<Save size={16} />}>
-            {vm.saving ? 'Saving...' : 'Save'}
+            {vm.saving ? 'Saving...' : t('Save')}
           </Button>
         </div>
 

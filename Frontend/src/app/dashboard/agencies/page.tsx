@@ -209,7 +209,7 @@ export default function AgenciesPage() {
                     marginBottom: '32px'
                 }}>
                     <StatCard label="Total Agencies" value={stats.total} icon={Building2} color="#7C3AED" />
-                    <StatCard label="Active" value={stats.active} icon={CheckCircle} color="#10B981" />
+                    <StatCard label={t('Active')} value={stats.active} icon={CheckCircle} color="#10B981" />
                     <StatCard label="Total Employees" value={stats.totalEmployees} icon={Users} color="#3B82F6" />
                     <StatCard label="Deleted (Archived)" value={stats.deleted} icon={History} color="#6B7280" />
                 </div>
@@ -320,19 +320,19 @@ export default function AgenciesPage() {
                         textTransform: 'uppercase',
                         letterSpacing: '0.05em'
                     }}>
-                        <div>Agency</div>
-                        <div>Code</div>
-                        <div>Description</div>
-                        <div style={{ textAlign: 'center' }}>Hourly Rate</div>
-                        <div style={{ textAlign: 'center' }}>Status</div>
-                        <div style={{ textAlign: 'center' }}>Employees</div>
-                        <div style={{ textAlign: 'center' }}>Actions</div>
+                        <div>{t('Agency')}</div>
+                        <div>{t('Code')}</div>
+                        <div>{t('Description')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('Hourly Rate')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('Status')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('Employees')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('Actions')}</div>
                     </div>
 
                     {/* Table Body */}
                     {isLoading ? (
                         <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>
-                            Loading...
+                            {t('Loading...')}
                         </div>
                     ) : filteredAgencies.length === 0 ? (
                         <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>
@@ -483,7 +483,7 @@ export default function AgenciesPage() {
                                             }}
                                         >
                                             {agency.is_active ? <CheckCircle size={12} /> : <XCircle size={12} />}
-                                            {agency.is_active ? 'Active' : 'Inactive'}
+                                            {agency.is_active ? t('Active') : t('Inactive')}
                                         </button>
                                     )}
                                 </div>
@@ -540,7 +540,7 @@ export default function AgenciesPage() {
                                                     borderRadius: '6px',
                                                     cursor: 'pointer'
                                                 }}
-                                                title="Edit"
+                                                title={t('Edit')}
                                             >
                                                 <Edit2 size={16} />
                                             </button>
@@ -554,7 +554,7 @@ export default function AgenciesPage() {
                                                     borderRadius: '6px',
                                                     cursor: (agency.employee_count || 0) > 0 ? 'not-allowed' : 'pointer'
                                                 }}
-                                                title={(agency.employee_count || 0) > 0 ? 'Cannot delete - has employees' : 'Delete'}
+                                                title={(agency.employee_count || 0) > 0 ? 'Cannot delete - has employees' : t('Delete')}
                                                 disabled={(agency.employee_count || 0) > 0}
                                             >
                                                 <Trash2 size={16} />

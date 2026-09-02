@@ -263,13 +263,13 @@ export default function CertificatesPage() {
                         color="#6366F1"
                     />
                     <StatCard
-                        label="Active"
+                        label={t('Active')}
                         value={stats.active}
                         icon={CheckCircle}
                         color="#10B981"
                     />
                     <StatCard
-                        label="Required"
+                        label={t('Required')}
                         value={stats.required}
                         icon={AlertTriangle}
                         color="#F59E0B"
@@ -375,12 +375,12 @@ export default function CertificatesPage() {
                     }}>
                         <div></div>
                         <div>Certificate Name</div>
-                        <div>Description</div>
-                        <div style={{ textAlign: 'center' }}>Status</div>
-                        <div style={{ textAlign: 'center' }}>Required</div>
+                        <div>{t('Description')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('Status')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('Required')}</div>
                         <div style={{ textAlign: 'center' }}>Has Expiry</div>
-                        <div style={{ textAlign: 'center' }}>Employees</div>
-                        <div style={{ textAlign: 'center' }}>Actions</div>
+                        <div style={{ textAlign: 'center' }}>{t('Employees')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('Actions')}</div>
                     </div>
 
                     {/* Table Body */}
@@ -422,7 +422,7 @@ export default function CertificatesPage() {
                                     cursor: 'pointer'
                                 }}
                             >
-                                Retry
+                                {t('Retry')}
                             </button>
                         </div>
                     ) : filteredCertificates.length === 0 ? (
@@ -524,7 +524,7 @@ export default function CertificatesPage() {
                                         }}
                                     >
                                         {cert.is_active ? <CheckCircle size={12} /> : <XCircle size={12} />}
-                                        {cert.is_active ? 'Active' : 'Inactive'}
+                                        {cert.is_active ? t('Active') : t('Inactive')}
                                     </button>
                                 </div>
 
@@ -543,10 +543,10 @@ export default function CertificatesPage() {
                                             borderRadius: '6px'
                                         }}>
                                             <AlertTriangle size={12} />
-                                            Required
+                                            {t('Required')}
                                         </span>
                                     ) : (
-                                        <span style={{ color: '#9CA3AF', fontSize: '13px' }}>Optional</span>
+                                        <span style={{ color: '#9CA3AF', fontSize: '13px' }}>{t('Optional')}</span>
                                     )}
                                 </div>
 
@@ -561,10 +561,10 @@ export default function CertificatesPage() {
                                             color: '#6B7280'
                                         }}>
                                             <Calendar size={14} />
-                                            Yes
+                                            {t('Yes')}
                                         </span>
                                     ) : (
-                                        <span style={{ color: '#D1D5DB', fontSize: '13px' }}>No</span>
+                                        <span style={{ color: '#D1D5DB', fontSize: '13px' }}>{t('No')}</span>
                                     )}
                                 </div>
 
@@ -603,7 +603,7 @@ export default function CertificatesPage() {
                                             borderRadius: '6px',
                                             cursor: 'pointer'
                                         }}
-                                        title="Edit"
+                                        title={t('Edit')}
                                     >
                                         <Edit2 size={16} />
                                     </button>
@@ -617,7 +617,7 @@ export default function CertificatesPage() {
                                             borderRadius: '6px',
                                             cursor: 'pointer'
                                         }}
-                                        title="Delete"
+                                        title={t('Delete')}
                                     >
                                         <Trash2 size={16} />
                                     </button>
@@ -716,7 +716,7 @@ export default function CertificatesPage() {
                                         marginBottom: '8px',
                                         color: '#374151'
                                     }}>
-                                        Description
+                                        {t('Description')}
                                     </label>
                                     <textarea
                                         value={formData.description}
@@ -743,7 +743,7 @@ export default function CertificatesPage() {
                                     marginBottom: '20px'
                                 }}>
                                     <ToggleOption
-                                        label="Is Active"
+                                        label={t('Is Active')}
                                         description="Show to employees"
                                         checked={formData.is_active}
                                         onChange={(v) => setFormData({ ...formData, is_active: v })}
@@ -777,7 +777,7 @@ export default function CertificatesPage() {
                                         marginBottom: '8px',
                                         color: '#374151'
                                     }}>
-                                        Sort Order
+                                        {t('Sort Order')}
                                     </label>
                                     <input
                                         type="number"
@@ -814,7 +814,7 @@ export default function CertificatesPage() {
                                             cursor: 'pointer'
                                         }}
                                     >
-                                        Cancel
+                                        {t('Cancel')}
                                     </button>
                                     <button
                                         onClick={saveCertificate}

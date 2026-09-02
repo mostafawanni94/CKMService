@@ -101,6 +101,7 @@ interface SystemConfig {
 }
 
 export default function SettingsPage() {
+    const { t } = useLanguage();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -256,7 +257,7 @@ export default function SettingsPage() {
                 }}>
                     <div>
                         <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1F2937', margin: 0 }}>
-                            Settings
+                            {t('Settings')}
                         </h1>
                         <p style={{ fontSize: '15px', color: '#6B7280', marginTop: '6px' }}>
                             Configure system-wide settings and preferences
@@ -316,12 +317,12 @@ export default function SettingsPage() {
                     icon={Building2}
                     iconColor="#3B82F6"
                     iconBg="#EFF6FF"
-                    title="Company Information"
+                    title={t('Company Information')}
                     description="Basic details about your company"
                 >
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                         <InputField
-                            label="Company Name"
+                            label={t('Company Name')}
                             icon={Building2}
                             value={settings.company_name}
                             onChange={(v) => setSettings({ ...settings, company_name: v })}
@@ -339,7 +340,7 @@ export default function SettingsPage() {
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                             <label style={{ ...labelStyle, marginBottom: 0 }}>
                                 <Mail size={14} style={{ marginRight: '6px' }} />
-                                Email Addresses
+                                {t('Email Addresses')}
                             </label>
                             <button
                                 onClick={() => setSettings({
@@ -395,7 +396,7 @@ export default function SettingsPage() {
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                             <label style={{ ...labelStyle, marginBottom: 0 }}>
                                 <Phone size={14} style={{ marginRight: '6px' }} />
-                                Phone Numbers
+                                {t('Phone Numbers')}
                             </label>
                             <button
                                 onClick={() => setSettings({
@@ -557,7 +558,7 @@ export default function SettingsPage() {
                         <InputField label="IBAN (versleuteld opgeslagen)" icon={FileText}
                             value={settings.company_iban}
                             onChange={(v) => setSettings({ ...settings, company_iban: v })} />
-                        <InputField label="Postcode" icon={MapPin}
+                        <InputField label={t('Postcode')} icon={MapPin}
                             value={settings.company_postal_code}
                             onChange={(v) => setSettings({ ...settings, company_postal_code: v })} />
                         <InputField label="Plaats" icon={MapPin}
@@ -812,7 +813,7 @@ export default function SettingsPage() {
                                     <EmailRuleWithRecipients
                                         categoryKey="employees"
                                         icon="👤"
-                                        label="Employees"
+                                        label={t('Employees')}
                                         description="New registrations, profile approvals/rejections"
                                         checked={settings.email_on_employees}
                                         onToggle={(v) => setSettings({ ...settings, email_on_employees: v })}
@@ -826,7 +827,7 @@ export default function SettingsPage() {
                                     <EmailRuleWithRecipients
                                         categoryKey="worklogs"
                                         icon="📝"
-                                        label="Work Logs"
+                                        label={t('Work Logs')}
                                         description="Submitted, approved, or rejected work logs"
                                         checked={settings.email_on_worklogs}
                                         onToggle={(v) => setSettings({ ...settings, email_on_worklogs: v })}
@@ -840,7 +841,7 @@ export default function SettingsPage() {
                                     <EmailRuleWithRecipients
                                         categoryKey="certificates"
                                         icon="🏥"
-                                        label="Certificates"
+                                        label={t('Certificates')}
                                         description="Expiring or expired employee certificates"
                                         checked={settings.email_on_certificates}
                                         onToggle={(v) => setSettings({ ...settings, email_on_certificates: v })}
@@ -854,7 +855,7 @@ export default function SettingsPage() {
                                     <EmailRuleWithRecipients
                                         categoryKey="invoices"
                                         icon="📄"
-                                        label="Invoices"
+                                        label={t('Invoices')}
                                         description="Generated invoices and payment status changes"
                                         checked={settings.email_on_invoices}
                                         onToggle={(v) => setSettings({ ...settings, email_on_invoices: v })}

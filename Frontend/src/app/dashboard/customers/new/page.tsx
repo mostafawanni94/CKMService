@@ -10,6 +10,7 @@ import { FormCard, inputStyle as formInputStyle, labelStyle as formLabelStyle } 
 import { ContactListEditor } from '@/components/ui/ContactListEditor';
 import { ArrowLeft, Save, Camera, Building2, UserCircle, Plus, X, Phone, Mail, PhoneCall, Briefcase, Euro, CheckCircle, Percent, CreditCard, Gift, Trash2, Check } from 'lucide-react';
 import { apiFetch, readApiError } from '@/hooks/useApi';
+import { useLanguage } from '@/lib/i18n';
 
 
 
@@ -17,6 +18,7 @@ import { apiFetch, readApiError } from '@/hooks/useApi';
 
 
 export default function NewCustomerPage() {
+    const { t } = useLanguage();
     const vm = useCustomerCreate();
     const {
         addAllowance, addCustomerContact, addManagerContact, addSupervisorContact, availableAllowanceTypes, availableServices, customerAllowances, customerContacts, customerEmails, customerPhones, form, handleAddSupervisor, handleCreate, handleLogoChange, hasAllowanceSurcharges, hasServiceSurcharges, hrEmail, inputStyle, labelStyle, logo, logoPreview, lookupPostcode, manager, managerEmails, managerPhones, newSupervisor, pendingContracts, postcodeLookupLoading, postcodeSuggestions, removeAllowance, removeCustomerContact, removeManagerContact, removeSupervisor, removeSupervisorContact, router, saving, selectedAllowanceSurcharges, selectedServiceSurcharges, serviceRates, setCustomerAllowances, setForm, setHasAllowanceSurcharges, setHasServiceSurcharges, setHrEmail, setManager, setNewSupervisor, setPendingContracts, setShowAddSupervisor, setShowPostcodeSuggestions, showAddSupervisor, showPostcodeSuggestions, supervisorEmails, supervisorPhones, supervisors, surchargeTypes, toggleAllowanceSurcharge, toggleService, toggleServiceSurcharge, updateAllowance, updateAllowanceSurchargePercentage, updateCustomerContact, updateManagerContact, updateServicePrice, updateServiceSurchargePercentage, updateSupervisorContact,
@@ -60,7 +62,7 @@ export default function NewCustomerPage() {
 
                         <div style={{ display: 'flex', gap: '12px' }}>
                             <button onClick={() => router.push('/dashboard/customers')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: 'white', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
-                                Cancel
+                                {t('Cancel')}
                             </button>
                             <button onClick={handleCreate} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: '#1E3A5F', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
                                 <Save style={{ width: '16px', height: '16px' }} /> {saving ? 'Creating...' : 'Create Customer'}
@@ -75,7 +77,7 @@ export default function NewCustomerPage() {
                         <div style={{ padding: '10px', backgroundColor: '#EFF6FF', borderRadius: '10px' }}>
                             <Building2 style={{ width: '20px', height: '20px', color: '#2563EB' }} />
                         </div>
-                        <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Company Information</h2>
+                        <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Company Information')}</h2>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
@@ -83,7 +85,7 @@ export default function NewCustomerPage() {
 
                         {/* Street Name with Icon */}
                         <div>
-                            <label style={labelStyle}>Street Name</label>
+                            <label style={labelStyle}>{t('Street Name')}</label>
                             <div style={{ position: 'relative' }}>
                                 <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '14px' }}>🛣️</span>
                                 <input
@@ -99,7 +101,7 @@ export default function NewCustomerPage() {
                         {/* House Number and Addition Row */}
                         <div style={{ display: 'flex', gap: '12px' }}>
                             <div style={{ flex: 1 }}>
-                                <label style={labelStyle}>House Nr.</label>
+                                <label style={labelStyle}>{t('House Nr.')}</label>
                                 <div style={{ position: 'relative' }}>
                                     <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '14px' }}>🏠</span>
                                     <input
@@ -112,7 +114,7 @@ export default function NewCustomerPage() {
                                 </div>
                             </div>
                             <div style={{ width: '100px' }}>
-                                <label style={labelStyle}>Add.</label>
+                                <label style={labelStyle}>{t('Add.')}</label>
                                 <div style={{ position: 'relative' }}>
                                     <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '12px' }}>➕</span>
                                     <input
@@ -126,7 +128,7 @@ export default function NewCustomerPage() {
                             </div>
                         </div>
 
-                        <div><label style={labelStyle}>City</label><input type="text" value={form.city} onChange={(e) => setForm(f => ({ ...f, city: e.target.value }))} placeholder="Amsterdam" style={inputStyle} /></div>
+                        <div><label style={labelStyle}>{t('City')}</label><input type="text" value={form.city} onChange={(e) => setForm(f => ({ ...f, city: e.target.value }))} placeholder="Amsterdam" style={inputStyle} /></div>
 
                         {/* Postcode with Lookup */}
                         <div style={{ position: 'relative' }}>
@@ -199,7 +201,7 @@ export default function NewCustomerPage() {
                                                     <div style={{ fontSize: '14px', color: '#111827', fontWeight: 600 }}>{suggestion.street}</div>
                                                     <div style={{ fontSize: '12px', color: '#6B7280' }}>{suggestion.city}</div>
                                                 </div>
-                                                <span style={{ fontSize: '11px', color: '#10B981', fontWeight: 600 }}>Select</span>
+                                                <span style={{ fontSize: '11px', color: '#10B981', fontWeight: 600 }}>{t('Select')}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -226,16 +228,16 @@ export default function NewCustomerPage() {
                             <div style={{ padding: '8px', backgroundColor: '#FEF3C7', borderRadius: '8px' }}>
                                 <PhoneCall style={{ width: '16px', height: '16px', color: '#D97706' }} />
                             </div>
-                            <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#374151', margin: 0 }}>Contact Information</h3>
+                            <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#374151', margin: 0 }}>{t('Contact Information')}</h3>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                             {/* Phone Numbers */}
                             <div>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                    <label style={{ ...labelStyle, marginBottom: 0 }}>Phone Numbers</label>
+                                    <label style={{ ...labelStyle, marginBottom: 0 }}>{t('Phone Numbers')}</label>
                                     <button onClick={() => addCustomerContact('phone')} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', backgroundColor: '#EFF6FF', color: '#2563EB', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-                                        <Plus style={{ width: '12px', height: '12px' }} /> Add
+                                        <Plus style={{ width: '12px', height: '12px' }} /> {t('Add')}
                                     </button>
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -261,9 +263,9 @@ export default function NewCustomerPage() {
                             {/* Email Addresses */}
                             <div>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                    <label style={{ ...labelStyle, marginBottom: 0 }}>Email Addresses</label>
+                                    <label style={{ ...labelStyle, marginBottom: 0 }}>{t('Email Addresses')}</label>
                                     <button onClick={() => addCustomerContact('email')} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', backgroundColor: '#EFF6FF', color: '#2563EB', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-                                        <Plus style={{ width: '12px', height: '12px' }} /> Add
+                                        <Plus style={{ width: '12px', height: '12px' }} /> {t('Add')}
                                     </button>
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -315,16 +317,16 @@ export default function NewCustomerPage() {
 
                     {/* Manager Name */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                        <div><label style={labelStyle}>First Name</label><input type="text" value={manager.first_name} onChange={(e) => setManager(m => ({ ...m, first_name: e.target.value }))} placeholder="John" style={inputStyle} /></div>
-                        <div><label style={labelStyle}>Last Name</label><input type="text" value={manager.last_name} onChange={(e) => setManager(m => ({ ...m, last_name: e.target.value }))} placeholder="Doe" style={inputStyle} /></div>
+                        <div><label style={labelStyle}>{t('First Name')}</label><input type="text" value={manager.first_name} onChange={(e) => setManager(m => ({ ...m, first_name: e.target.value }))} placeholder="John" style={inputStyle} /></div>
+                        <div><label style={labelStyle}>{t('Last Name')}</label><input type="text" value={manager.last_name} onChange={(e) => setManager(m => ({ ...m, last_name: e.target.value }))} placeholder="Doe" style={inputStyle} /></div>
                     </div>
 
                     {/* Manager Phone Numbers */}
                     <div style={{ marginBottom: '20px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                            <label style={{ ...labelStyle, marginBottom: 0 }}>Phone Numbers</label>
+                            <label style={{ ...labelStyle, marginBottom: 0 }}>{t('Phone Numbers')}</label>
                             <button onClick={() => addManagerContact('phone')} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', backgroundColor: '#EFF6FF', color: '#2563EB', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-                                <Plus style={{ width: '12px', height: '12px' }} /> Add
+                                <Plus style={{ width: '12px', height: '12px' }} /> {t('Add')}
                             </button>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -350,9 +352,9 @@ export default function NewCustomerPage() {
                     {/* Manager Email Addresses */}
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                            <label style={{ ...labelStyle, marginBottom: 0 }}>Email Addresses</label>
+                            <label style={{ ...labelStyle, marginBottom: 0 }}>{t('Email Addresses')}</label>
                             <button onClick={() => addManagerContact('email')} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', backgroundColor: '#EFF6FF', color: '#2563EB', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-                                <Plus style={{ width: '12px', height: '12px' }} /> Add
+                                <Plus style={{ width: '12px', height: '12px' }} /> {t('Add')}
                             </button>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -381,7 +383,7 @@ export default function NewCustomerPage() {
                             <div style={{ padding: '10px', backgroundColor: '#F3E8FF', borderRadius: '10px' }}>
                                 <UserCircle style={{ width: '20px', height: '20px', color: '#9333EA' }} />
                             </div>
-                            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Supervisors</h2>
+                            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Supervisors')}</h2>
                             {supervisors.length > 0 && <span style={{ fontSize: '13px', color: '#9CA3AF' }}>({supervisors.length})</span>}
                         </div>
                         {!showAddSupervisor && (
@@ -440,9 +442,9 @@ export default function NewCustomerPage() {
                             {/* Phone Numbers */}
                             <div style={{ marginBottom: '20px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                    <label style={{ ...labelStyle, marginBottom: 0 }}>Phone Numbers</label>
+                                    <label style={{ ...labelStyle, marginBottom: 0 }}>{t('Phone Numbers')}</label>
                                     <button onClick={() => addSupervisorContact('phone')} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', backgroundColor: '#EFF6FF', color: '#2563EB', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-                                        <Plus style={{ width: '12px', height: '12px' }} /> Add
+                                        <Plus style={{ width: '12px', height: '12px' }} /> {t('Add')}
                                     </button>
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -465,9 +467,9 @@ export default function NewCustomerPage() {
                             {/* Email Addresses */}
                             <div style={{ marginBottom: '20px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                    <label style={{ ...labelStyle, marginBottom: 0 }}>Email Addresses</label>
+                                    <label style={{ ...labelStyle, marginBottom: 0 }}>{t('Email Addresses')}</label>
                                     <button onClick={() => addSupervisorContact('email')} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', backgroundColor: '#EFF6FF', color: '#2563EB', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-                                        <Plus style={{ width: '12px', height: '12px' }} /> Add
+                                        <Plus style={{ width: '12px', height: '12px' }} /> {t('Add')}
                                     </button>
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -492,7 +494,7 @@ export default function NewCustomerPage() {
 
                             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
                                 <button onClick={() => { setShowAddSupervisor(false); setNewSupervisor({ first_name: '', last_name: '', rayon_name: '', contacts: [{ contact_type: 'phone', value: '', label: '', is_primary: false }] }); }} style={{ padding: '10px 16px', backgroundColor: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
-                                    Cancel
+                                    {t('Cancel')}
                                 </button>
                                 <button onClick={handleAddSupervisor} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', backgroundColor: '#16A34A', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
                                     <Plus style={{ width: '14px', height: '14px' }} /> Add Supervisor
@@ -502,7 +504,7 @@ export default function NewCustomerPage() {
                     )}
 
                     {supervisors.length === 0 && !showAddSupervisor && (
-                        <p style={{ fontSize: '14px', color: '#9CA3AF', textAlign: 'center', margin: 0 }}>No supervisors added yet</p>
+                        <p style={{ fontSize: '14px', color: '#9CA3AF', textAlign: 'center', margin: 0 }}>{t('No supervisors added yet')}</p>
                     )}
                 </div>
 
@@ -1025,13 +1027,13 @@ export default function NewCustomerPage() {
                                 <path d="M1 10h22" />
                             </svg>
                         </div>
-                        <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Financial Information</h2>
+                        <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Financial Information')}</h2>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                        <div><label style={labelStyle}>IBAN</label><input type="text" value={form.iban} onChange={(e) => setForm(f => ({ ...f, iban: e.target.value.toUpperCase() }))} placeholder="NL00BANK0000000000" style={inputStyle} /></div>
-                        <div><label style={labelStyle}>G-Rekening</label><input type="text" value={form.g_rekening} onChange={(e) => setForm(f => ({ ...f, g_rekening: e.target.value.toUpperCase() }))} placeholder="NL00BANK0000000000" style={inputStyle} /></div>
-                        <div><label style={labelStyle}>BTW Number</label><input type="text" value={form.btw_number} onChange={(e) => setForm(f => ({ ...f, btw_number: e.target.value.toUpperCase() }))} placeholder="NL123456789B01" style={inputStyle} /></div>
-                        <div><label style={labelStyle}>KvK Number</label><input type="text" value={form.kvk_number} onChange={(e) => setForm(f => ({ ...f, kvk_number: e.target.value }))} placeholder="12345678" maxLength={8} style={inputStyle} /></div>
+                        <div><label style={labelStyle}>{t('IBAN')}</label><input type="text" value={form.iban} onChange={(e) => setForm(f => ({ ...f, iban: e.target.value.toUpperCase() }))} placeholder="NL00BANK0000000000" style={inputStyle} /></div>
+                        <div><label style={labelStyle}>{t('G-Rekening')}</label><input type="text" value={form.g_rekening} onChange={(e) => setForm(f => ({ ...f, g_rekening: e.target.value.toUpperCase() }))} placeholder="NL00BANK0000000000" style={inputStyle} /></div>
+                        <div><label style={labelStyle}>{t('BTW Number')}</label><input type="text" value={form.btw_number} onChange={(e) => setForm(f => ({ ...f, btw_number: e.target.value.toUpperCase() }))} placeholder="NL123456789B01" style={inputStyle} /></div>
+                        <div><label style={labelStyle}>{t('KvK Number')}</label><input type="text" value={form.kvk_number} onChange={(e) => setForm(f => ({ ...f, kvk_number: e.target.value }))} placeholder="12345678" maxLength={8} style={inputStyle} /></div>
                     </div>
                 </div>
 
@@ -1047,7 +1049,7 @@ export default function NewCustomerPage() {
                 {/* Action Buttons */}
                 <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
                     <button onClick={() => router.push('/dashboard/customers')} style={{ padding: '12px 24px', backgroundColor: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
-                        Cancel
+                        {t('Cancel')}
                     </button>
                     <button onClick={handleCreate} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#1E3A5F', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
                         <Building2 style={{ width: '16px', height: '16px' }} />

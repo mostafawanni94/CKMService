@@ -287,8 +287,8 @@ export default function GratuitiesPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '32px' }}>
                     <StatCard label="Total Amount" value={`€${totalAmount.toFixed(2)}`} icon={Euro} color="#059669" />
                     <StatCard label="Total Gratuities" value={gratuities.length.toString()} icon={Gift} color="#8B5CF6" />
-                    <StatCard label="Pending" value={pendingCount.toString()} icon={Clock} color="#F59E0B" />
-                    <StatCard label="Paid" value={paidCount.toString()} icon={CheckCircle} color="#10B981" />
+                    <StatCard label={t('Pending')} value={pendingCount.toString()} icon={Clock} color="#F59E0B" />
+                    <StatCard label={t('Paid')} value={paidCount.toString()} icon={CheckCircle} color="#10B981" />
                 </div>
 
                 {/* Filters */}
@@ -323,8 +323,8 @@ export default function GratuitiesPage() {
                         }}
                     >
                         <option value="">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="paid">Paid</option>
+                        <option value="pending">{t('Pending')}</option>
+                        <option value="paid">{t('Paid')}</option>
                     </select>
                     <select
                         value={filterCustomer}
@@ -350,12 +350,12 @@ export default function GratuitiesPage() {
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
                             <tr style={{ backgroundColor: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
-                                <th style={thStyle}>Customer</th>
-                                <th style={thStyle}>Employee</th>
-                                <th style={thStyle}>Amount</th>
+                                <th style={thStyle}>{t('Customer')}</th>
+                                <th style={thStyle}>{t('Employee')}</th>
+                                <th style={thStyle}>{t('Amount')}</th>
                                 <th style={thStyle}>Date Received</th>
-                                <th style={thStyle}>Status</th>
-                                <th style={thStyle}>Actions</th>
+                                <th style={thStyle}>{t('Status')}</th>
+                                <th style={thStyle}>{t('Actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -422,7 +422,7 @@ export default function GratuitiesPage() {
                                                 fontWeight: 600
                                             }}>
                                                 <CheckCircle size={14} />
-                                                Paid
+                                                {t('Paid')}
                                             </span>
                                         )}
                                     </td>
@@ -493,7 +493,7 @@ export default function GratuitiesPage() {
                                     onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
                                     style={inputStyle}
                                 >
-                                    <option value="">Select customer...</option>
+                                    <option value="">{t('Select customer...')}</option>
                                     {customers.map(c => (
                                         <option key={c.id} value={c.id}>{c.company_name}</option>
                                     ))}
@@ -558,7 +558,7 @@ export default function GratuitiesPage() {
 
                             {/* Notes */}
                             <div>
-                                <label style={labelStyle}>Notes</label>
+                                <label style={labelStyle}>{t('Notes')}</label>
                                 <textarea
                                     placeholder="Optional notes..."
                                     value={formData.notes}
@@ -584,7 +584,7 @@ export default function GratuitiesPage() {
                                     cursor: 'pointer'
                                 }}
                             >
-                                Cancel
+                                {t('Cancel')}
                             </button>
                             <button
                                 onClick={saveGratuity}
@@ -602,7 +602,7 @@ export default function GratuitiesPage() {
                                     opacity: saving ? 0.7 : 1
                                 }}
                             >
-                                {saving ? 'Saving...' : (editingId ? 'Update' : 'Create')}
+                                {saving ? 'Saving...' : (editingId ? t('Update') : t('Create'))}
                             </button>
                         </div>
                     </div>

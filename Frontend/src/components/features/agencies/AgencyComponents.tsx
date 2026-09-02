@@ -17,6 +17,7 @@ import { colors, spacing, fontSize, fontWeight, presets } from '@/styles/tokens'
 import type { Agency, AgencyEmployee, AgencyInvoice, SurchargeType } from '@/lib/types';
 import type { SurchargeState } from '@/hooks/useAgencyDetail';
 import styles from './AgencyComponents.module.css';
+import { useLanguage } from '@/lib/i18n';
 
 // ─── Overview Tab ───────────────────────────────────────────
 
@@ -30,6 +31,7 @@ interface OverviewTabProps {
 }
 
 export function OverviewTab({ form, isNew, onChange, surchargeTypes, selectedSurcharges, setSelectedSurcharges }: OverviewTabProps) {
+    const { t } = useLanguage();
   return (
     <div className={styles.overviewGrid}>
       {/* Basic Info */}
@@ -37,35 +39,35 @@ export function OverviewTab({ form, isNew, onChange, surchargeTypes, selectedSur
         <div className={styles.fieldStack}>
           <Input label="Agency Name" value={form.name} onChange={v => onChange({ name: v })} required placeholder="e.g., Randstad" />
           <FormGrid>
-            <Input label="Code" value={form.code} onChange={v => onChange({ code: v.toUpperCase() })} required placeholder="e.g., RAND" />
-            <Select label="Status" value={form.is_active ? 'active' : 'inactive'}
+            <Input label={t('Code')} value={form.code} onChange={v => onChange({ code: v.toUpperCase() })} required placeholder="e.g., RAND" />
+            <Select label={t('Status')} value={form.is_active ? 'active' : 'inactive'}
               onChange={v => onChange({ is_active: v === 'active' })}
-              options={[{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} />
+              options={[{ value: 'active', label: t('Active') }, { value: 'inactive', label: t('Inactive') }]} />
           </FormGrid>
-          <TextArea label="Description" value={form.description} onChange={v => onChange({ description: v })} />
+          <TextArea label={t('Description')} value={form.description} onChange={v => onChange({ description: v })} />
         </div>
       </SectionCard>
 
       {/* Contact */}
-      <SectionCard title="Contact Information" icon={<Phone size={18} color={colors.primary} />}>
+      <SectionCard title={t('Contact Information')} icon={<Phone size={18} color={colors.primary} />}>
         <div className={styles.fieldStack}>
           <Input label="Contact Person" value={form.contact_name} onChange={v => onChange({ contact_name: v })} placeholder="Full name" />
-          <Input label="Email" value={form.contact_email} onChange={v => onChange({ contact_email: v })} type="email" placeholder="email@agency.nl" />
-          <Input label="Phone" value={form.contact_phone} onChange={v => onChange({ contact_phone: v })} placeholder="+31 6 12345678" />
+          <Input label={t('Email')} value={form.contact_email} onChange={v => onChange({ contact_email: v })} type="email" placeholder="email@agency.nl" />
+          <Input label={t('Phone')} value={form.contact_phone} onChange={v => onChange({ contact_phone: v })} placeholder="+31 6 12345678" />
         </div>
       </SectionCard>
 
       {/* Address */}
-      <SectionCard title="Address" icon={<MapPin size={18} color={colors.primary} />}>
+      <SectionCard title={t('Address')} icon={<MapPin size={18} color={colors.primary} />}>
         <div className={styles.fieldStack}>
           <div className={styles.addressRow}>
             <Input label="Street" value={form.street_name} onChange={v => onChange({ street_name: v })} />
-            <Input label="House Nr." value={form.house_number} onChange={v => onChange({ house_number: v })} />
+            <Input label={t('House Nr.')} value={form.house_number} onChange={v => onChange({ house_number: v })} />
             <Input label="Addition" value={form.house_number_addition} onChange={v => onChange({ house_number_addition: v })} />
           </div>
           <FormGrid>
-            <Input label="Postcode" value={form.postcode} onChange={v => onChange({ postcode: v })} />
-            <Input label="City" value={form.city} onChange={v => onChange({ city: v })} />
+            <Input label={t('Postcode')} value={form.postcode} onChange={v => onChange({ postcode: v })} />
+            <Input label={t('City')} value={form.city} onChange={v => onChange({ city: v })} />
           </FormGrid>
         </div>
       </SectionCard>
@@ -74,10 +76,10 @@ export function OverviewTab({ form, isNew, onChange, surchargeTypes, selectedSur
       <SectionCard title="Legal & Financial" icon={<Hash size={18} color={colors.primary} />}>
         <div className={styles.fieldStack}>
           <FormGrid>
-            <Input label="KvK Number" value={form.kvk_number} onChange={v => onChange({ kvk_number: v })} placeholder="12345678" />
-            <Input label="BTW Number" value={form.btw_number} onChange={v => onChange({ btw_number: v })} placeholder="NL123456789B01" />
+            <Input label={t('KvK Number')} value={form.kvk_number} onChange={v => onChange({ kvk_number: v })} placeholder="12345678" />
+            <Input label={t('BTW Number')} value={form.btw_number} onChange={v => onChange({ btw_number: v })} placeholder="NL123456789B01" />
           </FormGrid>
-          <Input label="IBAN" value={form.iban} onChange={v => onChange({ iban: v })} placeholder="NL91ABNA0417164300" />
+          <Input label={t('IBAN')} value={form.iban} onChange={v => onChange({ iban: v })} placeholder="NL91ABNA0417164300" />
           <Input label="Base Hourly Rate (€)" value={String(form.base_hourly_rate)} onChange={v => onChange({ base_hourly_rate: parseFloat(v) || 0 })} type="number" step="0.01" />
         </div>
       </SectionCard>
@@ -107,16 +109,17 @@ interface EmployeesTabProps {
 }
 
 export function EmployeesTab({ employees, loading, agencyName }: EmployeesTabProps) {
+    const { t } = useLanguage();
   const columns: Column<AgencyEmployee>[] = [
     {
-      key: 'name', header: 'Name',
+      key: 'name', header: t('Name'),
       render: (e) => <span style={{ fontWeight: fontWeight.bold }}>{e.first_name} {e.last_name}</span>
     },
-    { key: 'email', header: 'Email', render: (e) => <span className={styles.mutedText}>{e.user_email}</span> },
-    { key: 'phone', header: 'Phone', render: (e) => <span className={styles.mutedText}>{e.phone_number}</span> },
-    { key: 'status', header: 'Status', render: (e) => <StatusBadge status={e.status} /> },
+    { key: 'email', header: t('Email'), render: (e) => <span className={styles.mutedText}>{e.user_email}</span> },
+    { key: 'phone', header: t('Phone'), render: (e) => <span className={styles.mutedText}>{e.phone_number}</span> },
+    { key: 'status', header: t('Status'), render: (e) => <StatusBadge status={e.status} /> },
     {
-      key: 'rate', header: 'Hourly Rate',
+      key: 'rate', header: t('Hourly Rate'),
       render: (e) => <span style={{ fontWeight: fontWeight.semibold }}>€{e.hourly_rate || '—'}</span>
     },
   ];
@@ -146,6 +149,7 @@ interface BillingTabProps {
 }
 
 export function BillingTab({ invoices, loading, onGenerate, onRowClick }: BillingTabProps) {
+    const { t } = useLanguage();
   const paidCount = invoices.filter(i => i.status === 'paid').length;
   const pendingCount = invoices.filter(i => ['draft', 'pending', 'sent'].includes(i.status)).length;
   const totalValue = invoices.reduce((s, i) => s + parseFloat(i.total || '0'), 0);
@@ -155,13 +159,13 @@ export function BillingTab({ invoices, loading, onGenerate, onRowClick }: Billin
       {/* Stats */}
       <div className={styles.statsGrid}>
         <StatCard label="Total Invoices" value={invoices.length} icon={<FileText size={20} color="#3B82F6" />} color="#3B82F6" />
-        <StatCard label="Paid" value={paidCount} icon={<CheckCircle size={20} color="#10B981" />} color="#10B981" />
-        <StatCard label="Pending" value={pendingCount} icon={<Clock size={20} color="#F59E0B" />} color="#F59E0B" />
+        <StatCard label={t('Paid')} value={paidCount} icon={<CheckCircle size={20} color="#10B981" />} color="#10B981" />
+        <StatCard label={t('Pending')} value={pendingCount} icon={<Clock size={20} color="#F59E0B" />} color="#F59E0B" />
         <StatCard label="Total Value" value={`€${totalValue.toFixed(2)}`} icon={<Euro size={20} color="#8B5CF6" />} color="#8B5CF6" />
       </div>
 
       {/* Invoice list */}
-      <SectionCard title="Agency Invoices" actions={
+      <SectionCard title={t('Agency Invoices')} actions={
         <Button onClick={onGenerate} icon={<Plus size={16} />} size="sm">Generate Invoice</Button>
       }>
         <DataTable
@@ -306,10 +310,11 @@ interface GenerateModalProps {
 export function GenerateInvoiceModal({
   open, onClose, periodStart, periodEnd, setPeriodStart, setPeriodEnd, onGenerate, generating
 }: GenerateModalProps) {
+    const { t } = useLanguage();
   return (
     <Modal open={open} onClose={onClose} title="Generate Agency Invoice" width="440px" footer={
       <>
-        <Button variant="secondary" onClick={onClose}>Cancel</Button>
+        <Button variant="secondary" onClick={onClose}>{t('Cancel')}</Button>
         <Button onClick={onGenerate} loading={generating} disabled={!periodStart || !periodEnd}>
           Generate Invoice
         </Button>

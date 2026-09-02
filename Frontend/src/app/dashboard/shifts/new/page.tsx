@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/components/layout/dashboard';
 import { Button } from '@/components/ui';
 import { Calendar, Clock, MapPin, User, Building2, Phone, Mail, ArrowLeft, Check, AlertCircle, Users } from 'lucide-react';
 import { apiFetch } from '@/hooks/useApi';
+import { useLanguage } from '@/lib/i18n';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -34,6 +35,7 @@ interface Service {
 }
 
 export default function NewShiftPage() {
+    const { t } = useLanguage();
     const router = useRouter();
     const [saving, setSaving] = useState(false);
 
@@ -275,7 +277,7 @@ export default function NewShiftPage() {
                                     }}
                                     style={inputStyle}
                                 >
-                                    <option value="">Select customer...</option>
+                                    <option value="">{t('Select customer...')}</option>
                                     {customers.map(c => (
                                         <option key={c.id} value={c.id}>{c.company_name}</option>
                                     ))}
@@ -293,7 +295,7 @@ export default function NewShiftPage() {
                                     disabled={!formData.customer}
                                     style={{ ...inputStyle, opacity: formData.customer ? 1 : 0.6, cursor: formData.customer ? 'pointer' : 'not-allowed' }}
                                 >
-                                    <option value="">Select project...</option>
+                                    <option value="">{t('Select project...')}</option>
                                     {projects
                                         .filter(p => String(p.customer) === String(formData.customer))
                                         .map(p => (
@@ -315,7 +317,7 @@ export default function NewShiftPage() {
                                         }}
                                         style={inputStyle}
                                     >
-                                        <option value="">Select supervisor...</option>
+                                        <option value="">{t('Select supervisor...')}</option>
                                         {supervisors.map(s => (
                                             <option key={s.id} value={s.id}>{s.company_name || s.full_name}</option>
                                         ))}
@@ -329,7 +331,7 @@ export default function NewShiftPage() {
                                         onChange={(e) => setFormData({ ...formData, service: e.target.value })}
                                         style={inputStyle}
                                     >
-                                        <option value="">Select service...</option>
+                                        <option value="">{t('Select service...')}</option>
                                         {services.map(s => (
                                             <option key={s.id} value={s.id}>{s.name}</option>
                                         ))}
@@ -349,13 +351,13 @@ export default function NewShiftPage() {
                                             onChange={(e) => setFormData({ ...formData, supervisor_phone: e.target.value })}
                                             style={inputStyle}
                                         >
-                                            <option value="">Select phone...</option>
+                                            <option value="">{t('Select phone...')}</option>
                                             {phoneContacts.map((c, idx) => (
                                                 <option key={idx} value={c.value}>{c.value}</option>
                                             ))}
                                         </select>
                                     ) : (
-                                        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0, padding: '12px 0' }}>No phone numbers available</p>
+                                        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0, padding: '12px 0' }}>{t('No phone numbers available')}</p>
                                     )}
                                 </div>
                                 <div>
@@ -366,13 +368,13 @@ export default function NewShiftPage() {
                                             onChange={(e) => setFormData({ ...formData, supervisor_email: e.target.value })}
                                             style={inputStyle}
                                         >
-                                            <option value="">Select email...</option>
+                                            <option value="">{t('Select email...')}</option>
                                             {emailContacts.map((c, idx) => (
                                                 <option key={idx} value={c.value}>{c.value}</option>
                                             ))}
                                         </select>
                                     ) : (
-                                        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0, padding: '12px 0' }}>No email addresses available</p>
+                                        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0, padding: '12px 0' }}>{t('No email addresses available')}</p>
                                     )}
                                 </div>
                             </div>
@@ -404,7 +406,7 @@ export default function NewShiftPage() {
                                             fontWeight: 500
                                         }}
                                     >
-                                        Clear All
+                                        {t('Clear All')}
                                     </button>
                                 )}
                             </div>
@@ -518,7 +520,7 @@ export default function NewShiftPage() {
                                             })}
                                         {employees.filter(emp => emp.full_name.toLowerCase().includes(employeeSearch.toLowerCase())).length === 0 && (
                                             <div style={{ padding: '16px', color: '#9CA3AF', textAlign: 'center' }}>
-                                                No employees found
+                                                {t('No employees found')}
                                             </div>
                                         )}
                                     </div>
@@ -545,7 +547,7 @@ export default function NewShiftPage() {
                                 />
                             </div>
                             <div>
-                                <label style={labelStyle}><Clock size={14} style={{ marginRight: '6px' }} />End Date/Time</label>
+                                <label style={labelStyle}><Clock size={14} style={{ marginRight: '6px' }} />{t('End Date/Time')}</label>
                                 <input
                                     type="datetime-local"
                                     value={formData.scheduled_end_datetime}
@@ -592,7 +594,7 @@ export default function NewShiftPage() {
                                     cursor: 'pointer'
                                 }}
                             >
-                                Cancel
+                                {t('Cancel')}
                             </button>
                             <button
                                 onClick={handleCreateShifts}

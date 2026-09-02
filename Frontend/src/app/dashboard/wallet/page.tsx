@@ -5,6 +5,7 @@ import { DashboardLayout } from '@/components/layout/dashboard';
 import { Card, Button } from '@/components/ui';
 import { api, Advance } from '@/lib/api';
 import { Wallet, ArrowUpRight, ArrowDownLeft, Clock, CheckCircle, XCircle, DollarSign } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 interface WalletEmployee {
     id: string;
@@ -13,6 +14,7 @@ interface WalletEmployee {
 }
 
 export default function WalletPage() {
+    const { t } = useLanguage();
     const [pendingAdvances, setPendingAdvances] = useState<Advance[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -116,7 +118,7 @@ export default function WalletPage() {
                 {error ? (
                     <Card className="p-8 text-center">
                         <p className="text-red-600 mb-4">{error}</p>
-                        <Button onClick={loadData}>Retry</Button>
+                        <Button onClick={loadData}>{t('Retry')}</Button>
                     </Card>
                 ) : pendingAdvances.length === 0 ? (
                     <Card className="p-8 text-center">
@@ -144,7 +146,7 @@ export default function WalletPage() {
                                                 className="bg-green-600 hover:bg-green-700"
                                             >
                                                 <CheckCircle className="w-4 h-4 mr-1" />
-                                                Approve
+                                                {t('Approve')}
                                             </Button>
                                             <Button
                                                 variant="outline"
@@ -152,7 +154,7 @@ export default function WalletPage() {
                                                 className="border-red-300 text-red-600 hover:bg-red-50"
                                             >
                                                 <XCircle className="w-4 h-4 mr-1" />
-                                                Reject
+                                                {t('Reject')}
                                             </Button>
                                         </div>
                                     </div>

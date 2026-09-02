@@ -166,35 +166,35 @@ export function ViewEmployeeModal({ vm }: { vm: ViewModel }) {
                                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100">
                                     <h3 className="text-sm font-bold text-[#1E3A5F] uppercase tracking-wider mb-4 flex items-center gap-2">
                                         <Users className="w-4 h-4" />
-                                        Personal Information
+                                        {t('Personal Information')}
                                     </h3>
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">First Name</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('First Name')}</p>
                                             <p className="font-semibold text-gray-900">{selectedEmployee.first_name || '-'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">Last Name</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('Last Name')}</p>
                                             <p className="font-semibold text-gray-900">{selectedEmployee.last_name || '-'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">Gender</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('Gender')}</p>
                                             <p className="font-semibold text-gray-900 capitalize">{selectedEmployee.gender || '-'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">Date of Birth</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('Date of Birth')}</p>
                                             <p className="font-semibold text-gray-900">{selectedEmployee.date_of_birth || '-'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">Birthplace</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('Birthplace')}</p>
                                             <p className="font-semibold text-gray-900">{selectedEmployee.birthplace || '-'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">Nationality</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('Nationality')}</p>
                                             <p className="font-semibold text-gray-900">{selectedEmployee.nationality || '-'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">BSN</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('BSN')}</p>
                                             <p className="font-semibold text-gray-900 font-mono">{selectedEmployee.bsn || '-'}</p>
                                         </div>
                                     </div>
@@ -204,27 +204,27 @@ export function ViewEmployeeModal({ vm }: { vm: ViewModel }) {
                                 <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-5 border border-green-100">
                                     <h3 className="text-sm font-bold text-[#1E3A5F] uppercase tracking-wider mb-4 flex items-center gap-2">
                                         <Phone className="w-4 h-4" />
-                                        Contact Information
+                                        {t('Contact Information')}
                                     </h3>
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">Email</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('Email')}</p>
                                             <p className="font-semibold text-gray-900">{selectedEmployee.user_email || '-'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">Phone</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('Phone')}</p>
                                             <p className="font-semibold text-gray-900">{selectedEmployee.phone_number || '-'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">Address</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('Address')}</p>
                                             <p className="font-semibold text-gray-900">{selectedEmployee.address || '-'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">Postcode</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('Postcode')}</p>
                                             <p className="font-semibold text-gray-900">{selectedEmployee.postcode || '-'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">City</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('City')}</p>
                                             <p className="font-semibold text-gray-900">{selectedEmployee.city || '-'}</p>
                                         </div>
                                     </div>
@@ -234,15 +234,15 @@ export function ViewEmployeeModal({ vm }: { vm: ViewModel }) {
                                 <div className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-5 border border-yellow-100">
                                     <h3 className="text-sm font-bold text-[#1E3A5F] uppercase tracking-wider mb-4 flex items-center gap-2">
                                         <CreditCard className="w-4 h-4" />
-                                        Financial Information
+                                        {t('Financial Information')}
                                     </h3>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">IBAN</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('IBAN')}</p>
                                             <p className="font-semibold text-gray-900 font-mono">{selectedEmployee.iban || '-'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">Hourly Rate</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('Hourly Rate')}</p>
                                             <p className="font-semibold text-gray-900">{selectedEmployee.hourly_rate ? `€${selectedEmployee.hourly_rate}` : '-'}</p>
                                         </div>
                                     </div>
@@ -252,19 +252,19 @@ export function ViewEmployeeModal({ vm }: { vm: ViewModel }) {
                                 <div className="bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl p-5 border border-purple-100">
                                     <h3 className="text-sm font-bold text-[#1E3A5F] uppercase tracking-wider mb-4 flex items-center gap-2">
                                         <FileText className="w-4 h-4" />
-                                        ID Document
+                                        {t('ID Document')}
                                     </h3>
                                     <div className="grid grid-cols-3 gap-4 mb-4">
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">Document Type</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('Document Type')}</p>
                                             <p className="font-semibold text-gray-900 capitalize">{selectedEmployee.document_type_name || '-'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">Document Number</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('Document Number')}</p>
                                             <p className="font-semibold text-gray-900 font-mono">{selectedEmployee.document_number || '-'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">Expiry Date</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('Expiry Date')}</p>
                                             <p className="font-semibold text-gray-900">{selectedEmployee.document_expiry_date || '-'}</p>
                                         </div>
                                     </div>
@@ -272,7 +272,7 @@ export function ViewEmployeeModal({ vm }: { vm: ViewModel }) {
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                         {selectedEmployee.id_document_front && (
                                             <div className="relative group">
-                                                <p className="text-xs text-gray-500 mb-2">Front Side</p>
+                                                <p className="text-xs text-gray-500 mb-2">{t('Front Side')}</p>
                                                 <a href={selectedEmployee.id_document_front} target="_blank" rel="noopener noreferrer" className="block">
                                                     <img src={selectedEmployee.id_document_front} alt="ID Front" className="w-full h-32 object-cover rounded-lg border-2 border-gray-200 hover:border-purple-400 transition-colors cursor-pointer" />
                                                 </a>
@@ -280,7 +280,7 @@ export function ViewEmployeeModal({ vm }: { vm: ViewModel }) {
                                         )}
                                         {selectedEmployee.id_document_back && (
                                             <div className="relative group">
-                                                <p className="text-xs text-gray-500 mb-2">Back Side</p>
+                                                <p className="text-xs text-gray-500 mb-2">{t('Back Side')}</p>
                                                 <a href={selectedEmployee.id_document_back} target="_blank" rel="noopener noreferrer" className="block">
                                                     <img src={selectedEmployee.id_document_back} alt="ID Back" className="w-full h-32 object-cover rounded-lg border-2 border-gray-200 hover:border-purple-400 transition-colors cursor-pointer" />
                                                 </a>
@@ -288,7 +288,7 @@ export function ViewEmployeeModal({ vm }: { vm: ViewModel }) {
                                         )}
                                         {selectedEmployee.id_document_pdf && (
                                             <div className="relative">
-                                                <p className="text-xs text-gray-500 mb-2">PDF Document</p>
+                                                <p className="text-xs text-gray-500 mb-2">{t('PDF Document')}</p>
                                                 <a href={selectedEmployee.id_document_pdf} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-4 bg-white rounded-lg border-2 border-gray-200 hover:border-purple-400 transition-colors">
                                                     <FileText className="w-8 h-8 text-red-500" />
                                                     <span className="font-medium text-gray-700">View PDF</span>
@@ -306,12 +306,12 @@ export function ViewEmployeeModal({ vm }: { vm: ViewModel }) {
                                     <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-5 border border-orange-100">
                                         <h3 className="text-sm font-bold text-[#1E3A5F] uppercase tracking-wider mb-4 flex items-center gap-2">
                                             <span className="text-lg">🚗</span>
-                                            Driver's License
+                                            {t("Driver's License")}
                                         </h3>
                                         <div className="grid grid-cols-2 gap-4">
                                             {selectedEmployee.drivers_license_front && (
                                                 <div>
-                                                    <p className="text-xs text-gray-500 mb-2">Front Side</p>
+                                                    <p className="text-xs text-gray-500 mb-2">{t('Front Side')}</p>
                                                     <a href={selectedEmployee.drivers_license_front} target="_blank" rel="noopener noreferrer">
                                                         <img src={selectedEmployee.drivers_license_front} alt="DL Front" className="w-full h-32 object-cover rounded-lg border-2 border-gray-200 hover:border-orange-400 transition-colors cursor-pointer" />
                                                     </a>
@@ -319,7 +319,7 @@ export function ViewEmployeeModal({ vm }: { vm: ViewModel }) {
                                             )}
                                             {selectedEmployee.drivers_license_back && (
                                                 <div>
-                                                    <p className="text-xs text-gray-500 mb-2">Back Side</p>
+                                                    <p className="text-xs text-gray-500 mb-2">{t('Back Side')}</p>
                                                     <a href={selectedEmployee.drivers_license_back} target="_blank" rel="noopener noreferrer">
                                                         <img src={selectedEmployee.drivers_license_back} alt="DL Back" className="w-full h-32 object-cover rounded-lg border-2 border-gray-200 hover:border-orange-400 transition-colors cursor-pointer" />
                                                     </a>
@@ -333,7 +333,7 @@ export function ViewEmployeeModal({ vm }: { vm: ViewModel }) {
                                 <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl p-5 border border-gray-200">
                                     <h3 className="text-sm font-bold text-[#1E3A5F] uppercase tracking-wider mb-4 flex items-center gap-2">
                                         <Calendar className="w-4 h-4" />
-                                        Contract Information
+                                        {t('Contract Information')}
                                     </h3>
                                     <div className="grid grid-cols-3 gap-4">
                                         <div>
@@ -341,11 +341,11 @@ export function ViewEmployeeModal({ vm }: { vm: ViewModel }) {
                                             <p className="font-semibold text-gray-900">{selectedEmployee.contract_phase || 'Not assigned'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">Start Date</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('Start Date')}</p>
                                             <p className="font-semibold text-gray-900">{selectedEmployee.contract_start_date || '-'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">End Date</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('End Date')}</p>
                                             <p className="font-semibold text-gray-900">{selectedEmployee.contract_end_date || '-'}</p>
                                         </div>
                                     </div>
@@ -373,7 +373,7 @@ export function ViewEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-3 rounded-xl shadow-lg"
                                             >
                                                 <AlertCircle className="w-5 h-5 mr-2" />
-                                                Reject
+                                                {t('Reject')}
                                             </Button>
                                         </>
                                     )}
@@ -389,7 +389,7 @@ export function ViewEmployeeModal({ vm }: { vm: ViewModel }) {
                                         onClick={() => setShowViewModal(false)}
                                         className="flex-1 py-3 rounded-xl font-semibold"
                                     >
-                                        Close
+                                        {t('Close')}
                                     </Button>
                                 </div>
                             </div>

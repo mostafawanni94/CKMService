@@ -22,10 +22,12 @@ import {
 } from '@/components/features/employees/EmployeeHelpers';
 
 import type { useEmployeeDetail } from '@/hooks/useEmployeeDetail';
+import { useLanguage } from '@/lib/i18n';
 
 type ViewModel = ReturnType<typeof useEmployeeDetail>;
 
 export function DocumentsTab({ vm }: { vm: ViewModel }) {
+    const { t } = useLanguage();
     const {
         params, router, employee, setEmployee, loading, error, noPermission,
         activeTab, setActiveTab, isEditing, setIsEditing, saving,
@@ -72,23 +74,23 @@ export function DocumentsTab({ vm }: { vm: ViewModel }) {
     return (
 
                         <div className="space-y-6">
-                            <Card title="ID Document" icon={Shield} iconColor="text-indigo-600" iconBg="bg-indigo-50"
+                            <Card title={t('ID Document')} icon={Shield} iconColor="text-indigo-600" iconBg="bg-indigo-50"
                                 badge={employee.id_document_front_url || employee.id_document_back_url || employee.id_document_pdf_url ?
                                     <span className="text-xs font-medium text-emerald-600 flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" />Uploaded</span> :
                                     <span className="text-xs font-medium text-amber-600 flex items-center gap-1"><XCircle className="w-3.5 h-3.5" />Missing</span>}>
                                 <div className="grid grid-cols-4 gap-4 mb-6 pb-6 border-b">
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-500 uppercase mb-1.5">Type</label>
+                                        <label className="block text-xs font-medium text-gray-500 uppercase mb-1.5">{t('Type')}</label>
                                         {isEditing ? (
                                             <select value={editForm.document_type_id || ''} onChange={e => setEditForm({ ...editForm, document_type_id: parseInt(e.target.value) })} className="w-full px-3 py-2 border rounded-lg text-sm">
-                                                <option value="">Select...</option>
+                                                <option value="">{t('Select...')}</option>
                                                 {DOCUMENT_TYPES.map(dt => <option key={dt.id} value={dt.id}>{dt.name}</option>)}
                                             </select>
                                         ) : <p className="text-sm font-medium">{employee.document_type_name || '—'}</p>}
                                     </div>
-                                    <Field label="Document Number" value={editForm.document_number} editing={isEditing} onChange={v => setEditForm({ ...editForm, document_number: v.toUpperCase() })} />
-                                    <Field label="Issue Date" value={editForm.document_issue_date} editing={isEditing} type="date" onChange={v => setEditForm({ ...editForm, document_issue_date: v })} />
-                                    <Field label="Expiry Date" value={editForm.document_expiry_date} editing={isEditing} type="date" onChange={v => setEditForm({ ...editForm, document_expiry_date: v })} />
+                                    <Field label={t('Document Number')} value={editForm.document_number} editing={isEditing} onChange={v => setEditForm({ ...editForm, document_number: v.toUpperCase() })} />
+                                    <Field label={t('Issue Date')} value={editForm.document_issue_date} editing={isEditing} type="date" onChange={v => setEditForm({ ...editForm, document_issue_date: v })} />
+                                    <Field label={t('Expiry Date')} value={editForm.document_expiry_date} editing={isEditing} type="date" onChange={v => setEditForm({ ...editForm, document_expiry_date: v })} />
                                 </div>
                                 {/* Upload ID Document Section */}
                                 <div className="mt-2">
@@ -96,8 +98,8 @@ export function DocumentsTab({ vm }: { vm: ViewModel }) {
                                     <p className="text-xs text-gray-400 mb-4">Upload front and back, or a single PDF</p>
 
                                     <div className="grid grid-cols-2 gap-4 mb-4">
-                                        <DocSlot title="Front Side" url={employee.id_document_front_url} field="id_document_front" accept="image/*" editing={isEditing} uploading={uploadingFile === 'id_document_front'} onUpload={handleFileUpload} onDelete={handleDeleteFile} />
-                                        <DocSlot title="Back Side" url={employee.id_document_back_url} field="id_document_back" accept="image/*" editing={isEditing} uploading={uploadingFile === 'id_document_back'} onUpload={handleFileUpload} onDelete={handleDeleteFile} />
+                                        <DocSlot title={t('Front Side')} url={employee.id_document_front_url} field="id_document_front" accept="image/*" editing={isEditing} uploading={uploadingFile === 'id_document_front'} onUpload={handleFileUpload} onDelete={handleDeleteFile} />
+                                        <DocSlot title={t('Back Side')} url={employee.id_document_back_url} field="id_document_back" accept="image/*" editing={isEditing} uploading={uploadingFile === 'id_document_back'} onUpload={handleFileUpload} onDelete={handleDeleteFile} />
                                     </div>
 
                                     {/* OR Divider */}
@@ -114,7 +116,7 @@ export function DocumentsTab({ vm }: { vm: ViewModel }) {
                                 </div>
                             </Card>
 
-                            <Card title="Driver's License" icon={Car} iconColor="text-orange-600" iconBg="bg-orange-50">
+                            <Card title={t("Driver's License")} icon={Car} iconColor="text-orange-600" iconBg="bg-orange-50">
                                 <div className="mb-4">
                                     {isEditing ? (
                                         <label className="flex items-center gap-3 cursor-pointer select-none group">
@@ -129,7 +131,7 @@ export function DocumentsTab({ vm }: { vm: ViewModel }) {
                                         </label>
                                     ) : (
                                         <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium ${employee.has_drivers_license ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-                                            {employee.has_drivers_license ? <><CheckCircle className="w-4 h-4" />Yes</> : <><XCircle className="w-4 h-4" />No</>}
+                                            {employee.has_drivers_license ? <><CheckCircle className="w-4 h-4" />{t('Yes')}</> : <><XCircle className="w-4 h-4" />{t('No')}</>}
                                         </span>
                                     )}
                                 </div>
@@ -137,8 +139,8 @@ export function DocumentsTab({ vm }: { vm: ViewModel }) {
                                     <>
                                         <div className="grid grid-cols-3 gap-4 mb-6 pb-6 border-b">
                                             <Field label="License Number" value={editForm.drivers_license_number} editing={isEditing} onChange={v => setEditForm({ ...editForm, drivers_license_number: v })} />
-                                            <Field label="Issue Date" value={editForm.drivers_license_issue_date} editing={isEditing} type="date" onChange={v => setEditForm({ ...editForm, drivers_license_issue_date: v })} />
-                                            <Field label="Expiry Date" value={editForm.drivers_license_expiry_date} editing={isEditing} type="date" onChange={v => setEditForm({ ...editForm, drivers_license_expiry_date: v })} />
+                                            <Field label={t('Issue Date')} value={editForm.drivers_license_issue_date} editing={isEditing} type="date" onChange={v => setEditForm({ ...editForm, drivers_license_issue_date: v })} />
+                                            <Field label={t('Expiry Date')} value={editForm.drivers_license_expiry_date} editing={isEditing} type="date" onChange={v => setEditForm({ ...editForm, drivers_license_expiry_date: v })} />
                                         </div>
                                         <div className="mb-6 pb-6 border-b">
                                             <label className="block text-xs font-medium text-gray-500 uppercase mb-4">License Categories</label>
@@ -166,8 +168,8 @@ export function DocumentsTab({ vm }: { vm: ViewModel }) {
                                             <p className="text-xs text-gray-400 mb-4">Upload front and back, or a single PDF</p>
 
                                             <div className="grid grid-cols-2 gap-4">
-                                                <DocSlot title="Front Side" url={employee.drivers_license_front_url} field="drivers_license_front" accept="image/*" editing={isEditing} uploading={uploadingFile === 'drivers_license_front'} onUpload={handleFileUpload} onDelete={handleDeleteFile} />
-                                                <DocSlot title="Back Side" url={employee.drivers_license_back_url} field="drivers_license_back" accept="image/*" editing={isEditing} uploading={uploadingFile === 'drivers_license_back'} onUpload={handleFileUpload} onDelete={handleDeleteFile} />
+                                                <DocSlot title={t('Front Side')} url={employee.drivers_license_front_url} field="drivers_license_front" accept="image/*" editing={isEditing} uploading={uploadingFile === 'drivers_license_front'} onUpload={handleFileUpload} onDelete={handleDeleteFile} />
+                                                <DocSlot title={t('Back Side')} url={employee.drivers_license_back_url} field="drivers_license_back" accept="image/*" editing={isEditing} uploading={uploadingFile === 'drivers_license_back'} onUpload={handleFileUpload} onDelete={handleDeleteFile} />
                                             </div>
                                         </div>
                                     </>

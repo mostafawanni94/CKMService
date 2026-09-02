@@ -22,10 +22,12 @@ import {
 } from '@/components/features/employees/EmployeeHelpers';
 
 import type { useEmployeeDetail } from '@/hooks/useEmployeeDetail';
+import { useLanguage } from '@/lib/i18n';
 
 type ViewModel = ReturnType<typeof useEmployeeDetail>;
 
 export function ContractTab({ vm }: { vm: ViewModel }) {
+    const { t } = useLanguage();
     const {
         params, router, employee, setEmployee, loading, error, noPermission,
         activeTab, setActiveTab, isEditing, setIsEditing, saving,
@@ -148,7 +150,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                             cursor: 'pointer'
                                         }}
                                     >
-                                        <Clock size={16} /> Retry
+                                        <Clock size={16} /> {t('Retry')}
                                     </button>
                                 </div>
                             )}
@@ -183,7 +185,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                             </div>
                                             <div>
                                                 <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#1F2937', margin: 0 }}>
-                                                    Contract Type
+                                                    {t('Contract Type')}
                                                 </h2>
                                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
                                                     Select the employment contract type
@@ -228,7 +230,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                                     }}>
                                                         <span style={{ fontSize: '15px', fontWeight: 500, color: '#1F2937' }}>
                                                             {contractTypes.find(ct => ct.id === editForm.contract_type_id)?.name || (
-                                                                <span style={{ color: '#9CA3AF', fontStyle: 'italic' }}>Not set</span>
+                                                                <span style={{ color: '#9CA3AF', fontStyle: 'italic' }}>{t('Not set')}</span>
                                                             )}
                                                         </span>
                                                         {contractTypes.find(ct => ct.id === editForm.contract_type_id)?.code && (
@@ -366,7 +368,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                                             }}>
                                                                 <span style={{ fontSize: '15px', fontWeight: 500, color: '#5B21B6' }}>
                                                                     {agencies.find(ag => ag.id === editForm.current_agency_id)?.name || (
-                                                                        <span style={{ color: '#9CA3AF', fontStyle: 'italic' }}>Not set</span>
+                                                                        <span style={{ color: '#9CA3AF', fontStyle: 'italic' }}>{t('Not set')}</span>
                                                                     )}
                                                                 </span>
                                                             </div>
@@ -416,7 +418,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                                 <div>
                                                     <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#374151', marginBottom: '8px', textTransform: 'uppercase' }}>
-                                                        Start Date
+                                                        {t('Start Date')}
                                                     </label>
                                                     {isEditing ? (
                                                         <input
@@ -442,7 +444,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                                         }}>
                                                             <span style={{ fontSize: '15px', fontWeight: 500, color: '#1F2937' }}>
                                                                 {editForm.contract_start_date || (
-                                                                    <span style={{ color: '#9CA3AF', fontStyle: 'italic' }}>Not set</span>
+                                                                    <span style={{ color: '#9CA3AF', fontStyle: 'italic' }}>{t('Not set')}</span>
                                                                 )}
                                                             </span>
                                                         </div>
@@ -516,7 +518,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                             </div>
                                             <div>
                                                 <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#1F2937', margin: 0 }}>
-                                                    Contract History
+                                                    {t('Contract History')}
                                                 </h2>
                                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
                                                     All historical contracts for this employee
@@ -529,11 +531,11 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
                                                     <thead>
                                                         <tr style={{ borderBottom: '1px solid #E5E7EB', color: '#6B7280', textAlign: 'left' }}>
-                                                            <th style={{ padding: '12px 8px', fontWeight: 600 }}>Rate</th>
-                                                            <th style={{ padding: '12px 8px', fontWeight: 600 }}>From</th>
-                                                            <th style={{ padding: '12px 8px', fontWeight: 600 }}>To</th>
-                                                            <th style={{ padding: '12px 8px', fontWeight: 600 }}>Uploaded By</th>
-                                                            <th style={{ padding: '12px 8px', fontWeight: 600 }}>Document</th>
+                                                            <th style={{ padding: '12px 8px', fontWeight: 600 }}>{t('Rate')}</th>
+                                                            <th style={{ padding: '12px 8px', fontWeight: 600 }}>{t('From')}</th>
+                                                            <th style={{ padding: '12px 8px', fontWeight: 600 }}>{t('To')}</th>
+                                                            <th style={{ padding: '12px 8px', fontWeight: 600 }}>{t('Uploaded By')}</th>
+                                                            <th style={{ padding: '12px 8px', fontWeight: 600 }}>{t('Document')}</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -548,7 +550,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                                                 <td style={{ padding: '12px 8px', color: '#374151' }}>
                                                                     {contract.effective_to
                                                                         ? new Date(contract.effective_to).toLocaleDateString()
-                                                                        : <span style={{ color: '#059669', fontWeight: 500, backgroundColor: '#D1FAE5', padding: '2px 8px', borderRadius: '4px', fontSize: '12px' }}>Current</span>
+                                                                        : <span style={{ color: '#059669', fontWeight: 500, backgroundColor: '#D1FAE5', padding: '2px 8px', borderRadius: '4px', fontSize: '12px' }}>{t('Current')}</span>
                                                                     }
                                                                 </td>
                                                                 <td style={{ padding: '12px 8px', color: '#6B7280' }}>
@@ -571,7 +573,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                                                             }}
                                                                         >
                                                                             <Eye size={14} />
-                                                                            View
+                                                                            {t('View')}
                                                                         </a>
                                                                     )}
                                                                 </td>

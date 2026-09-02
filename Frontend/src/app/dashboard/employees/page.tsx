@@ -188,7 +188,7 @@ export default function EmployeesPage() {
                                 <UserX style={{ width: '24px', height: '24px', color: '#4b5563' }} />
                             </div>
                             <div>
-                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>Incomplete</p>
+                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>{t('Incomplete')}</p>
                                 <p style={{ fontSize: '28px', fontWeight: 700, color: '#4b5563', margin: 0 }}>
                                     {employees.filter(e => e.status === 'incomplete').length}
                                 </p>
@@ -252,10 +252,10 @@ export default function EmployeesPage() {
                                 }
 
                                 const label = status === 'all' ? 'All' :
-                                    status === 'approved' ? 'Approved' :
-                                        status === 'pending' ? 'Pending' :
-                                            status === 'rejected' ? 'Rejected' :
-                                                status === 'suspended' ? 'Suspended' : 'Incomplete';
+                                    status === 'approved' ? t('Approved') :
+                                        status === 'pending' ? t('Pending') :
+                                            status === 'rejected' ? t('Rejected') :
+                                                status === 'suspended' ? 'Suspended' : t('Incomplete');
 
                                 return (
                                     <button
@@ -309,7 +309,7 @@ export default function EmployeesPage() {
                             }} />
                             <input
                                 type="text"
-                                placeholder="Search employees..."
+                                placeholder={t('Search employees...')}
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 style={{
@@ -344,17 +344,17 @@ export default function EmployeesPage() {
                     ) : error ? (
                         <div className="p-8 text-center">
                             <p className="text-red-600 mb-4">{error}</p>
-                            <Button onClick={loadEmployees}>Retry</Button>
+                            <Button onClick={loadEmployees}>{t('Retry')}</Button>
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="w-full" style={{ tableLayout: 'fixed' }}>
                                 <thead style={{ backgroundColor: '#F9FAFB', borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB' }}>
                                     <tr>
-                                        <th style={{ width: '30%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Employee</th>
+                                        <th style={{ width: '30%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('Employee')}</th>
                                         <th style={{ width: '25%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact</th>
-                                        <th style={{ width: '15%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th style={{ width: '30%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                                        <th style={{ width: '15%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('Status')}</th>
+                                        <th style={{ width: '30%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('Actions')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
@@ -362,7 +362,7 @@ export default function EmployeesPage() {
                                         <tr>
                                             <td colSpan={4} className="px-6 py-12 text-center">
                                                 <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                                                <p className="text-gray-500 font-medium">No employees found</p>
+                                                <p className="text-gray-500 font-medium">{t('No employees found')}</p>
                                                 <p className="text-gray-400 text-sm mt-1">Click "Add Employee" to create one</p>
                                             </td>
                                         </tr>
@@ -421,7 +421,7 @@ export default function EmployeesPage() {
                                                             }}
                                                         >
                                                             <Eye style={{ width: '14px', height: '14px' }} />
-                                                            View
+                                                            {t('View')}
                                                         </button>
                                                         <button
                                                             onClick={async () => {
@@ -478,7 +478,7 @@ export default function EmployeesPage() {
                                                             }}
                                                         >
                                                             <Trash2 style={{ width: '14px', height: '14px' }} />
-                                                            Delete
+                                                            {t('Delete')}
                                                         </button>
                                                     </div>
                                                 </td>

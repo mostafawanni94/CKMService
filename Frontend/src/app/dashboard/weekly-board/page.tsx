@@ -31,6 +31,7 @@ import {
     getISOWeekYear
 } from 'date-fns';
 import { apiFetch } from '@/hooks/useApi';
+import { useLanguage } from '@/lib/i18n';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -89,6 +90,7 @@ function WorkLogCard({
     onEdit: (entry: WorkEntry) => void;
     onDragStart: (e: DragEvent<HTMLDivElement>, entry: WorkEntry) => void;
 }) {
+    const { t } = useLanguage();
     const statusStyle = getStatusStyle(entry.status);
     const hours = typeof entry.calculated_hours === 'number'
         ? entry.calculated_hours
@@ -196,7 +198,7 @@ function WorkLogCard({
             {/* Hours progress bar */}
             <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: 500 }}>Hours</span>
+                    <span style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: 500 }}>{t('Hours')}</span>
                     <span style={{ fontSize: '10px', color: '#6B7280', fontWeight: 600 }}>
                         {hours.toFixed(1)}h / {maxHours}h
                     </span>
@@ -244,6 +246,7 @@ function DayColumn({
     onDragOver: (e: DragEvent<HTMLDivElement>, date: Date) => void;
     onDragLeave: (e: DragEvent<HTMLDivElement>) => void;
 }) {
+    const { t } = useLanguage();
     const isToday = isTodayFn(date);
     const dateStr = format(date, 'yyyy-MM-dd');
     const isDragTarget = dragOverDate === dateStr;
@@ -371,7 +374,7 @@ function DayColumn({
                     className="hover:bg-gray-50 hover:border-gray-400 hover:text-gray-600"
                 >
                     <Plus size={14} />
-                    Add
+                    {t('Add')}
                 </button>
             </div>
         </div>
@@ -382,6 +385,7 @@ function DayColumn({
    MAIN PAGE COMPONENT
    ============================================================================ */
 export default function WeeklyBoardPage() {
+    const { t } = useLanguage();
     const router = useRouter();
 
     // Week navigation state
@@ -642,7 +646,7 @@ export default function WeeklyBoardPage() {
                 }}>
                     <div>
                         <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: 0 }}>
-                            Weekly Board
+                            {t('Weekly Board')}
                         </h1>
                         <p style={{ fontSize: '14px', color: '#6B7280', margin: '4px 0 0' }}>
                             Drag and drop work logs across days to reschedule
@@ -702,7 +706,7 @@ export default function WeeklyBoardPage() {
                                 cursor: 'pointer'
                             }}
                         >
-                            Refresh
+                            {t('Refresh')}
                         </button>
                     </div>
                 </div>
@@ -780,7 +784,7 @@ export default function WeeklyBoardPage() {
                                             fontWeight: 500
                                         }}
                                     >
-                                        Clear all
+                                        {t('Clear all')}
                                     </button>
                                 </div>
                             )}
@@ -857,7 +861,7 @@ export default function WeeklyBoardPage() {
                                     ))}
                                     {filteredEmployeeOptions.length === 0 && (
                                         <p style={{ padding: '10px 14px', fontSize: '13px', color: '#9CA3AF', margin: 0 }}>
-                                            {employees.length === filterEmployees.length ? 'All employees selected' : 'No employees found'}
+                                            {employees.length === filterEmployees.length ? 'All employees selected' : t('No employees found')}
                                         </p>
                                     )}
                                 </div>
@@ -868,7 +872,7 @@ export default function WeeklyBoardPage() {
                         <div style={{ position: 'relative', minWidth: '220px', flex: 1 }}>
                             <label style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '6px', display: 'block' }}>
                                 <Building2 size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                                Customer
+                                {t('Customer')}
                             </label>
                             <div style={{ position: 'relative' }}>
                                 <input
@@ -948,7 +952,7 @@ export default function WeeklyBoardPage() {
                                     ))}
                                     {filteredCustomerOptions.length === 0 && (
                                         <p style={{ padding: '10px 14px', fontSize: '13px', color: '#9CA3AF', margin: 0 }}>
-                                            No customers found
+                                            {t('No customers found')}
                                         </p>
                                     )}
                                 </div>
@@ -977,7 +981,7 @@ export default function WeeklyBoardPage() {
                                 }}
                                 className="hover:bg-red-50"
                             >
-                                Clear All
+                                {t('Clear All')}
                             </button>
                         )}
                     </div>
@@ -1012,7 +1016,7 @@ export default function WeeklyBoardPage() {
                         className="hover:bg-gray-100"
                     >
                         <ChevronLeft size={16} />
-                        Previous
+                        {t('Previous')}
                     </button>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -1041,7 +1045,7 @@ export default function WeeklyBoardPage() {
                             }}
                             className="hover:bg-blue-100"
                         >
-                            Today
+                            {t('Today')}
                         </button>
                     </div>
 
@@ -1062,7 +1066,7 @@ export default function WeeklyBoardPage() {
                         }}
                         className="hover:bg-gray-100"
                     >
-                        Next
+                        {t('Next')}
                         <ChevronRight size={16} />
                     </button>
                 </div>
@@ -1076,9 +1080,9 @@ export default function WeeklyBoardPage() {
                 }}>
                     {[
                         { label: 'Total Logs', value: filteredLogs.length, color: '#3B82F6', bg: '#EFF6FF' },
-                        { label: 'Total Hours', value: `${filteredLogs.reduce((s, l) => s + (typeof l.calculated_hours === 'number' ? l.calculated_hours : parseFloat(String(l.calculated_hours) || '0')), 0).toFixed(1)}h`, color: '#059669', bg: '#ECFDF5' },
-                        { label: 'Approved', value: filteredLogs.filter(l => l.status === 'approved').length, color: '#059669', bg: '#ECFDF5' },
-                        { label: 'Pending', value: filteredLogs.filter(l => ['pending', 'submitted', 'draft'].includes(l.status)).length, color: '#D97706', bg: '#FFFBEB' },
+                        { label: t('Total Hours'), value: `${filteredLogs.reduce((s, l) => s + (typeof l.calculated_hours === 'number' ? l.calculated_hours : parseFloat(String(l.calculated_hours) || '0')), 0).toFixed(1)}h`, color: '#059669', bg: '#ECFDF5' },
+                        { label: t('Approved'), value: filteredLogs.filter(l => l.status === 'approved').length, color: '#059669', bg: '#ECFDF5' },
+                        { label: t('Pending'), value: filteredLogs.filter(l => ['pending', 'submitted', 'draft'].includes(l.status)).length, color: '#D97706', bg: '#FFFBEB' },
                     ].map((stat) => (
                         <div key={stat.label} style={{
                             flex: 1,

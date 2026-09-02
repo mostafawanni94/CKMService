@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { ArrowLeft, Plus, X, Clock, Trash2, Calendar, Users, Check, Search, ChevronLeft, ChevronRight, Edit2, Save, Filter, Eye } from 'lucide-react';
 import { apiFetch } from '@/hooks/useApi';
+import { useLanguage } from '@/lib/i18n';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -51,6 +52,7 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 const DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 export default function PlanningPage() {
+    const { t } = useLanguage();
     const params = useParams();
     const router = useRouter();
     const projectId = params.id as string;
@@ -863,7 +865,7 @@ export default function PlanningPage() {
                                         onClick={() => { setFilterEmployees([]); setFilterEmpSearch(''); }}
                                         style={{ fontSize: '11px', color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', fontWeight: 500 }}
                                     >
-                                        Clear all
+                                        {t('Clear all')}
                                     </button>
                                 </div>
                             )}
@@ -939,7 +941,7 @@ export default function PlanningPage() {
                                         ))}
                                     {employees.filter(e => getEmployeeName(e).toLowerCase().includes(filterEmpSearch.toLowerCase()) && !filterEmployees.includes(e.id)).length === 0 && (
                                         <p style={{ padding: '10px 14px', fontSize: '13px', color: '#9CA3AF', margin: 0 }}>
-                                            {employees.length === filterEmployees.length ? 'All employees selected' : 'No employees found'}
+                                            {employees.length === filterEmployees.length ? 'All employees selected' : t('No employees found')}
                                         </p>
                                     )}
                                 </div>
@@ -966,7 +968,7 @@ export default function PlanningPage() {
                                             onClick={() => setSelectedDates(new Set())}
                                             style={{ padding: '6px 12px', background: '#FEE2E2', color: '#DC2626', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 500, cursor: 'pointer' }}
                                         >
-                                            Clear All
+                                            {t('Clear All')}
                                         </button>
                                     </>
                                 )}
@@ -1018,7 +1020,7 @@ export default function PlanningPage() {
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 <div style={{ width: '14px', height: '14px', borderRadius: '3px', border: '2px solid #111' }} />
-                                <span>Today</span>
+                                <span>{t('Today')}</span>
                             </div>
                         </div>
 
@@ -1120,13 +1122,13 @@ export default function PlanningPage() {
                                             onClick={() => setSelectedMonths([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])}
                                             style={{ flex: 1, padding: '6px', fontSize: '11px', border: '1px solid #D1D5DB', borderRadius: '4px', background: 'white', cursor: 'pointer' }}
                                         >
-                                            Select All
+                                            {t('Select All')}
                                         </button>
                                         <button
                                             onClick={() => setSelectedMonths([])}
                                             style={{ flex: 1, padding: '6px', fontSize: '11px', border: '1px solid #D1D5DB', borderRadius: '4px', background: 'white', cursor: 'pointer' }}
                                         >
-                                            Clear
+                                            {t('Clear')}
                                         </button>
                                     </div>
                                 </div>
@@ -1252,7 +1254,7 @@ export default function PlanningPage() {
                             {/* Time */}
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>Start Time</label>
+                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>{t('Start Time')}</label>
                                     <input
                                         type="time"
                                         value={startTime}
@@ -1261,7 +1263,7 @@ export default function PlanningPage() {
                                     />
                                 </div>
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>End Time</label>
+                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>{t('End Time')}</label>
                                     <input
                                         type="time"
                                         value={endTime}
@@ -1274,26 +1276,26 @@ export default function PlanningPage() {
                             {/* Supervisor & Service */}
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>Supervisor</label>
+                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>{t('Supervisor')}</label>
                                     <select
                                         value={selectedSupervisor}
                                         onChange={e => setSelectedSupervisor(e.target.value)}
                                         style={{ width: '100%', padding: '12px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px', background: 'white' }}
                                     >
-                                        <option value="">Select supervisor...</option>
+                                        <option value="">{t('Select supervisor...')}</option>
                                         {supervisors.map(s => (
                                             <option key={s.id} value={s.id}>{s.full_name}</option>
                                         ))}
                                     </select>
                                 </div>
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>Service</label>
+                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>{t('Service')}</label>
                                     <select
                                         value={selectedService}
                                         onChange={e => setSelectedService(e.target.value)}
                                         style={{ width: '100%', padding: '12px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px', background: 'white' }}
                                     >
-                                        <option value="">Select service...</option>
+                                        <option value="">{t('Select service...')}</option>
                                         {services.map(s => (
                                             <option key={s.id} value={s.id}>{s.name}</option>
                                         ))}
@@ -1303,7 +1305,7 @@ export default function PlanningPage() {
 
                             {/* Location */}
                             <div style={{ marginBottom: '16px' }}>
-                                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>Location</label>
+                                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>{t('Location')}</label>
                                 <input
                                     type="text"
                                     value={shiftLocation}
@@ -1330,7 +1332,7 @@ export default function PlanningPage() {
                                                     padding: '6px 12px', background: '#10B981', color: 'white',
                                                     borderRadius: '20px', fontSize: '13px', fontWeight: 500
                                                 }}>
-                                                    {emp ? getEmployeeName(emp) : 'Employee'}
+                                                    {emp ? getEmployeeName(emp) : t('Employee')}
                                                     <button
                                                         onClick={() => toggleEmployee(empId)}
                                                         style={{ background: 'rgba(255,255,255,0.3)', border: 'none', color: 'white', cursor: 'pointer', padding: '2px 6px', borderRadius: '50%', fontSize: '12px' }}
@@ -1347,7 +1349,7 @@ export default function PlanningPage() {
                                 <div style={{ position: 'relative' }}>
                                     <input
                                         type="text"
-                                        placeholder="Search employees..."
+                                        placeholder={t('Search employees...')}
                                         value={employeeSearch}
                                         onChange={e => {
                                             setEmployeeSearch(e.target.value);
@@ -1410,7 +1412,7 @@ export default function PlanningPage() {
                                                 return name.includes(employeeSearch.toLowerCase());
                                             }).length === 0 && (
                                                 <div style={{ padding: '12px', color: '#9CA3AF', textAlign: 'center', fontSize: '14px' }}>
-                                                    {employeeSearch.trim() ? `No employees matching "${employeeSearch}"` : 'No employees found'}
+                                                    {employeeSearch.trim() ? `No employees matching "${employeeSearch}"` : t('No employees found')}
                                                 </div>
                                             )}
                                     </div>
@@ -1520,9 +1522,9 @@ export default function PlanningPage() {
                                                 title="Select all visible dates"
                                             />
                                         </th>
-                                        <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', fontWeight: 600, color: '#6B7280' }}>Date</th>
+                                        <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', fontWeight: 600, color: '#6B7280' }}>{t('Date')}</th>
                                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', fontWeight: 600, color: '#6B7280' }}>Entries</th>
-                                        <th style={{ textAlign: 'right', padding: '12px', fontSize: '13px', fontWeight: 600, color: '#6B7280' }}>Actions</th>
+                                        <th style={{ textAlign: 'right', padding: '12px', fontSize: '13px', fontWeight: 600, color: '#6B7280' }}>{t('Actions')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1665,7 +1667,7 @@ export default function PlanningPage() {
                             {/* Editable Start/End Time */}
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px' }}>Start Time</label>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px' }}>{t('Start Time')}</label>
                                     <input
                                         type="time"
                                         value={editStartTime}
@@ -1674,7 +1676,7 @@ export default function PlanningPage() {
                                     />
                                 </div>
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px' }}>End Time</label>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px' }}>{t('End Time')}</label>
                                     <input
                                         type="time"
                                         value={editEndTime}
@@ -1696,7 +1698,7 @@ export default function PlanningPage() {
                                     onClick={() => { setEditingEntry(null); setShowEditEmployeeDropdown(false); setEditEmployeeSearch(''); }}
                                     style={{ padding: '12px 20px', background: '#F3F4F6', color: '#374151', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 600, cursor: 'pointer' }}
                                 >
-                                    Cancel
+                                    {t('Cancel')}
                                 </button>
                             </div>
                         </div>
@@ -1753,13 +1755,13 @@ export default function PlanningPage() {
                                                             onClick={() => { openEditModal(entry); }}
                                                             style={{ padding: '6px 10px', background: '#EFF6FF', color: '#3B82F6', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500 }}
                                                         >
-                                                            Edit
+                                                            {t('Edit')}
                                                         </button>
                                                         <button
                                                             onClick={() => { deleteEntry(entry.id); }}
                                                             style={{ padding: '6px 10px', background: '#FEE2E2', color: '#DC2626', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500 }}
                                                         >
-                                                            Delete
+                                                            {t('Delete')}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -1787,7 +1789,7 @@ export default function PlanningPage() {
 
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
                                         <div>
-                                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Start</label>
+                                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>{t('Start')}</label>
                                             <input
                                                 type="time"
                                                 value={quickAddStart}
@@ -1796,7 +1798,7 @@ export default function PlanningPage() {
                                             />
                                         </div>
                                         <div>
-                                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>End</label>
+                                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>{t('End')}</label>
                                             <input
                                                 type="time"
                                                 value={quickAddEnd}
@@ -1881,7 +1883,7 @@ export default function PlanningPage() {
                                             onClick={() => { setShowQuickAdd(false); setQuickAddEmployees([]); setQuickAddSearch(''); }}
                                             style={{ padding: '10px 16px', background: '#F3F4F6', color: '#374151', border: 'none', borderRadius: '6px', fontSize: '14px', cursor: 'pointer' }}
                                         >
-                                            Cancel
+                                            {t('Cancel')}
                                         </button>
                                     </div>
                                 </div>
@@ -1891,7 +1893,7 @@ export default function PlanningPage() {
                                 onClick={() => setViewingDate(null)}
                                 style={{ width: '100%', padding: '12px', background: '#F3F4F6', color: '#374151', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 600, cursor: 'pointer', marginTop: '8px' }}
                             >
-                                Close
+                                {t('Close')}
                             </button>
                         </div>
                     </div>

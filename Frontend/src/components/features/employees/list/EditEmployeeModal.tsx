@@ -163,7 +163,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                         <div className="flex items-center gap-2 mb-5">
                                             <Users className="w-5 h-5 text-[#1E3A5F]" />
                                             <h3 className="text-sm font-bold text-[#1E3A5F] uppercase tracking-wider">
-                                                Personal Information
+                                                {t('Personal Information')}
                                             </h3>
                                         </div>
                                         <div className="grid grid-cols-3 gap-4">
@@ -178,7 +178,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Prefix</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('Prefix')}</label>
                                                 <Input
                                                     value={editForm.prefix_name}
                                                     onChange={(e) => setEditForm(f => ({ ...f, prefix_name: e.target.value }))}
@@ -197,7 +197,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('Gender')}</label>
                                                 <select
                                                     value={editForm.gender}
                                                     onChange={(e) => setEditForm(f => ({ ...f, gender: e.target.value }))}
@@ -210,7 +210,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 </select>
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('Date of Birth')}</label>
                                                 <Input
                                                     type="date"
                                                     value={editForm.date_of_birth}
@@ -219,7 +219,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Birthplace</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('Birthplace')}</label>
                                                 <Input
                                                     value={editForm.birthplace}
                                                     onChange={(e) => setEditForm(f => ({ ...f, birthplace: e.target.value }))}
@@ -228,7 +228,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 />
                                             </div>
                                             <div ref={nationalityDropdownRef} style={{ position: 'relative' }}>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Nationality</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('Nationality')}</label>
                                                 <div
                                                     onClick={() => setNationalityDropdownOpen(!nationalityDropdownOpen)}
                                                     style={{
@@ -254,7 +254,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                                 {editForm.nationality}
                                                             </>
                                                         ) : (
-                                                            <span style={{ color: '#9CA3AF' }}>Select nationality...</span>
+                                                            <span style={{ color: '#9CA3AF' }}>{t('Select nationality...')}</span>
                                                         )}
                                                     </span>
                                                     <ChevronDown size={16} color="#6B7280" style={{ transform: nationalityDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
@@ -281,7 +281,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                                     type="text"
                                                                     value={nationalitySearch}
                                                                     onChange={(e) => setNationalitySearch(e.target.value)}
-                                                                    placeholder="Search nationality..."
+                                                                    placeholder={t('Search nationality...')}
                                                                     autoFocus
                                                                     style={{
                                                                         width: '100%',
@@ -338,7 +338,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                             }
                                                             {NATIONALITIES.filter(n => n.name.toLowerCase().includes(nationalitySearch.toLowerCase())).length === 0 && (
                                                                 <div style={{ padding: '16px', textAlign: 'center', color: '#9CA3AF', fontSize: '13px' }}>
-                                                                    No nationality found
+                                                                    {t('No nationality found')}
                                                                 </div>
                                                             )}
                                                         </div>
@@ -362,7 +362,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                         <div className="flex items-center gap-2 mb-5">
                                             <Phone className="w-5 h-5 text-[#1E3A5F]" />
                                             <h3 className="text-sm font-bold text-[#1E3A5F] uppercase tracking-wider">
-                                                Contact Information
+                                                {t('Contact Information')}
                                             </h3>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
@@ -385,7 +385,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Postcode</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('Postcode')}</label>
                                                 <Input
                                                     value={editForm.postcode}
                                                     onChange={(e) => setEditForm(f => ({ ...f, postcode: e.target.value }))}
@@ -394,7 +394,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('City')}</label>
                                                 <Input
                                                     value={editForm.city}
                                                     onChange={(e) => setEditForm(f => ({ ...f, city: e.target.value }))}
@@ -410,7 +410,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                         <div className="flex items-center gap-2 mb-5">
                                             <CreditCard className="w-5 h-5 text-[#1E3A5F]" />
                                             <h3 className="text-sm font-bold text-[#1E3A5F] uppercase tracking-wider">
-                                                Financial Information
+                                                {t('Financial Information')}
                                             </h3>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
@@ -442,12 +442,12 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                         <div className="flex items-center gap-2 mb-5">
                                             <FileText className="w-5 h-5 text-[#1E3A5F]" />
                                             <h3 className="text-sm font-bold text-[#1E3A5F] uppercase tracking-wider">
-                                                ID Document
+                                                {t('ID Document')}
                                             </h3>
                                         </div>
                                         <div className="grid grid-cols-3 gap-4">
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Document Type</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('Document Type')}</label>
                                                 <select
                                                     value={editForm.document_type}
                                                     onChange={(e) => setEditForm(f => ({ ...f, document_type: e.target.value }))}
@@ -460,7 +460,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 </select>
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Document Number</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('Document Number')}</label>
                                                 <Input
                                                     value={editForm.document_number}
                                                     onChange={(e) => setEditForm(f => ({ ...f, document_number: e.target.value }))}
@@ -469,7 +469,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Expiry Date</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('Expiry Date')}</label>
                                                 <Input
                                                     type="date"
                                                     value={editForm.document_expiry_date}
@@ -496,7 +496,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                         <div className="flex items-center gap-2 mb-5">
                                             <Calendar className="w-5 h-5 text-[#1E3A5F]" />
                                             <h3 className="text-sm font-bold text-[#1E3A5F] uppercase tracking-wider">
-                                                Contract Information
+                                                {t('Contract Information')}
                                             </h3>
                                         </div>
                                         <div className="grid grid-cols-3 gap-4">
@@ -514,7 +514,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 </select>
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('Start Date')}</label>
                                                 <Input
                                                     type="date"
                                                     value={editForm.contract_start_date}
@@ -523,7 +523,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('End Date')}</label>
                                                 <Input
                                                     type="date"
                                                     value={editForm.contract_end_date}
@@ -542,7 +542,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                             className="flex-1 h-12 text-base font-semibold rounded-xl"
                                             onClick={() => setShowEditModal(false)}
                                         >
-                                            Cancel
+                                            {t('Cancel')}
                                         </Button>
                                         <Button
                                             type="submit"

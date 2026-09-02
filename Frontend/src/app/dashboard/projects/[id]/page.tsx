@@ -8,6 +8,7 @@ import { FolderKanban, ArrowLeft, MapPin, Save, Trash2, Building2, AlertTriangle
 import { Customer } from '@/lib/api';
 import { apiFetch } from '@/hooks/useApi';
 import { VatSettingsPanel } from '@/components/features/vat/VatSettingsPanel';
+import { useLanguage } from '@/lib/i18n';
 
 interface Supervisor {
     id: string;
@@ -28,6 +29,7 @@ interface ProjectDetail {
 }
 
 export default function ProjectDetailPage() {
+    const { t } = useLanguage();
     const params = useParams();
     const router = useRouter();
     const [project, setProject] = useState<ProjectDetail | null>(null);
@@ -314,7 +316,7 @@ export default function ProjectDetailPage() {
                             }}
                         >
                             <Trash2 style={{ width: '16px', height: '16px' }} />
-                            Delete
+                            {t('Delete')}
                         </button>
                         <button
                             onClick={handleSave}
@@ -368,7 +370,7 @@ export default function ProjectDetailPage() {
                             </div>
 
                             <div>
-                                <label style={labelStyle}>Location</label>
+                                <label style={labelStyle}>{t('Location')}</label>
                                 <div style={{ position: 'relative' }}>
                                     <MapPin style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#9CA3AF' }} />
                                     <input
@@ -381,7 +383,7 @@ export default function ProjectDetailPage() {
                             </div>
 
                             <div>
-                                <label style={labelStyle}>Customer</label>
+                                <label style={labelStyle}>{t('Customer')}</label>
                                 <select
                                     value={editForm.customer}
                                     onChange={(e) => {
@@ -400,7 +402,7 @@ export default function ProjectDetailPage() {
                             </div>
 
                             <div>
-                                <label style={labelStyle}>Description</label>
+                                <label style={labelStyle}>{t('Description')}</label>
                                 <textarea
                                     value={editForm.description}
                                     onChange={(e) => setEditForm(f => ({ ...f, description: e.target.value }))}
@@ -423,7 +425,7 @@ export default function ProjectDetailPage() {
                                 <UserCircle style={{ width: '20px', height: '20px', color: '#9333EA' }} />
                             </div>
                             <div>
-                                <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Supervisors</h2>
+                                <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Supervisors')}</h2>
                                 {selectedSupervisors.length > 0 && (
                                     <p style={{ fontSize: '12px', color: '#16A34A', margin: 0 }}>{selectedSupervisors.length} assigned</p>
                                 )}
@@ -558,7 +560,7 @@ export default function ProjectDetailPage() {
                                         cursor: 'pointer'
                                     }}
                                 >
-                                    Cancel
+                                    {t('Cancel')}
                                 </button>
                                 <button
                                     onClick={handleDelete}
@@ -576,7 +578,7 @@ export default function ProjectDetailPage() {
                                         opacity: deleting ? 0.7 : 1
                                     }}
                                 >
-                                    {deleting ? 'Deleting...' : 'Delete'}
+                                    {deleting ? 'Deleting...' : t('Delete')}
                                 </button>
                             </div>
                         </div>

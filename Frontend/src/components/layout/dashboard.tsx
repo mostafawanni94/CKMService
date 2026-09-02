@@ -102,22 +102,22 @@ function Sidebar({
         { name: t('employees'), href: '/dashboard/employees', icon: Users, show: canSeeOperations },
         { name: t('customers'), href: '/dashboard/customers', icon: Building2, show: canSeeOperations },
         { name: t('projects'), href: '/dashboard/projects', icon: FolderKanban, show: canSeeOperations },
-        { name: 'Services', href: '/dashboard/services', icon: CreditCard, show: canSeeOperations },
+        { name: t('Services'), href: '/dashboard/services', icon: CreditCard, show: canSeeOperations },
         { name: t('worklogs'), href: '/dashboard/worklogs', icon: Clock, show: canSeeOperations },
-        { name: 'Weekly Board', href: '/dashboard/weekly-board', icon: Calendar, show: canSeeOperations },
-        { name: 'Certificates', href: '/dashboard/certificates', icon: Award, show: canSeeOperations },
-        { name: 'Allowances', href: '/dashboard/allowances', icon: Gift, show: canSeeAdminOnly },
-        { name: 'Contract Types', href: '/dashboard/contract-types', icon: FileText, show: canSeeAdminOnly },
-        { name: 'Agencies', href: '/dashboard/agencies', icon: Building2, show: canSeeAdminOnly },
-        { name: 'Day Payment Types', href: '/dashboard/surcharge-types', icon: Clock, show: canSeeAdminOnly },
+        { name: t('Weekly Board'), href: '/dashboard/weekly-board', icon: Calendar, show: canSeeOperations },
+        { name: t('Certificates'), href: '/dashboard/certificates', icon: Award, show: canSeeOperations },
+        { name: t('Allowances'), href: '/dashboard/allowances', icon: Gift, show: canSeeAdminOnly },
+        { name: t('Contract Types'), href: '/dashboard/contract-types', icon: FileText, show: canSeeAdminOnly },
+        { name: t('Agencies'), href: '/dashboard/agencies', icon: Building2, show: canSeeAdminOnly },
+        { name: t('Day Payment Types'), href: '/dashboard/surcharge-types', icon: Clock, show: canSeeAdminOnly },
     ].filter(item => item.show);
 
     // HR submenu — backed by /api/hr/.
     const hrItems = [
-        { name: 'Leave Requests', href: '/dashboard/hr/leave-requests', icon: CalendarDays, show: canSeeOperations },
-        { name: 'Attendance', href: '/dashboard/hr/attendance', icon: Clock, show: canSeeOperations },
-        { name: 'Payroll', href: '/dashboard/hr/payroll', icon: CreditCard, show: canSeeFinance },
-        { name: 'Contracts', href: '/dashboard/hr/contracts', icon: FileText, show: canSeeOperations },
+        { name: t('Leave Requests'), href: '/dashboard/hr/leave-requests', icon: CalendarDays, show: canSeeOperations },
+        { name: t('Attendance'), href: '/dashboard/hr/attendance', icon: Clock, show: canSeeOperations },
+        { name: t('Payroll'), href: '/dashboard/hr/payroll', icon: CreditCard, show: canSeeFinance },
+        { name: t('Contracts'), href: '/dashboard/hr/contracts', icon: FileText, show: canSeeOperations },
     ].filter(item => item.show);
 
     // Collapsible groups, declared as data so the sidebar can both render them
@@ -133,14 +133,14 @@ function Sidebar({
         },
         {
             id: 'hr',
-            label: 'HR',
+            label: t('HR'),
             icon: CalendarDays,
             get items() { return hrItems; },
             activePrefixes: ['/dashboard/hr'],
         },
         {
             id: 'finance',
-            label: 'Finance',
+            label: t('Finance'),
             icon: Wallet,
             get items() { return financeItems; },
             activePrefixes: ['/dashboard/expenses', '/dashboard/finance', '/dashboard/reports'],
@@ -149,18 +149,18 @@ function Sidebar({
 
     // Backoffice submenu items
     const invoiceItems = [
-        { name: 'Outgoing Invoices', href: '/dashboard/invoices', icon: FileText, show: canSeeFinance },
-        { name: 'Incoming Invoices', href: '/dashboard/incoming-invoices', icon: FileText, show: canSeeFinance },
-        { name: 'Agency Invoices', href: '/dashboard/agency-invoices', icon: Building2, show: canSeeFinance },
+        { name: t('Outgoing Invoices'), href: '/dashboard/invoices', icon: FileText, show: canSeeFinance },
+        { name: t('Incoming Invoices'), href: '/dashboard/incoming-invoices', icon: FileText, show: canSeeFinance },
+        { name: t('Agency Invoices'), href: '/dashboard/agency-invoices', icon: Building2, show: canSeeFinance },
     ].filter(item => item.show);
 
     // Finance submenu items
     const financeItems = [
-        { name: 'Expenses', href: '/dashboard/expenses', icon: Receipt, show: canSeeFinance },
-        { name: 'Financial Overview', href: '/dashboard/finance/overview', icon: BarChart3, show: canSeeFinance },
-        { name: 'BTW Aangifte', href: '/dashboard/finance/vat', icon: FileText, show: canSeeFinance },
-        { name: 'Expenses Summary', href: '/dashboard/finance', icon: Receipt, show: canSeeFinance },
-        { name: 'Reports', href: '/dashboard/reports', icon: BarChart3, show: canSeeFinance },
+        { name: t('Expenses'), href: '/dashboard/expenses', icon: Receipt, show: canSeeFinance },
+        { name: t('Financial Overview'), href: '/dashboard/finance/overview', icon: BarChart3, show: canSeeFinance },
+        { name: t('BTW Aangifte'), href: '/dashboard/finance/vat', icon: FileText, show: canSeeFinance },
+        { name: t('Expenses Summary'), href: '/dashboard/finance', icon: Receipt, show: canSeeFinance },
+        { name: t('Reports'), href: '/dashboard/reports', icon: BarChart3, show: canSeeFinance },
     ].filter(item => item.show);
 
     const toggleSubmenu = (menuName: string) => {
@@ -175,7 +175,7 @@ function Sidebar({
 
     // Settings section items
     const settingsNavItems = [
-        { name: 'Notifications', href: '/dashboard/notifications', icon: Bell },
+        { name: t('Notifications'), href: '/dashboard/notifications', icon: Bell },
         { name: t('wallet'), href: '/dashboard/wallet', icon: CircleDollarSign },
         { name: t('settings'), href: '/dashboard/settings', icon: Settings },
     ];
@@ -419,7 +419,7 @@ function Sidebar({
                                     letterSpacing: '0.1em',
                                     marginBottom: '4px'
                                 }}>
-                                    Administrator
+                                    {t('Administrator')}
                                 </p>
                                 <h3 style={{
                                     fontSize: '16px',
@@ -483,7 +483,7 @@ function Sidebar({
                                 paddingLeft: isCollapsed ? '0' : '20px',
                                 textAlign: isCollapsed ? 'center' : 'left'
                             }}>
-                                Settings
+                                {t('Settings')}
                             </p>
                             <div style={{
                                 display: 'flex',
@@ -525,7 +525,7 @@ function Sidebar({
                         >
                             <HelpCircle size={24} strokeWidth={1.5} />
                             {!isCollapsed && (
-                                <span style={{ fontSize: '15px', fontWeight: 500 }}>Help</span>
+                                <span style={{ fontSize: '15px', fontWeight: 500 }}>{t('Help')}</span>
                             )}
                         </button>
 
@@ -552,7 +552,7 @@ function Sidebar({
                         >
                             <LogOut size={24} strokeWidth={1.5} />
                             {!isCollapsed && (
-                                <span style={{ fontSize: '15px', fontWeight: 500 }}>Logout Account</span>
+                                <span style={{ fontSize: '15px', fontWeight: 500 }}>{t('Logout Account')}</span>
                             )}
                         </button>
                     </div>

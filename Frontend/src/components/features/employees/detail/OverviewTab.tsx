@@ -22,10 +22,12 @@ import {
 } from '@/components/features/employees/EmployeeHelpers';
 
 import type { useEmployeeDetail } from '@/hooks/useEmployeeDetail';
+import { useLanguage } from '@/lib/i18n';
 
 type ViewModel = ReturnType<typeof useEmployeeDetail>;
 
 export function OverviewTab({ vm }: { vm: ViewModel }) {
+    const { t } = useLanguage();
     const {
         params, router, employee, setEmployee, loading, error, noPermission,
         activeTab, setActiveTab, isEditing, setIsEditing, saving,
@@ -72,19 +74,19 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
     return (
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <Card title="Personal Information" icon={User} iconColor="text-blue-600" iconBg="bg-blue-50">
+                            <Card title={t('Personal Information')} icon={User} iconColor="text-blue-600" iconBg="bg-blue-50">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <Field label="First Name" value={editForm.first_name} editing={isEditing} onChange={v => setEditForm({ ...editForm, first_name: v })} />
-                                    <Field label="Prefix" value={editForm.prefix_name} editing={isEditing} onChange={v => setEditForm({ ...editForm, prefix_name: v })} />
-                                    <Field label="Last Name" value={editForm.last_name} editing={isEditing} onChange={v => setEditForm({ ...editForm, last_name: v })} />
-                                    <Field label="Gender" value={editForm.gender} editing={isEditing} type="select" options={['male', 'female', 'other']} onChange={v => setEditForm({ ...editForm, gender: v })} />
-                                    <Field label="Date of Birth" value={editForm.date_of_birth} editing={isEditing} type="date" onChange={v => setEditForm({ ...editForm, date_of_birth: v })} />
-                                    <Field label="Birthplace" value={editForm.birthplace} editing={isEditing} onChange={v => setEditForm({ ...editForm, birthplace: v })} />
+                                    <Field label={t('First Name')} value={editForm.first_name} editing={isEditing} onChange={v => setEditForm({ ...editForm, first_name: v })} />
+                                    <Field label={t('Prefix')} value={editForm.prefix_name} editing={isEditing} onChange={v => setEditForm({ ...editForm, prefix_name: v })} />
+                                    <Field label={t('Last Name')} value={editForm.last_name} editing={isEditing} onChange={v => setEditForm({ ...editForm, last_name: v })} />
+                                    <Field label={t('Gender')} value={editForm.gender} editing={isEditing} type="select" options={['male', 'female', 'other']} onChange={v => setEditForm({ ...editForm, gender: v })} />
+                                    <Field label={t('Date of Birth')} value={editForm.date_of_birth} editing={isEditing} type="date" onChange={v => setEditForm({ ...editForm, date_of_birth: v })} />
+                                    <Field label={t('Birthplace')} value={editForm.birthplace} editing={isEditing} onChange={v => setEditForm({ ...editForm, birthplace: v })} />
 
                                     {/* Custom Searchable Nationality Dropdown */}
                                     {isEditing ? (
                                         <div ref={nationalityDropdownRef} style={{ position: 'relative' }}>
-                                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' }}>Nationality</label>
+                                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' }}>{t('Nationality')}</label>
                                             <div
                                                 onClick={() => setNationalityDropdownOpen(!nationalityDropdownOpen)}
                                                 style={{
@@ -109,7 +111,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                                             {editForm.nationality}
                                                         </>
                                                     ) : (
-                                                        <span style={{ color: '#9CA3AF' }}>Select nationality...</span>
+                                                        <span style={{ color: '#9CA3AF' }}>{t('Select nationality...')}</span>
                                                     )}
                                                 </span>
                                                 <ChevronDown size={16} color="#6B7280" style={{ transform: nationalityDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
@@ -136,7 +138,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                                                 type="text"
                                                                 value={nationalitySearch}
                                                                 onChange={(e) => setNationalitySearch(e.target.value)}
-                                                                placeholder="Search nationality..."
+                                                                placeholder={t('Search nationality...')}
                                                                 autoFocus
                                                                 style={{
                                                                     width: '100%',
@@ -193,7 +195,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                                         }
                                                         {NATIONALITIES.filter(n => n.name.toLowerCase().includes(nationalitySearch.toLowerCase())).length === 0 && (
                                                             <div style={{ padding: '16px', textAlign: 'center', color: '#9CA3AF', fontSize: '14px' }}>
-                                                                No nationality found
+                                                                {t('No nationality found')}
                                                             </div>
                                                         )}
                                                     </div>
@@ -202,7 +204,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                         </div>
                                     ) : (
                                         <div style={{ padding: '4px 0' }}>
-                                            <p style={{ fontSize: '12px', fontWeight: 500, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '4px', margin: 0 }}>Nationality</p>
+                                            <p style={{ fontSize: '12px', fontWeight: 500, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '4px', margin: 0 }}>{t('Nationality')}</p>
                                             <p style={{ fontSize: '14px', fontWeight: 500, color: '#111827', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                 {editForm.nationality ? (
                                                     <>
@@ -214,7 +216,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                         </div>
                                     )}
                                     <Field
-                                        label="BSN"
+                                        label={t('BSN')}
                                         value={editForm.bsn ? editForm.bsn.replace(/\D/g, '').replace(/(\d{4})(\d{2})(\d{3})/, '$1.$2.$3') : ''}
                                         editing={isEditing}
                                         onChange={v => {
@@ -226,19 +228,19 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                 </div>
                             </Card>
 
-                            <Card title="Contact Information" icon={Phone} iconColor="text-green-600" iconBg="bg-green-50">
+                            <Card title={t('Contact Information')} icon={Phone} iconColor="text-green-600" iconBg="bg-green-50">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="col-span-2">
-                                        <Field label="Email" value={editForm.user?.email || employee.user?.email} editing={isEditing} onChange={v => setEditForm({ ...editForm, user: { ...editForm.user, email: v } as any })} />
+                                        <Field label={t('Email')} value={editForm.user?.email || employee.user?.email} editing={isEditing} onChange={v => setEditForm({ ...editForm, user: { ...editForm.user, email: v } as any })} />
                                     </div>
-                                    <Field label="Phone" value={editForm.phone_number} editing={isEditing} onChange={v => setEditForm({ ...editForm, phone_number: v })} />
-                                    <Field label="City" value={editForm.city} editing={isEditing} onChange={v => setEditForm({ ...editForm, city: v })} />
+                                    <Field label={t('Phone')} value={editForm.phone_number} editing={isEditing} onChange={v => setEditForm({ ...editForm, phone_number: v })} />
+                                    <Field label={t('City')} value={editForm.city} editing={isEditing} onChange={v => setEditForm({ ...editForm, city: v })} />
 
                                     {/* Street Name with Icon */}
                                     {isEditing ? (
                                         <div>
                                             <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' }}>
-                                                Street Name
+                                                {t('Street Name')}
                                             </label>
                                             <div style={{ position: 'relative' }}>
                                                 <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '14px' }}>🛣️</span>
@@ -261,7 +263,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                         </div>
                                     ) : (
                                         <div style={{ padding: '4px 0' }}>
-                                            <p style={{ fontSize: '12px', fontWeight: 500, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '4px', margin: 0 }}>Street Name</p>
+                                            <p style={{ fontSize: '12px', fontWeight: 500, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '4px', margin: 0 }}>{t('Street Name')}</p>
                                             <p style={{ fontSize: '14px', fontWeight: 500, color: '#111827', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                 <span style={{ fontSize: '12px' }}>🛣️</span>
                                                 {editForm.street_name || '—'}
@@ -275,7 +277,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                         {isEditing ? (
                                             <div style={{ flex: 1 }}>
                                                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' }}>
-                                                    House Nr.
+                                                    {t('House Nr.')}
                                                 </label>
                                                 <div style={{ position: 'relative' }}>
                                                     <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '14px' }}>🏠</span>
@@ -298,7 +300,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                             </div>
                                         ) : (
                                             <div style={{ padding: '4px 0', flex: 1 }}>
-                                                <p style={{ fontSize: '12px', fontWeight: 500, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '4px', margin: 0 }}>House Nr.</p>
+                                                <p style={{ fontSize: '12px', fontWeight: 500, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '4px', margin: 0 }}>{t('House Nr.')}</p>
                                                 <p style={{ fontSize: '14px', fontWeight: 500, color: '#111827', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                     <span style={{ fontSize: '12px' }}>🏠</span>
                                                     {editForm.house_number || '—'}
@@ -310,7 +312,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                         {isEditing ? (
                                             <div style={{ width: '80px' }}>
                                                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' }}>
-                                                    Add.
+                                                    {t('Add.')}
                                                 </label>
                                                 <div style={{ position: 'relative' }}>
                                                     <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '12px' }}>➕</span>
@@ -334,7 +336,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                             </div>
                                         ) : (
                                             <div style={{ padding: '4px 0', width: '80px' }}>
-                                                <p style={{ fontSize: '12px', fontWeight: 500, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '4px', margin: 0 }}>Add.</p>
+                                                <p style={{ fontSize: '12px', fontWeight: 500, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '4px', margin: 0 }}>{t('Add.')}</p>
                                                 <p style={{ fontSize: '14px', fontWeight: 500, color: '#111827', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                     {editForm.house_number_addition && <span style={{ fontSize: '12px' }}>➕</span>}
                                                     {editForm.house_number_addition || ''}
@@ -346,7 +348,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                     {/* Custom Postcode Input with Lookup */}
                                     {isEditing ? (
                                         <div ref={postcodeDropdownRef} style={{ position: 'relative' }}>
-                                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' }}>Postcode</label>
+                                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' }}>{t('Postcode')}</label>
                                             <div style={{ position: 'relative' }}>
                                                 <input
                                                     type="text"
@@ -457,7 +459,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                                                     color: '#059669',
                                                                     fontWeight: 600
                                                                 }}>
-                                                                    Select
+                                                                    {t('Select')}
                                                                 </div>
                                                             </div>
                                                         ))}
@@ -467,16 +469,16 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                         </div>
                                     ) : (
                                         <div style={{ padding: '4px 0' }}>
-                                            <p style={{ fontSize: '12px', fontWeight: 500, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '4px', margin: 0 }}>Postcode</p>
+                                            <p style={{ fontSize: '12px', fontWeight: 500, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '4px', margin: 0 }}>{t('Postcode')}</p>
                                             <p style={{ fontSize: '14px', fontWeight: 500, color: '#111827', margin: 0, fontFamily: 'monospace' }}>{editForm.postcode || '—'}</p>
                                         </div>
                                     )}
                                 </div>
                             </Card>
 
-                            <Card title="Financial Information" icon={CreditCard} iconColor="text-amber-600" iconBg="bg-amber-50">
+                            <Card title={t('Financial Information')} icon={CreditCard} iconColor="text-amber-600" iconBg="bg-amber-50">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <Field label="IBAN" value={editForm.iban} editing={isEditing} onChange={v => setEditForm({ ...editForm, iban: v.toUpperCase().replace(/\s/g, '') })} />
+                                    <Field label={t('IBAN')} value={editForm.iban} editing={isEditing} onChange={v => setEditForm({ ...editForm, iban: v.toUpperCase().replace(/\s/g, '') })} />
                                     <Field label="Hourly Rate (€)" value={editForm.hourly_rate} editing={isEditing} type="number" onChange={v => setEditForm({ ...editForm, hourly_rate: v })} />
                                 </div>
 
@@ -808,9 +810,9 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
                                         <thead>
                                             <tr style={{ borderBottom: '1px solid #E5E7EB', color: '#6B7280', textAlign: 'left' }}>
-                                                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Hourly Rate</th>
-                                                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Effective From</th>
-                                                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Effective To</th>
+                                                <th style={{ padding: '12px 16px', fontWeight: 600 }}>{t('Hourly Rate')}</th>
+                                                <th style={{ padding: '12px 16px', fontWeight: 600 }}>{t('Effective From')}</th>
+                                                <th style={{ padding: '12px 16px', fontWeight: 600 }}>{t('Effective To')}</th>
                                                 <th style={{ padding: '12px 16px', fontWeight: 600 }}>Changed By</th>
                                             </tr>
                                         </thead>
@@ -827,7 +829,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                                         <td style={{ padding: '12px 16px', color: '#374151' }}>
                                                             {history.effective_to
                                                                 ? new Date(history.effective_to).toLocaleDateString()
-                                                                : <span style={{ color: '#059669', fontWeight: 500, backgroundColor: '#D1FAE5', padding: '2px 8px', borderRadius: '4px', fontSize: '12px' }}>Current</span>
+                                                                : <span style={{ color: '#059669', fontWeight: 500, backgroundColor: '#D1FAE5', padding: '2px 8px', borderRadius: '4px', fontSize: '12px' }}>{t('Current')}</span>
                                                             }
                                                         </td>
                                                         <td style={{ padding: '12px 16px', color: '#6B7280' }}>
@@ -850,8 +852,8 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                             <Card title="Timeline" icon={Clock} iconColor="text-purple-600" iconBg="bg-purple-50">
                                 <div className="space-y-3">
                                     <TimelineRow label="Created" date={employee.created_at} />
-                                    <TimelineRow label="Submitted" date={employee.submitted_at} />
-                                    <TimelineRow label="Approved" date={employee.approved_at} />
+                                    <TimelineRow label={t('Submitted')} date={employee.submitted_at} />
+                                    <TimelineRow label={t('Approved')} date={employee.approved_at} />
                                 </div>
                             </Card>
                         </div>

@@ -224,7 +224,7 @@ export default function AllowancesPage() {
                             color: '#1F2937',
                             margin: 0
                         }}>
-                            Allowance Types
+                            {t('Allowance Types')}
                         </h1>
                         <p style={{
                             fontSize: '15px',
@@ -268,7 +268,7 @@ export default function AllowancesPage() {
                     marginBottom: '32px'
                 }}>
                     <StatCard label="Total Types" value={stats.total} icon={Gift} color="#DC2626" />
-                    <StatCard label="Active" value={stats.active} icon={CheckCircle} color="#10B981" />
+                    <StatCard label={t('Active')} value={stats.active} icon={CheckCircle} color="#10B981" />
                     <StatCard label="Avg. Rate" value={`€${(stats.totalValue / (stats.total || 1)).toFixed(2)}/hr`} icon={Euro} color="#6366F1" isText />
                 </div>
 
@@ -283,7 +283,7 @@ export default function AllowancesPage() {
                         <Search size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
                         <input
                             type="text"
-                            placeholder="Search allowance types..."
+                            placeholder={t('Search allowance types...')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={{
@@ -338,10 +338,10 @@ export default function AllowancesPage() {
                         letterSpacing: '0.05em'
                     }}>
                         <div>Allowance Name</div>
-                        <div>Code</div>
-                        <div style={{ textAlign: 'center' }}>Base Price</div>
-                        <div style={{ textAlign: 'center' }}>Status</div>
-                        <div style={{ textAlign: 'center' }}>Actions</div>
+                        <div>{t('Code')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('Base Price')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('Status')}</div>
+                        <div style={{ textAlign: 'center' }}>{t('Actions')}</div>
                     </div>
 
                     {/* Table Body */}
@@ -355,7 +355,7 @@ export default function AllowancesPage() {
                         <div style={{ padding: '60px 20px', textAlign: 'center', color: '#EF4444' }}>
                             <AlertTriangle size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
                             <p style={{ fontSize: '16px', fontWeight: 500 }}>{error}</p>
-                            <button onClick={loadAllowances} style={{ marginTop: '16px', padding: '8px 16px', backgroundColor: '#DC2626', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Retry</button>
+                            <button onClick={loadAllowances} style={{ marginTop: '16px', padding: '8px 16px', backgroundColor: '#DC2626', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>{t('Retry')}</button>
                         </div>
                     ) : filteredAllowances.length === 0 ? (
                         <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>
@@ -442,16 +442,16 @@ export default function AllowancesPage() {
                                         }}
                                     >
                                         {allowance.is_active ? <CheckCircle size={12} /> : <XCircle size={12} />}
-                                        {allowance.is_active ? 'Active' : 'Inactive'}
+                                        {allowance.is_active ? t('Active') : t('Inactive')}
                                     </button>
                                 </div>
 
                                 {/* Actions */}
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                                    <button onClick={() => openModal(allowance)} style={{ padding: '8px', color: '#6B7280', backgroundColor: 'transparent', border: 'none', borderRadius: '6px', cursor: 'pointer' }} title="Edit">
+                                    <button onClick={() => openModal(allowance)} style={{ padding: '8px', color: '#6B7280', backgroundColor: 'transparent', border: 'none', borderRadius: '6px', cursor: 'pointer' }} title={t('Edit')}>
                                         <Edit2 size={16} />
                                     </button>
-                                    <button onClick={() => deleteAllowance(allowance.id)} style={{ padding: '8px', color: '#EF4444', backgroundColor: 'transparent', border: 'none', borderRadius: '6px', cursor: 'pointer' }} title="Delete">
+                                    <button onClick={() => deleteAllowance(allowance.id)} style={{ padding: '8px', color: '#EF4444', backgroundColor: 'transparent', border: 'none', borderRadius: '6px', cursor: 'pointer' }} title={t('Delete')}>
                                         <Trash2 size={16} />
                                     </button>
                                 </div>
@@ -526,7 +526,7 @@ export default function AllowancesPage() {
 
                                 {/* Description */}
                                 <div style={{ marginBottom: '20px' }}>
-                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px', color: '#374151' }}>Description</label>
+                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px', color: '#374151' }}>{t('Description')}</label>
                                     <textarea
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -555,14 +555,14 @@ export default function AllowancesPage() {
                                         onClick={() => setIsModalOpen(false)}
                                         style={{ flex: 1, padding: '12px', fontSize: '14px', fontWeight: 600, color: '#6B7280', backgroundColor: '#F3F4F6', border: 'none', borderRadius: '10px', cursor: 'pointer' }}
                                     >
-                                        Cancel
+                                        {t('Cancel')}
                                     </button>
                                     <button
                                         onClick={saveAllowance}
                                         disabled={saving}
                                         style={{ flex: 1, padding: '12px', fontSize: '14px', fontWeight: 600, color: 'white', backgroundColor: '#DC2626', border: 'none', borderRadius: '10px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}
                                     >
-                                        {saving ? 'Saving...' : (editingAllowance ? 'Update' : 'Create')}
+                                        {saving ? 'Saving...' : (editingAllowance ? t('Update') : t('Create'))}
                                     </button>
                                 </div>
                             </div>

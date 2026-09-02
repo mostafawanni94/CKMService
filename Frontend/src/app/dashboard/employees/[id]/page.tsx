@@ -22,11 +22,13 @@ import {
     LICENSE_CATEGORIES, COUNTRIES, NATIONALITIES, DOCUMENT_TYPES
 } from '@/components/features/employees/EmployeeHelpers';
 import { apiFetch } from '@/hooks/useApi';
+import { useLanguage } from '@/lib/i18n';
 
 
 
 
 export default function EmployeeDetailPage() {
+    const { t } = useLanguage();
     const vm = useEmployeeDetail();
 
     // Destructure everything from the hook for backwards-compatible JSX
@@ -81,14 +83,14 @@ export default function EmployeeDetailPage() {
 
     const tabs = [
         { id: 'overview' as TabType, label: 'Overview', icon: User },
-        { id: 'documents' as TabType, label: 'Documents', icon: FileText },
+        { id: 'documents' as TabType, label: t('Documents'), icon: FileText },
         { id: 'contract' as TabType, label: 'Contract', icon: Briefcase },
-        { id: 'certificates' as TabType, label: 'Certificates', icon: Award },
+        { id: 'certificates' as TabType, label: t('Certificates'), icon: Award },
     ];
 
-    if (noPermission) return <DashboardLayout><div className="flex items-center justify-center h-[80vh]"><div className="text-center"><Lock className="w-16 h-16 text-red-500 mx-auto mb-4" /><p className="text-gray-600 mb-4">Access Denied</p><Button onClick={() => router.push('/dashboard')} className="bg-[#1E3A5F]">Back</Button></div></div></DashboardLayout>;
+    if (noPermission) return <DashboardLayout><div className="flex items-center justify-center h-[80vh]"><div className="text-center"><Lock className="w-16 h-16 text-red-500 mx-auto mb-4" /><p className="text-gray-600 mb-4">Access Denied</p><Button onClick={() => router.push('/dashboard')} className="bg-[#1E3A5F]">{t('Back')}</Button></div></div></DashboardLayout>;
     if (loading) return <DashboardLayout><div className="flex items-center justify-center h-[80vh]"><div className="w-10 h-10 border-4 border-[#1E3A5F] border-t-transparent rounded-full animate-spin"></div></div></DashboardLayout>;
-    if (error || !employee) return <DashboardLayout><div className="flex items-center justify-center h-[80vh]"><div className="text-center"><AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" /><p className="text-gray-500 mb-4">{error || 'Not found'}</p><Button onClick={() => router.push('/dashboard/employees')} className="bg-[#1E3A5F]">Back</Button></div></div></DashboardLayout>;
+    if (error || !employee) return <DashboardLayout><div className="flex items-center justify-center h-[80vh]"><div className="text-center"><AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" /><p className="text-gray-500 mb-4">{error || 'Not found'}</p><Button onClick={() => router.push('/dashboard/employees')} className="bg-[#1E3A5F]">{t('Back')}</Button></div></div></DashboardLayout>;
 
     const status = statusStyles[employee.status] || statusStyles.incomplete;
 
@@ -122,7 +124,7 @@ export default function EmployeeDetailPage() {
                                             transition: 'all 0.2s'
                                         }}
                                     >
-                                        <X style={{ width: '16px', height: '16px' }} /> Cancel
+                                        <X style={{ width: '16px', height: '16px' }} /> {t('Cancel')}
                                     </button>
                                     <button
                                         onClick={handleSaveEdit}
@@ -142,7 +144,7 @@ export default function EmployeeDetailPage() {
                                             transition: 'all 0.2s'
                                         }}
                                     >
-                                        <Save style={{ width: '16px', height: '16px' }} /> {saving ? 'Saving...' : 'Save'}
+                                        <Save style={{ width: '16px', height: '16px' }} /> {saving ? 'Saving...' : t('Save')}
                                     </button>
                                 </>
                             ) : (
@@ -164,7 +166,7 @@ export default function EmployeeDetailPage() {
                                             transition: 'all 0.2s'
                                         }}
                                     >
-                                        <Edit style={{ width: '16px', height: '16px' }} /> Edit
+                                        <Edit style={{ width: '16px', height: '16px' }} /> {t('Edit')}
                                     </button>
                                     {employee.status === 'pending' && (
                                         <>
@@ -186,7 +188,7 @@ export default function EmployeeDetailPage() {
                                                     boxShadow: '0 4px 12px rgba(22, 163, 74, 0.3)'
                                                 }}
                                             >
-                                                <Check style={{ width: '16px', height: '16px' }} /> Approve
+                                                <Check style={{ width: '16px', height: '16px' }} /> {t('Approve')}
                                             </button>
                                             <button
                                                 onClick={() => setShowRejectModal(true)}
@@ -206,7 +208,7 @@ export default function EmployeeDetailPage() {
                                                     boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)'
                                                 }}
                                             >
-                                                <X style={{ width: '16px', height: '16px' }} /> Reject
+                                                <X style={{ width: '16px', height: '16px' }} /> {t('Reject')}
                                             </button>
                                         </>
                                     )}
@@ -306,10 +308,10 @@ export default function EmployeeDetailPage() {
                                     outline: 'none'
                                 }}
                             >
-                                <option value="incomplete" style={{ color: '#374151', backgroundColor: 'white' }}>Incomplete</option>
-                                <option value="pending" style={{ color: '#374151', backgroundColor: 'white' }}>Pending</option>
-                                <option value="approved" style={{ color: '#374151', backgroundColor: 'white' }}>Approved</option>
-                                <option value="rejected" style={{ color: '#374151', backgroundColor: 'white' }}>Rejected</option>
+                                <option value="incomplete" style={{ color: '#374151', backgroundColor: 'white' }}>{t('Incomplete')}</option>
+                                <option value="pending" style={{ color: '#374151', backgroundColor: 'white' }}>{t('Pending')}</option>
+                                <option value="approved" style={{ color: '#374151', backgroundColor: 'white' }}>{t('Approved')}</option>
+                                <option value="rejected" style={{ color: '#374151', backgroundColor: 'white' }}>{t('Rejected')}</option>
                                 <option value="suspended" style={{ color: '#374151', backgroundColor: 'white' }}>Suspended</option>
                             </select>
                             {/* Status Icon */}
@@ -496,7 +498,7 @@ export default function EmployeeDetailPage() {
                                             transition: 'all 0.2s'
                                         }}
                                     >
-                                        Cancel
+                                        {t('Cancel')}
                                     </button>
                                     <button
                                         onClick={handleApprove}
@@ -517,7 +519,7 @@ export default function EmployeeDetailPage() {
                                             transition: 'all 0.2s'
                                         }}
                                     >
-                                        <CheckCircle style={{ width: '16px', height: '16px' }} /> Approve
+                                        <CheckCircle style={{ width: '16px', height: '16px' }} /> {t('Approve')}
                                     </button>
                                 </div>
                             </div>
@@ -612,7 +614,7 @@ export default function EmployeeDetailPage() {
                                         cursor: 'pointer'
                                     }}
                                 >
-                                    Cancel
+                                    {t('Cancel')}
                                 </button>
                             </div>
                         </div>
@@ -690,7 +692,7 @@ export default function EmployeeDetailPage() {
                                             transition: 'all 0.2s'
                                         }}
                                     >
-                                        Cancel
+                                        {t('Cancel')}
                                     </button>
                                     <button
                                         onClick={handleReject}
@@ -712,7 +714,7 @@ export default function EmployeeDetailPage() {
                                             transition: 'all 0.2s'
                                         }}
                                     >
-                                        <X style={{ width: '16px', height: '16px' }} /> Reject
+                                        <X style={{ width: '16px', height: '16px' }} /> {t('Reject')}
                                     </button>
                                 </div>
                             </div>

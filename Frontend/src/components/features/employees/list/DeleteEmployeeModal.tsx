@@ -141,9 +141,9 @@ export function DeleteEmployeeModal({ vm }: { vm: ViewModel }) {
                                 Are you sure you want to delete <strong>{selectedEmployee.full_name}</strong>? This action cannot be undone.
                             </p>
                             <div style={{ display: 'flex', gap: '12px' }}>
-                                <button onClick={() => setShowDeleteModal(false)} style={{ flex: 1, padding: '12px', backgroundColor: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                                <button onClick={() => setShowDeleteModal(false)} style={{ flex: 1, padding: '12px', backgroundColor: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>{t('Cancel')}</button>
                                 <button onClick={handleDelete} disabled={deleting} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', backgroundColor: '#DC2626', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? 0.7 : 1 }}>
-                                    <Trash2 style={{ width: '16px', height: '16px' }} /> {deleting ? 'Deleting...' : 'Delete'}
+                                    <Trash2 style={{ width: '16px', height: '16px' }} /> {deleting ? 'Deleting...' : t('Delete')}
                                 </button>
                             </div>
                         </div>

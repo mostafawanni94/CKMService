@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/shared';
 import { useContracts, type ContractRow } from '@/hooks/useHr';
 import styles from '../page.module.css';
+import { useLanguage } from '@/lib/i18n';
 
 const STATUS_OPTIONS = [
     { value: 'all', label: 'All statuses' },
@@ -24,33 +25,34 @@ const STATUS_OPTIONS = [
 ];
 
 export default function HRContractsPage() {
+    const { t } = useLanguage();
     const vm = useContracts();
 
     const columns = [
         {
             key: 'employee_name',
-            header: 'Employee',
+            header: t('Employee'),
             render: (row: ContractRow) => row.employee_name || '—',
         },
         {
             key: 'effective_from',
-            header: 'From',
+            header: t('From'),
             render: (row: ContractRow) => row.effective_from,
         },
         {
             key: 'effective_to',
-            header: 'To',
+            header: t('To'),
             render: (row: ContractRow) => row.effective_to ?? 'Open-ended',
         },
         {
             key: 'hourly_rate',
-            header: 'Rate',
+            header: t('Rate'),
             align: 'right' as const,
             render: (row: ContractRow) => `€ ${Number(row.hourly_rate || 0).toFixed(2)}`,
         },
         {
             key: 'status',
-            header: 'Status',
+            header: t('Status'),
             render: (row: ContractRow) => (
                 <StatusBadge
                     status={row.status}
@@ -77,7 +79,7 @@ export default function HRContractsPage() {
                             textDecoration: 'none',
                         }}
                     >
-                        <Download size={14} /> Document
+                        <Download size={14} /> {t('Document')}
                     </a>
                 ) : (
                     <span style={{ color: '#94A3B8', fontSize: 13 }}>—</span>
@@ -89,13 +91,13 @@ export default function HRContractsPage() {
         <DashboardLayout>
             <div className={styles.container}>
                 <PageHeader
-                    title="Contracts"
+                    title={t('Contracts')}
                     subtitle="Employee contracts and upcoming expiries"
                 />
 
                 <div className={styles.statRow}>
-                    <StatCard label="Total" value={vm.counts.total} />
-                    <StatCard label="Active" value={vm.counts.active} />
+                    <StatCard label={t('Total')} value={vm.counts.total} />
+                    <StatCard label={t('Active')} value={vm.counts.active} />
                     <StatCard label="Expiring" value={vm.counts.expiring} />
                     <StatCard label="Expired" value={vm.counts.expired} />
                 </div>
@@ -104,7 +106,7 @@ export default function HRContractsPage() {
                     <SearchBar
                         value={vm.searchQuery}
                         onChange={vm.setSearchQuery}
-                        placeholder="Search employee..."
+                        placeholder={t('Search employee...')}
                         style={{ flex: 1, minWidth: 240 }}
                     />
                     <Select

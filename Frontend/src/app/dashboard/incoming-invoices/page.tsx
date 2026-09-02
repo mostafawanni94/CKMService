@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/shared';
 import { useIncomingInvoices, type IncomingInvoice } from '@/hooks/useIncomingInvoices';
 import styles from './page.module.css';
+import { useLanguage } from '@/lib/i18n';
 
 const STATUS_OPTIONS = [
     { value: 'all', label: 'All statuses' },
@@ -32,6 +33,7 @@ const euro = (value: string | number) =>
     `€ ${Number(value || 0).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export default function IncomingInvoicesPage() {
+    const { t } = useLanguage();
     const vm = useIncomingInvoices();
 
     const columns = [
@@ -47,7 +49,7 @@ export default function IncomingInvoicesPage() {
         },
         {
             key: 'invoice_date',
-            header: 'Date',
+            header: t('Date'),
             render: (row: IncomingInvoice) => row.invoice_date,
         },
         {
@@ -60,13 +62,13 @@ export default function IncomingInvoicesPage() {
         },
         {
             key: 'total',
-            header: 'Total',
+            header: t('Total'),
             align: 'right' as const,
             render: (row: IncomingInvoice) => euro(row.total),
         },
         {
             key: 'status',
-            header: 'Status',
+            header: t('Status'),
             render: (row: IncomingInvoice) => <StatusBadge status={row.status} />,
         },
         {
@@ -74,14 +76,14 @@ export default function IncomingInvoicesPage() {
             header: '',
             render: (row: IncomingInvoice) => (
                 <div className={styles.rowActions}>
-                    <Button variant="ghost" onClick={() => vm.openEdit(row)}>Edit</Button>
+                    <Button variant="ghost" onClick={() => vm.openEdit(row)}>{t('Edit')}</Button>
                     {row.status !== 'paid' && (
                         <Button
                             variant="success"
                             onClick={() => vm.markPaid(row.id)}
                             icon={<Check size={14} />}
                         >
-                            Paid
+                            {t('Paid')}
                         </Button>
                     )}
                     <Button
@@ -89,7 +91,7 @@ export default function IncomingInvoicesPage() {
                         onClick={() => vm.remove(row.id)}
                         icon={<Trash2 size={14} />}
                     >
-                        Delete
+                        {t('Delete')}
                     </Button>
                 </div>
             ),
@@ -100,7 +102,7 @@ export default function IncomingInvoicesPage() {
         <DashboardLayout>
             <div className={styles.container}>
                 <PageHeader
-                    title="Incoming Invoices"
+                    title={t('Incoming Invoices')}
                     subtitle="Supplier and subcontractor payables"
                     actions={
                         <Button onClick={vm.openCreate} icon={<Plus size={16} />}>
@@ -110,19 +112,19 @@ export default function IncomingInvoicesPage() {
                 />
 
                 <div className={styles.statRow}>
-                    <StatCard label="Total" value={vm.summary?.total_count ?? 0} />
+                    <StatCard label={t('Total')} value={vm.summary?.total_count ?? 0} />
                     <StatCard
-                        label="Pending"
+                        label={t('Pending')}
                         value={euro(vm.summary?.pending_total ?? 0)}
                         subtitle={`${vm.summary?.pending_count ?? 0} invoices`}
                     />
                     <StatCard
-                        label="Overdue"
+                        label={t('Overdue')}
                         value={euro(vm.summary?.overdue_total ?? 0)}
                         subtitle={`${vm.summary?.overdue_count ?? 0} invoices`}
                     />
                     <StatCard
-                        label="Paid"
+                        label={t('Paid')}
                         value={euro(vm.summary?.paid_total ?? 0)}
                         subtitle={`${vm.summary?.paid_count ?? 0} invoices`}
                     />
@@ -162,9 +164,9 @@ export default function IncomingInvoicesPage() {
                     footer={
                         <>
                             <Button variant="secondary" onClick={() => vm.setShowModal(false)}>
-                                Cancel
+                                {t('Cancel')}
                             </Button>
-                            <Button onClick={vm.save} loading={vm.saving}>Save</Button>
+                            <Button onClick={vm.save} loading={vm.saving}>{t('Save')}</Button>
                         </>
                     }
                 >
@@ -187,7 +189,7 @@ export default function IncomingInvoicesPage() {
                             onChange={(v) => vm.updateForm('vendor_vat_number', v)}
                         />
                         <Select
-                            label="Status"
+                            label={t('Status')}
                             value={vm.form.status}
                             onChange={(v) => vm.updateForm('status', v)}
                             options={FORM_STATUS_OPTIONS}
@@ -220,12 +222,12 @@ export default function IncomingInvoicesPage() {
                         />
                     </FormGrid>
                     <TextArea
-                        label="Description"
+                        label={t('Description')}
                         value={vm.form.description}
                         onChange={(v) => vm.updateForm('description', v)}
                     />
                     <TextArea
-                        label="Notes"
+                        label={t('Notes')}
                         value={vm.form.notes}
                         onChange={(v) => vm.updateForm('notes', v)}
                     />

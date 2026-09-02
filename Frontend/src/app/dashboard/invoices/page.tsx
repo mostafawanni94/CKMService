@@ -11,6 +11,7 @@ import { useInvoices } from '@/hooks/useInvoices';
 import { InvoiceFilters } from '@/components/features/invoices/InvoiceFilters';
 import { ExportInvoiceModal } from '@/components/features/invoices/ExportInvoiceModal';
 import { apiDownload, apiFetch, apiGetAll } from '@/hooks/useApi';
+import { useLanguage } from '@/lib/i18n';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -20,6 +21,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 
 export default function InvoicesPage() {
+    const { t } = useLanguage();
     const vm = useInvoices();
     const {
         statusColors, customerSearch, customerSurcharges, customers, employeeSearch, employees, error, exportExcelForCustomer, exportExcelForEmployee, exportPDF, filter, filteredInvoices, generateInvoice, getFilteredHours, invoiceMessage, invoices, loadInvoiceDetail, loadInvoices, loadSupervisors, loading, loadingWorklogs, router, search, selectedCustomer, selectedEmployees, selectedInvoice, selectedSupervisor, setCustomerSearch, setEmployeeSearch, setFilter, setInvoiceMessage, setSearch, setSelectedCustomer, setSelectedEmployees, setSelectedInvoice, setSelectedSupervisor, setShowCustomerDropdown, setShowEmployeeDropdown, setShowExportModal, setShowFilters, setShowSupervisorDropdown, setSupervisorSearch, setSupervisors, setWeekEnd, setWeekStart, setWorklogStatusFilter, setWorklogs, showCustomerDropdown, showEmployeeDropdown, showExportModal, showFilters, showSupervisorDropdown, supervisorSearch, supervisors, weekEnd, weekStart, worklogStatusFilter, worklogs,
@@ -57,7 +59,7 @@ export default function InvoicesPage() {
                             gap: '12px'
                         }}>
                             <FileText style={{ width: '28px', height: '28px' }} />
-                            Outgoing Invoices
+                            {t('Outgoing Invoices')}
                         </h1>
                         <p style={{
                             fontSize: '15px',
@@ -190,7 +192,7 @@ export default function InvoicesPage() {
                 {error ? (
                     <Card className="p-8 text-center">
                         <p className="text-red-600 mb-4">{error}</p>
-                        <Button onClick={loadInvoices}>Retry</Button>
+                        <Button onClick={loadInvoices}>{t('Retry')}</Button>
                     </Card>
                 ) : (
                     <Card>
@@ -198,12 +200,12 @@ export default function InvoicesPage() {
                             <table className="w-full">
                                 <thead className="bg-gray-50 border-b">
                                     <tr>
-                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Invoice</th>
-                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Customer</th>
-                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Period</th>
-                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Amount</th>
-                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Status</th>
-                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Actions</th>
+                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">{t('Invoice')}</th>
+                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">{t('Customer')}</th>
+                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">{t('Period')}</th>
+                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">{t('Amount')}</th>
+                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">{t('Status')}</th>
+                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">{t('Actions')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y">
@@ -282,12 +284,12 @@ export default function InvoicesPage() {
                                                     <div className="flex gap-2">
                                                         <button
                                                             className="p-2 hover:bg-gray-100 rounded-lg"
-                                                            title="View"
+                                                            title={t('View')}
                                                             onClick={() => loadInvoiceDetail(invoice.id)}
                                                         >
                                                             <Eye className="w-4 h-4 text-gray-500" />
                                                         </button>
-                                                        <button className="p-2 hover:bg-gray-100 rounded-lg" title="Download PDF">
+                                                        <button className="p-2 hover:bg-gray-100 rounded-lg" title={t('Download PDF')}>
                                                             <Download className="w-4 h-4 text-gray-500" />
                                                         </button>
                                                     </div>
@@ -333,7 +335,7 @@ export default function InvoicesPage() {
                                         className="flex items-center gap-2 px-4 py-2 bg-[#1E3A5F] text-white rounded-lg font-medium"
                                     >
                                         <Download className="w-4 h-4" />
-                                        Download PDF
+                                        {t('Download PDF')}
                                     </button>
                                     <button
                                         onClick={() => setSelectedInvoice(null)}
@@ -347,7 +349,7 @@ export default function InvoicesPage() {
                             <div className="p-6 space-y-6">
                                 {/* Period Info */}
                                 <div className="bg-gray-50 rounded-xl p-4">
-                                    <p className="text-sm text-gray-500">Period</p>
+                                    <p className="text-sm text-gray-500">{t('Period')}</p>
                                     <p className="font-semibold">
                                         Week {selectedInvoice.week_number}, {selectedInvoice.week_year}
                                     </p>
@@ -366,11 +368,11 @@ export default function InvoicesPage() {
                                         <table className="w-full">
                                             <thead className="bg-gray-50">
                                                 <tr>
-                                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employee</th>
-                                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Project</th>
-                                                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Hours</th>
-                                                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Rate</th>
-                                                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
+                                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('Employee')}</th>
+                                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('Project')}</th>
+                                                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('Hours')}</th>
+                                                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('Rate')}</th>
+                                                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('Total')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y">
@@ -405,11 +407,11 @@ export default function InvoicesPage() {
                                             <table className="w-full">
                                                 <thead className="bg-purple-100/50">
                                                     <tr>
-                                                        <th className="px-4 py-3 text-left text-xs font-medium text-purple-700 uppercase">Employee</th>
+                                                        <th className="px-4 py-3 text-left text-xs font-medium text-purple-700 uppercase">{t('Employee')}</th>
                                                         <th className="px-4 py-3 text-left text-xs font-medium text-purple-700 uppercase">Allowance Type</th>
-                                                        <th className="px-4 py-3 text-right text-xs font-medium text-purple-700 uppercase">Hours</th>
-                                                        <th className="px-4 py-3 text-right text-xs font-medium text-purple-700 uppercase">Rate</th>
-                                                        <th className="px-4 py-3 text-right text-xs font-medium text-purple-700 uppercase">Total</th>
+                                                        <th className="px-4 py-3 text-right text-xs font-medium text-purple-700 uppercase">{t('Hours')}</th>
+                                                        <th className="px-4 py-3 text-right text-xs font-medium text-purple-700 uppercase">{t('Rate')}</th>
+                                                        <th className="px-4 py-3 text-right text-xs font-medium text-purple-700 uppercase">{t('Total')}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-purple-100">
@@ -441,9 +443,9 @@ export default function InvoicesPage() {
                                             <table className="w-full">
                                                 <thead className="bg-amber-100/50">
                                                     <tr>
-                                                        <th className="px-4 py-3 text-left text-xs font-medium text-amber-700 uppercase">Employee</th>
-                                                        <th className="px-4 py-3 text-left text-xs font-medium text-amber-700 uppercase">Description</th>
-                                                        <th className="px-4 py-3 text-right text-xs font-medium text-amber-700 uppercase">Amount</th>
+                                                        <th className="px-4 py-3 text-left text-xs font-medium text-amber-700 uppercase">{t('Employee')}</th>
+                                                        <th className="px-4 py-3 text-left text-xs font-medium text-amber-700 uppercase">{t('Description')}</th>
+                                                        <th className="px-4 py-3 text-right text-xs font-medium text-amber-700 uppercase">{t('Amount')}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-amber-100">
@@ -471,11 +473,11 @@ export default function InvoicesPage() {
                                             <table className="w-full">
                                                 <thead className="bg-gray-50">
                                                     <tr>
-                                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('Type')}</th>
+                                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('Description')}</th>
                                                         <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Qty</th>
-                                                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Price</th>
-                                                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
+                                                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('Price')}</th>
+                                                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('Total')}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y">
@@ -507,11 +509,11 @@ export default function InvoicesPage() {
                                                 <span>€{selectedInvoice.total_costs.toLocaleString()}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-purple-300">Allowances</span>
+                                                <span className="text-purple-300">{t('Allowances')}</span>
                                                 <span>€{selectedInvoice.total_allowances.toLocaleString()}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-amber-300">Gratuities</span>
+                                                <span className="text-amber-300">{t('Gratuities')}</span>
                                                 <span>€{selectedInvoice.total_gratuities.toLocaleString()}</span>
                                             </div>
                                         </div>

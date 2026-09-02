@@ -13,6 +13,19 @@ export type PhraseTable = Record<string, string>;
 
 /** English is the key space, so it needs no table of its own. */
 const nl: PhraseTable = {
+    // Navigation
+    'Weekly Board': 'Weekoverzicht',
+    'Contract Types': 'Contracttypen',
+    'Day Payment Types': 'Dagtoeslagtypen',
+    'HR': 'HR',
+    'Finance': 'Financiën',
+    'Outgoing Invoices': 'Uitgaande facturen',
+    'Incoming Invoices': 'Inkomende facturen',
+    'Financial Overview': 'Financieel overzicht',
+    'BTW Aangifte': 'Btw-aangifte',
+    'Expenses Summary': 'Kostenoverzicht',
+    'Allowance Types': 'Toeslagtypen',
+
     // Actions
     'Save': 'Opslaan',
     'Cancel': 'Annuleren',
@@ -246,6 +259,19 @@ const nl: PhraseTable = {
 };
 
 const ar: PhraseTable = {
+    // Navigation
+    'Weekly Board': 'اللوحة الأسبوعية',
+    'Contract Types': 'أنواع العقود',
+    'Day Payment Types': 'أنواع بدلات اليوم',
+    'HR': 'الموارد البشرية',
+    'Finance': 'المالية',
+    'Outgoing Invoices': 'الفواتير الصادرة',
+    'Incoming Invoices': 'الفواتير الواردة',
+    'Financial Overview': 'نظرة عامة مالية',
+    'BTW Aangifte': 'إقرار ضريبة القيمة المضافة',
+    'Expenses Summary': 'ملخص المصروفات',
+    'Allowance Types': 'أنواع البدلات',
+
     'Save': 'حفظ',
     'Cancel': 'إلغاء',
     'Delete': 'حذف',
@@ -474,6 +500,19 @@ const ar: PhraseTable = {
 };
 
 const ru: PhraseTable = {
+    // Navigation
+    'Weekly Board': 'Недельная доска',
+    'Contract Types': 'Типы договоров',
+    'Day Payment Types': 'Типы дневных надбавок',
+    'HR': 'Кадры',
+    'Finance': 'Финансы',
+    'Outgoing Invoices': 'Исходящие счета',
+    'Incoming Invoices': 'Входящие счета',
+    'Financial Overview': 'Финансовый обзор',
+    'BTW Aangifte': 'Декларация НДС',
+    'Expenses Summary': 'Сводка расходов',
+    'Allowance Types': 'Типы надбавок',
+
     'Save': 'Сохранить',
     'Cancel': 'Отмена',
     'Delete': 'Удалить',
@@ -702,6 +741,19 @@ const ru: PhraseTable = {
 };
 
 const uk: PhraseTable = {
+    // Navigation
+    'Weekly Board': 'Тижнева дошка',
+    'Contract Types': 'Типи договорів',
+    'Day Payment Types': 'Типи денних надбавок',
+    'HR': 'Кадри',
+    'Finance': 'Фінанси',
+    'Outgoing Invoices': 'Вихідні рахунки',
+    'Incoming Invoices': 'Вхідні рахунки',
+    'Financial Overview': 'Фінансовий огляд',
+    'BTW Aangifte': 'Декларація ПДВ',
+    'Expenses Summary': 'Зведення витрат',
+    'Allowance Types': 'Типи надбавок',
+
     'Save': 'Зберегти',
     'Cancel': 'Скасувати',
     'Delete': 'Видалити',

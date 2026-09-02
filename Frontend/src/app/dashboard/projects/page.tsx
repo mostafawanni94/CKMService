@@ -220,7 +220,7 @@ export default function ProjectsPage() {
                 {/* Header */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
                     <div>
-                        <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: 0 }}>Projects</h1>
+                        <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: 0 }}>{t('Projects')}</h1>
                         <p style={{ fontSize: '14px', color: '#6B7280', margin: '4px 0 0' }}>Manage your projects and assignments</p>
                     </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
@@ -237,7 +237,7 @@ export default function ProjectsPage() {
                                 cursor: 'pointer'
                             }}
                         >
-                            Refresh
+                            {t('Refresh')}
                         </button>
                         <button
                             onClick={() => setShowCreateModal(true)}
@@ -295,7 +295,7 @@ export default function ProjectsPage() {
                                 <FolderKanban style={{ width: '24px', height: '24px', color: '#16a34a' }} />
                             </div>
                             <div>
-                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>Active</p>
+                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>{t('Active')}</p>
                                 <p style={{ fontSize: '28px', fontWeight: 700, color: '#16a34a', margin: 0 }}>{stats.active}</p>
                             </div>
                         </div>
@@ -311,7 +311,7 @@ export default function ProjectsPage() {
                                 <FolderKanban style={{ width: '24px', height: '24px', color: '#4b5563' }} />
                             </div>
                             <div>
-                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>Completed</p>
+                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>{t('Completed')}</p>
                                 <p style={{ fontSize: '28px', fontWeight: 700, color: '#4b5563', margin: 0 }}>{stats.completed}</p>
                             </div>
                         </div>
@@ -401,7 +401,7 @@ export default function ProjectsPage() {
                                             <Search style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', width: '14px', height: '14px', color: '#9CA3AF' }} />
                                             <input
                                                 type="text"
-                                                placeholder="Search customers..."
+                                                placeholder={t('Search customers...')}
                                                 value={customerSearch}
                                                 onChange={(e) => setCustomerSearch(e.target.value)}
                                                 onClick={(e) => e.stopPropagation()}
@@ -423,14 +423,14 @@ export default function ProjectsPage() {
                                             onClick={() => setSelectedCustomers([])}
                                             style={{ padding: '4px 8px', fontSize: '12px', color: '#6B7280', backgroundColor: '#F3F4F6', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                         >
-                                            Clear All
+                                            {t('Clear All')}
                                         </button>
                                         <button
                                             onClick={() => setSelectedCustomers(customers.map(c => c.id))
                                             }
                                             style={{ padding: '4px 8px', fontSize: '12px', color: '#2563EB', backgroundColor: '#EFF6FF', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                                         >
-                                            Select All
+                                            {t('Select All')}
                                         </button>
                                     </div>
 
@@ -484,12 +484,12 @@ export default function ProjectsPage() {
                                         }
                                         {loadingCustomers && (
                                             <p style={{ padding: '12px', textAlign: 'center', color: '#6B7280', fontSize: '12px', margin: 0 }}>
-                                                Loading...
+                                                {t('Loading...')}
                                             </p>
                                         )}
                                         {customers.length === 0 && !loadingCustomers && (
                                             <p style={{ padding: '16px', textAlign: 'center', color: '#9CA3AF', fontSize: '13px', margin: 0 }}>
-                                                No customers found
+                                                {t('No customers found')}
                                             </p>
                                         )}
                                     </div>
@@ -500,7 +500,7 @@ export default function ProjectsPage() {
                                             onClick={() => setCustomerDropdownOpen(false)}
                                             style={{ width: '100%', padding: '8px', backgroundColor: '#1E3A5F', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
                                         >
-                                            Done
+                                            {t('Done')}
                                         </button>
                                     </div>
                                 </div>
@@ -588,7 +588,7 @@ export default function ProjectsPage() {
                             borderRadius: '8px',
                             cursor: 'pointer'
                         }}>
-                            Retry
+                            {t('Retry')}
                         </button>
                     </div>
                 ) : filteredProjects.length === 0 ? (
@@ -700,10 +700,10 @@ export default function ProjectsPage() {
                             color: '#6B7280',
                             textTransform: 'uppercase'
                         }}>
-                            <span>Project</span>
-                            <span>Customer</span>
-                            <span>Location</span>
-                            <span>Status</span>
+                            <span>{t('Project')}</span>
+                            <span>{t('Customer')}</span>
+                            <span>{t('Location')}</span>
+                            <span>{t('Status')}</span>
                             <span></span>
                         </div>
 
@@ -755,7 +755,7 @@ export default function ProjectsPage() {
                                         cursor: 'pointer'
                                     }}
                                 >
-                                    View
+                                    {t('View')}
                                 </button>
                             </div>
                         ))}
@@ -991,7 +991,7 @@ export default function ProjectsPage() {
                                                 cursor: 'pointer'
                                             }}
                                         >
-                                            Cancel
+                                            {t('Cancel')}
                                         </button>
                                         <button
                                             type="submit"

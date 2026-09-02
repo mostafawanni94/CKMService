@@ -9,6 +9,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, X, ChevronLeft, ChevronRight, ChevronDown, Loader2, AlertCircle } from 'lucide-react';
 import { colors, spacing, radius, fontSize, fontWeight, presets, shadows } from '@/styles/tokens';
+import { useLanguage } from '@/lib/i18n';
 
 // ═══════════════════════════════════════════════════════════════
 // BUTTON
@@ -539,11 +540,12 @@ export function DataTable<T>({
   columns, data, loading, emptyIcon, emptyTitle = 'No data',
   emptySubtitle, onRowClick, rowKey
 }: DataTableProps<T>) {
+    const { t } = useLanguage();
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '60px', color: colors.textLight }}>
         <Loader2 size={32} style={{ animation: 'spin 1s linear infinite', marginBottom: '12px' }} />
-        <p>Loading...</p>
+        <p>{t('Loading...')}</p>
       </div>
     );
   }
@@ -604,19 +606,20 @@ interface PaginationProps {
 }
 
 export function Pagination({ page, totalPages, onChange }: PaginationProps) {
+    const { t } = useLanguage();
   if (totalPages <= 1) return null;
   return (
     <nav aria-label="Paginering"
          style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: spacing.sm, marginTop: spacing.xl }}>
       <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => onChange(page - 1)} icon={<ChevronLeft size={16} />}>
-        Prev
+        {t('Prev')}
       </Button>
       <span aria-live="polite"
             style={{ fontSize: fontSize.md, color: colors.textMuted, padding: '0 12px' }}>
         Page {page} of {totalPages}
       </span>
       <Button variant="secondary" size="sm" disabled={page >= totalPages} onClick={() => onChange(page + 1)}>
-        Next <ChevronRight size={16} />
+        {t('Next')} <ChevronRight size={16} />
       </Button>
     </nav>
   );
