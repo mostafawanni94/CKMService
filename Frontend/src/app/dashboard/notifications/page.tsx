@@ -79,8 +79,8 @@ const categoryTabs_KEYS = [
 ];
 
 export default function NotificationsPage() {
-    const categoryTabs = categoryTabs_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
+    const categoryTabs = categoryTabs_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);

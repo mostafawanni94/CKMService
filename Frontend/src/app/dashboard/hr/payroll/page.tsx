@@ -32,8 +32,8 @@ const euro = (value: string | number) =>
 const emptyForm = { name: '', start_date: '', end_date: '', notes: '' };
 
 export default function HRPayrollPage() {
-    const STATUS_OPTIONS = STATUS_OPTIONS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
+    const STATUS_OPTIONS = STATUS_OPTIONS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const vm = usePayroll();
     const [showModal, setShowModal] = useState(false);
     const [form, setForm] = useState(emptyForm);

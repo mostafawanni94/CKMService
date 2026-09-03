@@ -27,15 +27,15 @@ const STATUS_OPTIONS_KEYS = [
     { value: 'draft', label: 'Draft' },
 ];
 
-const FORM_STATUS_OPTIONS_KEYS = STATUS_OPTIONS_KEYS.filter(o => o.value !== 'all');
-
 const euro = (value: string | number) =>
     `€ ${Number(value || 0).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export default function IncomingInvoicesPage() {
+    const { t } = useLanguage();
+
+const FORM_STATUS_OPTIONS_KEYS = STATUS_OPTIONS_KEYS.filter(o => o.value !== 'all');
     const STATUS_OPTIONS = STATUS_OPTIONS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const FORM_STATUS_OPTIONS = FORM_STATUS_OPTIONS_KEYS.map(o => ({ ...o, label: t(o.label) }));
-    const { t } = useLanguage();
     const vm = useIncomingInvoices();
 
     const columns = [

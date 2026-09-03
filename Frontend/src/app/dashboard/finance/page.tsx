@@ -24,8 +24,8 @@ const QUARTER_OPTIONS = [
 ];
 
 export default function FinancialOverviewPage() {
-    const YEAR_OPTIONS = YEAR_OPTIONS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
+    const YEAR_OPTIONS = YEAR_OPTIONS_KEYS.map(o => ({ ...o, label: t(o.label) }));
   const vm = useFinanceSummary();
 
   return (

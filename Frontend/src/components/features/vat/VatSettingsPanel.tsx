@@ -80,9 +80,9 @@ export function VatSettingsPanel({ endpoint, title, subtitle }: {
     title?: string;
     subtitle?: string;
 }) {
+    const { t } = useLanguage();
     const TREATMENTS = TREATMENTS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const TRISTATE = TRISTATE_KEYS.map(o => ({ ...o, label: t(o.label) }));
-    const { t } = useLanguage();
     const [facts, setFacts] = useState<VatFacts | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);

@@ -25,8 +25,8 @@ const TABS_KEYS = [
 ];
 
 export default function AgencyDetailPage() {
-    const TABS = TABS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
+    const TABS = TABS_KEYS.map(o => ({ ...o, label: t(o.label) }));
   const vm = useAgencyDetail();
   const router = useRouter();
 

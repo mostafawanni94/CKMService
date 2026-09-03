@@ -62,8 +62,8 @@ const NL_PUBLIC_HOLIDAYS = [
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 export default function SurchargeTypesPage() {
-    const CATEGORIES = CATEGORIES_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
+    const CATEGORIES = CATEGORIES_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const [surchargeTypes, setSurchargeTypes] = useState<SurchargeType[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);

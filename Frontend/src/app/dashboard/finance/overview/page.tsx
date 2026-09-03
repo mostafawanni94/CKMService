@@ -30,8 +30,8 @@ const QUARTER_KEYS = [
 ];
 
 export default function FinanceOverviewPage() {
-    const YEARS = YEARS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
+    const YEARS = YEARS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const QUARTERS = QUARTER_KEYS.map(q => ({ ...q, label: t(q.label) }));
     const vm = useFinanceDashboard();
     const router = useRouter();

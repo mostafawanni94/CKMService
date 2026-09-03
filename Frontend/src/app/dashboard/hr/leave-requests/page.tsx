@@ -26,8 +26,8 @@ const STATUS_OPTIONS_KEYS = [
 ];
 
 export default function HRLeaveRequestsPage() {
-    const STATUS_OPTIONS = STATUS_OPTIONS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
+    const STATUS_OPTIONS = STATUS_OPTIONS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const vm = useLeaveRequests();
 
     const columns = [
