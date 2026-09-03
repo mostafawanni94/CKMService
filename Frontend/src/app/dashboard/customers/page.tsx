@@ -187,7 +187,7 @@ export default function CustomersPage() {
                 <div className="flex items-center justify-between mb-8">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900">{t('Customers')}</h1>
-                        <p className="text-gray-500 text-sm mt-1">Manage your customer accounts and contracts</p>
+                        <p className="text-gray-500 text-sm mt-1">{t('Manage your customer accounts and contracts')}</p>
                     </div>
                     <div className="flex gap-3">
                         <Button variant="outline" onClick={() => loadCustomers()} className="text-sm">
@@ -218,7 +218,7 @@ export default function CustomersPage() {
                                 <Building2 style={{ width: '24px', height: '24px', color: '#2563eb' }} />
                             </div>
                             <div>
-                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>Total Customers</p>
+                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>{t('Total Customers')}</p>
                                 <p style={{ fontSize: '28px', fontWeight: 700, color: '#111827', margin: 0 }}>{stats.total}</p>
                             </div>
                         </div>
@@ -291,7 +291,7 @@ export default function CustomersPage() {
                                         boxShadow: filter === status ? '0 4px 12px rgba(30, 58, 95, 0.25)' : 'none'
                                     }}
                                 >
-                                    {status === 'all' ? 'All' :
+                                    {status === 'all' ? t('All') :
                                         status === 'active' ? t('Active') : t('Inactive')}
                                 </button>
                             ))}
@@ -372,7 +372,7 @@ export default function CustomersPage() {
                             <table className="w-full" style={{ tableLayout: 'fixed' }}>
                                 <thead style={{ backgroundColor: '#F9FAFB', borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB' }}>
                                     <tr>
-                                        <th style={{ width: '30%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Company</th>
+                                        <th style={{ width: '30%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('Company')}</th>
                                         <th style={{ width: '25%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('Location')}</th>
                                         <th style={{ width: '15%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('Status')}</th>
                                         <th style={{ width: '30%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('Actions')}</th>
@@ -577,7 +577,7 @@ export default function CustomersPage() {
                             <div className="space-y-4">
                                 {/* Logo Upload */}
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-500 uppercase mb-2">Company Logo</label>
+                                    <label className="block text-xs font-medium text-gray-500 uppercase mb-2">{t('Company Logo')}</label>
                                     <div
                                         className="relative border-2 border-dashed border-gray-200 rounded-xl p-4 hover:border-[#1E3A5F] transition-colors cursor-pointer"
                                         onClick={() => document.getElementById('edit-logo-input')?.click()}
@@ -615,15 +615,15 @@ export default function CustomersPage() {
                                                         }}
                                                         className="text-xs text-blue-600 hover:underline mt-1"
                                                     >
-                                                        Change logo
+                                                        {t('Change logo')}
                                                     </button>
                                                 </div>
                                             </div>
                                         ) : (
                                             <div className="flex flex-col items-center py-4">
                                                 <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                                                <p className="text-sm text-gray-600">Click to upload logo</p>
-                                                <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 2MB</p>
+                                                <p className="text-sm text-gray-600">{t('Click to upload logo')}</p>
+                                                <p className="text-xs text-gray-400 mt-1">{t('PNG, JPG up to 2MB')}</p>
                                             </div>
                                         )}
                                     </div>
@@ -739,7 +739,7 @@ export default function CustomersPage() {
                                         onClick={handleSaveCustomer}
                                     >
                                         <Save className="w-4 h-4 mr-2" />
-                                        {editing ? 'Saving...' : 'Save Changes'}
+                                        {editing ? t('Saving...') : t('Save Changes')}
                                     </Button>
                                 </div>
                             </div>

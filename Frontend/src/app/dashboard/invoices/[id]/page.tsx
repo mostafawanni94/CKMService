@@ -64,7 +64,7 @@ export default function InvoiceDetailPage() {
                                 <>
                                     <Button variant="secondary" icon={<Mail size={16} />}
                                             onClick={() => { setEmail(''); setSendOpen(true); }}>
-                                        E-mailen
+                                        {t('E-mailen')}
                                     </Button>
                                     <Button variant="secondary" icon={<Wallet size={16} />}
                                             onClick={() => {
@@ -73,12 +73,12 @@ export default function InvoiceDetailPage() {
                                                     - Number(invoice.amount_paid)));
                                                 setPayOpen(true);
                                             }}>
-                                        Betaling
+                                        {t('Betaling')}
                                     </Button>
                                     {invoice.document_type === 'invoice' && (
                                         <Button variant="danger" icon={<Undo2 size={16} />}
                                                 onClick={() => setCreditOpen(true)}>
-                                            Crediteren
+                                            {t('Crediteren')}
                                         </Button>
                                     )}
                                 </>
@@ -96,7 +96,7 @@ export default function InvoiceDetailPage() {
                 )}
 
                 {vm.loading || !invoice ? (
-                    <LoadingSpinner message="Factuur laden…" />
+                    <LoadingSpinner message={t('Factuur laden…')} />
                 ) : (
                     <>
                         <InvoiceHeader invoice={invoice} />
@@ -142,7 +142,7 @@ export default function InvoiceDetailPage() {
                         Selecteer regels voor een gedeeltelijke creditering, of laat alles
                         leeg om de hele factuur te crediteren.
                     </p>
-                    <TextArea label="Reden (verplicht)" value={reason} onChange={setReason}
+                    <TextArea label={t('Reden (verplicht)')} value={reason} onChange={setReason}
                               placeholder={t('Waarom wordt deze factuur gecrediteerd?')} rows={2} required />
                     {invoice && (
                         <div style={{ marginTop: spacing.lg }}>
@@ -152,7 +152,7 @@ export default function InvoiceDetailPage() {
                     )}
                 </Modal>
 
-                <Modal open={payOpen} onClose={() => setPayOpen(false)} title="Betaling vastleggen"
+                <Modal open={payOpen} onClose={() => setPayOpen(false)} title={t('Betaling vastleggen')}
                        footer={
                            <>
                                <Button variant="secondary" onClick={() => setPayOpen(false)}>
@@ -162,7 +162,7 @@ export default function InvoiceDetailPage() {
                                        onClick={async () => {
                                            await vm.recordPayment(amount);
                                            setPayOpen(false);
-                                       }}>Vastleggen</Button>
+                                       }}>{t('Vastleggen')}</Button>
                            </>
                        }>
                     <Input label={t('Ontvangen bedrag (€)')} type="number" value={amount}
@@ -187,7 +187,7 @@ export default function InvoiceDetailPage() {
                         De pdf wordt als bijlage meegestuurd. Laat leeg om het e-mailadres
                         van de klant te gebruiken.
                     </p>
-                    <Input label="E-mailadres" value={email} onChange={setEmail}
+                    <Input label={t('E-mailadres')} value={email} onChange={setEmail}
                            placeholder="administratie@klant.nl" />
                 </Modal>
             </div>

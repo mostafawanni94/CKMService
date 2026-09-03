@@ -102,7 +102,7 @@ export function ContactListEditor({
                     })}
                     {phones.length === 0 && (
                         <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>
-                            Click "Add" to add a phone number
+                            {t('Click "Add" to add a phone number')}
                         </p>
                     )}
                 </div>
@@ -172,7 +172,7 @@ export function ContactListEditor({
                     })}
                     {emails.length === 0 && (
                         <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>
-                            Click "Add" to add an email address
+                            {t('Click "Add" to add an email address')}
                         </p>
                     )}
                 </div>

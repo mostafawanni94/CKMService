@@ -256,7 +256,7 @@ export function DocSlot({ title, url, field, accept, type = 'image', editing, up
             <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-sm ${editing ? 'bg-[#1E3A5F]' : 'bg-gray-200'}`}>
               <Upload className={`w-7 h-7 ${editing ? 'text-white' : 'text-gray-400'}`} />
             </div>
-            <p className={`text-sm font-semibold mb-1 ${editing ? 'text-gray-800' : 'text-gray-400'}`}>Tap to upload</p>
+            <p className={`text-sm font-semibold mb-1 ${editing ? 'text-gray-800' : 'text-gray-400'}`}>{t('Tap to upload')}</p>
             <p className="text-xs text-gray-400">{type === 'pdf' ? 'PDF or Image' : 'Camera or Gallery'}</p>
           </>
         )}

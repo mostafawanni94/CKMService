@@ -148,7 +148,7 @@ export function ExtractDocumentsModal({ vm }: { vm: ViewModel }) {
                             </div>
 
                             <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '16px' }}>
-                                Select documents to include in the PDF export. The Werkgeversverklaring will always be included as the first page.
+                                {t('Select documents to include in the PDF export. The Werkgeversverklaring will always be included as the first page.')}
                             </p>
 
                             {loadingDocs ? (
@@ -158,7 +158,7 @@ export function ExtractDocumentsModal({ vm }: { vm: ViewModel }) {
                             ) : (
                                 <div style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '24px' }}>
                                     {availableDocuments.length === 0 ? (
-                                        <p style={{ textAlign: 'center', color: '#9CA3AF', padding: '20px' }}>No documents found</p>
+                                        <p style={{ textAlign: 'center', color: '#9CA3AF', padding: '20px' }}>{t('No documents found')}</p>
                                     ) : (
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                             {availableDocuments.map((doc) => (

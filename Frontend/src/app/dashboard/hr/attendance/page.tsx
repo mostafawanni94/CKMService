@@ -47,17 +47,17 @@ export default function HRAttendancePage() {
         },
         {
             key: 'planned_start',
-            header: 'Planned',
+            header: t('Planned'),
             render: (row: AttendanceRecord) => row.planned_start?.slice(0, 5) ?? '—',
         },
         {
             key: 'actual_start',
-            header: 'Actual',
+            header: t('Actual'),
             render: (row: AttendanceRecord) => row.actual_start?.slice(0, 5) ?? '—',
         },
         {
             key: 'minutes_late',
-            header: 'Late',
+            header: t('Late'),
             align: 'right' as const,
             render: (row: AttendanceRecord) =>
                 row.minutes_late > 0 ? `${row.minutes_late} min` : '—',
@@ -70,7 +70,7 @@ export default function HRAttendancePage() {
         },
         {
             key: 'leave_type',
-            header: 'Leave type',
+            header: t('Leave type'),
             render: (row: AttendanceRecord) => row.leave_type ?? '—',
         },
     ];
@@ -80,15 +80,15 @@ export default function HRAttendancePage() {
             <div className={styles.container}>
                 <PageHeader
                     title={t('Attendance')}
-                    subtitle="Derived from work entries and approved leave"
+                    subtitle={t('Derived from work entries and approved leave')}
                 />
 
                 <div className={styles.statRow}>
-                    <StatCard label="Records" value={vm.counts.total} />
-                    <StatCard label="Present" value={vm.counts.present} />
-                    <StatCard label="Late" value={vm.counts.late} />
-                    <StatCard label="Absent" value={vm.counts.absent} />
-                    <StatCard label="On leave" value={vm.counts.leave} />
+                    <StatCard label={t('Records')} value={vm.counts.total} />
+                    <StatCard label={t('Present')} value={vm.counts.present} />
+                    <StatCard label={t('Late')} value={vm.counts.late} />
+                    <StatCard label={t('Absent')} value={vm.counts.absent} />
+                    <StatCard label={t('On leave')} value={vm.counts.leave} />
                 </div>
 
                 <div className={styles.filterRow}>
@@ -114,7 +114,7 @@ export default function HRAttendancePage() {
                         loading={vm.loading}
                         rowKey={(row) => `${row.employee}-${row.date}`}
                         emptyIcon={<Clock size={32} />}
-                        emptyTitle="No attendance in this range"
+                        emptyTitle={t('No attendance in this range')}
                         emptySubtitle={vm.error ?? 'Try widening the date range.'}
                     />
                 </SectionCard>

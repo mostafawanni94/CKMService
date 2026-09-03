@@ -103,7 +103,7 @@ export function AddCertificateModal({ vm }: { vm: ViewModel }) {
                                                 fontSize: '14px'
                                             }}
                                         >
-                                            <option value="">Select a type...</option>
+                                            <option value="">{t('Select a type...')}</option>
                                             {certificateTypes.map(type => (
                                                 <option key={type.id} value={type.id}>{type.name}</option>
                                             ))}
@@ -167,7 +167,7 @@ export function AddCertificateModal({ vm }: { vm: ViewModel }) {
 
                                     <div style={{ marginBottom: '24px' }}>
                                         <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '8px' }}>
-                                            Upload Type
+                                            {t('Upload Type')}
                                         </label>
                                         <div style={{ display: 'flex', gap: '4px', padding: '4px', backgroundColor: '#F3F4F6', borderRadius: '8px', marginBottom: '16px' }}>
                                             <button
@@ -206,7 +206,7 @@ export function AddCertificateModal({ vm }: { vm: ViewModel }) {
                                                     transition: 'all 0.2s'
                                                 }}
                                             >
-                                                Photos (Front & Back)
+                                                {t('Photos (Front & Back)')}
                                             </button>
                                         </div>
 
@@ -255,7 +255,7 @@ export function AddCertificateModal({ vm }: { vm: ViewModel }) {
                                                                 <ImageIcon size={16} color="#3B82F6" />
                                                             </div>
                                                             <p style={{ fontSize: '13px', fontWeight: 600, color: '#1F2937', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{certificateFile ? certificateFile.name : 'Front Photo'}</p>
-                                                            <p style={{ fontSize: '11px', color: certificateFile ? '#16A34A' : '#9CA3AF' }}>{certificateFile ? 'Selected' : 'JPG/PNG'}</p>
+                                                            <p style={{ fontSize: '11px', color: certificateFile ? '#16A34A' : '#9CA3AF' }}>{certificateFile ? t('Selected') : 'JPG/PNG'}</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -278,7 +278,7 @@ export function AddCertificateModal({ vm }: { vm: ViewModel }) {
                                                                 <ImageIcon size={16} color="#3B82F6" />
                                                             </div>
                                                             <p style={{ fontSize: '13px', fontWeight: 600, color: '#1F2937', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{certificateFileBack ? certificateFileBack.name : 'Back Photo'}</p>
-                                                            <p style={{ fontSize: '11px', color: certificateFileBack ? '#16A34A' : '#9CA3AF' }}>{certificateFileBack ? 'Selected' : 'JPG/PNG'}</p>
+                                                            <p style={{ fontSize: '11px', color: certificateFileBack ? '#16A34A' : '#9CA3AF' }}>{certificateFileBack ? t('Selected') : 'JPG/PNG'}</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -344,7 +344,7 @@ export function AddCertificateModal({ vm }: { vm: ViewModel }) {
                                                 gap: '8px'
                                             }}
                                         >
-                                            {savingCertificate ? 'Saving...' : 'Save Certificate'}
+                                            {savingCertificate ? t('Saving...') : 'Save Certificate'}
                                         </button>
                                     </div>
                                 </form>

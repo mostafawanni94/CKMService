@@ -48,7 +48,7 @@ export default function AgencyDetailPage() {
             </div>
           </div>
           <Button onClick={vm.handleSave} loading={vm.saving} icon={<Save size={16} />}>
-            {vm.saving ? 'Saving...' : t('Save')}
+            {vm.saving ? t('Saving...') : t('Save')}
           </Button>
         </div>
 

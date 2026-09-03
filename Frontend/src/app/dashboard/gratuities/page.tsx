@@ -259,7 +259,7 @@ export default function GratuitiesPage() {
                             {t('Gratuities (Fooi)')}
                         </h1>
                         <p style={{ color: '#6B7280', fontSize: '15px' }}>
-                            Track tips and bonuses from customers to employees
+                            {t('Track tips and bonuses from customers to employees')}
                         </p>
                     </div>
                     <button
@@ -279,14 +279,14 @@ export default function GratuitiesPage() {
                         }}
                     >
                         <Plus size={18} />
-                        Add Gratuity
+                        {t('Add Gratuity')}
                     </button>
                 </div>
 
                 {/* Stats */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '32px' }}>
-                    <StatCard label="Total Amount" value={`€${totalAmount.toFixed(2)}`} icon={Euro} color="#059669" />
-                    <StatCard label="Total Gratuities" value={gratuities.length.toString()} icon={Gift} color="#8B5CF6" />
+                    <StatCard label={t('Total Amount')} value={`€${totalAmount.toFixed(2)}`} icon={Euro} color="#059669" />
+                    <StatCard label={t('Total Gratuities')} value={gratuities.length.toString()} icon={Gift} color="#8B5CF6" />
                     <StatCard label={t('Pending')} value={pendingCount.toString()} icon={Clock} color="#F59E0B" />
                     <StatCard label={t('Paid')} value={paidCount.toString()} icon={CheckCircle} color="#10B981" />
                 </div>
@@ -297,7 +297,7 @@ export default function GratuitiesPage() {
                         <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} size={18} />
                         <input
                             type="text"
-                            placeholder="Search..."
+                            placeholder={t('Search...')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={{
@@ -322,7 +322,7 @@ export default function GratuitiesPage() {
                             backgroundColor: 'white'
                         }}
                     >
-                        <option value="">All Status</option>
+                        <option value="">{t('All Status')}</option>
                         <option value="pending">{t('Pending')}</option>
                         <option value="paid">{t('Paid')}</option>
                     </select>
@@ -338,7 +338,7 @@ export default function GratuitiesPage() {
                             backgroundColor: 'white'
                         }}
                     >
-                        <option value="">All Customers</option>
+                        <option value="">{t('All Customers')}</option>
                         {customers.map(c => (
                             <option key={c.id} value={c.id}>{c.company_name}</option>
                         ))}
@@ -353,7 +353,7 @@ export default function GratuitiesPage() {
                                 <th style={thStyle}>{t('Customer')}</th>
                                 <th style={thStyle}>{t('Employee')}</th>
                                 <th style={thStyle}>{t('Amount')}</th>
-                                <th style={thStyle}>Date Received</th>
+                                <th style={thStyle}>{t('Date Received')}</th>
                                 <th style={thStyle}>{t('Status')}</th>
                                 <th style={thStyle}>{t('Actions')}</th>
                             </tr>
@@ -407,7 +407,7 @@ export default function GratuitiesPage() {
                                                 }}
                                             >
                                                 <Clock size={14} />
-                                                Pending - Click to Pay
+                                                {t('Pending - Click to Pay')}
                                             </button>
                                         ) : (
                                             <span style={{
@@ -481,7 +481,7 @@ export default function GratuitiesPage() {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '24px' }}>
-                            {editingId ? 'Edit Gratuity' : 'Add Gratuity'}
+                            {editingId ? 'Edit Gratuity' : t('Add Gratuity')}
                         </h2>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -508,7 +508,7 @@ export default function GratuitiesPage() {
                                     onChange={(e) => setFormData({ ...formData, employee: e.target.value })}
                                     style={inputStyle}
                                 >
-                                    <option value="">Select employee...</option>
+                                    <option value="">{t('Select employee...')}</option>
                                     {employees.map(e => (
                                         <option key={e.id} value={e.id}>
                                             {e.user?.first_name} {e.user?.last_name} ({e.user?.email})
@@ -547,7 +547,7 @@ export default function GratuitiesPage() {
 
                             {/* Date Work Done */}
                             <div>
-                                <label style={labelStyle}>Date Work Done (optional)</label>
+                                <label style={labelStyle}>{t('Date Work Done (optional)')}</label>
                                 <input
                                     type="date"
                                     value={formData.date_work_done}
@@ -602,7 +602,7 @@ export default function GratuitiesPage() {
                                     opacity: saving ? 0.7 : 1
                                 }}
                             >
-                                {saving ? 'Saving...' : (editingId ? t('Update') : t('Create'))}
+                                {saving ? t('Saving...') : (editingId ? t('Update') : t('Create'))}
                             </button>
                         </div>
                     </div>

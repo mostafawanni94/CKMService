@@ -35,9 +35,9 @@ export function OverviewTab({ form, isNew, onChange, surchargeTypes, selectedSur
   return (
     <div className={styles.overviewGrid}>
       {/* Basic Info */}
-      <SectionCard title="Agency Information" icon={<Building2 size={18} color={colors.primary} />}>
+      <SectionCard title={t('Agency Information')} icon={<Building2 size={18} color={colors.primary} />}>
         <div className={styles.fieldStack}>
-          <Input label="Agency Name" value={form.name} onChange={v => onChange({ name: v })} required placeholder="e.g., Randstad" />
+          <Input label={t('Agency Name')} value={form.name} onChange={v => onChange({ name: v })} required placeholder="e.g., Randstad" />
           <FormGrid>
             <Input label={t('Code')} value={form.code} onChange={v => onChange({ code: v.toUpperCase() })} required placeholder="e.g., RAND" />
             <Select label={t('Status')} value={form.is_active ? 'active' : 'inactive'}
@@ -51,7 +51,7 @@ export function OverviewTab({ form, isNew, onChange, surchargeTypes, selectedSur
       {/* Contact */}
       <SectionCard title={t('Contact Information')} icon={<Phone size={18} color={colors.primary} />}>
         <div className={styles.fieldStack}>
-          <Input label="Contact Person" value={form.contact_name} onChange={v => onChange({ contact_name: v })} placeholder="Full name" />
+          <Input label={t('Contact Person')} value={form.contact_name} onChange={v => onChange({ contact_name: v })} placeholder={t('Full name')} />
           <Input label={t('Email')} value={form.contact_email} onChange={v => onChange({ contact_email: v })} type="email" placeholder="email@agency.nl" />
           <Input label={t('Phone')} value={form.contact_phone} onChange={v => onChange({ contact_phone: v })} placeholder="+31 6 12345678" />
         </div>
@@ -61,9 +61,9 @@ export function OverviewTab({ form, isNew, onChange, surchargeTypes, selectedSur
       <SectionCard title={t('Address')} icon={<MapPin size={18} color={colors.primary} />}>
         <div className={styles.fieldStack}>
           <div className={styles.addressRow}>
-            <Input label="Street" value={form.street_name} onChange={v => onChange({ street_name: v })} />
+            <Input label={t('Street')} value={form.street_name} onChange={v => onChange({ street_name: v })} />
             <Input label={t('House Nr.')} value={form.house_number} onChange={v => onChange({ house_number: v })} />
-            <Input label="Addition" value={form.house_number_addition} onChange={v => onChange({ house_number_addition: v })} />
+            <Input label={t('Addition')} value={form.house_number_addition} onChange={v => onChange({ house_number_addition: v })} />
           </div>
           <FormGrid>
             <Input label={t('Postcode')} value={form.postcode} onChange={v => onChange({ postcode: v })} />
@@ -73,14 +73,14 @@ export function OverviewTab({ form, isNew, onChange, surchargeTypes, selectedSur
       </SectionCard>
 
       {/* Legal */}
-      <SectionCard title="Legal & Financial" icon={<Hash size={18} color={colors.primary} />}>
+      <SectionCard title={t('Legal & Financial')} icon={<Hash size={18} color={colors.primary} />}>
         <div className={styles.fieldStack}>
           <FormGrid>
             <Input label={t('KvK Number')} value={form.kvk_number} onChange={v => onChange({ kvk_number: v })} placeholder="12345678" />
             <Input label={t('BTW Number')} value={form.btw_number} onChange={v => onChange({ btw_number: v })} placeholder="NL123456789B01" />
           </FormGrid>
           <Input label={t('IBAN')} value={form.iban} onChange={v => onChange({ iban: v })} placeholder="NL91ABNA0417164300" />
-          <Input label="Base Hourly Rate (€)" value={String(form.base_hourly_rate)} onChange={v => onChange({ base_hourly_rate: parseFloat(v) || 0 })} type="number" step="0.01" />
+          <Input label={t('Base Hourly Rate (€)')} value={String(form.base_hourly_rate)} onChange={v => onChange({ base_hourly_rate: parseFloat(v) || 0 })} type="number" step="0.01" />
         </div>
       </SectionCard>
 
@@ -132,8 +132,8 @@ export function EmployeesTab({ employees, loading, agencyName }: EmployeesTabPro
         loading={loading}
         rowKey={(e) => e.id}
         emptyIcon={<Users size={44} />}
-        emptyTitle="No employees assigned"
-        emptySubtitle="Assign employees to this agency from the employee's Contract tab."
+        emptyTitle={t('No employees assigned')}
+        emptySubtitle={t("Assign employees to this agency from the employee's Contract tab.")}
       />
     </SectionCard>
   );
@@ -158,10 +158,10 @@ export function BillingTab({ invoices, loading, onGenerate, onRowClick }: Billin
     <div>
       {/* Stats */}
       <div className={styles.statsGrid}>
-        <StatCard label="Total Invoices" value={invoices.length} icon={<FileText size={20} color="#3B82F6" />} color="#3B82F6" />
+        <StatCard label={t('Total Invoices')} value={invoices.length} icon={<FileText size={20} color="#3B82F6" />} color="#3B82F6" />
         <StatCard label={t('Paid')} value={paidCount} icon={<CheckCircle size={20} color="#10B981" />} color="#10B981" />
         <StatCard label={t('Pending')} value={pendingCount} icon={<Clock size={20} color="#F59E0B" />} color="#F59E0B" />
-        <StatCard label="Total Value" value={`€${totalValue.toFixed(2)}`} icon={<Euro size={20} color="#8B5CF6" />} color="#8B5CF6" />
+        <StatCard label={t('Total Value')} value={`€${totalValue.toFixed(2)}`} icon={<Euro size={20} color="#8B5CF6" />} color="#8B5CF6" />
       </div>
 
       {/* Invoice list */}
@@ -175,8 +175,8 @@ export function BillingTab({ invoices, loading, onGenerate, onRowClick }: Billin
           rowKey={(i) => i.id}
           onRowClick={onRowClick}
           emptyIcon={<FileText size={44} />}
-          emptyTitle="No invoices yet"
-          emptySubtitle="Generate an invoice from approved work entries."
+          emptyTitle={t('No invoices yet')}
+          emptySubtitle={t('Generate an invoice from approved work entries.')}
         />
       </SectionCard>
     </div>
@@ -220,6 +220,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export function SurchargesSection({ hasEnabled, onToggle, types, selected, setSelected }: SurchargesSectionProps) {
+    const { t } = useLanguage();
   // Group by category
   const grouped: Record<string, SurchargeType[]> = {};
   types.filter(t => t.is_active).forEach(t => {
@@ -230,17 +231,17 @@ export function SurchargesSection({ hasEnabled, onToggle, types, selected, setSe
 
   return (
     <SectionCard
-      title="Surcharge Configuration"
+      title={t('Surcharge Configuration')}
       icon={<Percent size={18} color={colors.primary} />}
       actions={
         <label className={styles.checkboxLabel}>
           <input type="checkbox" checked={hasEnabled} onChange={e => onToggle(e.target.checked)} />
-          <span>Enable Surcharges</span>
+          <span>{t('Enable Surcharges')}</span>
         </label>
       }
     >
       {!hasEnabled ? (
-        <EmptyState icon={<Percent size={40} />} title="Surcharges disabled" subtitle="Enable surcharges above to configure rates." />
+        <EmptyState icon={<Percent size={40} />} title={t('Surcharges disabled')} subtitle={t('Enable surcharges above to configure rates.')} />
       ) : (
         <div className={styles.fieldStack}>
           {Object.entries(grouped).map(([category, catTypes]) => {
@@ -312,7 +313,7 @@ export function GenerateInvoiceModal({
 }: GenerateModalProps) {
     const { t } = useLanguage();
   return (
-    <Modal open={open} onClose={onClose} title="Generate Agency Invoice" width="440px" footer={
+    <Modal open={open} onClose={onClose} title={t('Generate Agency Invoice')} width="440px" footer={
       <>
         <Button variant="secondary" onClick={onClose}>{t('Cancel')}</Button>
         <Button onClick={onGenerate} loading={generating} disabled={!periodStart || !periodEnd}>
@@ -321,11 +322,11 @@ export function GenerateInvoiceModal({
       </>
     }>
       <p className={styles.mutedText} style={{ marginBottom: spacing.xl }}>
-        Select the period for approved work entries. Only un-invoiced entries will be included.
+        {t('Select the period for approved work entries. Only un-invoiced entries will be included.')}
       </p>
       <div className={styles.fieldStack}>
-        <Input label="Period Start" value={periodStart} onChange={setPeriodStart} type="date" />
-        <Input label="Period End" value={periodEnd} onChange={setPeriodEnd} type="date" />
+        <Input label={t('Period Start')} value={periodStart} onChange={setPeriodStart} type="date" />
+        <Input label={t('Period End')} value={periodEnd} onChange={setPeriodEnd} type="date" />
       </div>
     </Modal>
   );

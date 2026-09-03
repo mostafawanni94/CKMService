@@ -234,7 +234,7 @@ export default function AllowancesPage() {
                             color: '#6B7280',
                             marginTop: '6px'
                         }}>
-                            Manage allowance types that can be assigned to customers
+                            {t('Manage allowance types that can be assigned to customers')}
                         </p>
                     </div>
 
@@ -272,7 +272,7 @@ export default function AllowancesPage() {
                 }}>
                     <StatCard label={t('Total Types')} value={stats.total} icon={Gift} color="#DC2626" />
                     <StatCard label={t('Active')} value={stats.active} icon={CheckCircle} color="#10B981" />
-                    <StatCard label="Avg. Rate" value={`€${(stats.totalValue / (stats.total || 1)).toFixed(2)}/hr`} icon={Euro} color="#6366F1" isText />
+                    <StatCard label={t('Avg. Rate')} value={`€${(stats.totalValue / (stats.total || 1)).toFixed(2)}/hr`} icon={Euro} color="#6366F1" isText />
                 </div>
 
                 {/* Search & Filters */}
@@ -340,7 +340,7 @@ export default function AllowancesPage() {
                         textTransform: 'uppercase',
                         letterSpacing: '0.05em'
                     }}>
-                        <div>Allowance Name</div>
+                        <div>{t('Allowance Name')}</div>
                         <div>{t('Code')}</div>
                         <div style={{ textAlign: 'center' }}>{t('Base Price')}</div>
                         <div style={{ textAlign: 'center' }}>{t('Status')}</div>
@@ -351,7 +351,7 @@ export default function AllowancesPage() {
                     {loading ? (
                         <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>
                             <div style={{ width: '40px', height: '40px', border: '3px solid #E5E7EB', borderTopColor: '#DC2626', borderRadius: '50%', margin: '0 auto 16px', animation: 'spin 1s linear infinite' }} />
-                            <p style={{ fontSize: '14px' }}>Loading allowance types...</p>
+                            <p style={{ fontSize: '14px' }}>{t('Loading allowance types...')}</p>
                             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
                         </div>
                     ) : error ? (
@@ -363,7 +363,7 @@ export default function AllowancesPage() {
                     ) : filteredAllowances.length === 0 ? (
                         <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>
                             <Gift size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                            <p style={{ fontSize: '16px', fontWeight: 500 }}>No allowance types found</p>
+                            <p style={{ fontSize: '16px', fontWeight: 500 }}>{t('No allowance types found')}</p>
                             <p style={{ fontSize: '14px', marginTop: '4px' }}>
                                 {searchQuery ? 'Try a different search term' : 'Click "Add Allowance Type" to create one'}
                             </p>
@@ -565,7 +565,7 @@ export default function AllowancesPage() {
                                         disabled={saving}
                                         style={{ flex: 1, padding: '12px', fontSize: '14px', fontWeight: 600, color: 'white', backgroundColor: '#DC2626', border: 'none', borderRadius: '10px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}
                                     >
-                                        {saving ? 'Saving...' : (editingAllowance ? t('Update') : t('Create'))}
+                                        {saving ? t('Saving...') : (editingAllowance ? t('Update') : t('Create'))}
                                     </button>
                                 </div>
                             </div>

@@ -312,7 +312,7 @@ export function ContractUploader({
                 }}>
                     <FileText style={{ width: '32px', height: '32px', color: '#9CA3AF', margin: '0 auto 12px' }} />
                     <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>
-                        No contracts added yet. Click "Add Contract" to upload.
+                        {t('No contracts added yet. Click "Add Contract" to upload.')}
                     </p>
                     {mode === 'create' && (
                         <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '4px 0 0' }}>

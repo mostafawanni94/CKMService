@@ -673,7 +673,7 @@ export default function PlanningPage() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px' }}>
                     <div style={{ textAlign: 'center' }}>
                         <div style={{ width: '40px', height: '40px', border: '3px solid #E5E7EB', borderTopColor: '#3B82F6', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }} />
-                        Loading planning data...
+                        {t('Loading planning data...')}
                     </div>
                 </div>
                 <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -964,7 +964,7 @@ export default function PlanningPage() {
                     <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
                             <h2 style={{ fontSize: '18px', fontWeight: 600, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <Calendar size={20} /> Select Days
+                                <Calendar size={20} /> {t('Select Days')}
                             </h2>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 {selectedDates.size > 0 && (
@@ -1020,11 +1020,11 @@ export default function PlanningPage() {
                         <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', fontSize: '12px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 <div style={{ width: '14px', height: '14px', borderRadius: '3px', background: '#3B82F6' }} />
-                                <span>Has shifts</span>
+                                <span>{t('Has shifts')}</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 <div style={{ width: '14px', height: '14px', borderRadius: '3px', border: '2px solid #3B82F6', background: '#DBEAFE' }} />
-                                <span>Selected</span>
+                                <span>{t('Selected')}</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 <div style={{ width: '14px', height: '14px', borderRadius: '3px', border: '2px solid #111' }} />
@@ -1062,15 +1062,15 @@ export default function PlanningPage() {
                         {selectionMode === 'pattern' && (
                             <div style={{ padding: '16px', background: '#F3F4F6', borderRadius: '12px', marginBottom: '16px' }}>
                                 <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 600 }}>
-                                    Quick Date Selection
+                                    {t('Quick Date Selection')}
                                 </h4>
                                 <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#6B7280' }}>
-                                    Enter day numbers (e.g., 1,5,10,15,20) to select those days of every month within a date range.
+                                    {t('Enter day numbers (e.g., 1,5,10,15,20) to select those days of every month within a date range.')}
                                 </p>
 
                                 <div style={{ marginBottom: '12px' }}>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '4px' }}>
-                                        Day Numbers (comma separated)
+                                        {t('Day Numbers (comma separated)')}
                                     </label>
                                     <input
                                         type="text"
@@ -1087,7 +1087,7 @@ export default function PlanningPage() {
                                 {/* Year Selector */}
                                 <div style={{ marginBottom: '12px' }}>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '4px' }}>
-                                        Year
+                                        {t('Year')}
                                     </label>
                                     <select
                                         value={patternYear}
@@ -1223,7 +1223,7 @@ export default function PlanningPage() {
                                                                 cursor: 'pointer',
                                                                 border: '1px solid white'
                                                             }}
-                                                            title="Click to view entries"
+                                                            title={t('Click to view entries')}
                                                         >
                                                             {count}
                                                         </div>
@@ -1326,7 +1326,7 @@ export default function PlanningPage() {
                             {/* Employee Selection */}
                             <div style={{ marginBottom: '20px' }}>
                                 <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>
-                                    Assign Employees
+                                    {t('Assign Employees')}
                                 </label>
 
                                 {/* Selected employees */}
@@ -1456,7 +1456,7 @@ export default function PlanningPage() {
                                 }}
                             >
                                 {saving ? (
-                                    <>Scheduling...</>
+                                    <>{t('Scheduling...')}</>
                                 ) : (
                                     <>
                                         <Save size={18} />
@@ -1501,7 +1501,7 @@ export default function PlanningPage() {
                                 }}
                                 style={{ padding: '10px 14px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px' }}
                             >
-                                <option value="">All Months</option>
+                                <option value="">{t('All Months')}</option>
                                 {MONTHS.map((m, i) => (
                                     <option key={i} value={i}>{m}</option>
                                 ))}
@@ -1513,8 +1513,8 @@ export default function PlanningPage() {
                     {paginatedDates.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '60px 20px', color: '#9CA3AF' }}>
                             <Calendar size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
-                            <p style={{ fontSize: '16px', margin: 0 }}>No entries scheduled yet</p>
-                            <p style={{ fontSize: '14px', marginTop: '8px' }}>Select days from the calendar above and schedule entries</p>
+                            <p style={{ fontSize: '16px', margin: 0 }}>{t('No entries scheduled yet')}</p>
+                            <p style={{ fontSize: '14px', marginTop: '8px' }}>{t('Select days from the calendar above and schedule entries')}</p>
                         </div>
                     ) : (
                         <>
@@ -1527,11 +1527,11 @@ export default function PlanningPage() {
                                                 checked={paginatedDates.length > 0 && paginatedDates.every(d => selectedShiftIds.has(d.date))}
                                                 onChange={toggleSelectAllShifts}
                                                 style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#3B82F6' }}
-                                                title="Select all visible dates"
+                                                title={t('Select all visible dates')}
                                             />
                                         </th>
                                         <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', fontWeight: 600, color: '#6B7280' }}>{t('Date')}</th>
-                                        <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', fontWeight: 600, color: '#6B7280' }}>Entries</th>
+                                        <th style={{ textAlign: 'left', padding: '12px', fontSize: '13px', fontWeight: 600, color: '#6B7280' }}>{t('Entries')}</th>
                                         <th style={{ textAlign: 'right', padding: '12px', fontSize: '13px', fontWeight: 600, color: '#6B7280' }}>{t('Actions')}</th>
                                     </tr>
                                 </thead>
@@ -1567,7 +1567,7 @@ export default function PlanningPage() {
                                                     <button
                                                         onClick={() => { setViewingDate(item.date); loadDayEntries(item.date); }}
                                                         style={{ padding: '8px', background: '#EFF6FF', border: 'none', borderRadius: '6px', cursor: 'pointer', color: '#3B82F6' }}
-                                                        title="View entries"
+                                                        title={t('View entries')}
                                                     >
                                                         <Eye size={16} />
                                                     </button>
@@ -1700,7 +1700,7 @@ export default function PlanningPage() {
                                     disabled={saving}
                                     style={{ flex: 1, padding: '12px', background: saving ? '#9CA3AF' : '#3B82F6', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer' }}
                                 >
-                                    {saving ? 'Saving...' : 'Save & Done'}
+                                    {saving ? t('Saving...') : 'Save & Done'}
                                 </button>
                                 <button
                                     onClick={() => { setEditingEntry(null); setShowEditEmployeeDropdown(false); setEditEmployeeSearch(''); }}
@@ -1731,12 +1731,12 @@ export default function PlanningPage() {
                             {loadingDayEntries ? (
                                 <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280' }}>
                                     <div style={{ display: 'inline-block', width: '20px', height: '20px', border: '2px solid #E5E7EB', borderTopColor: '#3B82F6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-                                    <span style={{ marginLeft: '8px' }}>Loading entries...</span>
+                                    <span style={{ marginLeft: '8px' }}>{t('Loading entries...')}</span>
                                 </div>
                             ) : dayEntries.length === 0 ? (
                                 <div style={{ textAlign: 'center', padding: '40px', color: '#9CA3AF' }}>
                                     <Calendar size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
-                                    <p>No entries for this date</p>
+                                    <p>{t('No entries for this date')}</p>
                                 </div>
                             ) : (
                                 <div>

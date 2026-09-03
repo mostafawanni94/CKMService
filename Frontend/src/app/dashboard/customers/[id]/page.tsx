@@ -64,7 +64,7 @@ export default function CustomerDetailPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
                     <AlertTriangle style={{ width: '64px', height: '64px', color: '#EF4444', marginBottom: '16px' }} />
                     <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#111827', marginBottom: '8px' }}>{t('Customer Not Found')}</h2>
-                    <p style={{ color: '#6B7280', marginBottom: '16px' }}>The customer you're looking for doesn't exist.</p>
+                    <p style={{ color: '#6B7280', marginBottom: '16px' }}>{t("The customer you're looking for doesn't exist.")}</p>
                     <Button onClick={() => router.push('/dashboard/customers')} className="bg-[#1E3A5F]">{t('Back to Customers')}</Button>
                 </div>
             </DashboardLayout>
@@ -113,7 +113,7 @@ export default function CustomerDetailPage() {
                                 <Trash2 style={{ width: '16px', height: '16px' }} /> {t('Delete')}
                             </button>
                             <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: '#1E3A5F', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
-                                <Save style={{ width: '16px', height: '16px' }} /> {saving ? 'Saving...' : 'Save Changes'}
+                                <Save style={{ width: '16px', height: '16px' }} /> {saving ? t('Saving...') : t('Save Changes')}
                             </button>
                         </div>
                     </div>
@@ -220,7 +220,7 @@ export default function CustomerDetailPage() {
                                         </div>
                                     ) : null)}
                                     {existingPhones.length === 0 && newPhones.length === 0 && (
-                                        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>No phone numbers. Click "Add" to add one.</p>
+                                        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>{t('No phone numbers. Click "Add" to add one.')}</p>
                                     )}
                                 </div>
                             </div>
@@ -252,7 +252,7 @@ export default function CustomerDetailPage() {
                                         </div>
                                     ) : null)}
                                     {existingEmails.length === 0 && newEmails.length === 0 && (
-                                        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>No email addresses. Click "Add" to add one.</p>
+                                        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>{t('No email addresses. Click "Add" to add one.')}</p>
                                     )}
                                 </div>
                             </div>
@@ -325,7 +325,7 @@ export default function CustomerDetailPage() {
                                 </div>
                             ) : null)}
                             {existingManagerPhones.length === 0 && newManagerPhones.length === 0 && (
-                                <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>No phone numbers. Click "Add" to add one.</p>
+                                <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>{t('No phone numbers. Click "Add" to add one.')}</p>
                             )}
                         </div>
                     </div>
@@ -357,7 +357,7 @@ export default function CustomerDetailPage() {
                                 </div>
                             ) : null)}
                             {existingManagerEmails.length === 0 && newManagerEmails.length === 0 && (
-                                <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>No email addresses. Click "Add" to add one.</p>
+                                <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>{t('No email addresses. Click "Add" to add one.')}</p>
                             )}
                         </div>
                     </div>
@@ -368,7 +368,7 @@ export default function CustomerDetailPage() {
                 <div style={{ marginBottom: '24px' }}>
                     <VatSettingsPanel
                         endpoint={`/customers/customers/${vm.customer?.id}/`}
-                        subtitle="Geldt voor alle projecten van deze klant, tenzij een project het anders vastlegt"
+                        subtitle={t('Geldt voor alle projecten van deze klant, tenzij een project het anders vastlegt')}
                     />
                 </div>
 
@@ -491,7 +491,7 @@ export default function CustomerDetailPage() {
                                         </div>
                                     ) : null)}
                                     {outfolderEmails.length === 0 && (
-                                        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>Click "Add" to add an email address</p>
+                                        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>{t('Click "Add" to add an email address')}</p>
                                     )}
                                 </div>
                             </div>
@@ -501,7 +501,7 @@ export default function CustomerDetailPage() {
                                     {t('Cancel')}
                                 </button>
                                 <button onClick={handleSaveOutfolder} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', backgroundColor: '#16A34A', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
-                                    <Check style={{ width: '14px', height: '14px' }} /> {editingOutfolderId ? 'Save Changes' : t('Add Supervisor')}
+                                    <Check style={{ width: '14px', height: '14px' }} /> {editingOutfolderId ? t('Save Changes') : t('Add Supervisor')}
                                 </button>
                             </div>
                         </div>
@@ -884,7 +884,7 @@ export default function CustomerDetailPage() {
 
                     {customerAllowances.length === 0 ? (
                         <p style={{ fontSize: '14px', color: '#9CA3AF', fontStyle: 'italic', textAlign: 'center', padding: '24px' }}>
-                            No allowances configured. Click "Add Allowance" to select from available types.
+                            {t('No allowances configured. Click "Add Allowance" to select from available types.')}
                         </p>
                     ) : (
                         <div style={{ display: 'grid', gap: '12px' }}>
@@ -1046,13 +1046,13 @@ export default function CustomerDetailPage() {
                         </div>
                         <div>
                             <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Allowances Configuration (Toeslag)</h2>
-                            <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Select which allowances this customer pays for</p>
+                            <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>{t('Select which allowances this customer pays for')}</p>
                         </div>
                     </div>
 
                     {availableAllowances.length === 0 ? (
                         <p style={{ fontSize: '14px', color: '#9CA3AF', textAlign: 'center' }}>
-                            No allowance types available. <a href="/dashboard/allowance-types" style={{ color: '#059669' }}>Create some first</a>.
+                            {t('No allowance types available.')} <a href="/dashboard/allowance-types" style={{ color: '#059669' }}>{t('Create some first')}</a>.
                         </p>
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1159,7 +1159,7 @@ export default function CustomerDetailPage() {
                                                             transition: 'left 0.2s'
                                                         }} />
                                                     </button>
-                                                    <span style={{ fontSize: '13px', color: '#374151' }}>Apply surcharges to this allowance</span>
+                                                    <span style={{ fontSize: '13px', color: '#374151' }}>{t('Apply surcharges to this allowance')}</span>
                                                 </div>
 
                                                 {applySurcharges && selectedSurcharges.filter(s => s.is_enabled).length > 0 && (
@@ -1207,7 +1207,7 @@ export default function CustomerDetailPage() {
                             </div>
                             <div>
                                 <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Contract History')}</h2>
-                                <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>All contracts and rate changes</p>
+                                <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>{t('All contracts and rate changes')}</p>
                             </div>
                         </div>
                         <button
@@ -1223,7 +1223,7 @@ export default function CustomerDetailPage() {
                             }}
                         >
                             <Upload size={16} />
-                            Upload Contract
+                            {t('Upload Contract')}
                         </button>
                     </div>
 
@@ -1275,8 +1275,8 @@ export default function CustomerDetailPage() {
                     ) : (
                         <div style={{ textAlign: 'center', padding: '40px', color: '#9CA3AF' }}>
                             <FileText size={48} style={{ opacity: 0.5, marginBottom: '12px' }} />
-                            <p style={{ margin: 0 }}>No contracts uploaded yet</p>
-                            <p style={{ fontSize: '13px', margin: '4px 0 0' }}>Click "Upload Contract" to add your first contract</p>
+                            <p style={{ margin: 0 }}>{t('No contracts uploaded yet')}</p>
+                            <p style={{ fontSize: '13px', margin: '4px 0 0' }}>{t('Click "Upload Contract" to add your first contract')}</p>
                         </div>
                     )}
                 </div>
@@ -1306,7 +1306,7 @@ export default function CustomerDetailPage() {
                                     onChange={(e) => setNewContractEffectiveFrom(e.target.value)}
                                     style={{ width: '100%', padding: '12px', border: '1px solid #E5E7EB', borderRadius: '8px' }}
                                 />
-                                <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>You can set a future date - the contract will activate on that date</p>
+                                <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>{t('You can set a future date - the contract will activate on that date')}</p>
                             </div>
 
                             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
@@ -1325,7 +1325,7 @@ export default function CustomerDetailPage() {
                                         opacity: uploadingContract ? 0.5 : 1
                                     }}
                                 >
-                                    {uploadingContract ? 'Uploading...' : 'Upload Contract'}
+                                    {uploadingContract ? t('Uploading...') : t('Upload Contract')}
                                 </button>
                             </div>
                         </div>
@@ -1352,7 +1352,7 @@ export default function CustomerDetailPage() {
                                 fontSize: '13px', fontWeight: 600, cursor: 'pointer'
                             }}
                         >
-                            <Plus style={{ width: '14px', height: '14px' }} /> Add Login
+                            <Plus style={{ width: '14px', height: '14px' }} /> {t('Add Login')}
                         </button>
                     </div>
 
@@ -1385,13 +1385,13 @@ export default function CustomerDetailPage() {
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
                                 <input
-                                    type="email" placeholder="Email address"
+                                    type="email" placeholder={t('Email address')}
                                     value={portalUserForm.email}
                                     onChange={e => setPortalUserForm({ ...portalUserForm, email: e.target.value })}
                                     style={{ padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px' }}
                                 />
                                 <input
-                                    type="text" placeholder="Password (min 8 chars)"
+                                    type="text" placeholder={t('Password (min 8 chars)')}
                                     value={portalUserForm.password}
                                     onChange={e => setPortalUserForm({ ...portalUserForm, password: e.target.value })}
                                     style={{ padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px' }}
@@ -1438,7 +1438,7 @@ export default function CustomerDetailPage() {
                                         cursor: creatingPortalUser ? 'not-allowed' : 'pointer',
                                         opacity: creatingPortalUser ? 0.6 : 1
                                     }}
-                                >{creatingPortalUser ? 'Creating...' : 'Create Login'}</button>
+                                >{creatingPortalUser ? t('Creating...') : 'Create Login'}</button>
                             </div>
                         </div>
                     )}
@@ -1446,7 +1446,7 @@ export default function CustomerDetailPage() {
                     {/* Portal Users List */}
                     {portalUsers.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '24px', color: '#9CA3AF', fontSize: '14px' }}>
-                            No portal users yet. Click "Add Login" to create access for this customer.
+                            {t('No portal users yet. Click "Add Login" to create access for this customer.')}
                         </div>
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

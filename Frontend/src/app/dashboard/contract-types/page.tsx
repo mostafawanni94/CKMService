@@ -229,7 +229,7 @@ export default function ContractTypesPage() {
                             color: '#6B7280',
                             marginTop: '6px'
                         }}>
-                            Manage Dutch employment contract types for employees
+                            {t('Manage Dutch employment contract types for employees')}
                         </p>
                     </div>
 
@@ -254,7 +254,7 @@ export default function ContractTypesPage() {
                         onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                     >
                         <Plus size={18} />
-                        Add Contract Type
+                        {t('Add Contract Type')}
                     </button>
                 </div>
 
@@ -292,7 +292,7 @@ export default function ContractTypesPage() {
                         />
                         <input
                             type="text"
-                            placeholder="Search contract types..."
+                            placeholder={t('Search contract types...')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={{
@@ -376,7 +376,7 @@ export default function ContractTypesPage() {
                     ) : filteredTypes.length === 0 ? (
                         <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>
                             <FileText size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                            <p style={{ fontSize: '16px', fontWeight: 500 }}>No contract types found</p>
+                            <p style={{ fontSize: '16px', fontWeight: 500 }}>{t('No contract types found')}</p>
                             <p style={{ fontSize: '14px', marginTop: '4px' }}>
                                 {searchQuery ? 'Try a different search term' : 'Click "Add Contract Type" to create one'}
                             </p>
@@ -602,7 +602,7 @@ export default function ContractTypesPage() {
                                     color: '#1F2937',
                                     margin: 0
                                 }}>
-                                    {editingType ? 'Edit Contract Type' : 'Add Contract Type'}
+                                    {editingType ? 'Edit Contract Type' : t('Add Contract Type')}
                                 </h2>
                                 <p style={{
                                     fontSize: '14px',
@@ -647,7 +647,7 @@ export default function ContractTypesPage() {
                                     <textarea
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        placeholder="Describe this contract type..."
+                                        placeholder={t('Describe this contract type...')}
                                         rows={3}
                                         style={{ ...inputStyle, resize: 'vertical' }}
                                     />
@@ -662,25 +662,25 @@ export default function ContractTypesPage() {
                                 }}>
                                     <ToggleOption
                                         label={t('Is Active')}
-                                        description="Show in dropdown"
+                                        description={t('Show in dropdown')}
                                         checked={formData.is_active}
                                         onChange={(v) => setFormData({ ...formData, is_active: v })}
                                     />
                                     <ToggleOption
                                         label={t('Requires End Date')}
-                                        description="End date mandatory"
+                                        description={t('End date mandatory')}
                                         checked={formData.requires_end_date}
                                         onChange={(v) => setFormData({ ...formData, requires_end_date: v })}
                                     />
                                     <ToggleOption
                                         label={t('Requires Agency')}
-                                        description="Agency dropdown shown"
+                                        description={t('Agency dropdown shown')}
                                         checked={formData.requires_agency}
                                         onChange={(v) => setFormData({ ...formData, requires_agency: v })}
                                     />
                                     {formData.requires_end_date && (
                                         <div>
-                                            <label style={labelStyle}>Default Duration (months)</label>
+                                            <label style={labelStyle}>{t('Default Duration (months)')}</label>
                                             <input
                                                 type="number"
                                                 value={formData.default_duration_months || ''}
@@ -695,15 +695,15 @@ export default function ContractTypesPage() {
 
                                 {/* Hours Type */}
                                 <div style={{ marginBottom: '20px' }}>
-                                    <label style={labelStyle}>Default Hours Type</label>
+                                    <label style={labelStyle}>{t('Default Hours Type')}</label>
                                     <select
                                         value={formData.default_hours_type}
                                         onChange={(e) => setFormData({ ...formData, default_hours_type: e.target.value })}
                                         style={inputStyle}
                                     >
-                                        <option value="">No default</option>
-                                        <option value="full_time">Full-time (Voltijd)</option>
-                                        <option value="part_time">Part-time (Deeltijd)</option>
+                                        <option value="">{t('No default')}</option>
+                                        <option value="full_time">{t('Full-time (Voltijd)')}</option>
+                                        <option value="part_time">{t('Part-time (Deeltijd)')}</option>
                                     </select>
                                 </div>
 
@@ -750,7 +750,7 @@ export default function ContractTypesPage() {
                                             cursor: (formData.name.trim() && formData.code.trim()) ? 'pointer' : 'not-allowed'
                                         }}
                                     >
-                                        {editingType ? 'Save Changes' : 'Create Contract Type'}
+                                        {editingType ? t('Save Changes') : 'Create Contract Type'}
                                     </button>
                                 </div>
                             </div>

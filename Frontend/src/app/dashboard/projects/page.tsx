@@ -221,7 +221,7 @@ export default function ProjectsPage() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
                     <div>
                         <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: 0 }}>{t('Projects')}</h1>
-                        <p style={{ fontSize: '14px', color: '#6B7280', margin: '4px 0 0' }}>Manage your projects and assignments</p>
+                        <p style={{ fontSize: '14px', color: '#6B7280', margin: '4px 0 0' }}>{t('Manage your projects and assignments')}</p>
                     </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
                         <button
@@ -256,7 +256,7 @@ export default function ProjectsPage() {
                             }}
                         >
                             <Plus style={{ width: '16px', height: '16px' }} />
-                            New Project
+                            {t('New Project')}
                         </button>
                     </div>
                 </div>
@@ -279,7 +279,7 @@ export default function ProjectsPage() {
                                 <FolderKanban style={{ width: '24px', height: '24px', color: '#2563eb' }} />
                             </div>
                             <div>
-                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>Total Projects</p>
+                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>{t('Total Projects')}</p>
                                 <p style={{ fontSize: '28px', fontWeight: 700, color: '#111827', margin: 0 }}>{stats.total}</p>
                             </div>
                         </div>
@@ -372,7 +372,7 @@ export default function ProjectsPage() {
                                 }}
                             >
                                 <span>
-                                    {selectedCustomers.length === 0 ? 'All Customers' :
+                                    {selectedCustomers.length === 0 ? t('All Customers') :
                                         selectedCustomers.length === 1 ? customers.find(c => c.id === selectedCustomers[0])?.company_name :
                                             `${selectedCustomers.length} customers`}
                                 </span>
@@ -548,7 +548,7 @@ export default function ProjectsPage() {
                             <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#9CA3AF' }} />
                             <input
                                 type="text"
-                                placeholder="Search projects..."
+                                placeholder={t('Search projects...')}
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 style={{
@@ -615,7 +615,7 @@ export default function ProjectsPage() {
                             }}
                         >
                             <Plus style={{ width: '16px', height: '16px' }} />
-                            Create Project
+                            {t('Create Project')}
                         </button>
                     </div>
                 ) : viewMode === 'grid' ? (
@@ -678,7 +678,7 @@ export default function ProjectsPage() {
                                         }}
                                     >
                                         <Eye style={{ width: '14px', height: '14px' }} />
-                                        View Details
+                                        {t('View Details')}
                                     </button>
                                 </div>
                             </div>
@@ -844,7 +844,7 @@ export default function ProjectsPage() {
                                     {createForm.customer && (
                                         <div>
                                             <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' }}>
-                                                Assign Supervisors
+                                                {t('Assign Supervisors')}
                                             </label>
                                             {loadingSupervisors ? (
                                                 <div style={{ padding: '16px', textAlign: 'center', color: '#6B7280', fontSize: '14px' }}>
@@ -918,7 +918,7 @@ export default function ProjectsPage() {
                                             required
                                             value={createForm.name}
                                             onChange={(e) => setCreateForm(f => ({ ...f, name: e.target.value }))}
-                                            placeholder="Enter project name"
+                                            placeholder={t('Enter project name')}
                                             style={{
                                                 width: '100%',
                                                 padding: '12px 16px',
@@ -955,12 +955,12 @@ export default function ProjectsPage() {
 
                                     <div>
                                         <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' }}>
-                                            Description (Optional)
+                                            {t('Description (Optional)')}
                                         </label>
                                         <textarea
                                             value={createForm.description}
                                             onChange={(e) => setCreateForm(f => ({ ...f, description: e.target.value }))}
-                                            placeholder="Brief project description..."
+                                            placeholder={t('Brief project description...')}
                                             rows={3}
                                             style={{
                                                 width: '100%',
@@ -1014,7 +1014,7 @@ export default function ProjectsPage() {
                                             }}
                                         >
                                             <Plus style={{ width: '16px', height: '16px' }} />
-                                            {creating ? 'Creating...' : 'Create Project'}
+                                            {creating ? t('Creating...') : t('Create Project')}
                                         </button>
                                     </div>
                                 </div>

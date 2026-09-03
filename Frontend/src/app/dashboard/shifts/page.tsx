@@ -367,10 +367,10 @@ export default function ShiftsPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                     <div>
                         <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#111827', margin: 0 }}>{t('Shift Scheduling')}</h1>
-                        <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '4px' }}>Schedule and manage employee shifts</p>
+                        <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '4px' }}>{t('Schedule and manage employee shifts')}</p>
                     </div>
                     <Button onClick={() => router.push('/dashboard/shifts/new')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Plus size={18} /> Schedule Shift
+                        <Plus size={18} /> {t('Schedule Shift')}
                     </Button>
                 </div>
 
@@ -414,7 +414,7 @@ export default function ShiftsPage() {
                         <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
                         <input
                             type="text"
-                            placeholder="Search by employee, project..."
+                            placeholder={t('Search by employee, project...')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={{ ...inputStyle, paddingLeft: '40px' }}
@@ -431,7 +431,7 @@ export default function ShiftsPage() {
                                 <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Employee')}</th>
                                 <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Project')}</th>
                                 <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Time')}</th>
-                                <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>Actual Time</th>
+                                <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Actual Time')}</th>
                                 <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Status')}</th>
                                 <th style={{ padding: '14px 16px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{t('Actions')}</th>
                             </tr>
@@ -440,7 +440,7 @@ export default function ShiftsPage() {
                             {loading ? (
                                 <tr><td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: '#9CA3AF' }}>{t('Loading...')}</td></tr>
                             ) : filteredShifts.length === 0 ? (
-                                <tr><td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: '#9CA3AF' }}>No shifts found</td></tr>
+                                <tr><td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: '#9CA3AF' }}>{t('No shifts found')}</td></tr>
                             ) : (
                                 filteredShifts.map(shift => (
                                     <tr key={shift.id} style={{ borderTop: '1px solid #E5E7EB' }}>
@@ -462,7 +462,7 @@ export default function ShiftsPage() {
                                         <td style={{ padding: '14px 16px', color: '#374151', fontSize: '13px' }}>
                                             {shift.actual_start_time && shift.actual_end_time
                                                 ? `${shift.actual_start_time.slice(0, 5)} - ${shift.actual_end_time.slice(0, 5)}`
-                                                : <span style={{ color: '#9CA3AF' }}>Not filled</span>
+                                                : <span style={{ color: '#9CA3AF' }}>{t('Not filled')}</span>
                                             }
                                         </td>
                                         <td style={{ padding: '14px 16px' }}>
@@ -770,7 +770,7 @@ export default function ShiftsPage() {
                                     <textarea
                                         value={formData.special_instructions}
                                         onChange={(e) => setFormData({ ...formData, special_instructions: e.target.value })}
-                                        placeholder="Any special instructions for the employee..."
+                                        placeholder={t('Any special instructions for the employee...')}
                                         style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
                                     />
                                 </div>
@@ -789,7 +789,7 @@ export default function ShiftsPage() {
                                     disabled={saving}
                                     style={{ padding: '12px 24px', backgroundColor: '#1E3A5F', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', opacity: saving ? 0.7 : 1 }}
                                 >
-                                    {saving ? 'Creating...' : 'Create Shift'}
+                                    {saving ? t('Creating...') : 'Create Shift'}
                                 </button>
                             </div>
                         </div>

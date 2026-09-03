@@ -96,7 +96,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                         animation: 'spin 1s linear infinite'
                                     }} />
                                     <p style={{ color: '#6B7280', fontSize: '14px', margin: 0 }}>
-                                        Loading contract data...
+                                        {t('Loading contract data...')}
                                     </p>
                                     <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
                                 </div>
@@ -128,7 +128,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                     </div>
                                     <div style={{ textAlign: 'center' }}>
                                         <p style={{ color: '#991B1B', fontSize: '16px', fontWeight: 600, margin: 0 }}>
-                                            Failed to load contract data
+                                            {t('Failed to load contract data')}
                                         </p>
                                         <p style={{ color: '#DC2626', fontSize: '14px', margin: '8px 0 0' }}>
                                             {contractDataError}
@@ -188,7 +188,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                                     {t('Contract Type')}
                                                 </h2>
                                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
-                                                    Select the employment contract type
+                                                    {t('Select the employment contract type')}
                                                 </p>
                                             </div>
                                         </div>
@@ -216,7 +216,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                                             height: '48px'
                                                         }}
                                                     >
-                                                        <option value="">Select contract type...</option>
+                                                        <option value="">{t('Select contract type...')}</option>
                                                         {contractTypes.map(ct => (
                                                             <option key={ct.id} value={ct.id}>{ct.name} ({ct.code})</option>
                                                         ))}
@@ -269,7 +269,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                                             fontWeight: 500,
                                                             borderRadius: '8px'
                                                         }}>
-                                                            <Calendar size={14} /> End Date Required
+                                                            <Calendar size={14} /> {t('End Date Required')}
                                                         </span>
                                                     )}
                                                     {contractTypes.find(ct => ct.id === Number(editForm.contract_type_id))?.requires_agency && (
@@ -284,7 +284,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                                             fontWeight: 500,
                                                             borderRadius: '8px'
                                                         }}>
-                                                            <Building2 size={14} /> Agency Required
+                                                            <Building2 size={14} /> {t('Agency Required')}
                                                         </span>
                                                     )}
                                                 </div>
@@ -321,10 +321,10 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                                 </div>
                                                 <div>
                                                     <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#5B21B6', margin: 0 }}>
-                                                        Agency Assignment
+                                                        {t('Agency Assignment')}
                                                     </h2>
                                                     <p style={{ fontSize: '13px', color: '#7C3AED', margin: 0 }}>
-                                                        Required for Uitzendkracht contracts
+                                                        {t('Required for Uitzendkracht contracts')}
                                                     </p>
                                                 </div>
                                             </div>
@@ -354,7 +354,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                                                     height: '48px'
                                                                 }}
                                                             >
-                                                                <option value="">Select agency...</option>
+                                                                <option value="">{t('Select agency...')}</option>
                                                                 {agencies.map(ag => (
                                                                     <option key={ag.id} value={ag.id}>{ag.name} ({ag.code})</option>
                                                                 ))}
@@ -406,10 +406,10 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                             </div>
                                             <div>
                                                 <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#1F2937', margin: 0 }}>
-                                                    Contract Period
+                                                    {t('Contract Period')}
                                                 </h2>
                                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
-                                                    Start and end dates of the contract
+                                                    {t('Start and end dates of the contract')}
                                                 </p>
                                             </div>
                                         </div>
@@ -481,7 +481,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                                         }}>
                                                             <span style={{ fontSize: '15px', fontWeight: 500, color: '#1F2937' }}>
                                                                 {editForm.contract_end_date || (
-                                                                    <span style={{ color: '#9CA3AF', fontStyle: 'italic' }}>Not set (Indefinite)</span>
+                                                                    <span style={{ color: '#9CA3AF', fontStyle: 'italic' }}>{t('Not set (Indefinite)')}</span>
                                                                 )}
                                                             </span>
                                                         </div>
@@ -521,7 +521,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                                     {t('Contract History')}
                                                 </h2>
                                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
-                                                    All historical contracts for this employee
+                                                    {t('All historical contracts for this employee')}
                                                 </p>
                                             </div>
                                         </div>
@@ -584,7 +584,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                             ) : (
                                                 <div style={{ textAlign: 'center', padding: '24px', color: '#9CA3AF' }}>
                                                     <FileText size={32} style={{ opacity: 0.5, marginBottom: '8px' }} />
-                                                    <p>No contract history available</p>
+                                                    <p>{t('No contract history available')}</p>
                                                 </div>
                                             )}
                                         </div>
@@ -617,10 +617,10 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                             </div>
                                             <div>
                                                 <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#1F2937', margin: 0 }}>
-                                                    Contract Document
+                                                    {t('Contract Document')}
                                                 </h2>
                                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
-                                                    Upload signed contract PDF
+                                                    {t('Upload signed contract PDF')}
                                                 </p>
                                             </div>
                                         </div>

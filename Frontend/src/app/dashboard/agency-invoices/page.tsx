@@ -33,7 +33,7 @@ export default function AgencyInvoicesPage() {
 
   const columns: Column<AgencyInvoice>[] = [
     {
-      key: 'number', header: 'Invoice #',
+      key: 'number', header: t('Invoice #'),
       render: (inv) => <span style={{ fontWeight: fontWeight.bold, color: colors.primary }}>{inv.invoice_number}</span>
     },
     {
@@ -75,10 +75,10 @@ export default function AgencyInvoicesPage() {
   return (
     <DashboardLayout>
       <div className={styles.container}>
-        <PageHeader title={t('Agency Invoices')} subtitle="Manage invoices for recruitment agencies" />
+        <PageHeader title={t('Agency Invoices')} subtitle={t('Manage invoices for recruitment agencies')} />
 
         <div className={styles.filterRow}>
-          <SearchBar value={vm.searchQuery} onChange={vm.setSearchQuery} placeholder="Search invoice # or agency..." style={{ flex: 1 }} />
+          <SearchBar value={vm.searchQuery} onChange={vm.setSearchQuery} placeholder={t('Search invoice # or agency...')} style={{ flex: 1 }} />
           <Select value={vm.statusFilter} onChange={v => { vm.setStatusFilter(v); vm.setPage(1); }} options={STATUS_OPTIONS} />
         </div>
 
@@ -89,8 +89,8 @@ export default function AgencyInvoicesPage() {
             loading={vm.loading}
             rowKey={(inv) => inv.id}
             emptyIcon={<FileText size={44} />}
-            emptyTitle="No agency invoices found"
-            emptySubtitle="Generate invoices from the Agency detail page."
+            emptyTitle={t('No agency invoices found')}
+            emptySubtitle={t('Generate invoices from the Agency detail page.')}
           />
           <Pagination page={vm.page} totalPages={vm.totalPages} onChange={vm.setPage} />
         </SectionCard>

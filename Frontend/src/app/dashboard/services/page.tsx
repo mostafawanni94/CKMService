@@ -229,7 +229,7 @@ export default function ServicesPage() {
                             {t('Services')}
                         </h1>
                         <p style={{ fontSize: '15px', color: '#6B7280', marginTop: '6px' }}>
-                            Manage billing services offered to customers
+                            {t('Manage billing services offered to customers')}
                         </p>
                     </div>
 
@@ -263,9 +263,9 @@ export default function ServicesPage() {
                     gap: '20px',
                     marginBottom: '32px'
                 }}>
-                    <StatCard label="Total Services" value={stats.total} icon={CreditCard} color="#6366F1" />
-                    <StatCard label="Active Services" value={stats.active} icon={CheckCircle} color="#10B981" />
-                    <StatCard label="Inactive Services" value={stats.inactive} icon={XCircle} color="#9CA3AF" />
+                    <StatCard label={t('Total Services')} value={stats.total} icon={CreditCard} color="#6366F1" />
+                    <StatCard label={t('Active Services')} value={stats.active} icon={CheckCircle} color="#10B981" />
+                    <StatCard label={t('Inactive Services')} value={stats.inactive} icon={XCircle} color="#9CA3AF" />
                 </div>
 
                 {/* Inline Add/Edit Form */}
@@ -318,7 +318,7 @@ export default function ServicesPage() {
                             <textarea
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                placeholder="Describe the service..."
+                                placeholder={t('Describe the service...')}
                                 rows={2}
                                 style={{ ...inputStyle, resize: 'vertical' }}
                             />
@@ -326,12 +326,12 @@ export default function ServicesPage() {
 
                         {/* Required Certificates */}
                         <div style={{ marginBottom: '20px' }}>
-                            <label style={labelStyle}>Required Certificates (Optional)</label>
+                            <label style={labelStyle}>{t('Required Certificates (Optional)')}</label>
                             <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '12px' }}>
-                                Select which certificates employees must have to perform this service
+                                {t('Select which certificates employees must have to perform this service')}
                             </p>
                             {certificateTypes.length === 0 ? (
-                                <p style={{ fontSize: '13px', color: '#9CA3AF', fontStyle: 'italic' }}>No certificate types available.</p>
+                                <p style={{ fontSize: '13px', color: '#9CA3AF', fontStyle: 'italic' }}>{t('No certificate types available.')}</p>
                             ) : (
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                                     {certificateTypes.map(cert => {
@@ -385,7 +385,7 @@ export default function ServicesPage() {
                                     onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                                     style={{ width: '16px', height: '16px', accentColor: '#3B82F6', cursor: 'pointer' }}
                                 />
-                                <span style={{ fontSize: '14px', color: '#374151', fontWeight: 500 }}>Active Service</span>
+                                <span style={{ fontSize: '14px', color: '#374151', fontWeight: 500 }}>{t('Active Service')}</span>
                             </label>
 
                             <div style={{ display: 'flex', gap: '12px' }}>
@@ -433,7 +433,7 @@ export default function ServicesPage() {
                         />
                         <input
                             type="text"
-                            placeholder="Search services..."
+                            placeholder={t('Search services...')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={{
@@ -506,7 +506,7 @@ export default function ServicesPage() {
                         letterSpacing: '0.05em'
                     }}>
                         <div></div>
-                        <div>Service Name</div>
+                        <div>{t('Service Name')}</div>
                         <div>{t('Code')}</div>
                         <div>{t('Description')}</div>
                         <div style={{ textAlign: 'center' }}>{t('Status')}</div>
@@ -517,7 +517,7 @@ export default function ServicesPage() {
                     {loading ? (
                         <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>
                             <div className="w-8 h-8 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-4" />
-                            <p style={{ fontSize: '14px' }}>Loading services...</p>
+                            <p style={{ fontSize: '14px' }}>{t('Loading services...')}</p>
                         </div>
                     ) : filteredServices.length === 0 ? (
                         <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>

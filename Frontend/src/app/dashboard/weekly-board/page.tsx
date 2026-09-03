@@ -156,7 +156,7 @@ function WorkLogCard({
                             alignItems: 'center'
                         }}
                         className="hover:bg-gray-100"
-                        title="Edit work log"
+                        title={t('Edit work log')}
                     >
                         <Edit2 size={13} />
                     </button>
@@ -338,7 +338,7 @@ function DayColumn({
                         fontSize: '12px',
                         fontStyle: 'italic'
                     }}>
-                        No work logs
+                        {t('No work logs')}
                     </div>
                 )}
                 {entries.map((entry) => (
@@ -649,7 +649,7 @@ export default function WeeklyBoardPage() {
                             {t('Weekly Board')}
                         </h1>
                         <p style={{ fontSize: '14px', color: '#6B7280', margin: '4px 0 0' }}>
-                            Drag and drop work logs across days to reschedule
+                            {t('Drag and drop work logs across days to reschedule')}
                         </p>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -880,7 +880,7 @@ export default function WeeklyBoardPage() {
                                     value={showCustomerDropdown ? customerSearch : (selectedCustomerName || '')}
                                     onChange={(e) => { setCustomerSearch(e.target.value); setShowCustomerDropdown(true); }}
                                     onFocus={() => setShowCustomerDropdown(true)}
-                                    placeholder="All customers"
+                                    placeholder={t('All customers')}
                                     style={{
                                         width: '100%',
                                         padding: '9px 12px',
@@ -1079,7 +1079,7 @@ export default function WeeklyBoardPage() {
                     flexWrap: 'wrap'
                 }}>
                     {[
-                        { label: 'Total Logs', value: filteredLogs.length, color: '#3B82F6', bg: '#EFF6FF' },
+                        { label: t('Total Logs'), value: filteredLogs.length, color: '#3B82F6', bg: '#EFF6FF' },
                         { label: t('Total Hours'), value: `${filteredLogs.reduce((s, l) => s + (typeof l.calculated_hours === 'number' ? l.calculated_hours : parseFloat(String(l.calculated_hours) || '0')), 0).toFixed(1)}h`, color: '#059669', bg: '#ECFDF5' },
                         { label: t('Approved'), value: filteredLogs.filter(l => l.status === 'approved').length, color: '#059669', bg: '#ECFDF5' },
                         { label: t('Pending'), value: filteredLogs.filter(l => ['pending', 'submitted', 'draft'].includes(l.status)).length, color: '#D97706', bg: '#FFFBEB' },
@@ -1123,7 +1123,7 @@ export default function WeeklyBoardPage() {
                             animation: 'spin 0.8s linear infinite',
                             marginRight: '12px'
                         }} />
-                        Loading work logs...
+                        {t('Loading work logs...')}
                     </div>
                 )}
 

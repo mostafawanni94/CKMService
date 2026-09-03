@@ -194,7 +194,7 @@ export default function AllowanceTypesPage() {
                             Allowance Types (Toeslag)
                         </h1>
                         <p style={{ color: '#6B7280', fontSize: '15px' }}>
-                            Manage per-hour allowances like mask, EPZ, WZH, etc.
+                            {t('Manage per-hour allowances like mask, EPZ, WZH, etc.')}
                         </p>
                     </div>
                     <button
@@ -481,7 +481,7 @@ export default function AllowanceTypesPage() {
                                     opacity: saving ? 0.7 : 1
                                 }}
                             >
-                                {saving ? 'Saving...' : (editingId ? t('Update') : t('Create'))}
+                                {saving ? t('Saving...') : (editingId ? t('Update') : t('Create'))}
                             </button>
                         </div>
                     </div>

@@ -92,14 +92,14 @@ export default function HRContractsPage() {
             <div className={styles.container}>
                 <PageHeader
                     title={t('Contracts')}
-                    subtitle="Employee contracts and upcoming expiries"
+                    subtitle={t('Employee contracts and upcoming expiries')}
                 />
 
                 <div className={styles.statRow}>
                     <StatCard label={t('Total')} value={vm.counts.total} />
                     <StatCard label={t('Active')} value={vm.counts.active} />
-                    <StatCard label="Expiring" value={vm.counts.expiring} />
-                    <StatCard label="Expired" value={vm.counts.expired} />
+                    <StatCard label={t('Expiring')} value={vm.counts.expiring} />
+                    <StatCard label={t('Expired')} value={vm.counts.expired} />
                 </div>
 
                 <div className={styles.filterRow}>
@@ -123,7 +123,7 @@ export default function HRContractsPage() {
                         loading={vm.loading}
                         rowKey={(row) => row.id}
                         emptyIcon={<FileText size={32} />}
-                        emptyTitle="No contracts"
+                        emptyTitle={t('No contracts')}
                         emptySubtitle={
                             vm.error ?? 'Upload a contract from an employee profile to see it here.'
                         }

@@ -107,7 +107,7 @@ export function ViewCertificateModal({ vm }: { vm: ViewModel }) {
                                             backgroundColor: selectedCertificate.is_expired ? '#FEE2E2' : '#DCFCE7',
                                             color: selectedCertificate.is_expired ? '#991B1B' : '#166534'
                                         }}>
-                                            {selectedCertificate.is_expired ? 'Expired' : t('Active')}
+                                            {selectedCertificate.is_expired ? t('Expired') : t('Active')}
                                         </span>
                                     </div>
                                     <div>
@@ -115,17 +115,17 @@ export function ViewCertificateModal({ vm }: { vm: ViewModel }) {
                                         <p style={{ fontSize: '14px', color: '#1F2937' }}>{selectedCertificate.issue_date || 'N/A'}</p>
                                     </div>
                                     <div>
-                                        <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', marginBottom: '4px' }}>Expire Date</p>
+                                        <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', marginBottom: '4px' }}>{t('Expire Date')}</p>
                                         <p style={{ fontSize: '14px', color: '#1F2937' }}>{selectedCertificate.expiry_date || 'N/A'}</p>
                                     </div>
                                     <div style={{ gridColumn: 'span 2' }}>
-                                        <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', marginBottom: '4px' }}>Diploma / Certificate Number</p>
+                                        <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', marginBottom: '4px' }}>{t('Diploma / Certificate Number')}</p>
                                         <p style={{ fontSize: '14px', color: '#1F2937', fontFamily: 'monospace' }}>{selectedCertificate.diploma_number || 'N/A'}</p>
                                     </div>
                                 </div>
 
                                 <div style={{ marginBottom: '20px' }}>
-                                    <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', marginBottom: '8px' }}>Certificate Document</p>
+                                    <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', marginBottom: '8px' }}>{t('Certificate Document')}</p>
 
                                     {selectedCertificate.certificate_file_back ? (
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>

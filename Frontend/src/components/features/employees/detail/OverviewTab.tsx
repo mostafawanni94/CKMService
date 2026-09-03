@@ -479,7 +479,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                             <Card title={t('Financial Information')} icon={CreditCard} iconColor="text-amber-600" iconBg="bg-amber-50">
                                 <div className="grid grid-cols-2 gap-4">
                                     <Field label={t('IBAN')} value={editForm.iban} editing={isEditing} onChange={v => setEditForm({ ...editForm, iban: v.toUpperCase().replace(/\s/g, '') })} />
-                                    <Field label="Hourly Rate (€)" value={editForm.hourly_rate} editing={isEditing} type="number" onChange={v => setEditForm({ ...editForm, hourly_rate: v })} />
+                                    <Field label={t('Hourly Rate (€)')} value={editForm.hourly_rate} editing={isEditing} type="number" onChange={v => setEditForm({ ...editForm, hourly_rate: v })} />
                                 </div>
 
                                 {/* Travel Allowance Section */}
@@ -487,7 +487,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
                                         <Car size={18} color="#6B7280" />
                                         <span style={{ fontSize: '14px', fontWeight: 600, color: '#374151' }}>
-                                            Travel Allowance
+                                            {t('Travel Allowance')}
                                         </span>
                                     </div>
 
@@ -554,10 +554,10 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                                     color: editForm.travel_cost_per_km ? '#1F2937' : '#6B7280',
                                                     margin: 0
                                                 }}>
-                                                    Travel Cost per KM
+                                                    {t('Travel Cost per KM')}
                                                 </p>
                                                 <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '2px 0 0' }}>
-                                                    Cost per kilometer for travel reimbursement
+                                                    {t('Cost per kilometer for travel reimbursement')}
                                                 </p>
                                             </div>
 
@@ -661,10 +661,10 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                                     color: editForm.travel_hour_percentage ? '#1F2937' : '#6B7280',
                                                     margin: 0
                                                 }}>
-                                                    Travel Hour Percentage
+                                                    {t('Travel Hour Percentage')}
                                                 </p>
                                                 <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '2px 0 0' }}>
-                                                    Percentage of travel time to compensate
+                                                    {t('Percentage of travel time to compensate')}
                                                 </p>
                                             </div>
 
@@ -714,7 +714,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
                                         <Check size={18} color="#6B7280" />
                                         <span style={{ fontSize: '14px', fontWeight: 600, color: '#374151' }}>
-                                            Permission Flags
+                                            {t('Permission Flags')}
                                         </span>
                                     </div>
 
@@ -746,8 +746,8 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                                 </button>
                                             )}
                                             <div style={{ flex: 1 }}>
-                                                <span style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>Can Add Allowances</span>
-                                                <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>Allow employee to add Toeslag to work logs</p>
+                                                <span style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>{t('Can Add Allowances')}</span>
+                                                <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>{t('Allow employee to add Toeslag to work logs')}</p>
                                             </div>
                                             {!isEditing && (
                                                 <span style={{
@@ -787,8 +787,8 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                                 </button>
                                             )}
                                             <div style={{ flex: 1 }}>
-                                                <span style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>Receives Surcharges</span>
-                                                <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>Receives night/weekend/holiday surcharge payments</p>
+                                                <span style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>{t('Receives Surcharges')}</span>
+                                                <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>{t('Receives night/weekend/holiday surcharge payments')}</p>
                                             </div>
                                             {!isEditing && (
                                                 <span style={{
@@ -805,7 +805,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                             </Card>
 
                             {/* Rate History Card */}
-                            <Card title="Rate History" icon={Clock} iconColor="text-blue-600" iconBg="bg-blue-50">
+                            <Card title={t('Rate History')} icon={Clock} iconColor="text-blue-600" iconBg="bg-blue-50">
                                 <div style={{ overflowX: 'auto' }}>
                                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
                                         <thead>
@@ -813,7 +813,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                                 <th style={{ padding: '12px 16px', fontWeight: 600 }}>{t('Hourly Rate')}</th>
                                                 <th style={{ padding: '12px 16px', fontWeight: 600 }}>{t('Effective From')}</th>
                                                 <th style={{ padding: '12px 16px', fontWeight: 600 }}>{t('Effective To')}</th>
-                                                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Changed By</th>
+                                                <th style={{ padding: '12px 16px', fontWeight: 600 }}>{t('Changed By')}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -840,7 +840,7 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                             ) : (
                                                 <tr>
                                                     <td colSpan={4} style={{ padding: '24px', textAlign: 'center', color: '#9CA3AF' }}>
-                                                        No rate history available
+                                                        {t('No rate history available')}
                                                     </td>
                                                 </tr>
                                             )}
@@ -849,9 +849,9 @@ export function OverviewTab({ vm }: { vm: ViewModel }) {
                                 </div>
                             </Card>
 
-                            <Card title="Timeline" icon={Clock} iconColor="text-purple-600" iconBg="bg-purple-50">
+                            <Card title={t('Timeline')} icon={Clock} iconColor="text-purple-600" iconBg="bg-purple-50">
                                 <div className="space-y-3">
-                                    <TimelineRow label="Created" date={employee.created_at} />
+                                    <TimelineRow label={t('Created')} date={employee.created_at} />
                                     <TimelineRow label={t('Submitted')} date={employee.submitted_at} />
                                     <TimelineRow label={t('Approved')} date={employee.approved_at} />
                                 </div>

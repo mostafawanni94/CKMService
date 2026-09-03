@@ -58,7 +58,7 @@ export default function WorkLogsPage() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
                     <div>
                         <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: 0 }}>{t('Work Logs')}</h1>
-                        <p style={{ fontSize: '14px', color: '#6B7280', margin: '4px 0 0' }}>Review and approve employee work submissions</p>
+                        <p style={{ fontSize: '14px', color: '#6B7280', margin: '4px 0 0' }}>{t('Review and approve employee work submissions')}</p>
                     </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
                         <button
@@ -122,7 +122,7 @@ export default function WorkLogsPage() {
                                 <Clock style={{ width: '24px', height: '24px', color: '#2563eb' }} />
                             </div>
                             <div>
-                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>Total Logs</p>
+                                <p style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500, margin: 0 }}>{t('Total Logs')}</p>
                                 <p style={{ fontSize: '28px', fontWeight: 700, color: '#111827', margin: 0 }}>{stats.total}</p>
                             </div>
                         </div>
@@ -243,7 +243,7 @@ export default function WorkLogsPage() {
                             }} />
                             <input
                                 type="text"
-                                placeholder="Search work logs..."
+                                placeholder={t('Search work logs...')}
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 style={{
@@ -641,7 +641,7 @@ export default function WorkLogsPage() {
                                                                                                     log.status === 'confirmed' ? '#4F46E5' :
                                                                                                         log.status === 'cancelled' ? '#6B7280' : '#6B7280'
                                                             }} />
-                                                            {log.status === 'no_show' ? 'No Show' : log.status === 'in_progress' ? 'In Progress' : log.status.charAt(0).toUpperCase() + log.status.slice(1)}
+                                                            {log.status === 'no_show' ? t('No Show') : log.status === 'in_progress' ? t('In Progress') : log.status.charAt(0).toUpperCase() + log.status.slice(1)}
                                                         </span>
                                                     </td>
                                                     <td style={{ padding: '16px 24px' }}>
@@ -1026,12 +1026,12 @@ export default function WorkLogsPage() {
                                 {/* Location Override */}
                                 {formData.project && (
                                     <div>
-                                        <label style={labelStyle}>Location (optional)</label>
+                                        <label style={labelStyle}>{t('Location (optional)')}</label>
                                         <input
                                             type="text"
                                             value={formData.location_override}
                                             onChange={(e) => setFormData({ ...formData, location_override: e.target.value })}
-                                            placeholder="Enter work location..."
+                                            placeholder={t('Enter work location...')}
                                             style={inputStyle}
                                         />
                                     </div>
@@ -1128,7 +1128,7 @@ export default function WorkLogsPage() {
 
                                     {allowances.length === 0 ? (
                                         <p style={{ color: '#6B7280', fontSize: '13px', textAlign: 'center', padding: '16px 0' }}>
-                                            No allowances added. Click "Add Allowance" to add one.
+                                            {t('No allowances added. Click "Add Allowance" to add one.')}
                                         </p>
                                     ) : (
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1280,7 +1280,7 @@ export default function WorkLogsPage() {
                                         opacity: saving ? 0.7 : 1
                                     }}
                                 >
-                                    {saving ? 'Saving...' : (editingId ? 'Save Changes' : 'Create Work Log')}
+                                    {saving ? t('Saving...') : (editingId ? t('Save Changes') : 'Create Work Log')}
                                 </button>
                             </div>
                         </div>

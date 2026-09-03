@@ -252,7 +252,7 @@ export default function NewShiftPage() {
                             {t('Schedule New Shift')}
                         </h1>
                         <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '4px' }}>
-                            Create shifts for one or multiple employees
+                            {t('Create shifts for one or multiple employees')}
                         </p>
                     </div>
                 </div>
@@ -574,7 +574,7 @@ export default function NewShiftPage() {
                             <textarea
                                 value={formData.special_instructions}
                                 onChange={(e) => setFormData({ ...formData, special_instructions: e.target.value })}
-                                placeholder="Any special instructions for the employees..."
+                                placeholder={t('Any special instructions for the employees...')}
                                 style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
                             />
                         </div>
@@ -611,7 +611,7 @@ export default function NewShiftPage() {
                                     opacity: saving || formData.selectedEmployees.length === 0 ? 0.7 : 1
                                 }}
                             >
-                                {saving ? 'Creating...' : `Create ${formData.selectedEmployees.length || ''} Shift${formData.selectedEmployees.length !== 1 ? 's' : ''}`}
+                                {saving ? t('Creating...') : `Create ${formData.selectedEmployees.length || ''} Shift${formData.selectedEmployees.length !== 1 ? 's' : ''}`}
                             </button>
                         </div>
                     </div>

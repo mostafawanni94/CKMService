@@ -301,7 +301,7 @@ export function WorklogFilters({ vm }: { vm: ViewModel }) {
 
                                 {/* Date Range - From */}
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>From Date</label>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>{t('From Date')}</label>
                                     <input
                                         type="date"
                                         value={filterStartDate}
@@ -320,7 +320,7 @@ export function WorklogFilters({ vm }: { vm: ViewModel }) {
 
                                 {/* Date Range - To */}
                                 <div>
-                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>To Date</label>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>{t('To Date')}</label>
                                     <input
                                         type="date"
                                         value={filterEndDate}
@@ -450,7 +450,7 @@ export function WorklogFilters({ vm }: { vm: ViewModel }) {
                                                     borderBottom: '1px solid #F3F4F6'
                                                 }}
                                             >
-                                                All Employees
+                                                {t('All Employees')}
                                             </div>
                                             {employees
                                                 .filter(emp => emp.full_name.toLowerCase().includes(employeeSearchFilter.toLowerCase()))
@@ -516,16 +516,16 @@ export function WorklogFilters({ vm }: { vm: ViewModel }) {
                                 </div>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                                     {[
-                                        { value: 'planned', label: 'Planned', color: '#3B82F6', bg: '#EFF6FF' },
-                                        { value: 'confirmed', label: 'Confirmed', color: '#4F46E5', bg: '#E0E7FF' },
-                                        { value: 'in_progress', label: 'In Progress', color: '#2563EB', bg: '#DBEAFE' },
+                                        { value: 'planned', label: t('Planned'), color: '#3B82F6', bg: '#EFF6FF' },
+                                        { value: 'confirmed', label: t('Confirmed'), color: '#4F46E5', bg: '#E0E7FF' },
+                                        { value: 'in_progress', label: t('In Progress'), color: '#2563EB', bg: '#DBEAFE' },
                                         { value: 'draft', label: t('Draft'), color: '#7C3AED', bg: '#F3E8FF' },
                                         { value: 'pending', label: t('Pending'), color: '#F59E0B', bg: '#FEF3C7' },
                                         { value: 'submitted', label: t('Submitted'), color: '#D97706', bg: '#FEF3C7' },
                                         { value: 'approved', label: t('Approved'), color: '#10B981', bg: '#D1FAE5' },
                                         { value: 'rejected', label: t('Rejected'), color: '#EF4444', bg: '#FEE2E2' },
                                         { value: 'cancelled', label: t('Cancelled'), color: '#6B7280', bg: '#F3F4F6' },
-                                        { value: 'no_show', label: 'No Show', color: '#EF4444', bg: '#FEE2E2' },
+                                        { value: 'no_show', label: t('No Show'), color: '#EF4444', bg: '#FEE2E2' },
                                     ].map(statusOption => (
                                         <label
                                             key={statusOption.value}
@@ -593,7 +593,7 @@ export function WorklogFilters({ vm }: { vm: ViewModel }) {
                                         cursor: 'pointer'
                                     }}
                                 >
-                                    Clear All Filters
+                                    {t('Clear All Filters')}
                                 </button>
                             </div>
                         </div>

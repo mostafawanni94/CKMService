@@ -91,7 +91,7 @@ export function WorklogBulkBar({ vm }: { vm: ViewModel }) {
                                     textDecoration: 'underline'
                                 }}
                             >
-                                Clear selection
+                                {t('Clear selection')}
                             </button>
                         </div>
                         <div style={{ display: 'flex', gap: '12px' }}>
@@ -112,7 +112,7 @@ export function WorklogBulkBar({ vm }: { vm: ViewModel }) {
                                 }}
                             >
                                 <Check size={16} />
-                                Approve All
+                                {t('Approve All')}
                             </button>
                             <button
                                 onClick={handleBulkDelete}
@@ -131,7 +131,7 @@ export function WorklogBulkBar({ vm }: { vm: ViewModel }) {
                                 }}
                             >
                                 <Trash2 size={16} />
-                                Delete All
+                                {t('Delete All')}
                             </button>
                         </div>
                     </div>

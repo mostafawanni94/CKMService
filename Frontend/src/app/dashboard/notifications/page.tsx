@@ -329,7 +329,7 @@ export default function NotificationsPage() {
                                 }}
                             >
                                 <CheckCheck size={18} />
-                                Mark All Read
+                                {t('Mark All Read')}
                             </button>
                         )}
                     </div>
@@ -343,8 +343,8 @@ export default function NotificationsPage() {
                     marginBottom: '32px'
                 }}>
                     <StatCard label={t('Total')} value={stats.total} icon={Bell} color="#6366F1" />
-                    <StatCard label="Unread" value={stats.unread} icon={AlertCircle} color="#F59E0B" />
-                    <StatCard label="Read" value={stats.read} icon={Check} color="#10B981" />
+                    <StatCard label={t('Unread')} value={stats.unread} icon={AlertCircle} color="#F59E0B" />
+                    <StatCard label={t('Read')} value={stats.read} icon={Check} color="#10B981" />
                 </div>
 
                 {/* Category Tabs */}
@@ -475,7 +475,7 @@ export default function NotificationsPage() {
                                     }}
                                 >
                                     <Check size={14} />
-                                    Mark Read
+                                    {t('Mark Read')}
                                 </button>
                                 <button
                                     onClick={deleteSelected}
@@ -530,7 +530,7 @@ export default function NotificationsPage() {
                                 {readFilter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
                             </h3>
                             <p style={{ fontSize: '14px', color: '#9CA3AF' }}>
-                                When you receive notifications, they will appear here
+                                {t('When you receive notifications, they will appear here')}
                             </p>
                         </div>
                     ) : (
@@ -621,7 +621,7 @@ export default function NotificationsPage() {
                                                         textDecoration: 'none'
                                                     }}
                                                 >
-                                                    View Details →
+                                                    {t('View Details →')}
                                                 </a>
                                             )}
                                         </div>
@@ -647,7 +647,7 @@ export default function NotificationsPage() {
                                                             borderRadius: '8px',
                                                             cursor: 'pointer'
                                                         }}
-                                                        title="Mark as read"
+                                                        title={t('Mark as read')}
                                                     >
                                                         <Check size={14} color="#6B7280" />
                                                     </button>

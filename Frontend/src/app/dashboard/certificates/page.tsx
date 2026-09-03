@@ -213,14 +213,14 @@ export default function CertificatesPage() {
                             color: '#1F2937',
                             margin: 0
                         }}>
-                            Certificate Types
+                            {t('Certificate Types')}
                         </h1>
                         <p style={{
                             fontSize: '15px',
                             color: '#6B7280',
                             marginTop: '6px'
                         }}>
-                            Manage certificate types that employees can upload
+                            {t('Manage certificate types that employees can upload')}
                         </p>
                     </div>
 
@@ -245,7 +245,7 @@ export default function CertificatesPage() {
                         onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                     >
                         <Plus size={18} />
-                        Add Certificate Type
+                        {t('Add Certificate Type')}
                     </button>
                 </div>
 
@@ -275,7 +275,7 @@ export default function CertificatesPage() {
                         color="#F59E0B"
                     />
                     <StatCard
-                        label="Total Certificates"
+                        label={t('Total Certificates')}
                         value={stats.totalEmployees}
                         icon={Users}
                         color="#EC4899"
@@ -306,7 +306,7 @@ export default function CertificatesPage() {
                         />
                         <input
                             type="text"
-                            placeholder="Search certificate types..."
+                            placeholder={t('Search certificate types...')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={{
@@ -374,11 +374,11 @@ export default function CertificatesPage() {
                         letterSpacing: '0.05em'
                     }}>
                         <div></div>
-                        <div>Certificate Name</div>
+                        <div>{t('Certificate Name')}</div>
                         <div>{t('Description')}</div>
                         <div style={{ textAlign: 'center' }}>{t('Status')}</div>
                         <div style={{ textAlign: 'center' }}>{t('Required')}</div>
-                        <div style={{ textAlign: 'center' }}>Has Expiry</div>
+                        <div style={{ textAlign: 'center' }}>{t('Has Expiry')}</div>
                         <div style={{ textAlign: 'center' }}>{t('Employees')}</div>
                         <div style={{ textAlign: 'center' }}>{t('Actions')}</div>
                     </div>
@@ -399,7 +399,7 @@ export default function CertificatesPage() {
                                 margin: '0 auto 16px',
                                 animation: 'spin 1s linear infinite'
                             }} />
-                            <p style={{ fontSize: '14px' }}>Loading certificate types...</p>
+                            <p style={{ fontSize: '14px' }}>{t('Loading certificate types...')}</p>
                             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
                         </div>
                     ) : error ? (
@@ -432,7 +432,7 @@ export default function CertificatesPage() {
                             color: '#9CA3AF'
                         }}>
                             <Award size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                            <p style={{ fontSize: '16px', fontWeight: 500 }}>No certificate types found</p>
+                            <p style={{ fontSize: '16px', fontWeight: 500 }}>{t('No certificate types found')}</p>
                             <p style={{ fontSize: '14px', marginTop: '4px' }}>
                                 {searchQuery ? 'Try a different search term' : 'Click "Add Certificate Type" to create one'}
                             </p>
@@ -488,7 +488,7 @@ export default function CertificatesPage() {
                                                 marginTop: '2px'
                                             }}>
                                                 <Hash size={10} />
-                                                Has diploma number
+                                                {t('Has diploma number')}
                                             </span>
                                         )}
                                     </div>
@@ -665,7 +665,7 @@ export default function CertificatesPage() {
                                     color: '#1F2937',
                                     margin: 0
                                 }}>
-                                    {editingCertificate ? 'Edit Certificate Type' : 'Add Certificate Type'}
+                                    {editingCertificate ? 'Edit Certificate Type' : t('Add Certificate Type')}
                                 </h2>
                                 <p style={{
                                     fontSize: '14px',
@@ -721,7 +721,7 @@ export default function CertificatesPage() {
                                     <textarea
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        placeholder="Enter a description for this certificate type..."
+                                        placeholder={t('Enter a description for this certificate type...')}
                                         rows={3}
                                         style={{
                                             width: '100%',
@@ -744,25 +744,25 @@ export default function CertificatesPage() {
                                 }}>
                                     <ToggleOption
                                         label={t('Is Active')}
-                                        description="Show to employees"
+                                        description={t('Show to employees')}
                                         checked={formData.is_active}
                                         onChange={(v) => setFormData({ ...formData, is_active: v })}
                                     />
                                     <ToggleOption
-                                        label="Is Required"
-                                        description="Mandatory for all"
+                                        label={t('Is Required')}
+                                        description={t('Mandatory for all')}
                                         checked={formData.is_required}
                                         onChange={(v) => setFormData({ ...formData, is_required: v })}
                                     />
                                     <ToggleOption
-                                        label="Has Expiry Date"
-                                        description="Certificate expires"
+                                        label={t('Has Expiry Date')}
+                                        description={t('Certificate expires')}
                                         checked={formData.has_expiry}
                                         onChange={(v) => setFormData({ ...formData, has_expiry: v })}
                                     />
                                     <ToggleOption
-                                        label="Has Diploma Number"
-                                        description="Extract via OCR"
+                                        label={t('Has Diploma Number')}
+                                        description={t('Extract via OCR')}
                                         checked={formData.has_diploma_number}
                                         onChange={(v) => setFormData({ ...formData, has_diploma_number: v })}
                                     />
@@ -830,7 +830,7 @@ export default function CertificatesPage() {
                                             cursor: (formData.name.trim() && !saving) ? 'pointer' : 'not-allowed'
                                         }}
                                     >
-                                        {saving ? 'Saving...' : (editingCertificate ? 'Save Changes' : 'Create Certificate Type')}
+                                        {saving ? t('Saving...') : (editingCertificate ? t('Save Changes') : 'Create Certificate Type')}
                                     </button>
                                 </div>
                             </div>

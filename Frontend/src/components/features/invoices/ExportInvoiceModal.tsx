@@ -142,7 +142,7 @@ export function ExportInvoiceModal({ vm }: { vm: ViewModel }) {
                         )}
 
                         <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '24px' }}>
-                            Choose the export format based on who will receive the file:
+                            {t('Choose the export format based on who will receive the file:')}
                         </p>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -179,7 +179,7 @@ export function ExportInvoiceModal({ vm }: { vm: ViewModel }) {
                                         {t('Export for HR')}
                                     </p>
                                     <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', margin: '4px 0 0 0' }}>
-                                        Hours overview with TOTAAL UREN (A-P)
+                                        {t('Hours overview with TOTAAL UREN (A-P)')}
                                     </p>
                                 </div>
                             </button>
@@ -217,7 +217,7 @@ export function ExportInvoiceModal({ vm }: { vm: ViewModel }) {
                                         {t('Export for Finance')}
                                     </p>
                                     <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', margin: '4px 0 0 0' }}>
-                                        Full report with surcharges and TOTAAL BEDRAG (A-O, Q-X)
+                                        {t('Full report with surcharges and TOTAAL BEDRAG (A-O, Q-X)')}
                                     </p>
                                 </div>
                             </button>
@@ -255,7 +255,7 @@ export function ExportInvoiceModal({ vm }: { vm: ViewModel }) {
                                         {t('Export for Employee (Simple)')}
                                     </p>
                                     <p style={{ color: '#6B7280', fontSize: '13px', margin: '4px 0 0 0' }}>
-                                        Basic hours overview: date, start, end, break, total
+                                        {t('Basic hours overview: date, start, end, break, total')}
                                     </p>
                                 </div>
                             </button>
@@ -311,7 +311,7 @@ export function ExportInvoiceModal({ vm }: { vm: ViewModel }) {
                                         {t('Create Invoice')}
                                     </p>
                                     <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', margin: '4px 0 0 0' }}>
-                                        Generate invoice record from these worklogs
+                                        {t('Generate invoice record from these worklogs')}
                                     </p>
                                 </div>
                             </button>

@@ -61,11 +61,11 @@ export function ReturnSummary({ vatReturn }: { vatReturn: VatReturn }) {
     return (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: spacing.lg, marginBottom: spacing.xl }}>
             <StatCard label="5a — BTW verschuldigd" value={euro(vatReturn.box_5a)}
-                      subtitle="Total VAT owed on your own sales and reverse-charged purchases" />
+                      subtitle={t('Total VAT owed on your own sales and reverse-charged purchases')} />
             <StatCard label="5b — Voorbelasting" value={euro(vatReturn.box_5b)}
-                      subtitle="Deductible input VAT" />
+                      subtitle={t('Deductible input VAT')} />
             <StatCard
-                label={payable ? t('Te betalen') : vatReturn.outcome === 'REFUNDABLE' ? 'Terug te ontvangen' : 'Saldo'}
+                label={payable ? t('Te betalen') : vatReturn.outcome === 'REFUNDABLE' ? t('Terug te ontvangen') : 'Saldo'}
                 value={euro(payable ? vatReturn.amount_payable : vatReturn.amount_refundable)}
                 color={payable ? colors.dangerDark : colors.successDark}
                 subtitle={`Rules ${vatReturn.rules_version} · 5a − 5b`}
@@ -85,7 +85,7 @@ export function BlockerList({ blockers }: { blockers: VatBlocker[] }) {
                 borderRadius: radius.md, color: colors.successDark,
             }}>
                 <CheckCircle2 size={18} />
-                Nothing is unresolved in this period.
+                {t('Nothing is unresolved in this period.')}
             </div>
         );
     }
@@ -117,13 +117,13 @@ export function BoxTable({ boxes, expandedBox, boxEntries, onToggle }: {
 }) {
     const { t } = useLanguage();
     return (
-        <SectionCard title={t('Rubrieken')} subtitle="Click a rubriek to see the transactions behind it">
+        <SectionCard title={t('Rubrieken')} subtitle={t('Click a rubriek to see the transactions behind it')}>
             <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontVariantNumeric: 'tabular-nums' }}>
                     <thead>
                         <tr style={{ textAlign: 'left', borderBottom: `1px solid ${colors.border}` }}>
                             <th style={{ padding: spacing.md, width: 60 }}>{t('Rubriek')}</th>
-                            <th style={{ padding: spacing.md }}>Omschrijving</th>
+                            <th style={{ padding: spacing.md }}>{t('Omschrijving')}</th>
                             <th style={{ padding: spacing.md, textAlign: 'right' }}>{t('Bedrag')}</th>
                             <th style={{ padding: spacing.md, textAlign: 'right' }}>{t('Omzetbelasting')}</th>
                             <th style={{ padding: spacing.md, textAlign: 'right', width: 90 }}>{t('Posten')}</th>
@@ -151,7 +151,7 @@ export function BoxTable({ boxes, expandedBox, boxEntries, onToggle }: {
                                             {box.name}
                                             {box.is_computed && (
                                                 <div style={{ fontSize: fontSize.xs, color: colors.textSecondary }}>
-                                                    Berekend uit de overige rubrieken
+                                                    {t('Berekend uit de overige rubrieken')}
                                                 </div>
                                             )}
                                         </td>
@@ -166,7 +166,7 @@ export function BoxTable({ boxes, expandedBox, boxEntries, onToggle }: {
                                             <td colSpan={5} style={{ padding: 0, background: colors.bgAlt }}>
                                                 {entries.length === 0 ? (
                                                     <div style={{ padding: spacing.lg, color: colors.textSecondary, fontSize: fontSize.sm }}>
-                                                        Loading transactions…
+                                                        {t('Loading transactions…')}
                                                     </div>
                                                 ) : entries.map(entry => (
                                                     <div key={String(entry.id)} style={{

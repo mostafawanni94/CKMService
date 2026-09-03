@@ -199,7 +199,7 @@ export default function ProjectDetailPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
                     <AlertTriangle style={{ width: '64px', height: '64px', color: '#EF4444', marginBottom: '16px' }} />
                     <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#111827', marginBottom: '8px' }}>{t('Project Not Found')}</h2>
-                    <p style={{ color: '#6B7280', marginBottom: '16px' }}>The project you're looking for doesn't exist.</p>
+                    <p style={{ color: '#6B7280', marginBottom: '16px' }}>{t("The project you're looking for doesn't exist.")}</p>
                     <Button onClick={() => router.push('/dashboard/projects')} className="bg-[#1E3A5F]">
                         {t('Back to Projects')}
                     </Button>
@@ -297,7 +297,7 @@ export default function ProjectDetailPage() {
                             }}
                         >
                             <Calendar style={{ width: '16px', height: '16px' }} />
-                            Planning
+                            {t('Planning')}
                         </button>
                         <button
                             onClick={() => setShowDeleteConfirm(true)}
@@ -337,7 +337,7 @@ export default function ProjectDetailPage() {
                             }}
                         >
                             <Save style={{ width: '16px', height: '16px' }} />
-                            {saving ? 'Saving...' : 'Save Changes'}
+                            {saving ? t('Saving...') : t('Save Changes')}
                         </button>
                     </div>
                 </div>
@@ -360,7 +360,7 @@ export default function ProjectDetailPage() {
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div>
-                                <label style={labelStyle}>Project Name</label>
+                                <label style={labelStyle}>{t('Project Name')}</label>
                                 <input
                                     type="text"
                                     value={editForm.name}
@@ -435,7 +435,7 @@ export default function ProjectDetailPage() {
                         {!editForm.customer ? (
                             <div style={{ padding: '24px', textAlign: 'center' }}>
                                 <UserCircle style={{ width: '32px', height: '32px', color: '#D1D5DB', margin: '0 auto 8px' }} />
-                                <p style={{ fontSize: '14px', color: '#9CA3AF', margin: 0 }}>Select a customer first to see available supervisors</p>
+                                <p style={{ fontSize: '14px', color: '#9CA3AF', margin: 0 }}>{t('Select a customer first to see available supervisors')}</p>
                             </div>
                         ) : loadingSupervisors ? (
                             <div style={{ padding: '24px', textAlign: 'center', color: '#6B7280', fontSize: '14px' }}>
@@ -501,7 +501,7 @@ export default function ProjectDetailPage() {
                 <div style={{ marginBottom: '24px' }}>
                     <VatSettingsPanel
                         endpoint={`/projects/projects/${params.id}/`}
-                        subtitle="Alleen invullen als dit project afwijkt van de instelling bij de klant"
+                        subtitle={t('Alleen invullen als dit project afwijkt van de instelling bij de klant')}
                     />
                 </div>
 

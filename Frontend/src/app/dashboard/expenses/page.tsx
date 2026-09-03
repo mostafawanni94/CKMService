@@ -25,11 +25,11 @@ export default function ExpensesPage() {
       <div className={styles.container}>
         <PageHeader
           title={t('Expenses')}
-          subtitle="Track and manage business expenses for Aangifte"
+          subtitle={t('Track and manage business expenses for Aangifte')}
           actions={
             <>
               <Button variant="secondary" onClick={vm.handleExport} icon={<Download size={16} />}>{t('Export')}</Button>
-              <Button onClick={vm.openCreate} icon={<Plus size={16} />}>Add Expense</Button>
+              <Button onClick={vm.openCreate} icon={<Plus size={16} />}>{t('Add Expense')}</Button>
             </>
           }
         />
@@ -38,9 +38,9 @@ export default function ExpensesPage() {
 
         {/* Filters */}
         <div className={styles.filterRow}>
-          <SearchBar value={vm.searchQuery} onChange={vm.setSearchQuery} placeholder="Search vendor, description..." style={{ flex: 1 }} />
+          <SearchBar value={vm.searchQuery} onChange={vm.setSearchQuery} placeholder={t('Search vendor, description...')} style={{ flex: 1 }} />
           <Select value={vm.yearFilter} onChange={vm.setYearFilter} options={YEAR_OPTIONS} />
-          <Select value={vm.categoryFilter} onChange={vm.setCategoryFilter} options={categoryOptions} placeholder="All categories" />
+          <Select value={vm.categoryFilter} onChange={vm.setCategoryFilter} options={categoryOptions} placeholder={t('All categories')} />
         </div>
 
         <SectionCard>
@@ -55,7 +55,7 @@ export default function ExpensesPage() {
         <ExpenseModal
           open={vm.showModal}
           onClose={() => vm.setShowModal(false)}
-          title={vm.editingId ? 'Edit Expense' : 'Add Expense'}
+          title={vm.editingId ? 'Edit Expense' : t('Add Expense')}
           form={vm.form}
           updateForm={vm.updateForm}
           categories={vm.categories}

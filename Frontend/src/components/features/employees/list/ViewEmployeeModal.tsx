@@ -291,12 +291,12 @@ export function ViewEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 <p className="text-xs text-gray-500 mb-2">{t('PDF Document')}</p>
                                                 <a href={selectedEmployee.id_document_pdf} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-4 bg-white rounded-lg border-2 border-gray-200 hover:border-purple-400 transition-colors">
                                                     <FileText className="w-8 h-8 text-red-500" />
-                                                    <span className="font-medium text-gray-700">View PDF</span>
+                                                    <span className="font-medium text-gray-700">{t('View PDF')}</span>
                                                 </a>
                                             </div>
                                         )}
                                         {!selectedEmployee.id_document_front && !selectedEmployee.id_document_back && !selectedEmployee.id_document_pdf && (
-                                            <p className="text-gray-400 italic col-span-3">No documents uploaded</p>
+                                            <p className="text-gray-400 italic col-span-3">{t('No documents uploaded')}</p>
                                         )}
                                     </div>
                                 </div>
@@ -337,7 +337,7 @@ export function ViewEmployeeModal({ vm }: { vm: ViewModel }) {
                                     </h3>
                                     <div className="grid grid-cols-3 gap-4">
                                         <div>
-                                            <p className="text-xs text-gray-500 mb-1">Phase</p>
+                                            <p className="text-xs text-gray-500 mb-1">{t('Phase')}</p>
                                             <p className="font-semibold text-gray-900">{selectedEmployee.contract_phase || 'Not assigned'}</p>
                                         </div>
                                         <div>
@@ -382,7 +382,7 @@ export function ViewEmployeeModal({ vm }: { vm: ViewModel }) {
                                         className="flex-1 bg-gradient-to-r from-[#1E3A5F] to-[#2E5A8F] hover:from-[#2E4A6F] hover:to-[#3E6A9F] text-white font-semibold py-3 rounded-xl shadow-lg"
                                     >
                                         <Edit className="w-5 h-5 mr-2" />
-                                        Edit Profile
+                                        {t('Edit Profile')}
                                     </Button>
                                     <Button
                                         variant="outline"

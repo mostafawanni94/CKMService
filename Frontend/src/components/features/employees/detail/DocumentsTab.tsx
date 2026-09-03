@@ -76,8 +76,8 @@ export function DocumentsTab({ vm }: { vm: ViewModel }) {
                         <div className="space-y-6">
                             <Card title={t('ID Document')} icon={Shield} iconColor="text-indigo-600" iconBg="bg-indigo-50"
                                 badge={employee.id_document_front_url || employee.id_document_back_url || employee.id_document_pdf_url ?
-                                    <span className="text-xs font-medium text-emerald-600 flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" />Uploaded</span> :
-                                    <span className="text-xs font-medium text-amber-600 flex items-center gap-1"><XCircle className="w-3.5 h-3.5" />Missing</span>}>
+                                    <span className="text-xs font-medium text-emerald-600 flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" />{t('Uploaded')}</span> :
+                                    <span className="text-xs font-medium text-amber-600 flex items-center gap-1"><XCircle className="w-3.5 h-3.5" />{t('Missing')}</span>}>
                                 <div className="grid grid-cols-4 gap-4 mb-6 pb-6 border-b">
                                     <div>
                                         <label className="block text-xs font-medium text-gray-500 uppercase mb-1.5">{t('Type')}</label>
@@ -94,7 +94,7 @@ export function DocumentsTab({ vm }: { vm: ViewModel }) {
                                 </div>
                                 {/* Upload ID Document Section */}
                                 <div className="mt-2">
-                                    <p className="text-sm font-medium text-gray-700 mb-1">Upload ID Document</p>
+                                    <p className="text-sm font-medium text-gray-700 mb-1">{t('Upload ID Document')}</p>
                                     <p className="text-xs text-gray-400 mb-4">{t('Upload front and back, or a single PDF')}</p>
 
                                     <div className="grid grid-cols-2 gap-4 mb-4">
@@ -111,7 +111,7 @@ export function DocumentsTab({ vm }: { vm: ViewModel }) {
 
                                     {/* PDF Upload */}
                                     <div className="max-w-xs">
-                                        <DocSlot title="Upload PDF" url={employee.id_document_pdf_url} field="id_document_pdf" accept=".pdf,image/*" type="pdf" editing={isEditing} uploading={uploadingFile === 'id_document_pdf'} onUpload={handleFileUpload} onDelete={handleDeleteFile} />
+                                        <DocSlot title={t('Upload PDF')} url={employee.id_document_pdf_url} field="id_document_pdf" accept=".pdf,image/*" type="pdf" editing={isEditing} uploading={uploadingFile === 'id_document_pdf'} onUpload={handleFileUpload} onDelete={handleDeleteFile} />
                                     </div>
                                 </div>
                             </Card>
@@ -138,12 +138,12 @@ export function DocumentsTab({ vm }: { vm: ViewModel }) {
                                 {(employee.has_drivers_license || editForm.has_drivers_license) && (
                                     <>
                                         <div className="grid grid-cols-3 gap-4 mb-6 pb-6 border-b">
-                                            <Field label="License Number" value={editForm.drivers_license_number} editing={isEditing} onChange={v => setEditForm({ ...editForm, drivers_license_number: v })} />
+                                            <Field label={t('License Number')} value={editForm.drivers_license_number} editing={isEditing} onChange={v => setEditForm({ ...editForm, drivers_license_number: v })} />
                                             <Field label={t('Issue Date')} value={editForm.drivers_license_issue_date} editing={isEditing} type="date" onChange={v => setEditForm({ ...editForm, drivers_license_issue_date: v })} />
                                             <Field label={t('Expiry Date')} value={editForm.drivers_license_expiry_date} editing={isEditing} type="date" onChange={v => setEditForm({ ...editForm, drivers_license_expiry_date: v })} />
                                         </div>
                                         <div className="mb-6 pb-6 border-b">
-                                            <label className="block text-xs font-medium text-gray-500 uppercase mb-4">License Categories</label>
+                                            <label className="block text-xs font-medium text-gray-500 uppercase mb-4">{t('License Categories')}</label>
                                             <div className="grid grid-cols-4 gap-3">
                                                 {LICENSE_CATEGORIES.map(cat => {
                                                     const sel = selectedCategories.includes(cat.code);
@@ -164,7 +164,7 @@ export function DocumentsTab({ vm }: { vm: ViewModel }) {
                                         </div>
                                         {/* Upload License Section */}
                                         <div className="mt-2">
-                                            <p className="text-sm font-medium text-gray-700 mb-1">Upload License</p>
+                                            <p className="text-sm font-medium text-gray-700 mb-1">{t('Upload License')}</p>
                                             <p className="text-xs text-gray-400 mb-4">{t('Upload front and back, or a single PDF')}</p>
 
                                             <div className="grid grid-cols-2 gap-4">

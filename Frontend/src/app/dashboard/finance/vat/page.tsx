@@ -35,7 +35,7 @@ export default function VatReturnPage() {
             <div className={styles.container}>
                 <PageHeader
                     title={t('BTW Aangifte')}
-                    subtitle="Quarterly VAT return — calculated from the VAT ledger, not from invoice totals"
+                    subtitle={t('Quarterly VAT return — calculated from the VAT ledger, not from invoice totals')}
                     actions={
                         <>
                             <Select value={String(vm.year)} onChange={v => vm.setYear(parseInt(v))} options={YEAR_OPTIONS} />
@@ -52,11 +52,11 @@ export default function VatReturnPage() {
                 )}
 
                 {vm.loading ? (
-                    <LoadingSpinner message="Loading VAT periods…" />
+                    <LoadingSpinner message={t('Loading VAT periods…')} />
                 ) : vm.periods.length === 0 ? (
                     <EmptyState
                         title={`No VAT periods for ${vm.year}`}
-                        subtitle="Generate the four quarters to start recording this year's return."
+                        subtitle={t("Generate the four quarters to start recording this year's return.")}
                         action={<Button onClick={vm.ensureYear}>{t('Generate quarters')}</Button>}
                     />
                 ) : (
@@ -64,7 +64,7 @@ export default function VatReturnPage() {
                         <PeriodTabs periods={vm.periods} selectedId={vm.selectedId} onSelect={vm.setSelectedId} />
 
                         {!vm.vatReturn ? (
-                            <LoadingSpinner message="Calculating return…" />
+                            <LoadingSpinner message={t('Calculating return…')} />
                         ) : (
                             <>
                                 <ReturnSummary vatReturn={vm.vatReturn} />
@@ -82,17 +82,17 @@ export default function VatReturnPage() {
                                     {period?.status === 'FINALIZED' && (
                                         <>
                                             <Button onClick={vm.lock} disabled={vm.busy} icon={<Lock size={16} />}>
-                                                Lock permanently
+                                                {t('Lock permanently')}
                                             </Button>
                                             <Button onClick={() => setReopenOpen(true)} disabled={vm.busy}
                                                     icon={<Unlock size={16} />}>
-                                                Reopen
+                                                {t('Reopen')}
                                             </Button>
                                         </>
                                     )}
                                     {period?.status === 'LOCKED' && (
                                         <span style={{ color: colors.textSecondary, alignSelf: 'center' }}>
-                                            Filed and locked. Corrections must be posted to an open period.
+                                            {t('Filed and locked. Corrections must be posted to an open period.')}
                                         </span>
                                     )}
                                 </div>
@@ -121,18 +121,18 @@ export default function VatReturnPage() {
                                 onClick={async () => {
                                     if (await vm.reopen(reason)) { setReopenOpen(false); setReason(''); }
                                 }}
-                            >Reopen period</Button>
+                            >{t('Reopen period')}</Button>
                         </>
                     }
                 >
                     <p style={{ color: colors.textSecondary, marginBottom: spacing.lg }}>
-                        The figures already filed stay on record. Reopening is logged against your name.
+                        {t('The figures already filed stay on record. Reopening is logged against your name.')}
                     </p>
                     <TextArea
-                        label="Reason (required)"
+                        label={t('Reason (required)')}
                         value={reason}
                         onChange={setReason}
-                        placeholder="Why does this period need to be reopened?"
+                        placeholder={t('Why does this period need to be reopened?')}
                         rows={3}
                         required
                     />

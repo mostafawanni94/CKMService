@@ -91,7 +91,7 @@ export default function HRLeaveRequestsPage() {
             <div className={styles.container}>
                 <PageHeader
                     title={t('Leave Requests')}
-                    subtitle="Review and decide on employee time-off requests"
+                    subtitle={t('Review and decide on employee time-off requests')}
                 />
 
                 <div className={styles.statRow}>
@@ -105,7 +105,7 @@ export default function HRLeaveRequestsPage() {
                     <SearchBar
                         value={vm.searchQuery}
                         onChange={vm.setSearchQuery}
-                        placeholder="Search employee, type, reason..."
+                        placeholder={t('Search employee, type, reason...')}
                         style={{ flex: 1, minWidth: 240 }}
                     />
                     <Select
@@ -122,7 +122,7 @@ export default function HRLeaveRequestsPage() {
                         loading={vm.loading}
                         rowKey={(row) => row.id}
                         emptyIcon={<CalendarDays size={32} />}
-                        emptyTitle="No leave requests"
+                        emptyTitle={t('No leave requests')}
                         emptySubtitle={
                             vm.error ?? 'Requests submitted from the employee app appear here.'
                         }

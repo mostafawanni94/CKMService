@@ -141,7 +141,7 @@ export function ShareCredentialsModal({ vm }: { vm: ViewModel }) {
                             {/* Title */}
                             <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>{t('Employee Created!')}</h3>
                             <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
-                                Share these credentials with <strong>{createdEmployee.name}</strong>
+                                {t('Share these credentials with')} <strong>{createdEmployee.name}</strong>
                             </p>
 
                             {/* Credentials Card */}
@@ -177,9 +177,9 @@ export function ShareCredentialsModal({ vm }: { vm: ViewModel }) {
                                     }}
                                 >
                                     {copied ? (
-                                        <><CheckCircle style={{ width: '18px', height: '18px' }} /> Copied to Clipboard!</>
+                                        <><CheckCircle style={{ width: '18px', height: '18px' }} /> {t('Copied to Clipboard!')}</>
                                     ) : (
-                                        <><Copy style={{ width: '18px', height: '18px' }} /> Copy Credentials</>
+                                        <><Copy style={{ width: '18px', height: '18px' }} /> {t('Copy Credentials')}</>
                                     )}
                                 </button>
                                 <button
@@ -200,7 +200,7 @@ export function ShareCredentialsModal({ vm }: { vm: ViewModel }) {
                                         gap: '8px'
                                     }}
                                 >
-                                    <MessageCircle style={{ width: '18px', height: '18px' }} /> Share via WhatsApp
+                                    <MessageCircle style={{ width: '18px', height: '18px' }} /> {t('Share via WhatsApp')}
                                 </button>
                                 <button
                                     onClick={() => setShowShareModal(false)}

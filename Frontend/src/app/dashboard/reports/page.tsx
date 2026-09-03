@@ -239,7 +239,7 @@ export default function ReportsPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900">{t('Reports')}</h1>
-                        <p className="text-gray-500">View earnings, hours, and performance reports</p>
+                        <p className="text-gray-500">{t('View earnings, hours, and performance reports')}</p>
                     </div>
                     <Button onClick={exportToCSV}>
                         <Download className="w-4 h-4 mr-2" />
@@ -268,7 +268,7 @@ export default function ReportsPage() {
                                 <Users className="w-6 h-6 text-blue-600" />
                             </div>
                             <div>
-                                <p className="text-sm text-gray-500">Active Employees</p>
+                                <p className="text-sm text-gray-500">{t('Active Employees')}</p>
                                 <p className="text-2xl font-bold text-gray-900">{earningsData.length}</p>
                             </div>
                         </div>
@@ -301,7 +301,7 @@ export default function ReportsPage() {
                                 <Building2 className="w-6 h-6 text-amber-600" />
                             </div>
                             <div>
-                                <p className="text-sm text-gray-500">Active Projects</p>
+                                <p className="text-sm text-gray-500">{t('Active Projects')}</p>
                                 <p className="text-2xl font-bold text-gray-900">{projectHoursData.length}</p>
                             </div>
                         </div>
@@ -314,7 +314,7 @@ export default function ReportsPage() {
                         <div className="flex gap-2">
                             {[
                                 { id: 'earnings', label: 'Employee Earnings', icon: DollarSign },
-                                { id: 'project-hours', label: 'Project Hours', icon: BarChart3 },
+                                { id: 'project-hours', label: t('Project Hours'), icon: BarChart3 },
                             ].map((report) => (
                                 <button
                                     key={report.id}
@@ -378,9 +378,9 @@ export default function ReportsPage() {
                                 <thead className="bg-gray-50 border-b">
                                     <tr>
                                         <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">{t('Employee')}</th>
-                                        <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Hours Worked</th>
-                                        <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Approved Logs</th>
-                                        <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Est. Earnings</th>
+                                        <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">{t('Hours Worked')}</th>
+                                        <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">{t('Approved Logs')}</th>
+                                        <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">{t('Est. Earnings')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y">
@@ -449,7 +449,7 @@ export default function ReportsPage() {
                                         <tr>
                                             <td colSpan={3} className="px-6 py-12 text-center text-gray-500">
                                                 <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                                                <p className="font-medium">No project data for selected period</p>
+                                                <p className="font-medium">{t('No project data for selected period')}</p>
                                             </td>
                                         </tr>
                                     ) : (

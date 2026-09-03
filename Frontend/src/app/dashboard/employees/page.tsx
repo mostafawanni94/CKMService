@@ -251,11 +251,11 @@ export default function EmployeesPage() {
                                     badgeBg = isActive ? 'rgba(255,255,255,0.25)' : '#E5E7EB';
                                 }
 
-                                const label = status === 'all' ? 'All' :
+                                const label = status === 'all' ? t('All') :
                                     status === 'approved' ? t('Approved') :
                                         status === 'pending' ? t('Pending') :
                                             status === 'rejected' ? t('Rejected') :
-                                                status === 'suspended' ? 'Suspended' : t('Incomplete');
+                                                status === 'suspended' ? t('Suspended') : t('Incomplete');
 
                                 return (
                                     <button
@@ -352,7 +352,7 @@ export default function EmployeesPage() {
                                 <thead style={{ backgroundColor: '#F9FAFB', borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB' }}>
                                     <tr>
                                         <th style={{ width: '30%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('Employee')}</th>
-                                        <th style={{ width: '25%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact</th>
+                                        <th style={{ width: '25%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('Contact')}</th>
                                         <th style={{ width: '15%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('Status')}</th>
                                         <th style={{ width: '30%' }} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('Actions')}</th>
                                     </tr>
@@ -363,7 +363,7 @@ export default function EmployeesPage() {
                                             <td colSpan={4} className="px-6 py-12 text-center">
                                                 <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                                                 <p className="text-gray-500 font-medium">{t('No employees found')}</p>
-                                                <p className="text-gray-400 text-sm mt-1">Click "Add Employee" to create one</p>
+                                                <p className="text-gray-400 text-sm mt-1">{t('Click "Add Employee" to create one')}</p>
                                             </td>
                                         </tr>
                                     ) : (
@@ -458,7 +458,7 @@ export default function EmployeesPage() {
                                                             }}
                                                         >
                                                             <Download style={{ width: '14px', height: '14px' }} />
-                                                            Extract
+                                                            {t('Extract')}
                                                         </button>
                                                         <button
                                                             onClick={() => openDeleteModal(emp)}

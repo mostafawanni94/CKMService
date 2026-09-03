@@ -193,7 +193,7 @@ export function VatSettingsPanel({ endpoint, title, subtitle }: {
                     </h4>
                     <p style={{ fontSize: fontSize.sm, color: colors.textSecondary,
                                 margin: `0 0 ${spacing.lg}` }}>
-                        Beide moeten "Ja" zijn voordat de btw verlegd wordt.
+                        {t('Beide moeten "Ja" zijn voordat de btw verlegd wordt.')}
                     </p>
                     <div style={{ display: 'grid', gap: spacing.lg, maxWidth: 520,
                                   marginBottom: spacing.xl }}>
@@ -220,7 +220,7 @@ export function VatSettingsPanel({ endpoint, title, subtitle }: {
                     </h4>
                     <p style={{ fontSize: fontSize.sm, color: colors.textSecondary,
                                 margin: `0 0 ${spacing.lg}` }}>
-                        Eén "Ja" haalt de dienst uit de verleggingsregeling.
+                        {t('Eén "Ja" haalt de dienst uit de verleggingsregeling.')}
                     </p>
                     <div style={{ display: 'grid', gap: spacing.md, maxWidth: 520,
                                   marginBottom: spacing.xl }}>
@@ -263,7 +263,7 @@ export function VatSettingsPanel({ endpoint, title, subtitle }: {
                     label={t('Onderbouwing')}
                     value={facts.vat_notes ?? ''}
                     onChange={value => update('vat_notes', value)}
-                    placeholder="Waarop is deze behandeling gebaseerd? Bijvoorbeeld: wat het werk inhoudt, of de tekst op het contract."
+                    placeholder={t('Waarop is deze behandeling gebaseerd? Bijvoorbeeld: wat het werk inhoudt, of de tekst op het contract.')}
                     rows={3}
                 />
             </div>

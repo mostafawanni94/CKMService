@@ -15,6 +15,7 @@ import {
 import { useFinanceDashboard } from '@/hooks/useFinanceDashboard';
 import { colors, spacing } from '@/styles/tokens';
 import styles from '../page.module.css';
+import { useLanguage } from '@/lib/i18n';
 
 const YEARS = [2024, 2025, 2026, 2027, 2028].map(y => ({ value: String(y), label: String(y) }));
 const QUARTERS = [
@@ -26,6 +27,7 @@ const QUARTERS = [
 ];
 
 export default function FinanceOverviewPage() {
+    const { t } = useLanguage();
     const vm = useFinanceDashboard();
     const router = useRouter();
 
@@ -33,8 +35,8 @@ export default function FinanceOverviewPage() {
         <DashboardLayout>
             <div className={styles.container}>
                 <PageHeader
-                    title="Financieel overzicht"
-                    subtitle="Omzet, kosten, openstaande posten en btw — uit dezelfde administratie als de aangifte"
+                    title={t('Financieel overzicht')}
+                    subtitle={t('Omzet, kosten, openstaande posten en btw — uit dezelfde administratie als de aangifte')}
                     actions={
                         <>
                             <Select value={String(vm.year)}
@@ -55,7 +57,7 @@ export default function FinanceOverviewPage() {
                 )}
 
                 {vm.loading || !vm.data ? (
-                    <LoadingSpinner message="Cijfers laden…" />
+                    <LoadingSpinner message={t('Cijfers laden…')} />
                 ) : (
                     <>
                         <ReviewBanner count={vm.data.requires_review_count} />

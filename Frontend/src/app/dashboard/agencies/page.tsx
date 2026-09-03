@@ -172,7 +172,7 @@ export default function AgenciesPage() {
                             color: '#6B7280',
                             marginTop: '6px'
                         }}>
-                            Manage employment agencies and billing rates
+                            {t('Manage employment agencies and billing rates')}
                         </p>
                     </div>
 
@@ -197,7 +197,7 @@ export default function AgenciesPage() {
                         onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                     >
                         <Plus size={18} />
-                        Add Agency
+                        {t('Add Agency')}
                     </button>
                 </div>
 
@@ -208,10 +208,10 @@ export default function AgenciesPage() {
                     gap: '20px',
                     marginBottom: '32px'
                 }}>
-                    <StatCard label="Total Agencies" value={stats.total} icon={Building2} color="#7C3AED" />
+                    <StatCard label={t('Total Agencies')} value={stats.total} icon={Building2} color="#7C3AED" />
                     <StatCard label={t('Active')} value={stats.active} icon={CheckCircle} color="#10B981" />
-                    <StatCard label="Total Employees" value={stats.totalEmployees} icon={Users} color="#3B82F6" />
-                    <StatCard label="Deleted (Archived)" value={stats.deleted} icon={History} color="#6B7280" />
+                    <StatCard label={t('Total Employees')} value={stats.totalEmployees} icon={Users} color="#3B82F6" />
+                    <StatCard label={t('Deleted (Archived)')} value={stats.deleted} icon={History} color="#6B7280" />
                 </div>
 
                 {/* Search & Filters */}
@@ -235,7 +235,7 @@ export default function AgenciesPage() {
                         />
                         <input
                             type="text"
-                            placeholder="Search agencies..."
+                            placeholder={t('Search agencies...')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={{
@@ -265,7 +265,7 @@ export default function AgenciesPage() {
                             onChange={(e) => setShowDeleted(e.target.checked)}
                             style={{ width: '16px', height: '16px' }}
                         />
-                        Show deleted
+                        {t('Show deleted')}
                     </label>
 
                     {/* Filter Buttons */}
@@ -337,7 +337,7 @@ export default function AgenciesPage() {
                     ) : filteredAgencies.length === 0 ? (
                         <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>
                             <Building2 size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                            <p style={{ fontSize: '16px', fontWeight: 500 }}>No agencies found</p>
+                            <p style={{ fontSize: '16px', fontWeight: 500 }}>{t('No agencies found')}</p>
                             <p style={{ fontSize: '14px', marginTop: '4px' }}>
                                 {searchQuery ? 'Try a different search term' : 'Click "Add Agency" to create one'}
                             </p>
@@ -396,7 +396,7 @@ export default function AgenciesPage() {
                                                 color: '#7C3AED',
                                                 marginTop: '2px'
                                             }}>
-                                                Has surcharges
+                                                {t('Has surcharges')}
                                             </span>
                                         )}
                                     </div>
@@ -463,7 +463,7 @@ export default function AgenciesPage() {
                                             borderRadius: '6px'
                                         }}>
                                             <XCircle size={12} />
-                                            Deleted
+                                            {t('Deleted')}
                                         </span>
                                     ) : (
                                         <button
@@ -524,7 +524,7 @@ export default function AgenciesPage() {
                                                 borderRadius: '6px',
                                                 cursor: 'pointer'
                                             }}
-                                            title="Restore"
+                                            title={t('Restore')}
                                         >
                                             <RotateCcw size={16} />
                                         </button>

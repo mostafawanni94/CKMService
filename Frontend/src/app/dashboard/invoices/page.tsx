@@ -66,7 +66,7 @@ export default function InvoicesPage() {
                             color: '#6B7280',
                             margin: '4px 0 0 0'
                         }}>
-                            Manage customer invoices and payments
+                            {t('Manage customer invoices and payments')}
                         </p>
                     </div>
                     <button
@@ -122,7 +122,7 @@ export default function InvoicesPage() {
                                     color: filter === status ? 'white' : '#6B7280'
                                 }}
                             >
-                                {status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
+                                {status === 'all' ? t('All') : status.charAt(0).toUpperCase() + status.slice(1)}
                             </button>
                         ))}
                     </div>
@@ -131,7 +131,7 @@ export default function InvoicesPage() {
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                         <div style={{ position: 'relative' }}>
                             <input
-                                placeholder="Search invoices..."
+                                placeholder={t('Search invoices...')}
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 style={{
@@ -180,7 +180,7 @@ export default function InvoicesPage() {
                             }}
                         >
                             <Briefcase size={16} />
-                            Filters
+                            {t('Filters')}
                         </button>
                     </div>
                 </div>
@@ -224,7 +224,7 @@ export default function InvoicesPage() {
                                                                     {worklogs.length} Work Log{worklogs.length !== 1 ? 's' : ''} Found
                                                                 </p>
                                                                 <p className="text-xs text-blue-600">
-                                                                    No invoices generated yet. Click "Generate Invoice" to create one from these work logs.
+                                                                    {t('No invoices generated yet. Click "Generate Invoice" to create one from these work logs.')}
                                                                 </p>
                                                             </div>
                                                         </div>
@@ -233,7 +233,7 @@ export default function InvoicesPage() {
                                                 {worklogs.slice(0, 10).map((log: any) => (
                                                     <tr key={log.id} className="hover:bg-gray-50">
                                                         <td className="px-6 py-4">
-                                                            <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">Work Log</span>
+                                                            <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">{t('Work Log')}</span>
                                                         </td>
                                                         <td className="px-6 py-4 font-medium">{log.project_name || '-'}</td>
                                                         <td className="px-6 py-4 text-gray-500">{log.work_date}</td>
@@ -262,7 +262,7 @@ export default function InvoicesPage() {
                                         ) : (
                                             <tr>
                                                 <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                                                    No invoices yet. Generate one by selecting a customer and week.
+                                                    {t('No invoices yet. Generate one by selecting a customer and week.')}
                                                 </td>
                                             </tr>
                                         )
@@ -378,7 +378,7 @@ export default function InvoicesPage() {
                                             <tbody className="divide-y">
                                                 {selectedInvoice.lines.length === 0 ? (
                                                     <tr>
-                                                        <td colSpan={5} className="px-4 py-6 text-center text-gray-400">No labor hours</td>
+                                                        <td colSpan={5} className="px-4 py-6 text-center text-gray-400">{t('No labor hours')}</td>
                                                     </tr>
                                                 ) : (
                                                     selectedInvoice.lines.map((line) => (
@@ -475,7 +475,7 @@ export default function InvoicesPage() {
                                                     <tr>
                                                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('Type')}</th>
                                                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('Description')}</th>
-                                                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Qty</th>
+                                                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('Qty')}</th>
                                                         <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('Price')}</th>
                                                         <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('Total')}</th>
                                                     </tr>
@@ -501,11 +501,11 @@ export default function InvoicesPage() {
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <div className="flex justify-between">
-                                                <span className="text-blue-200">Subtotal (Labor)</span>
+                                                <span className="text-blue-200">{t('Subtotal (Labor)')}</span>
                                                 <span>€{selectedInvoice.subtotal.toLocaleString()}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-blue-200">Costs</span>
+                                                <span className="text-blue-200">{t('Costs')}</span>
                                                 <span>€{selectedInvoice.total_costs.toLocaleString()}</span>
                                             </div>
                                             <div className="flex justify-between">

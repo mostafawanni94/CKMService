@@ -32,18 +32,18 @@ export default function FinancialOverviewPage() {
       <div className={styles.container}>
         <PageHeader
           title={t('Financial Overview')}
-          subtitle="Income, expenses, and BTW summary for Aangifte"
+          subtitle={t('Income, expenses, and BTW summary for Aangifte')}
           actions={
             <>
               <Select value={String(vm.year)} onChange={v => vm.setYear(parseInt(v))} options={YEAR_OPTIONS} />
               <Select value={vm.quarter} onChange={vm.setQuarter} options={QUARTER_OPTIONS} />
-              <Button onClick={vm.handleExport} icon={<Download size={16} />}>Export Aangifte</Button>
+              <Button onClick={vm.handleExport} icon={<Download size={16} />}>{t('Export Aangifte')}</Button>
             </>
           }
         />
 
         {vm.loading ? (
-          <LoadingSpinner message="Loading financial data..." />
+          <LoadingSpinner message={t('Loading financial data...')} />
         ) : (
           <>
             <TopCards

@@ -82,13 +82,13 @@ export default function EmployeeDetailPage() {
     };
 
     const tabs = [
-        { id: 'overview' as TabType, label: 'Overview', icon: User },
+        { id: 'overview' as TabType, label: t('Overview'), icon: User },
         { id: 'documents' as TabType, label: t('Documents'), icon: FileText },
         { id: 'contract' as TabType, label: 'Contract', icon: Briefcase },
         { id: 'certificates' as TabType, label: t('Certificates'), icon: Award },
     ];
 
-    if (noPermission) return <DashboardLayout><div className="flex items-center justify-center h-[80vh]"><div className="text-center"><Lock className="w-16 h-16 text-red-500 mx-auto mb-4" /><p className="text-gray-600 mb-4">Access Denied</p><Button onClick={() => router.push('/dashboard')} className="bg-[#1E3A5F]">{t('Back')}</Button></div></div></DashboardLayout>;
+    if (noPermission) return <DashboardLayout><div className="flex items-center justify-center h-[80vh]"><div className="text-center"><Lock className="w-16 h-16 text-red-500 mx-auto mb-4" /><p className="text-gray-600 mb-4">{t('Access Denied')}</p><Button onClick={() => router.push('/dashboard')} className="bg-[#1E3A5F]">{t('Back')}</Button></div></div></DashboardLayout>;
     if (loading) return <DashboardLayout><div className="flex items-center justify-center h-[80vh]"><div className="w-10 h-10 border-4 border-[#1E3A5F] border-t-transparent rounded-full animate-spin"></div></div></DashboardLayout>;
     if (error || !employee) return <DashboardLayout><div className="flex items-center justify-center h-[80vh]"><div className="text-center"><AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" /><p className="text-gray-500 mb-4">{error || 'Not found'}</p><Button onClick={() => router.push('/dashboard/employees')} className="bg-[#1E3A5F]">{t('Back')}</Button></div></div></DashboardLayout>;
 
@@ -101,7 +101,7 @@ export default function EmployeeDetailPage() {
                 <div className="bg-white border-b sticky top-0 z-20">
                     <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between">
                         <button onClick={() => router.push('/dashboard/employees')} className="flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm font-medium">
-                            <ArrowLeft className="w-4 h-4" /> Back to Employees
+                            <ArrowLeft className="w-4 h-4" /> {t('Back to Employees')}
                         </button>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             {isEditing ? (
@@ -144,7 +144,7 @@ export default function EmployeeDetailPage() {
                                             transition: 'all 0.2s'
                                         }}
                                     >
-                                        <Save style={{ width: '16px', height: '16px' }} /> {saving ? 'Saving...' : t('Save')}
+                                        <Save style={{ width: '16px', height: '16px' }} /> {saving ? t('Saving...') : t('Save')}
                                     </button>
                                 </>
                             ) : (
@@ -262,7 +262,7 @@ export default function EmployeeDetailPage() {
                                 fontSize: '14px',
                                 margin: '4px 0 0'
                             }}>
-                                Employee Profile
+                                {t('Employee Profile')}
                             </p>
                         </div>
 
@@ -312,7 +312,7 @@ export default function EmployeeDetailPage() {
                                 <option value="pending" style={{ color: '#374151', backgroundColor: 'white' }}>{t('Pending')}</option>
                                 <option value="approved" style={{ color: '#374151', backgroundColor: 'white' }}>{t('Approved')}</option>
                                 <option value="rejected" style={{ color: '#374151', backgroundColor: 'white' }}>{t('Rejected')}</option>
-                                <option value="suspended" style={{ color: '#374151', backgroundColor: 'white' }}>Suspended</option>
+                                <option value="suspended" style={{ color: '#374151', backgroundColor: 'white' }}>{t('Suspended')}</option>
                             </select>
                             {/* Status Icon */}
                             <div style={{
@@ -428,7 +428,7 @@ export default function EmployeeDetailPage() {
                                     <AlertTriangle style={{ width: '20px', height: '20px', color: '#DC2626' }} />
                                 </div>
                                 <div>
-                                    <h4 style={{ fontSize: '16px', fontWeight: 600, color: '#991B1B', margin: 0 }}>Application Rejected</h4>
+                                    <h4 style={{ fontSize: '16px', fontWeight: 600, color: '#991B1B', margin: 0 }}>{t('Application Rejected')}</h4>
                                     <p style={{ fontSize: '13px', color: '#B91C1C', margin: 0, marginTop: '2px' }}>This employee&apos;s application was rejected</p>
                                 </div>
                             </div>
@@ -478,7 +478,7 @@ export default function EmployeeDetailPage() {
 
                                 <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>{t('Approve Employee')}</h3>
                                 <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
-                                    Are you sure you want to approve <strong>{employee.first_name} {employee.last_name}</strong>?
+                                    {t('Are you sure you want to approve')} <strong>{employee.first_name} {employee.last_name}</strong>?
                                     This will activate their account.
                                 </p>
 
@@ -546,10 +546,10 @@ export default function EmployeeDetailPage() {
 
                                 <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>{t('Rate Change Detected')}</h3>
                                 <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '8px' }}>
-                                    You're changing the hourly rate to <strong>€{pendingRateChange}</strong>
+                                    {t("You're changing the hourly rate to")} <strong>€{pendingRateChange}</strong>
                                 </p>
                                 <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
-                                    Do you want to upload a new contract document for this rate change?
+                                    {t('Do you want to upload a new contract document for this rate change?')}
                                 </p>
 
                                 <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
@@ -568,7 +568,7 @@ export default function EmployeeDetailPage() {
                                             transition: 'all 0.2s'
                                         }}
                                     >
-                                        No, Save Rate Only
+                                        {t('No, Save Rate Only')}
                                     </button>
                                     <label
                                         style={{
@@ -589,7 +589,7 @@ export default function EmployeeDetailPage() {
                                         }}
                                     >
                                         <Upload style={{ width: '16px', height: '16px' }} />
-                                        {saving ? 'Uploading...' : 'Yes, Upload Contract'}
+                                        {saving ? t('Uploading...') : 'Yes, Upload Contract'}
                                         <input
                                             type="file"
                                             accept=".pdf,.doc,.docx"
@@ -639,14 +639,14 @@ export default function EmployeeDetailPage() {
 
                                 <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>{t('Reject Employee')}</h3>
                                 <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '20px' }}>
-                                    Please provide a reason for rejecting <strong>{employee.first_name} {employee.last_name}</strong>.
+                                    {t('Please provide a reason for rejecting')} <strong>{employee.first_name} {employee.last_name}</strong>.
                                 </p>
 
                                 <div style={{ position: 'relative' }}>
                                     <textarea
                                         value={rejectReason}
                                         onChange={e => setRejectReason(e.target.value)}
-                                        placeholder="Enter rejection reason (minimum 10 characters)..."
+                                        placeholder={t('Enter rejection reason (minimum 10 characters)...')}
                                         style={{
                                             width: '100%',
                                             padding: '14px 16px',

@@ -80,7 +80,7 @@ export function VatQuarters({ periods, onOpen }: {
     const { t } = useLanguage();
     if (!periods.length) return null;
     const label: Record<string, string> = {
-        OPEN: 'Open', REVIEW_REQUIRED: t('Vast te stellen'),
+        OPEN: t('Open'), REVIEW_REQUIRED: t('Vast te stellen'),
         READY_TO_FINALIZE: 'Klaar om vast te zetten',
         FINALIZED: 'Vastgezet', LOCKED: 'Definitief',
     };
@@ -93,7 +93,7 @@ export function VatQuarters({ periods, onOpen }: {
     };
 
     return (
-        <SectionCard title={t('Btw per kwartaal')} subtitle="Berekend uit het btw-grootboek"
+        <SectionCard title={t('Btw per kwartaal')} subtitle={t('Berekend uit het btw-grootboek')}
                      style={{ marginBottom: spacing.xl }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
                           gap: spacing.md }}>
@@ -121,7 +121,7 @@ export function VatQuarters({ periods, onOpen }: {
                             </div>
                             <div style={{ fontSize: fontSize.sm, color: colors.textSecondary }}>
                                 {payable ? t('Te betalen') : period.outcome === 'REFUNDABLE'
-                                    ? 'Terug te ontvangen' : 'Saldo nihil'}
+                                    ? t('Terug te ontvangen') : t('Saldo nihil')}
                             </div>
                             {period.requires_review_count > 0 && (
                                 <div style={{ fontSize: fontSize.xs, color: colors.warning,

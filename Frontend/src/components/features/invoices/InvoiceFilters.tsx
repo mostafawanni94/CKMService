@@ -416,12 +416,12 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
                         <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #E5E7EB' }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>
-                                    {t('Worklog Status')} <span style={{ color: '#9CA3AF', fontWeight: 400 }}>({worklogStatusFilter === 'all' ? 'All' : worklogStatusFilter})</span>
+                                    {t('Worklog Status')} <span style={{ color: '#9CA3AF', fontWeight: 400 }}>({worklogStatusFilter === 'all' ? t('All') : worklogStatusFilter})</span>
                                 </label>
                             </div>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                                 {[
-                                    { key: 'all', label: 'All', color: '#6B7280' },
+                                    { key: 'all', label: t('All'), color: '#6B7280' },
                                     { key: 'approved', label: t('Approved'), color: '#059669' },
                                     { key: 'pending', label: t('Pending'), color: '#D97706' },
                                     { key: 'rejected', label: t('Rejected'), color: '#DC2626' },
@@ -524,7 +524,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
                                         <p style={{ fontSize: '28px', fontWeight: 700, color: '#1E40AF', margin: '4px 0 0 0' }}>
                                             {new Set(worklogs.map(w => w.employee_id)).size}
                                         </p>
-                                        <p style={{ fontSize: '11px', color: '#60A5FA', margin: '4px 0 0 0' }}>Click to see details ↓</p>
+                                        <p style={{ fontSize: '11px', color: '#60A5FA', margin: '4px 0 0 0' }}>{t('Click to see details ↓')}</p>
                                     </div>
 
                                     {/* Total Hours */}

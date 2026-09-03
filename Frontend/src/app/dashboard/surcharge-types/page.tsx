@@ -331,7 +331,7 @@ export default function SurchargeTypesPage() {
                             color: '#6B7280',
                             marginTop: '6px'
                         }}>
-                            Manage surcharge types for weekends, nights, and holidays
+                            {t('Manage surcharge types for weekends, nights, and holidays')}
                         </p>
                     </div>
 
@@ -356,7 +356,7 @@ export default function SurchargeTypesPage() {
                         onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                     >
                         <Plus size={18} />
-                        Add Surcharge Type
+                        {t('Add Surcharge Type')}
                     </button>
                 </div>
 
@@ -369,8 +369,8 @@ export default function SurchargeTypesPage() {
                 }}>
                     <StatCard label={t('Total Types')} value={stats.total} icon={Clock} color="#8B5CF6" />
                     <StatCard label={t('Active')} value={stats.active} icon={CheckCircle} color="#10B981" />
-                    <StatCard label="Weekend" value={stats.weekend} icon={Sun} color="#F59E0B" />
-                    <StatCard label="Night Shift" value={stats.nightShift} icon={Moon} color="#3B82F6" />
+                    <StatCard label={t('Weekend')} value={stats.weekend} icon={Sun} color="#F59E0B" />
+                    <StatCard label={t('Night Shift')} value={stats.nightShift} icon={Moon} color="#3B82F6" />
                 </div>
 
                 {/* Search & Filters */}
@@ -394,7 +394,7 @@ export default function SurchargeTypesPage() {
                         />
                         <input
                             type="text"
-                            placeholder="Search surcharge types..."
+                            placeholder={t('Search surcharge types...')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={{
@@ -461,9 +461,9 @@ export default function SurchargeTypesPage() {
                         textTransform: 'uppercase',
                         letterSpacing: '0.05em'
                     }}>
-                        <div>Surcharge Type</div>
+                        <div>{t('Surcharge Type')}</div>
                         <div>{t('Category')}</div>
-                        <div>Days / Time</div>
+                        <div>{t('Days / Time')}</div>
                         <div>{t('Specific Dates')}</div>
                         <div style={{ textAlign: 'center' }}>{t('Status')}</div>
                         <div style={{ textAlign: 'center' }}>{t('Actions')}</div>
@@ -477,7 +477,7 @@ export default function SurchargeTypesPage() {
                     ) : filteredTypes.length === 0 ? (
                         <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>
                             <Clock size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                            <p style={{ fontSize: '16px', fontWeight: 500 }}>No surcharge types found</p>
+                            <p style={{ fontSize: '16px', fontWeight: 500 }}>{t('No surcharge types found')}</p>
                             <p style={{ fontSize: '14px', marginTop: '4px' }}>
                                 {searchQuery ? 'Try a different search term' : 'Click "Add Surcharge Type" to create one'}
                             </p>
@@ -666,7 +666,7 @@ export default function SurchargeTypesPage() {
                                     color: '#1F2937',
                                     margin: 0
                                 }}>
-                                    {editingType ? 'Edit Surcharge Type' : 'Add Surcharge Type'}
+                                    {editingType ? 'Edit Surcharge Type' : t('Add Surcharge Type')}
                                 </h2>
                                 <p style={{
                                     fontSize: '14px',
@@ -738,7 +738,7 @@ export default function SurchargeTypesPage() {
                                     <textarea
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        placeholder="Describe this surcharge type..."
+                                        placeholder={t('Describe this surcharge type...')}
                                         rows={2}
                                         style={{ ...inputStyle, resize: 'vertical' }}
                                     />
@@ -754,12 +754,12 @@ export default function SurchargeTypesPage() {
                                         marginBottom: '20px'
                                     }}>
                                         <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#92400E', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <Sun size={18} color="#F59E0B" /> Weekend Window
+                                            <Sun size={18} color="#F59E0B" /> {t('Weekend Window')}
                                         </h3>
 
                                         {/* Starts */}
                                         <div style={{ display: 'grid', gridTemplateColumns: '70px 1fr 1fr', gap: '12px', alignItems: 'center', marginBottom: '12px' }}>
-                                            <span style={{ fontSize: '14px', fontWeight: 500, color: '#92400E' }}>Starts</span>
+                                            <span style={{ fontSize: '14px', fontWeight: 500, color: '#92400E' }}>{t('Starts')}</span>
                                             <select
                                                 value={formData.weekend_start_day}
                                                 onChange={(e) => setFormData({ ...formData, weekend_start_day: parseInt(e.target.value) })}
@@ -779,7 +779,7 @@ export default function SurchargeTypesPage() {
 
                                         {/* Ends */}
                                         <div style={{ display: 'grid', gridTemplateColumns: '70px 1fr 1fr', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
-                                            <span style={{ fontSize: '14px', fontWeight: 500, color: '#92400E' }}>Ends</span>
+                                            <span style={{ fontSize: '14px', fontWeight: 500, color: '#92400E' }}>{t('Ends')}</span>
                                             <select
                                                 value={formData.weekend_end_day}
                                                 onChange={(e) => setFormData({ ...formData, weekend_end_day: parseInt(e.target.value) })}
@@ -861,7 +861,7 @@ export default function SurchargeTypesPage() {
                                         marginBottom: '20px'
                                     }}>
                                         <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#1E40AF', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <Moon size={18} color="#3B82F6" /> Night Shift Configuration
+                                            <Moon size={18} color="#3B82F6" /> {t('Night Shift Configuration')}
                                         </h3>
 
                                         {/* Time Window */}
@@ -907,7 +907,7 @@ export default function SurchargeTypesPage() {
                                             ))}
                                         </div>
                                         <p style={{ fontSize: '12px', color: '#3B82F6', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                            <Clock size={12} /> Night shift applies on selected days only (exclude weekend days if separate)
+                                            <Clock size={12} /> {t('Night shift applies on selected days only (exclude weekend days if separate)')}
                                         </p>
                                     </div>
                                 )}
@@ -922,7 +922,7 @@ export default function SurchargeTypesPage() {
                                         marginBottom: '20px'
                                     }}>
                                         <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#065F46', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <Star size={18} color="#10B981" /> Holiday Configuration
+                                            <Star size={18} color="#10B981" /> {t('Holiday Configuration')}
                                         </h3>
 
                                         {/* Time Window (optional) */}
@@ -944,7 +944,7 @@ export default function SurchargeTypesPage() {
                                         </div>
 
                                         {/* Holiday Dates */}
-                                        <label style={{ ...labelStyle, color: '#065F46' }}>Holiday Dates</label>
+                                        <label style={{ ...labelStyle, color: '#065F46' }}>{t('Holiday Dates')}</label>
                                         <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
                                             <button
                                                 type="button"
@@ -1011,7 +1011,7 @@ export default function SurchargeTypesPage() {
                                                 <div style={{ padding: '12px', backgroundColor: 'white', borderRadius: '10px', border: '1px solid #A7F3D0' }}>
                                                     <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
                                                         <div>
-                                                            <label style={{ fontSize: '11px', color: '#6B7280', fontWeight: 500 }}>Month</label>
+                                                            <label style={{ fontSize: '11px', color: '#6B7280', fontWeight: 500 }}>{t('Month')}</label>
                                                             <select value={customDateMonth} onChange={(e) => setCustomDateMonth(e.target.value)} style={{ display: 'block', padding: '8px', fontSize: '13px', border: '1px solid #E5E7EB', borderRadius: '8px', marginTop: '4px' }}>
                                                                 {['01-Jan', '02-Feb', '03-Mar', '04-Apr', '05-May', '06-Jun', '07-Jul', '08-Aug', '09-Sep', '10-Oct', '11-Nov', '12-Dec'].map(m => (
                                                                     <option key={m.split('-')[0]} value={m.split('-')[0]}>{m}</option>
@@ -1055,10 +1055,10 @@ export default function SurchargeTypesPage() {
                                         marginBottom: '20px'
                                     }}>
                                         <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#991B1B', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <Hourglass size={18} color="#EF4444" /> Overtime Configuration
+                                            <Hourglass size={18} color="#EF4444" /> {t('Overtime Configuration')}
                                         </h3>
 
-                                        <label style={{ ...labelStyle, color: '#991B1B' }}>Minimum Hours Threshold</label>
+                                        <label style={{ ...labelStyle, color: '#991B1B' }}>{t('Minimum Hours Threshold')}</label>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                                             <input
                                                 type="number"
@@ -1112,7 +1112,7 @@ export default function SurchargeTypesPage() {
                                         marginBottom: '20px'
                                     }}>
                                         <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#5B21B6', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <Calendar size={18} color="#8B5CF6" /> Custom Configuration
+                                            <Calendar size={18} color="#8B5CF6" /> {t('Custom Configuration')}
                                         </h3>
 
                                         {/* Time */}
@@ -1124,7 +1124,7 @@ export default function SurchargeTypesPage() {
                                         </div>
 
                                         {/* Days */}
-                                        <label style={{ ...labelStyle, color: '#5B21B6' }}>Days of Week</label>
+                                        <label style={{ ...labelStyle, color: '#5B21B6' }}>{t('Days of Week')}</label>
                                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
                                             {DAYS.map((day, i) => (
                                                 <button key={i} type="button" onClick={() => toggleDay(i)} style={{
@@ -1138,7 +1138,7 @@ export default function SurchargeTypesPage() {
                                         </div>
 
                                         {/* Threshold */}
-                                        <label style={{ ...labelStyle, color: '#5B21B6' }}>Min Hours Threshold (optional)</label>
+                                        <label style={{ ...labelStyle, color: '#5B21B6' }}>{t('Min Hours Threshold (optional)')}</label>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                                             <input type="number" step="0.5" min="0" value={formData.min_hours_threshold} onChange={(e) => setFormData({ ...formData, min_hours_threshold: e.target.value })} placeholder="e.g. 9" style={{ ...inputStyle, width: '120px', backgroundColor: 'white' }} />
                                             <span style={{ color: '#5B21B6', fontSize: '13px' }}>hours per day</span>
@@ -1161,7 +1161,7 @@ export default function SurchargeTypesPage() {
                                 <div style={{ marginBottom: '24px' }}>
                                     <ToggleOption
                                         label={t('Is Active')}
-                                        description="Show in agency surcharge selection"
+                                        description={t('Show in agency surcharge selection')}
                                         checked={formData.is_active}
                                         onChange={(v) => setFormData({ ...formData, is_active: v })}
                                     />
@@ -1198,7 +1198,7 @@ export default function SurchargeTypesPage() {
                                             cursor: formData.name.trim() ? 'pointer' : 'not-allowed'
                                         }}
                                     >
-                                        {editingType ? 'Save Changes' : 'Create Surcharge Type'}
+                                        {editingType ? t('Save Changes') : 'Create Surcharge Type'}
                                     </button>
                                 </div>
                             </div>

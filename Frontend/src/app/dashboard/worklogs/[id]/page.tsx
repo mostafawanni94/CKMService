@@ -176,9 +176,9 @@ export default function WorkLogEditPage() {
                                         outline: 'none',
                                         minWidth: '120px'
                                     }}
-                                    title="Change status"
+                                    title={t('Change status')}
                                 >
-                                    <option value="planned" style={{ color: '#333' }}>Planned</option>
+                                    <option value="planned" style={{ color: '#333' }}>{t('Planned')}</option>
                                     <option value="pending" style={{ color: '#333' }}>{t('Pending')}</option>
                                     <option value="approved" style={{ color: '#333' }}>{t('Approved')}</option>
                                     <option value="rejected" style={{ color: '#333' }}>{t('Rejected')}</option>
@@ -237,7 +237,7 @@ export default function WorkLogEditPage() {
                                     {t('Assignment Details')}
                                 </h2>
                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: '2px 0 0' }}>
-                                    Project, supervisor and location information
+                                    {t('Project, supervisor and location information')}
                                 </p>
                             </div>
                         </div>
@@ -268,7 +268,7 @@ export default function WorkLogEditPage() {
                                         }}
                                         onFocus={() => setShowCustomerDropdown(true)}
                                         onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
-                                        placeholder="Search customer..."
+                                        placeholder={t('Search customer...')}
                                         style={{ ...inputStyle, borderColor: errors.customer ? '#EF4444' : '#E5E7EB' }}
                                     />
                                     {errors.customer && <p style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px' }}>{errors.customer}</p>}
@@ -581,7 +581,7 @@ export default function WorkLogEditPage() {
                                     {t('Date & Time')}
                                 </h2>
                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: '2px 0 0' }}>
-                                    Work hours and break times
+                                    {t('Work hours and break times')}
                                 </p>
                             </div>
                             <div style={{ marginLeft: 'auto', padding: '10px 16px', backgroundColor: '#F0FDF4', borderRadius: '10px' }}>
@@ -743,7 +743,7 @@ export default function WorkLogEditPage() {
                             <textarea
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
-                                placeholder="Add any additional notes..."
+                                placeholder={t('Add any additional notes...')}
                                 style={{ ...inputStyle, minHeight: '100px', resize: 'vertical' }}
                             />
                         </div>
@@ -786,7 +786,7 @@ export default function WorkLogEditPage() {
                         <div style={{ padding: '24px' }}>
                             {allowances.length === 0 ? (
                                 <p style={{ color: '#9CA3AF', fontSize: '14px', textAlign: 'center', padding: '32px 0' }}>
-                                    No allowances added.
+                                    {t('No allowances added.')}
                                 </p>
                             ) : (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -913,10 +913,10 @@ export default function WorkLogEditPage() {
                                 </div>
                                 <div>
                                     <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>
-                                        Photos
+                                        {t('Photos')}
                                     </h2>
                                     <p style={{ fontSize: '13px', color: '#6B7280', margin: '2px 0 0' }}>
-                                        Attach photos as evidence
+                                        {t('Attach photos as evidence')}
                                     </p>
                                 </div>
                             </div>
@@ -934,7 +934,7 @@ export default function WorkLogEditPage() {
                                     }}
                                 >
                                     {uploadingPhoto ? (
-                                        <>Uploading...</>
+                                        <>{t('Uploading...')}</>
                                     ) : (
                                         <>
                                             <Plus size={16} />
@@ -961,7 +961,7 @@ export default function WorkLogEditPage() {
                                 }}>
                                     <Image size={48} style={{ color: '#D1D5DB', marginBottom: '12px' }} />
                                     <p style={{ color: '#9CA3AF', fontSize: '14px', margin: 0 }}>
-                                        No photos attached yet.
+                                        {t('No photos attached yet.')}
                                     </p>
                                     {(status === 'draft' || status === 'pending') && (
                                         <p style={{ color: '#6B7280', fontSize: '13px', marginTop: '8px' }}>
@@ -1070,7 +1070,7 @@ export default function WorkLogEditPage() {
                                     opacity: saving ? 0.7 : 1
                                 }}
                             >
-                                {saving ? 'Saving...' : hasChanges ? 'Save Changes' : 'No Changes'}
+                                {saving ? t('Saving...') : hasChanges ? t('Save Changes') : 'No Changes'}
                             </button>
                         </div>
                     </div>

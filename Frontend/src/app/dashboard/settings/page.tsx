@@ -213,8 +213,8 @@ export default function SettingsPage() {
     }
 
     const weekDays = [
-        { value: 'monday', label: 'Monday' },
-        { value: 'sunday', label: 'Sunday' },
+        { value: 'monday', label: t('Monday') },
+        { value: 'sunday', label: t('Sunday') },
     ];
 
     const weekHours = [
@@ -238,7 +238,7 @@ export default function SettingsPage() {
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
                     <div style={{ textAlign: 'center' }}>
                         <RefreshCw size={32} className="animate-spin" style={{ color: '#3B82F6', marginBottom: '16px' }} />
-                        <p style={{ color: '#6B7280' }}>Loading settings...</p>
+                        <p style={{ color: '#6B7280' }}>{t('Loading settings...')}</p>
                     </div>
                 </div>
             </DashboardLayout>
@@ -260,7 +260,7 @@ export default function SettingsPage() {
                             {t('Settings')}
                         </h1>
                         <p style={{ fontSize: '15px', color: '#6B7280', marginTop: '6px' }}>
-                            Configure system-wide settings and preferences
+                            {t('Configure system-wide settings and preferences')}
                         </p>
                     </div>
 
@@ -291,7 +291,7 @@ export default function SettingsPage() {
                         ) : (
                             <Save size={18} />
                         )}
-                        {saved ? 'Saved!' : saving ? 'Saving...' : 'Save Changes'}
+                        {saved ? 'Saved!' : saving ? t('Saving...') : t('Save Changes')}
                     </button>
                 </div>
 
@@ -318,7 +318,7 @@ export default function SettingsPage() {
                     iconColor="#3B82F6"
                     iconBg="#EFF6FF"
                     title={t('Company Information')}
-                    description="Basic details about your company"
+                    description={t('Basic details about your company')}
                 >
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                         <InputField
@@ -328,7 +328,7 @@ export default function SettingsPage() {
                             onChange={(v) => setSettings({ ...settings, company_name: v })}
                         />
                         <InputField
-                            label="Business Address"
+                            label={t('Business Address')}
                             icon={MapPin}
                             value={settings.company_address}
                             onChange={(v) => setSettings({ ...settings, company_address: v })}
@@ -405,7 +405,7 @@ export default function SettingsPage() {
                                 })}
                                 style={addButtonStyle}
                             >
-                                <Plus size={14} /> Add Phone
+                                <Plus size={14} /> {t('Add Phone')}
                             </button>
                         </div>
                         {settings.company_phones.map((phone, index) => (
@@ -453,14 +453,14 @@ export default function SettingsPage() {
                     icon={Calendar}
                     iconColor="#10B981"
                     iconBg="#D1FAE5"
-                    title="Week Configuration"
-                    description="Configure how work weeks are calculated"
+                    title={t('Week Configuration')}
+                    description={t('Configure how work weeks are calculated')}
                 >
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
                         <div>
                             <label style={labelStyle}>
                                 <Calendar size={14} style={{ marginRight: '6px' }} />
-                                Week Starts On
+                                {t('Week Starts On')}
                             </label>
                             <select
                                 value={settings.week_starts_on}
@@ -475,7 +475,7 @@ export default function SettingsPage() {
                         <div>
                             <label style={labelStyle}>
                                 <Clock size={14} style={{ marginRight: '6px' }} />
-                                Week Start Hour
+                                {t('Week Start Hour')}
                             </label>
                             <select
                                 value={settings.week_start_hour}
@@ -490,7 +490,7 @@ export default function SettingsPage() {
                         <div>
                             <label style={labelStyle}>
                                 <Coffee size={14} style={{ marginRight: '6px' }} />
-                                Default Break (min)
+                                {t('Default Break (min)')}
                             </label>
                             <input
                                 type="number"
@@ -527,7 +527,7 @@ export default function SettingsPage() {
                         </div>
                         <div>
                             <p style={{ fontSize: '14px', fontWeight: 600, color: '#166534', margin: 0 }}>
-                                Current Configuration
+                                {t('Current Configuration')}
                             </p>
                             <p style={{ fontSize: '13px', color: '#15803D', margin: 0, marginTop: '2px' }}>
                                 Week runs from {settings.week_starts_on.charAt(0).toUpperCase() + settings.week_starts_on.slice(1)} at {settings.week_start_hour} with {settings.default_break_minutes} min default break
@@ -543,31 +543,31 @@ export default function SettingsPage() {
                     iconColor="#0EA5E9"
                     iconBg="#E0F2FE"
                     title={t('Facturatie en bedrijfsgegevens')}
-                    description="Wat op elke factuur en creditnota komt te staan. Wettelijk verplicht op een Nederlandse factuur."
+                    description={t('Wat op elke factuur en creditnota komt te staan. Wettelijk verplicht op een Nederlandse factuur.')}
                 >
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                        <InputField label="Statutaire naam" icon={Building2}
+                        <InputField label={t('Statutaire naam')} icon={Building2}
                             value={settings.company_legal_name}
                             onChange={(v) => setSettings({ ...settings, company_legal_name: v })} />
-                        <InputField label="KvK-nummer" icon={FileText}
+                        <InputField label={t('KvK-nummer')} icon={FileText}
                             value={settings.company_kvk_number}
                             onChange={(v) => setSettings({ ...settings, company_kvk_number: v })} />
                         <InputField label={t('Btw-identificatienummer')} icon={FileText}
                             value={settings.company_btw_number}
                             onChange={(v) => setSettings({ ...settings, company_btw_number: v })} />
-                        <InputField label="IBAN (versleuteld opgeslagen)" icon={FileText}
+                        <InputField label={t('IBAN (versleuteld opgeslagen)')} icon={FileText}
                             value={settings.company_iban}
                             onChange={(v) => setSettings({ ...settings, company_iban: v })} />
                         <InputField label={t('Postcode')} icon={MapPin}
                             value={settings.company_postal_code}
                             onChange={(v) => setSettings({ ...settings, company_postal_code: v })} />
-                        <InputField label="Plaats" icon={MapPin}
+                        <InputField label={t('Plaats')} icon={MapPin}
                             value={settings.company_city}
                             onChange={(v) => setSettings({ ...settings, company_city: v })} />
                         <InputField label={t('Betaaltermijn (dagen)')} icon={Clock}
                             value={String(settings.invoice_payment_terms_days)}
                             onChange={(v) => setSettings({ ...settings, invoice_payment_terms_days: parseInt(v) || 14 })} />
-                        <InputField label="Factuurnummer-voorvoegsel" icon={FileText}
+                        <InputField label={t('Factuurnummer-voorvoegsel')} icon={FileText}
                             value={settings.invoice_number_prefix}
                             onChange={(v) => setSettings({ ...settings, invoice_number_prefix: v })} />
                     </div>
@@ -586,8 +586,8 @@ export default function SettingsPage() {
                     icon={Globe}
                     iconColor="#8B5CF6"
                     iconBg="#EDE9FE"
-                    title="Language"
-                    description="Choose your preferred display language"
+                    title={t('Language')}
+                    description={t('Choose your preferred display language')}
                 >
                     <div style={{ display: 'grid',
                                   gridTemplateColumns: `repeat(${languages.length}, 1fr)`,
@@ -632,13 +632,13 @@ export default function SettingsPage() {
                     icon={Bell}
                     iconColor="#8B5CF6"
                     iconBg="#EDE9FE"
-                    title="Push Notifications (Mobile App)"
-                    description="Configure Firebase Cloud Messaging for push notifications"
+                    title={t('Push Notifications (Mobile App)')}
+                    description={t('Configure Firebase Cloud Messaging for push notifications')}
                 >
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         <NotificationToggle
-                            label="Enable Push Notifications"
-                            description="Send push notifications to employees' mobile devices"
+                            label={t('Enable Push Notifications')}
+                            description={t("Send push notifications to employees' mobile devices")}
                             checked={settings.firebase_push_enabled}
                             onChange={(v) => setSettings({ ...settings, firebase_push_enabled: v })}
                         />
@@ -646,13 +646,13 @@ export default function SettingsPage() {
                         {settings.firebase_push_enabled && (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label style={{ fontSize: '14px', fontWeight: 500, color: '#374151' }}>
-                                    Firebase Server Key
+                                    {t('Firebase Server Key')}
                                 </label>
                                 <input
                                     type="password"
                                     value={settings.firebase_server_key || ''}
                                     onChange={(e) => setSettings({ ...settings, firebase_server_key: e.target.value })}
-                                    placeholder="Enter Firebase Server Key from Console → Cloud Messaging"
+                                    placeholder={t('Enter Firebase Server Key from Console → Cloud Messaging')}
                                     style={{
                                         padding: '12px 16px',
                                         border: '1px solid #E5E7EB',
@@ -662,7 +662,7 @@ export default function SettingsPage() {
                                     }}
                                 />
                                 <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
-                                    Get this from Firebase Console → Project Settings → Cloud Messaging → Server key
+                                    {t('Get this from Firebase Console → Project Settings → Cloud Messaging → Server key')}
                                 </p>
                             </div>
                         )}
@@ -674,30 +674,30 @@ export default function SettingsPage() {
                     icon={Bell}
                     iconColor="#F59E0B"
                     iconBg="#FEF3C7"
-                    title="Email Notifications"
-                    description="Configure when to receive email alerts"
+                    title={t('Email Notifications')}
+                    description={t('Configure when to receive email alerts')}
                 >
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         <NotificationToggle
-                            label="New employee registrations"
-                            description="Get notified when a new employee signs up"
+                            label={t('New employee registrations')}
+                            description={t('Get notified when a new employee signs up')}
                             checked={settings.notify_new_employee}
                             onChange={(v) => setSettings({ ...settings, notify_new_employee: v })}
                         />
                         <NotificationToggle
-                            label="Pending approvals"
-                            description="Get notified about work logs waiting for approval"
+                            label={t('Pending approvals')}
+                            description={t('Get notified about work logs waiting for approval')}
                             checked={settings.notify_pending_approvals}
                             onChange={(v) => setSettings({ ...settings, notify_pending_approvals: v })}
                         />
                         <NotificationToggle
-                            label="Weekly summary reports"
-                            description="Receive a weekly overview of all activities"
+                            label={t('Weekly summary reports')}
+                            description={t('Receive a weekly overview of all activities')}
                             checked={settings.notify_weekly_summary}
                             onChange={(v) => setSettings({ ...settings, notify_weekly_summary: v })}
                         />
                         <NotificationToggle
-                            label="Certificate expiry warnings"
+                            label={t('Certificate expiry warnings')}
                             description={`Alert ${settings.certificate_expiry_days} days before certificates expire`}
                             checked={settings.notify_certificate_expiry}
                             onChange={(v) => setSettings({ ...settings, notify_certificate_expiry: v })}
@@ -710,14 +710,14 @@ export default function SettingsPage() {
                     icon={Send}
                     iconColor="#EC4899"
                     iconBg="#FCE7F3"
-                    title="Email Configuration"
-                    description="Configure Gmail SMTP for sending notification emails"
+                    title={t('Email Configuration')}
+                    description={t('Configure Gmail SMTP for sending notification emails')}
                 >
                     {/* SMTP Toggle */}
                     <div style={{ marginBottom: '20px' }}>
                         <NotificationToggle
-                            label="Enable Email Sending"
-                            description="Send notification emails via Gmail SMTP"
+                            label={t('Enable Email Sending')}
+                            description={t('Send notification emails via Gmail SMTP')}
                             checked={settings.smtp_enabled}
                             onChange={(v) => setSettings({ ...settings, smtp_enabled: v })}
                         />
@@ -730,7 +730,7 @@ export default function SettingsPage() {
                                 <div>
                                     <label style={labelStyle}>
                                         <Mail size={14} style={{ marginRight: '6px' }} />
-                                        Gmail Address
+                                        {t('Gmail Address')}
                                     </label>
                                     <input
                                         type="email"
@@ -743,11 +743,11 @@ export default function SettingsPage() {
                                 <div>
                                     <label style={labelStyle}>
                                         <Key size={14} style={{ marginRight: '6px' }} />
-                                        App Password
+                                        {t('App Password')}
                                     </label>
                                     <input
                                         type="password"
-                                        placeholder="Gmail App Password"
+                                        placeholder={t('Gmail App Password')}
                                         value={settings.smtp_password}
                                         onChange={(e) => setSettings({ ...settings, smtp_password: e.target.value })}
                                         style={inputStyle}
@@ -760,7 +760,7 @@ export default function SettingsPage() {
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                                     <label style={{ ...labelStyle, marginBottom: 0 }}>
                                         <Mail size={14} style={{ marginRight: '6px' }} />
-                                        Notification Recipients
+                                        {t('Notification Recipients')}
                                     </label>
                                     <button
                                         onClick={() => setSettings({
@@ -773,7 +773,7 @@ export default function SettingsPage() {
                                     </button>
                                 </div>
                                 {settings.notification_recipients.length === 0 && (
-                                    <p style={{ fontSize: '13px', color: '#6B7280', fontStyle: 'italic' }}>No recipients configured. Add at least one email.</p>
+                                    <p style={{ fontSize: '13px', color: '#6B7280', fontStyle: 'italic' }}>{t('No recipients configured. Add at least one email.')}</p>
                                 )}
                                 {settings.notification_recipients.map((email, index) => (
                                     <div key={index} style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
@@ -804,17 +804,17 @@ export default function SettingsPage() {
                             {/* Email Rules with Inline Recipients */}
                             <div style={{ padding: '16px', backgroundColor: '#F9FAFB', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
                                 <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>
-                                    Which notifications should trigger email?
+                                    {t('Which notifications should trigger email?')}
                                 </h4>
                                 <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '16px' }}>
-                                    Enable categories and specify recipients for each
+                                    {t('Enable categories and specify recipients for each')}
                                 </p>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                     <EmailRuleWithRecipients
                                         categoryKey="employees"
                                         icon="👤"
                                         label={t('Employees')}
-                                        description="New registrations, profile approvals/rejections"
+                                        description={t('New registrations, profile approvals/rejections')}
                                         checked={settings.email_on_employees}
                                         onToggle={(v) => setSettings({ ...settings, email_on_employees: v })}
                                         emails={settings.category_recipients?.employees || []}
@@ -828,7 +828,7 @@ export default function SettingsPage() {
                                         categoryKey="worklogs"
                                         icon="📝"
                                         label={t('Work Logs')}
-                                        description="Submitted, approved, or rejected work logs"
+                                        description={t('Submitted, approved, or rejected work logs')}
                                         checked={settings.email_on_worklogs}
                                         onToggle={(v) => setSettings({ ...settings, email_on_worklogs: v })}
                                         emails={settings.category_recipients?.worklogs || []}
@@ -842,7 +842,7 @@ export default function SettingsPage() {
                                         categoryKey="certificates"
                                         icon="🏥"
                                         label={t('Certificates')}
-                                        description="Expiring or expired employee certificates"
+                                        description={t('Expiring or expired employee certificates')}
                                         checked={settings.email_on_certificates}
                                         onToggle={(v) => setSettings({ ...settings, email_on_certificates: v })}
                                         emails={settings.category_recipients?.certificates || []}
@@ -856,7 +856,7 @@ export default function SettingsPage() {
                                         categoryKey="invoices"
                                         icon="📄"
                                         label={t('Invoices')}
-                                        description="Generated invoices and payment status changes"
+                                        description={t('Generated invoices and payment status changes')}
                                         checked={settings.email_on_invoices}
                                         onToggle={(v) => setSettings({ ...settings, email_on_invoices: v })}
                                         emails={settings.category_recipients?.invoices || []}
@@ -869,8 +869,8 @@ export default function SettingsPage() {
                                     <EmailRuleWithRecipients
                                         categoryKey="high_priority"
                                         icon="🔴"
-                                        label="High Priority"
-                                        description="Urgent notifications regardless of category"
+                                        label={t('High Priority')}
+                                        description={t('Urgent notifications regardless of category')}
                                         checked={settings.email_on_high_priority}
                                         onToggle={(v) => setSettings({ ...settings, email_on_high_priority: v })}
                                         emails={settings.category_recipients?.high_priority || []}
@@ -1151,6 +1151,7 @@ function EmailRuleWithRecipients({
     onEmailsChange: (emails: string[]) => void;
     availableEmails: string[];
 }) {
+    const { t } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -1230,7 +1231,7 @@ function EmailRuleWithRecipients({
                 <div style={{ marginTop: '12px', paddingLeft: '32px' }} ref={dropdownRef}>
                     {availableEmails.length === 0 ? (
                         <p style={{ fontSize: '12px', color: '#6B7280', fontStyle: 'italic' }}>
-                            Add recipients above first
+                            {t('Add recipients above first')}
                         </p>
                     ) : (
                         <>

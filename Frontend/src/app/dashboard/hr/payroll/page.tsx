@@ -60,7 +60,7 @@ export default function HRPayrollPage() {
         { key: 'name', header: t('Period'), render: (row: PayrollPeriod) => row.name },
         {
             key: 'range',
-            header: 'Range',
+            header: t('Range'),
             render: (row: PayrollPeriod) => `${row.start_date} → ${row.end_date}`,
         },
         {
@@ -71,7 +71,7 @@ export default function HRPayrollPage() {
         },
         {
             key: 'total_gross',
-            header: 'Gross',
+            header: t('Gross'),
             align: 'right' as const,
             render: (row: PayrollPeriod) => euro(row.total_gross),
         },
@@ -105,7 +105,7 @@ export default function HRPayrollPage() {
                             disabled={vm.busy}
                             icon={<Check size={14} />}
                         >
-                            Mark paid
+                            {t('Mark paid')}
                         </Button>
                     )}
                 </div>
@@ -123,19 +123,19 @@ export default function HRPayrollPage() {
         },
         {
             key: 'gross_pay',
-            header: 'Gross',
+            header: t('Gross'),
             align: 'right' as const,
             render: (row: Payslip) => euro(row.gross_pay),
         },
         {
             key: 'deductions',
-            header: 'Deductions',
+            header: t('Deductions'),
             align: 'right' as const,
             render: (row: Payslip) => euro(row.deductions),
         },
         {
             key: 'net_pay',
-            header: 'Net',
+            header: t('Net'),
             align: 'right' as const,
             render: (row: Payslip) => euro(row.net_pay),
         },
@@ -151,19 +151,19 @@ export default function HRPayrollPage() {
             <div className={styles.container}>
                 <PageHeader
                     title={t('Payroll')}
-                    subtitle="Build pay runs from approved work entries"
+                    subtitle={t('Build pay runs from approved work entries')}
                     actions={
                         <Button onClick={() => setShowModal(true)} icon={<CreditCard size={16} />}>
-                            New period
+                            {t('New period')}
                         </Button>
                     }
                 />
 
                 <div className={styles.statRow}>
-                    <StatCard label="Periods" value={vm.totals.periods} />
+                    <StatCard label={t('Periods')} value={vm.totals.periods} />
                     <StatCard label={t('Pending')} value={vm.totals.pending} />
                     <StatCard label={t('Paid')} value={vm.totals.paid} />
-                    <StatCard label="Gross total" value={euro(vm.totals.grossTotal)} />
+                    <StatCard label={t('Gross total')} value={euro(vm.totals.grossTotal)} />
                 </div>
 
                 <div className={styles.filterRow}>
@@ -174,14 +174,14 @@ export default function HRPayrollPage() {
                     />
                 </div>
 
-                <SectionCard title="Pay runs">
+                <SectionCard title={t('Pay runs')}>
                     <DataTable<PayrollPeriod>
                         data={vm.periods}
                         columns={periodColumns}
                         loading={vm.loading}
                         rowKey={(row) => row.id}
                         emptyIcon={<CreditCard size={32} />}
-                        emptyTitle="No payroll periods"
+                        emptyTitle={t('No payroll periods')}
                         emptySubtitle={vm.error ?? 'Create a period to start a pay run.'}
                     />
                 </SectionCard>
@@ -192,8 +192,8 @@ export default function HRPayrollPage() {
                             data={vm.payslips}
                             columns={payslipColumns}
                             rowKey={(row) => row.id}
-                            emptyTitle="No payslips yet"
-                            emptySubtitle="Run Generate on the period to build them."
+                            emptyTitle={t('No payslips yet')}
+                            emptySubtitle={t('Run Generate on the period to build them.')}
                         />
                     </SectionCard>
                 )}
@@ -201,7 +201,7 @@ export default function HRPayrollPage() {
                 <Modal
                     open={showModal}
                     onClose={() => setShowModal(false)}
-                    title="New payroll period"
+                    title={t('New payroll period')}
                     footer={
                         <>
                             <Button variant="secondary" onClick={() => setShowModal(false)}>
@@ -216,14 +216,14 @@ export default function HRPayrollPage() {
                     <FormGrid columns={2}>
                         <Input label={t('Name')} value={form.name} onChange={update('name')} required />
                         <Input
-                            label="Start date"
+                            label={t('Start date')}
                             type="date"
                             value={form.start_date}
                             onChange={update('start_date')}
                             required
                         />
                         <Input
-                            label="End date"
+                            label={t('End date')}
                             type="date"
                             value={form.end_date}
                             onChange={update('end_date')}

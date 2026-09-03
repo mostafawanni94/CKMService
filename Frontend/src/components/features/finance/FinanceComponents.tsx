@@ -26,10 +26,11 @@ interface TopCardsProps {
 }
 
 export function TopCards({ income, expenses, netProfit, incomeExclVat, expensesExclVat, year, quarter }: TopCardsProps) {
+    const { t } = useLanguage();
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: spacing.lg, marginBottom: spacing.xxl }}>
       <StatCard
-        label="Total Income"
+        label={t('Total Income')}
         value={`€${income.toFixed(2)}`}
         icon={<ArrowUpRight size={20} color={colors.success} />}
         color={colors.successDark}
@@ -38,7 +39,7 @@ export function TopCards({ income, expenses, netProfit, incomeExclVat, expensesE
         subtitle={`excl. BTW: €${incomeExclVat.toFixed(2)}`}
       />
       <StatCard
-        label="Total Expenses"
+        label={t('Total Expenses')}
         value={`€${expenses.toFixed(2)}`}
         icon={<ArrowDownRight size={20} color={colors.danger} />}
         color={colors.dangerDark}
@@ -47,7 +48,7 @@ export function TopCards({ income, expenses, netProfit, incomeExclVat, expensesE
         subtitle={`excl. BTW: €${expensesExclVat.toFixed(2)}`}
       />
       <StatCard
-        label="Net Profit"
+        label={t('Net Profit')}
         value={`€${netProfit.toFixed(2)}`}
         icon={netProfit >= 0 ? <TrendingUp size={20} color={colors.info} /> : <TrendingDown size={20} color={colors.orange} />}
         color={netProfit >= 0 ? '#1E40AF' : '#C2410C'}
@@ -70,14 +71,15 @@ interface BtwBoxProps {
 }
 
 export function BtwBox({ vatCollected, vatPaid, vatDue }: BtwBoxProps) {
+    const { t } = useLanguage();
   return (
     <SectionCard title="BTW Overzicht (VAT Summary)" icon={<Euro size={18} color={colors.primary} />}
       style={{ marginBottom: spacing.xxl }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: spacing.xl }}>
         <VatCell label="BTW Ontvangen (Collected)" value={vatCollected}
-          subtitle="From outgoing invoices" color={colors.success} bg="#F0FDF4" borderColor="#BBF7D0" />
+          subtitle={t('From outgoing invoices')} color={colors.success} bg="#F0FDF4" borderColor="#BBF7D0" />
         <VatCell label="BTW Betaald (Voorbelasting)" value={vatPaid}
-          subtitle="From expenses" color={colors.danger} bg="#FEF2F2" borderColor={colors.dangerBorder} />
+          subtitle={t('From expenses')} color={colors.danger} bg="#FEF2F2" borderColor={colors.dangerBorder} />
         <VatCell
           label={vatDue >= 0 ? 'Af te dragen (Due)' : 'Terug te vragen (Refund)'}
           value={Math.abs(vatDue)}
@@ -116,11 +118,11 @@ export function MonthlyChart({ breakdown }: MonthlyChartProps) {
   const maxVal = Math.max(...(breakdown || []).map(m => Math.max(m.income, m.expenses)), 1);
 
   return (
-    <SectionCard title="Monthly Breakdown" icon={<BarChart3 size={18} color={colors.primary} />}>
+    <SectionCard title={t('Monthly Breakdown')} icon={<BarChart3 size={18} color={colors.primary} />}>
       {(breakdown || []).length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px', color: colors.textLight }}>
           <BarChart3 size={40} style={{ marginBottom: 8, opacity: 0.3 }} />
-          <p>No data for this period</p>
+          <p>{t('No data for this period')}</p>
         </div>
       ) : (
         <>
@@ -141,7 +143,7 @@ export function MonthlyChart({ breakdown }: MonthlyChartProps) {
             })}
           </div>
           <div style={{ display: 'flex', gap: spacing.lg, justifyContent: 'center', marginTop: spacing.lg }}>
-            <LegendDot color="#10B981" label="Income" />
+            <LegendDot color="#10B981" label={t('Income')} />
             <LegendDot color="#EF4444" label={t('Expenses')} />
           </div>
         </>
@@ -166,12 +168,13 @@ interface CategoryBreakdownProps {
 }
 
 export function CategoryBreakdown({ categories, totalExpenses }: CategoryBreakdownProps) {
+    const { t } = useLanguage();
   return (
-    <SectionCard title="By Category" icon={<PieChart size={18} color={colors.primary} />}>
+    <SectionCard title={t('By Category')} icon={<PieChart size={18} color={colors.primary} />}>
       {(categories || []).length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px', color: colors.textLight }}>
           <PieChart size={40} style={{ marginBottom: 8, opacity: 0.3 }} />
-          <p>No expenses yet</p>
+          <p>{t('No expenses yet')}</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

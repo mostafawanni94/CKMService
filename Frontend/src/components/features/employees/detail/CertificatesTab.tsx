@@ -89,7 +89,7 @@ export function CertificatesTab({ vm }: { vm: ViewModel }) {
                                     justifyContent: 'space-between'
                                 }}>
                                     <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#1F2937', margin: 0 }}>
-                                        Employee Certificates
+                                        {t('Employee Certificates')}
                                     </h2>
                                     <button
                                         onClick={() => setShowAddCertificateModal(true)}
@@ -116,13 +116,13 @@ export function CertificatesTab({ vm }: { vm: ViewModel }) {
                                     {certificatesLoading ? (
                                         <div style={{ textAlign: 'center', padding: '40px' }}>
                                             <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                                            <p className="text-gray-500">Loading certificates...</p>
+                                            <p className="text-gray-500">{t('Loading certificates...')}</p>
                                         </div>
                                     ) : employeeCertificates.length === 0 ? (
                                         <div style={{ textAlign: 'center', padding: '40px', color: '#9CA3AF' }}>
                                             <Award size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
-                                            <p style={{ fontSize: '16px', fontWeight: 500 }}>No certificates found</p>
-                                            <p style={{ fontSize: '14px' }}>Click "Add Certificate" to upload one</p>
+                                            <p style={{ fontSize: '16px', fontWeight: 500 }}>{t('No certificates found')}</p>
+                                            <p style={{ fontSize: '14px' }}>{t('Click "Add Certificate" to upload one')}</p>
                                         </div>
                                     ) : (
                                         <div style={{ display: 'grid', gap: '16px' }}>

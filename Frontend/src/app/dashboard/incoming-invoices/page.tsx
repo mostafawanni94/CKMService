@@ -39,12 +39,12 @@ export default function IncomingInvoicesPage() {
     const columns = [
         {
             key: 'invoice_number',
-            header: 'Invoice #',
+            header: t('Invoice #'),
             render: (row: IncomingInvoice) => row.invoice_number,
         },
         {
             key: 'vendor_name',
-            header: 'Vendor',
+            header: t('Vendor'),
             render: (row: IncomingInvoice) => row.vendor_name,
         },
         {
@@ -54,7 +54,7 @@ export default function IncomingInvoicesPage() {
         },
         {
             key: 'due_date',
-            header: 'Due',
+            header: t('Due'),
             render: (row: IncomingInvoice) =>
                 row.due_date
                     ? `${row.due_date}${row.is_overdue ? ' (overdue)' : ''}`
@@ -103,10 +103,10 @@ export default function IncomingInvoicesPage() {
             <div className={styles.container}>
                 <PageHeader
                     title={t('Incoming Invoices')}
-                    subtitle="Supplier and subcontractor payables"
+                    subtitle={t('Supplier and subcontractor payables')}
                     actions={
                         <Button onClick={vm.openCreate} icon={<Plus size={16} />}>
-                            Add invoice
+                            {t('Add invoice')}
                         </Button>
                     }
                 />
@@ -134,7 +134,7 @@ export default function IncomingInvoicesPage() {
                     <SearchBar
                         value={vm.searchQuery}
                         onChange={vm.setSearchQuery}
-                        placeholder="Search invoice number, vendor, description..."
+                        placeholder={t('Search invoice number, vendor, description...')}
                         style={{ flex: 1, minWidth: 260 }}
                     />
                     <Select
@@ -151,7 +151,7 @@ export default function IncomingInvoicesPage() {
                         loading={vm.loading}
                         rowKey={(row) => row.id}
                         emptyIcon={<FileText size={32} />}
-                        emptyTitle="No incoming invoices"
+                        emptyTitle={t('No incoming invoices')}
                         emptySubtitle={vm.error ?? 'Add a supplier invoice to get started.'}
                     />
                 </SectionCard>
@@ -172,19 +172,19 @@ export default function IncomingInvoicesPage() {
                 >
                     <FormGrid columns={2}>
                         <Input
-                            label="Invoice number"
+                            label={t('Invoice number')}
                             value={vm.form.invoice_number}
                             onChange={(v) => vm.updateForm('invoice_number', v)}
                             required
                         />
                         <Input
-                            label="Vendor"
+                            label={t('Vendor')}
                             value={vm.form.vendor_name}
                             onChange={(v) => vm.updateForm('vendor_name', v)}
                             required
                         />
                         <Input
-                            label="Vendor VAT number"
+                            label={t('Vendor VAT number')}
                             value={vm.form.vendor_vat_number}
                             onChange={(v) => vm.updateForm('vendor_vat_number', v)}
                         />
@@ -195,27 +195,27 @@ export default function IncomingInvoicesPage() {
                             options={FORM_STATUS_OPTIONS}
                         />
                         <Input
-                            label="Invoice date"
+                            label={t('Invoice date')}
                             type="date"
                             value={vm.form.invoice_date}
                             onChange={(v) => vm.updateForm('invoice_date', v)}
                             required
                         />
                         <Input
-                            label="Due date"
+                            label={t('Due date')}
                             type="date"
                             value={vm.form.due_date}
                             onChange={(v) => vm.updateForm('due_date', v)}
                         />
                         <Input
-                            label="Subtotal (excl. VAT)"
+                            label={t('Subtotal (excl. VAT)')}
                             type="number"
                             value={vm.form.subtotal}
                             onChange={(v) => vm.updateForm('subtotal', v)}
                             required
                         />
                         <Input
-                            label="VAT rate (%)"
+                            label={t('VAT rate (%)')}
                             type="number"
                             value={vm.form.vat_rate}
                             onChange={(v) => vm.updateForm('vat_rate', v)}

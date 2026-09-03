@@ -48,7 +48,7 @@ export default function AddWorkLogPage() {
                             {t('Add Work Log')}
                         </h1>
                         <p style={{ color: 'rgba(255,255,255,0.7)', margin: '8px 0 0', fontSize: '15px' }}>
-                            Create a new work log entry by filling out the form below
+                            {t('Create a new work log entry by filling out the form below')}
                         </p>
                     </div>
                 </div>
@@ -87,7 +87,7 @@ export default function AddWorkLogPage() {
                                     {t('Assignment Details')}
                                 </h2>
                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: '2px 0 0' }}>
-                                    Select employee, customer, project and supervisor
+                                    {t('Select employee, customer, project and supervisor')}
                                 </p>
                             </div>
                         </div>
@@ -205,7 +205,7 @@ export default function AddWorkLogPage() {
                                         }}
                                         onFocus={() => setShowCustomerDropdown(true)}
                                         onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
-                                        placeholder={loadingCustomers ? t('Loading...') : 'Search customer...'}
+                                        placeholder={loadingCustomers ? t('Loading...') : t('Search customer...')}
                                         style={{ ...inputStyle, borderColor: errors.customer ? '#EF4444' : '#E5E7EB' }}
                                     />
                                     {errors.customer && <span style={errorStyle}>{errors.customer}</span>}
@@ -424,7 +424,7 @@ export default function AddWorkLogPage() {
                                     )}
                                     {project && location === originalLocation && (
                                         <span style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px', display: 'block' }}>
-                                            Auto-filled from project (editable)
+                                            {t('Auto-filled from project (editable)')}
                                         </span>
                                     )}
                                 </div>
@@ -452,7 +452,7 @@ export default function AddWorkLogPage() {
                                     {t('Date & Time')}
                                 </h2>
                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: '2px 0 0' }}>
-                                    Set work hours and break times
+                                    {t('Set work hours and break times')}
                                 </p>
                             </div>
                         </div>
@@ -623,7 +623,7 @@ export default function AddWorkLogPage() {
                                     {t('Notes')}
                                 </h2>
                                 <p style={{ fontSize: '13px', color: '#6B7280', margin: '2px 0 0' }}>
-                                    Additional information about this work log
+                                    {t('Additional information about this work log')}
                                 </p>
                             </div>
                         </div>
@@ -632,7 +632,7 @@ export default function AddWorkLogPage() {
                             <textarea
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
-                                placeholder="Add any additional notes or comments..."
+                                placeholder={t('Add any additional notes or comments...')}
                                 style={{ ...inputStyle, minHeight: '100px', resize: 'vertical' }}
                             />
                         </div>
@@ -659,7 +659,7 @@ export default function AddWorkLogPage() {
                                         {t('Allowances (Toeslag)')}
                                     </h2>
                                     <p style={{ fontSize: '13px', color: '#6B7280', margin: '2px 0 0' }}>
-                                        Add special allowances for this work log
+                                        {t('Add special allowances for this work log')}
                                     </p>
                                 </div>
                             </div>
@@ -680,7 +680,7 @@ export default function AddWorkLogPage() {
                         <div style={{ padding: '24px' }}>
                             {allowances.length === 0 ? (
                                 <p style={{ color: '#9CA3AF', fontSize: '14px', textAlign: 'center', padding: '32px 0' }}>
-                                    No allowances added. Click "Add Allowance" to add one.
+                                    {t('No allowances added. Click "Add Allowance" to add one.')}
                                 </p>
                             ) : (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -818,7 +818,7 @@ export default function AddWorkLogPage() {
                                 opacity: saving ? 0.7 : 1
                             }}
                         >
-                            {saving ? 'Creating...' : 'Create Work Log'}
+                            {saving ? t('Creating...') : 'Create Work Log'}
                         </button>
                     </div>
                 </div>

@@ -52,7 +52,7 @@ export function ExpenseTable({ expenses, loading, onEdit, onDelete }: ExpenseTab
       render: (e) => <span style={{ fontWeight: fontWeight.semibold }}>{e.expense_date}</span>
     },
     {
-      key: 'vendor', header: 'Vendor',
+      key: 'vendor', header: t('Vendor'),
       render: (e) => (
         <div>
           <div style={{ fontWeight: fontWeight.semibold, color: colors.textPrimary }}>{e.vendor_name}</div>
@@ -80,7 +80,7 @@ export function ExpenseTable({ expenses, loading, onEdit, onDelete }: ExpenseTab
       )
     },
     {
-      key: 'payment', header: 'Payment',
+      key: 'payment', header: t('Payment'),
       render: (e) => <span style={{ fontSize: fontSize.md, color: colors.textMuted }}>{e.payment_method_display}</span>
     },
     {
@@ -105,8 +105,8 @@ export function ExpenseTable({ expenses, loading, onEdit, onDelete }: ExpenseTab
       loading={loading}
       rowKey={(e) => e.id}
       emptyIcon={<Receipt size={44} />}
-      emptyTitle="No expenses found"
-      emptySubtitle="Add your first expense to start tracking."
+      emptyTitle={t('No expenses found')}
+      emptySubtitle={t('Add your first expense to start tracking.')}
     />
   );
 }

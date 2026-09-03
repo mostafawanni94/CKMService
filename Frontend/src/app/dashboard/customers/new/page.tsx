@@ -52,9 +52,9 @@ export default function NewCustomerPage() {
                             <div>
                                 <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: 0 }}>{t('Add New Customer')}</h1>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-                                    <span style={{ fontSize: '14px', color: '#6B7280' }}>Create a new customer account</span>
+                                    <span style={{ fontSize: '14px', color: '#6B7280' }}>{t('Create a new customer account')}</span>
                                     <span style={{ padding: '4px 10px', borderRadius: '9999px', fontSize: '12px', fontWeight: 600, backgroundColor: '#DCFCE7', color: '#16A34A' }}>
-                                        New
+                                        {t('New')}
                                     </span>
                                 </div>
                             </div>
@@ -65,7 +65,7 @@ export default function NewCustomerPage() {
                                 {t('Cancel')}
                             </button>
                             <button onClick={handleCreate} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: '#1E3A5F', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
-                                <Save style={{ width: '16px', height: '16px' }} /> {saving ? 'Creating...' : 'Create Customer'}
+                                <Save style={{ width: '16px', height: '16px' }} /> {saving ? t('Creating...') : 'Create Customer'}
                             </button>
                         </div>
                     </div>
@@ -255,7 +255,7 @@ export default function NewCustomerPage() {
                                         </div>
                                     ))}
                                     {customerPhones.length === 0 && (
-                                        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>No phone numbers. Click "Add" to add one.</p>
+                                        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>{t('No phone numbers. Click "Add" to add one.')}</p>
                                     )}
                                 </div>
                             </div>
@@ -281,7 +281,7 @@ export default function NewCustomerPage() {
                                         </div>
                                     ))}
                                     {customerEmails.length === 0 && (
-                                        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>No email addresses. Click "Add" to add one.</p>
+                                        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>{t('No email addresses. Click "Add" to add one.')}</p>
                                     )}
                                 </div>
                             </div>
@@ -344,7 +344,7 @@ export default function NewCustomerPage() {
                                 </div>
                             ))}
                             {managerPhones.length === 0 && (
-                                <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>No phone numbers. Click "Add" to add one.</p>
+                                <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>{t('No phone numbers. Click "Add" to add one.')}</p>
                             )}
                         </div>
                     </div>
@@ -370,7 +370,7 @@ export default function NewCustomerPage() {
                                 </div>
                             ))}
                             {managerEmails.length === 0 && (
-                                <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>No email addresses. Click "Add" to add one.</p>
+                                <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>{t('No email addresses. Click "Add" to add one.')}</p>
                             )}
                         </div>
                     </div>
@@ -487,7 +487,7 @@ export default function NewCustomerPage() {
                                         </div>
                                     ) : null)}
                                     {supervisorEmails.length === 0 && (
-                                        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>Click "Add" to add an email address</p>
+                                        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>{t('Click "Add" to add an email address')}</p>
                                     )}
                                 </div>
                             </div>
@@ -864,7 +864,7 @@ export default function NewCustomerPage() {
 
                     {customerAllowances.length === 0 ? (
                         <p style={{ fontSize: '14px', color: '#9CA3AF', fontStyle: 'italic', textAlign: 'center', padding: '24px' }}>
-                            No allowances configured. Click "Add Allowance" to select from available types.
+                            {t('No allowances configured. Click "Add Allowance" to select from available types.')}
                         </p>
                     ) : (
                         <div style={{ display: 'grid', gap: '12px' }}>
@@ -1053,7 +1053,7 @@ export default function NewCustomerPage() {
                     </button>
                     <button onClick={handleCreate} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', backgroundColor: '#1E3A5F', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
                         <Building2 style={{ width: '16px', height: '16px' }} />
-                        {saving ? 'Creating...' : 'Create Customer'}
+                        {saving ? t('Creating...') : 'Create Customer'}
                     </button>
                 </div>
             </div>

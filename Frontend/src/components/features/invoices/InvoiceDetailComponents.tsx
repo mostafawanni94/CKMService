@@ -184,10 +184,10 @@ export function LineTable({ lines, selectable, selected, onToggle }: {
                         <tr style={{ textAlign: 'left', borderBottom: `1px solid ${colors.border}` }}>
                             {selectable && <th style={{ padding: spacing.sm, width: 34 }} />}
                             <th style={{ padding: spacing.sm, width: 96 }}>{t('Datum')}</th>
-                            <th style={{ padding: spacing.sm }}>Omschrijving</th>
+                            <th style={{ padding: spacing.sm }}>{t('Omschrijving')}</th>
                             <th style={{ padding: spacing.sm, textAlign: 'right', width: 62 }}>{t('Uren')}</th>
                             <th style={{ padding: spacing.sm, textAlign: 'right', width: 84 }}>{t('Tarief')}</th>
-                            <th style={{ padding: spacing.sm, textAlign: 'center', width: 96 }}>Btw</th>
+                            <th style={{ padding: spacing.sm, textAlign: 'center', width: 96 }}>{t('Btw')}</th>
                             <th style={{ padding: spacing.sm, textAlign: 'right', width: 100 }}>{t('Bedrag')}</th>
                         </tr>
                     </thead>
@@ -262,7 +262,7 @@ export function TotalsPanel({ invoice }: { invoice: InvoiceDetail }) {
     if (Number(invoice.total_allowances)) rows.push(['Toeslagen', euro(invoice.total_allowances)]);
     if (Number(invoice.total_gratuities)) rows.push(['Fooi', euro(invoice.total_gratuities)]);
     rows.push([
-        invoice.has_reverse_charged_lines ? 'Btw (deels verlegd)' : 'Btw',
+        invoice.has_reverse_charged_lines ? 'Btw (deels verlegd)' : t('Btw'),
         euro(invoice.vat_amount),
     ]);
     rows.push(['Totaal', euro(invoice.total), true]);

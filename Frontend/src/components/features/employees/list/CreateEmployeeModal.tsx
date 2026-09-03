@@ -165,12 +165,12 @@ export function CreateEmployeeModal({ vm }: { vm: ViewModel }) {
                                             fontWeight: 700,
                                             color: '#ffffff',
                                             margin: 0
-                                        }}>Add New Employee</h2>
+                                        }}>{t('Add New Employee')}</h2>
                                         <p style={{
                                             color: 'rgba(255,255,255,0.7)',
                                             fontSize: '14px',
                                             marginTop: '6px'
-                                        }}>Create a new employee account</p>
+                                        }}>{t('Create a new employee account')}</p>
                                     </div>
                                     <button
                                         onClick={() => setShowCreateModal(false)}
@@ -218,7 +218,7 @@ export function CreateEmployeeModal({ vm }: { vm: ViewModel }) {
                                             letterSpacing: '0.05em',
                                             marginBottom: '12px'
                                         }}>
-                                            Full Name
+                                            {t('Full Name')}
                                         </label>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                             <input
@@ -309,7 +309,7 @@ export function CreateEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 textTransform: 'uppercase',
                                                 letterSpacing: '0.05em'
                                             }}>
-                                                Temporary Password
+                                                {t('Temporary Password')}
                                             </label>
                                             <button
                                                 type="button"
@@ -335,7 +335,7 @@ export function CreateEmployeeModal({ vm }: { vm: ViewModel }) {
                                             value={createForm.password}
                                             onChange={(e) => setCreateForm(f => ({ ...f, password: e.target.value }))}
                                             required
-                                            placeholder="Min 8 characters"
+                                            placeholder={t('Min 8 characters')}
                                             minLength={8}
                                             style={{
                                                 width: '100%',
@@ -359,7 +359,7 @@ export function CreateEmployeeModal({ vm }: { vm: ViewModel }) {
                                             margin: '10px 0 0 0'
                                         }}>
                                             <AlertCircle style={{ width: '14px', height: '14px' }} />
-                                            Employee will change password on first login
+                                            {t('Employee will change password on first login')}
                                         </p>
                                     </div>
 
@@ -398,12 +398,12 @@ export function CreateEmployeeModal({ vm }: { vm: ViewModel }) {
                                                         borderRadius: '50%',
                                                         animation: 'spin 1s linear infinite'
                                                     }} />
-                                                    Creating...
+                                                    {t('Creating...')}
                                                 </>
                                             ) : (
                                                 <>
                                                     <Plus style={{ width: '18px', height: '18px' }} />
-                                                    Create Employee
+                                                    {t('Create Employee')}
                                                 </>
                                             )}
                                         </Button>

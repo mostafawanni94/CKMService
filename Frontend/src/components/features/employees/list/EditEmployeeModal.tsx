@@ -215,10 +215,10 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                     onChange={(e) => setEditForm(f => ({ ...f, gender: e.target.value }))}
                                                     className="w-full h-11 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                 >
-                                                    <option value="">Select gender</option>
-                                                    <option value="male">Male</option>
-                                                    <option value="female">Female</option>
-                                                    <option value="other">Other</option>
+                                                    <option value="">{t('Select gender')}</option>
+                                                    <option value="male">{t('Male')}</option>
+                                                    <option value="female">{t('Female')}</option>
+                                                    <option value="other">{t('Other')}</option>
                                                 </select>
                                             </div>
                                             <div>
@@ -456,7 +456,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Hourly Rate (€)</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('Hourly Rate (€)')}</label>
                                                 <Input
                                                     type="number"
                                                     step="0.01"
@@ -485,10 +485,10 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                     onChange={(e) => setEditForm(f => ({ ...f, document_type: e.target.value }))}
                                                     className="w-full h-11 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                                 >
-                                                    <option value="">Select type</option>
-                                                    <option value="passport">Passport</option>
-                                                    <option value="id_card">ID Card</option>
-                                                    <option value="residence_permit">Residence Permit</option>
+                                                    <option value="">{t('Select type')}</option>
+                                                    <option value="passport">{t('Passport')}</option>
+                                                    <option value="id_card">{t('ID Card')}</option>
+                                                    <option value="residence_permit">{t('Residence Permit')}</option>
                                                 </select>
                                             </div>
                                             <div>
@@ -533,16 +533,16 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                         </div>
                                         <div className="grid grid-cols-3 gap-4">
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Contract Phase</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('Contract Phase')}</label>
                                                 <select
                                                     value={editForm.contract_phase}
                                                     onChange={(e) => setEditForm(f => ({ ...f, contract_phase: e.target.value }))}
                                                     className="w-full h-11 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                                                 >
-                                                    <option value="">Select phase</option>
-                                                    <option value="A">Phase A</option>
-                                                    <option value="B">Phase B</option>
-                                                    <option value="C">Phase C</option>
+                                                    <option value="">{t('Select phase')}</option>
+                                                    <option value="A">{t('Phase A')}</option>
+                                                    <option value="B">{t('Phase B')}</option>
+                                                    <option value="C">{t('Phase C')}</option>
                                                 </select>
                                             </div>
                                             <div>
@@ -584,12 +584,12 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                             {saving ? (
                                                 <>
                                                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
-                                                    Saving...
+                                                    {t('Saving...')}
                                                 </>
                                             ) : (
                                                 <>
                                                     <Save className="w-4 h-4 mr-2" />
-                                                    Save Changes
+                                                    {t('Save Changes')}
                                                 </>
                                             )}
                                         </Button>
