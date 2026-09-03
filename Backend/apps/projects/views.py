@@ -1,6 +1,7 @@
 """Project API Views."""
 
 from django.db import models
+from django.db.models import Count, Q
 from rest_framework import viewsets, permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
@@ -26,6 +27,42 @@ class ProjectViewSet(viewsets.ModelViewSet):
         'customer', 'outfolder'
     ).prefetch_related('assignments', 'required_certificates').order_by('-created_at')
     permission_classes = [IsAdmin]
+
+    def get_queryset(self):
+        """Search, status and customer are applied here, not in the browser.
+
+        The list page fetched every project so it could filter them itself,
+        which also made its counts depend on holding them all in memory.
+        """
+        queryset = super().get_queryset()
+        params = self.request.query_params
+
+        statuses = [v for v in params.getlist('status') if v and v != 'all']
+        if statuses:
+            queryset = queryset.filter(status__in=statuses)
+
+        customers = [v for v in params.getlist('customer') if v]
+        if customers:
+            queryset = queryset.filter(customer_id__in=customers)
+
+        search = (params.get('search') or '').strip()
+        if search:
+            queryset = queryset.filter(
+                Q(name__icontains=search)
+                | Q(customer__company_name__icontains=search)
+            )
+        return queryset
+
+    @action(detail=False, methods=['get'])
+    def summary(self, request):
+        """Counts by status over the filtered set, for the stat cards."""
+        entries = self.filter_queryset(self.get_queryset())
+        counts = {
+            row['status']: row['n']
+            for row in entries.order_by().values('status').annotate(n=Count('id'))
+        }
+        return Response({'count': entries.count(), 'status_counts': counts})
+
     
     def get_serializer_class(self):
         if self.action == 'list':

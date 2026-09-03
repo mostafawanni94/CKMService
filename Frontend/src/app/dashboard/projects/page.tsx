@@ -7,6 +7,7 @@ import { api, Project, Customer } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n'
 import { FolderKanban, Plus, MapPin, Users, Calendar, Eye, Search, X, Building2, UserCircle, Check, LayoutGrid, List } from 'lucide-react';
 import { apiFetch, readApiError } from '@/hooks/useApi';
+import { ListPager } from '@/components/ui/ListPager';
 
 interface Supervisor {
     id: string;
@@ -26,6 +27,11 @@ interface CreateProjectForm {
 export default function ProjectsPage() {
     const { t } = useLanguage();
     const [projects, setProjects] = useState<Project[]>([]);
+    // Server-side paging; the counts come from the summary, not this page.
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(25);
+    const [totalCount, setTotalCount] = useState(0);
+    const [summary, setSummary] = useState<{ count: number; status_counts: Record<string, number> } | null>(null);
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingCustomers, setLoadingCustomers] = useState(false);
@@ -52,7 +58,11 @@ export default function ProjectsPage() {
 
     useEffect(() => {
         loadData();
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, pageSize, search, filter, selectedCustomers.join(',')]);
+
+    // A narrower result set must not strand the reader on a page that is gone.
+    useEffect(() => { setPage(1); }, [search, filter, selectedCustomers.join(',')]);
 
     // Load supervisors when customer is selected
     useEffect(() => {
@@ -124,12 +134,26 @@ export default function ProjectsPage() {
         setLoading(true);
         setError(null);
         try {
-            // Get first 15 customers initially
-            const [projectsRes, customersRes] = await Promise.all([
-                api.getProjects(),
-                apiFetch(`/customers/customers/?page_size=15`).then(res => res.json())
+            // One page of projects, filtered and counted by the server; the
+            // stat cards come from its summary so they cover every page.
+            const query = new URLSearchParams();
+            if (search.trim()) query.set('search', search.trim());
+            if (filter !== 'all') query.set('status', filter);
+            selectedCustomers.forEach(id => query.append('customer', id));
+            const filters = query.toString();
+            query.set('page', String(page));
+            query.set('page_size', String(pageSize));
+
+            const [projectsRes, summaryRes, customersRes] = await Promise.all([
+                apiFetch(`/projects/projects/?${query}`).then(r =>
+                    r.ok ? r.json() : { results: [], count: 0 }),
+                apiFetch(`/projects/projects/summary/?${filters}`).then(r =>
+                    r.ok ? r.json() : null),
+                apiFetch(`/customers/customers/?page_size=15`).then(res => res.json()),
             ]);
             setProjects(projectsRes.results || []);
+            setTotalCount(projectsRes.count || 0);
+            setSummary(summaryRes);
             setCustomers(customersRes.results || []);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load data');
@@ -197,21 +221,16 @@ export default function ProjectsPage() {
         }
     }
 
-    const filteredProjects = projects.filter(p => {
-        if (filter !== 'all' && p.status !== filter) return false;
-        if (selectedCustomers.length > 0 && !selectedCustomers.includes(p.customer)) return false;
-        if (search) {
-            const searchLower = search.toLowerCase();
-            return p.name?.toLowerCase().includes(searchLower) ||
-                p.customer_name?.toLowerCase().includes(searchLower);
-        }
-        return true;
-    });
+    // The server filtered this page already; filtering again would hide rows
+    // the count still includes.
+    const filteredProjects = projects;
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
+    const statusCounts = summary?.status_counts ?? {};
     const stats = {
-        total: projects.length,
-        active: projects.filter(p => p.status === 'active').length,
-        completed: projects.filter(p => p.status === 'completed').length
+        total: summary?.count ?? totalCount,
+        active: statusCounts.active ?? 0,
+        completed: statusCounts.completed ?? 0,
     };
 
     return (
@@ -761,6 +780,23 @@ export default function ProjectsPage() {
                         ))}
                     </div>
                 )}
+
+                <ListPager
+
+                    page={page}
+
+                    totalPages={totalPages}
+
+                    totalCount={totalCount}
+
+                    pageSize={pageSize}
+
+                    onPageChange={setPage}
+
+                    onPageSizeChange={size => { setPage(1); setPageSize(size); }}
+
+                />
+
 
                 {/* Create Project Modal */}
                 {showCreateModal && (
