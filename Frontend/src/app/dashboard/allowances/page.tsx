@@ -487,7 +487,7 @@ export default function AllowancesPage() {
                             <div style={{ padding: '24px' }}>
                                 {/* Name */}
                                 <div style={{ marginBottom: '20px' }}>
-                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px', color: '#374151' }}>Allowance Name *</label>
+                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px', color: '#374151' }}>{t('Allowance Name')} *</label>
                                     <input
                                         type="text"
                                         value={formData.name}
@@ -499,7 +499,7 @@ export default function AllowancesPage() {
 
                                 {/* Code */}
                                 <div style={{ marginBottom: '20px' }}>
-                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px', color: '#374151' }}>Code *</label>
+                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px', color: '#374151' }}>{t('Code')} *</label>
                                     <input
                                         type="text"
                                         value={formData.code}
@@ -512,7 +512,7 @@ export default function AllowancesPage() {
 
                                 {/* Base Price */}
                                 <div style={{ marginBottom: '20px' }}>
-                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px', color: '#374151' }}>Base Price (€/hr) *</label>
+                                    <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px', color: '#374151' }}>{t('Base Price (€/hr)')} *</label>
                                     <div style={{ position: 'relative' }}>
                                         <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6B7280', fontSize: '14px' }}>€</span>
                                         <input
@@ -548,7 +548,7 @@ export default function AllowancesPage() {
                                             onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                                             style={{ width: '20px', height: '20px' }}
                                         />
-                                        <span style={{ fontSize: '14px', fontWeight: 500, color: '#374151' }}>Active (available for selection)</span>
+                                        <span style={{ fontSize: '14px', fontWeight: 500, color: '#374151' }}>{t('Active (available for selection)')}</span>
                                     </label>
                                 </div>
 

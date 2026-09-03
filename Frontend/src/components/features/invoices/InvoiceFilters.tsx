@@ -330,7 +330,7 @@ export function InvoiceFilters({ vm }: { vm: ViewModel }) {
                             <div style={{ position: 'relative' }}>
                                 <input
                                     type="text"
-                                    placeholder="Click to select or type to search employees..."
+                                    placeholder={t('Click to select or type to search employees...')}
                                     value={employeeSearch}
                                     onChange={(e) => {
                                         setEmployeeSearch(e.target.value);

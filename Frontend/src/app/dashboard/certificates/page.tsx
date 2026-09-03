@@ -689,7 +689,7 @@ export default function CertificatesPage() {
                                         marginBottom: '8px',
                                         color: '#374151'
                                     }}>
-                                        Certificate Name *
+                                        {t('Certificate Name')} *
                                     </label>
                                     <input
                                         type="text"

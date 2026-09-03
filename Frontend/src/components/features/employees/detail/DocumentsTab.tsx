@@ -127,7 +127,7 @@ export function DocumentsTab({ vm }: { vm: ViewModel }) {
                                                 className="w-5 h-5 rounded border-gray-300 text-[#1E3A5F] focus:ring-[#1E3A5F] cursor-pointer"
                                                 style={{ accentColor: '#1E3A5F' }}
                                             />
-                                            <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">Has Driver's License</span>
+                                            <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">{t("Has Driver's License")}</span>
                                         </label>
                                     ) : (
                                         <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium ${employee.has_drivers_license ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>

@@ -196,7 +196,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                         <div style={{ padding: '24px' }}>
                                             <div style={{ marginBottom: '20px' }}>
                                                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#374151', marginBottom: '8px', textTransform: 'uppercase' }}>
-                                                    Contract Type *
+                                                    {t('Contract Type')} *
                                                 </label>
                                                 {isEditing ? (
                                                     <select
@@ -334,7 +334,7 @@ export function ContractTab({ vm }: { vm: ViewModel }) {
                                                     {/* Agency Select */}
                                                     <div>
                                                         <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#7C3AED', marginBottom: '8px', textTransform: 'uppercase' }}>
-                                                            Agency *
+                                                            {t('Agency')} *
                                                         </label>
                                                         {isEditing ? (
                                                             <select

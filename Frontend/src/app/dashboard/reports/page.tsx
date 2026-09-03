@@ -290,7 +290,7 @@ export default function ReportsPage() {
                                 <DollarSign className="w-6 h-6 text-green-600" />
                             </div>
                             <div>
-                                <p className="text-sm text-gray-500">Total Earnings</p>
+                                <p className="text-sm text-gray-500">{t('Total Earnings')}</p>
                                 <p className="text-2xl font-bold text-gray-900">€{totalEarnings.toLocaleString()}</p>
                             </div>
                         </div>
@@ -313,7 +313,7 @@ export default function ReportsPage() {
                     <div className="flex flex-wrap gap-4 items-center justify-between">
                         <div className="flex gap-2">
                             {[
-                                { id: 'earnings', label: 'Employee Earnings', icon: DollarSign },
+                                { id: 'earnings', label: t('Employee Earnings'), icon: DollarSign },
                                 { id: 'project-hours', label: t('Project Hours'), icon: BarChart3 },
                             ].map((report) => (
                                 <button

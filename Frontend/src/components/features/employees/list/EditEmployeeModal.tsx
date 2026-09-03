@@ -180,7 +180,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                         </div>
                                         <div className="grid grid-cols-3 gap-4">
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('First Name')} *</label>
                                                 <Input
                                                     value={editForm.first_name}
                                                     onChange={(e) => setEditForm(f => ({ ...f, first_name: e.target.value }))}
@@ -194,12 +194,12 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 <Input
                                                     value={editForm.prefix_name}
                                                     onChange={(e) => setEditForm(f => ({ ...f, prefix_name: e.target.value }))}
-                                                    placeholder="van"
+                                                    placeholder={t('van')}
                                                     className="h-11"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('Last Name')} *</label>
                                                 <Input
                                                     value={editForm.last_name}
                                                     onChange={(e) => setEditForm(f => ({ ...f, last_name: e.target.value }))}
@@ -358,7 +358,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                 )}
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">BSN *</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('BSN')} *</label>
                                                 <Input
                                                     value={editForm.bsn}
                                                     onChange={(e) => setEditForm(f => ({ ...f, bsn: e.target.value }))}
@@ -447,7 +447,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">IBAN *</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('IBAN')} *</label>
                                                 <Input
                                                     value={editForm.iban}
                                                     onChange={(e) => setEditForm(f => ({ ...f, iban: e.target.value.toUpperCase() }))}
@@ -518,7 +518,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                                     onChange={(e) => setEditForm(f => ({ ...f, has_drivers_license: e.target.checked }))}
                                                     className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                                                 />
-                                                <span className="text-sm font-medium text-gray-700">Has Driver&apos;s License</span>
+                                                <span className="text-sm font-medium text-gray-700">{t("Has Driver's License")}</span>
                                             </label>
                                         </div>
                                     </div>

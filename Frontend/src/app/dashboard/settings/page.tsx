@@ -356,7 +356,7 @@ export default function SettingsPage() {
                             <div key={index} style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
                                 <input
                                     type="text"
-                                    placeholder="Label (e.g. Info, Support)"
+                                    placeholder={t('Label (e.g. Info, Support)')}
                                     value={email.label}
                                     onChange={(e) => {
                                         const updated = [...settings.company_emails];
@@ -412,7 +412,7 @@ export default function SettingsPage() {
                             <div key={index} style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
                                 <input
                                     type="text"
-                                    placeholder="Label (e.g. Office, Mobile)"
+                                    placeholder={t('Label (e.g. Office, Mobile)')}
                                     value={phone.label}
                                     onChange={(e) => {
                                         const updated = [...settings.company_phones];

@@ -292,7 +292,7 @@ export default function ServicesPage() {
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                             <div>
-                                <label style={labelStyle}>Service Name *</label>
+                                <label style={labelStyle}>{t('Service Name')} *</label>
                                 <input
                                     type="text"
                                     value={formData.name}
@@ -302,7 +302,7 @@ export default function ServicesPage() {
                                 />
                             </div>
                             <div>
-                                <label style={labelStyle}>Service Code *</label>
+                                <label style={labelStyle}>{t('Service Code')} *</label>
                                 <input
                                     type="text"
                                     value={formData.code}

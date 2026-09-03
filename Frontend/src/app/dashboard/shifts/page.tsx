@@ -446,7 +446,7 @@ export default function ShiftsPage() {
                                     <tr key={shift.id} style={{ borderTop: '1px solid #E5E7EB' }}>
                                         <td style={{ padding: '14px 16px' }}>
                                             <div style={{ fontWeight: 600, color: '#111827' }}>{shift.scheduled_date}</div>
-                                            {shift.is_today && <span style={{ fontSize: '11px', color: '#059669', fontWeight: 600 }}>TODAY</span>}
+                                            {shift.is_today && <span style={{ fontSize: '11px', color: '#059669', fontWeight: 600 }}>{t('TODAY')}</span>}
                                         </td>
                                         <td style={{ padding: '14px 16px', color: '#374151' }}>{shift.employee_name}</td>
                                         <td style={{ padding: '14px 16px' }}>
@@ -534,7 +534,7 @@ export default function ShiftsPage() {
                                 <div>
                                     <label style={labelStyle}>
                                         <Building2 size={14} style={{ marginRight: '4px' }} />
-                                        Customer *
+                                        {t('Customer')} *
                                     </label>
                                     <select
                                         value={formData.customer}
@@ -556,7 +556,7 @@ export default function ShiftsPage() {
                                 {/* Project (filtered by customer) */}
                                 {formData.customer && (
                                     <div>
-                                        <label style={labelStyle}>Project *</label>
+                                        <label style={labelStyle}>{t('Project')} *</label>
                                         <select
                                             value={formData.project}
                                             onChange={(e) => {
@@ -688,7 +688,7 @@ export default function ShiftsPage() {
                                 {/* Start & End DateTime (for night shifts) */}
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                     <div>
-                                        <label style={labelStyle}><Clock size={14} style={{ marginRight: '4px' }} />Start Date/Time *</label>
+                                        <label style={labelStyle}><Clock size={14} style={{ marginRight: '4px' }} />{t('Start Date/Time')} *</label>
                                         <input
                                             type="datetime-local"
                                             value={formData.scheduled_start_datetime}

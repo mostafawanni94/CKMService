@@ -719,12 +719,12 @@ export default function WorkLogsPage() {
                                                 fontWeight: 700,
                                                 letterSpacing: '0.5px'
                                             }}>
-                                                TOTALS
+                                                {t('TOTALS')}
                                             </span>
 
                                             {/* Total Hours */}
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                <span style={{ fontSize: '13px', color: '#6B7280' }}>Hours:</span>
+                                                <span style={{ fontSize: '13px', color: '#6B7280' }}>{t('Hours:')}</span>
                                                 <span style={{
                                                     fontSize: '18px',
                                                     fontWeight: 700,
@@ -884,7 +884,7 @@ export default function WorkLogsPage() {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                 {/* Employee (searchable) */}
                                 <div style={{ position: 'relative' }}>
-                                    <label style={labelStyle}>Employee *</label>
+                                    <label style={labelStyle}>{t('Employee')} *</label>
                                     <input
                                         type="text"
                                         value={employeeSearch}
@@ -950,7 +950,7 @@ export default function WorkLogsPage() {
 
                                 {/* Customer (select first) */}
                                 <div>
-                                    <label style={labelStyle}>Customer *</label>
+                                    <label style={labelStyle}>{t('Customer')} *</label>
                                     <select
                                         value={formData.customer}
                                         onChange={(e) => {
@@ -970,7 +970,7 @@ export default function WorkLogsPage() {
                                 {/* Project (filtered by customer) */}
                                 {formData.customer && (
                                     <div>
-                                        <label style={labelStyle}>Project *</label>
+                                        <label style={labelStyle}>{t('Project')} *</label>
                                         <select
                                             value={formData.project}
                                             onChange={(e) => {
@@ -992,7 +992,7 @@ export default function WorkLogsPage() {
                                 {/* Supervisor (shows when project selected) */}
                                 {formData.project && supervisors.length > 0 && (
                                     <div>
-                                        <label style={labelStyle}>Supervisor *</label>
+                                        <label style={labelStyle}>{t('Supervisor')} *</label>
                                         <select
                                             value={formData.supervisor}
                                             onChange={(e) => setFormData({ ...formData, supervisor: e.target.value })}
@@ -1009,7 +1009,7 @@ export default function WorkLogsPage() {
                                 {/* Service (shows when project selected) */}
                                 {formData.project && services.length > 0 && (
                                     <div>
-                                        <label style={labelStyle}>Service Type *</label>
+                                        <label style={labelStyle}>{t('Service Type')} *</label>
                                         <select
                                             value={formData.service}
                                             onChange={(e) => setFormData({ ...formData, service: e.target.value })}
@@ -1039,7 +1039,7 @@ export default function WorkLogsPage() {
 
                                 {/* Start Date/Time */}
                                 <div>
-                                    <label style={labelStyle}>Start Date/Time *</label>
+                                    <label style={labelStyle}>{t('Start Date/Time')} *</label>
                                     <input
                                         type="datetime-local"
                                         value={formData.start_datetime}
@@ -1050,7 +1050,7 @@ export default function WorkLogsPage() {
 
                                 {/* End Date/Time */}
                                 <div>
-                                    <label style={labelStyle}>End Date/Time *</label>
+                                    <label style={labelStyle}>{t('End Date/Time')} *</label>
                                     <input
                                         type="datetime-local"
                                         value={formData.end_datetime}
@@ -1062,7 +1062,7 @@ export default function WorkLogsPage() {
                                 {/* Break Time */}
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                     <div>
-                                        <label style={labelStyle}>Break Start *</label>
+                                        <label style={labelStyle}>{t('Break Start')} *</label>
                                         <input
                                             type="time"
                                             value={formData.break_start_time}
@@ -1071,7 +1071,7 @@ export default function WorkLogsPage() {
                                         />
                                     </div>
                                     <div>
-                                        <label style={labelStyle}>Break End *</label>
+                                        <label style={labelStyle}>{t('Break End')} *</label>
                                         <input
                                             type="time"
                                             value={formData.break_end_time}

@@ -112,7 +112,7 @@ export function AddCertificateModal({ vm }: { vm: ViewModel }) {
 
                                     <div style={{ marginBottom: '16px' }}>
                                         <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '8px' }}>
-                                            Diploma / Certificate Number *
+                                            {t('Diploma / Certificate Number')} *
                                         </label>
                                         <input
                                             type="text"
@@ -131,7 +131,7 @@ export function AddCertificateModal({ vm }: { vm: ViewModel }) {
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                                         <div>
                                             <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '8px' }}>
-                                                Start Date *
+                                                {t('Start Date')} *
                                             </label>
                                             <input
                                                 type="date"
@@ -148,7 +148,7 @@ export function AddCertificateModal({ vm }: { vm: ViewModel }) {
                                         </div>
                                         <div>
                                             <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '8px' }}>
-                                                Expiry Date *
+                                                {t('Expiry Date')} *
                                             </label>
                                             <input
                                                 type="date"
@@ -213,7 +213,7 @@ export function AddCertificateModal({ vm }: { vm: ViewModel }) {
                                         {uploadMode === 'pdf' ? (
                                             <div>
                                                 <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '8px' }}>
-                                                    Certificate PDF *
+                                                    {t('Certificate PDF')} *
                                                 </label>
                                                 <div style={{ position: 'relative' }}>
                                                     <input
@@ -238,7 +238,7 @@ export function AddCertificateModal({ vm }: { vm: ViewModel }) {
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                                 <div>
                                                     <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '8px' }}>
-                                                        Front Side *
+                                                        {t('Front Side')} *
                                                     </label>
                                                     <div style={{ position: 'relative' }}>
                                                         <input
@@ -261,7 +261,7 @@ export function AddCertificateModal({ vm }: { vm: ViewModel }) {
                                                 </div>
                                                 <div>
                                                     <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '8px' }}>
-                                                        Back Side *
+                                                        {t('Back Side')} *
                                                     </label>
                                                     <div style={{ position: 'relative' }}>
                                                         <input

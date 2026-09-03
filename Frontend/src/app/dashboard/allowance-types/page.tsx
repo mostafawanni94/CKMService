@@ -191,7 +191,7 @@ export default function AllowanceTypesPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                     <div>
                         <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>
-                            Allowance Types (Toeslag)
+                            {t('Allowance Types (Toeslag)')}
                         </h1>
                         <p style={{ color: '#6B7280', fontSize: '15px' }}>
                             {t('Manage per-hour allowances like mask, EPZ, WZH, etc.')}
@@ -362,7 +362,7 @@ export default function AllowanceTypesPage() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             {/* Name */}
                             <div>
-                                <label style={labelStyle}>Name *</label>
+                                <label style={labelStyle}>{t('Name')} *</label>
                                 <input
                                     type="text"
                                     placeholder="e.g., Ademlucht (mask)"
@@ -374,7 +374,7 @@ export default function AllowanceTypesPage() {
 
                             {/* Code */}
                             <div>
-                                <label style={labelStyle}>Code *</label>
+                                <label style={labelStyle}>{t('Code')} *</label>
                                 <input
                                     type="text"
                                     placeholder="e.g., MASK"
@@ -386,7 +386,7 @@ export default function AllowanceTypesPage() {
 
                             {/* Base Price */}
                             <div>
-                                <label style={labelStyle}>Base Price (€/hour) *</label>
+                                <label style={labelStyle}>{t('Base Price (€/hour)')} *</label>
                                 <div style={{ position: 'relative' }}>
                                     <Euro style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#6B7280' }} size={18} />
                                     <input

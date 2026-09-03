@@ -73,12 +73,12 @@ interface BtwBoxProps {
 export function BtwBox({ vatCollected, vatPaid, vatDue }: BtwBoxProps) {
     const { t } = useLanguage();
   return (
-    <SectionCard title="BTW Overzicht (VAT Summary)" icon={<Euro size={18} color={colors.primary} />}
+    <SectionCard title={t('BTW Overzicht (VAT Summary)')} icon={<Euro size={18} color={colors.primary} />}
       style={{ marginBottom: spacing.xxl }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: spacing.xl }}>
-        <VatCell label="BTW Ontvangen (Collected)" value={vatCollected}
+        <VatCell label={t('BTW Ontvangen (Collected)')} value={vatCollected}
           subtitle={t('From outgoing invoices')} color={colors.success} bg="#F0FDF4" borderColor="#BBF7D0" />
-        <VatCell label="BTW Betaald (Voorbelasting)" value={vatPaid}
+        <VatCell label={t('BTW Betaald (Voorbelasting)')} value={vatPaid}
           subtitle={t('From expenses')} color={colors.danger} bg="#FEF2F2" borderColor={colors.dangerBorder} />
         <VatCell
           label={vatDue >= 0 ? 'Af te dragen (Due)' : 'Terug te vragen (Refund)'}

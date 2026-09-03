@@ -610,7 +610,7 @@ export function Pagination({ page, totalPages, onChange }: PaginationProps) {
     const { t } = useLanguage();
   if (totalPages <= 1) return null;
   return (
-    <nav aria-label="Paginering"
+    <nav aria-label={t('Paginering')}
          style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: spacing.sm, marginTop: spacing.xl }}>
       <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => onChange(page - 1)} icon={<ChevronLeft size={16} />}>
         {t('Prev')}

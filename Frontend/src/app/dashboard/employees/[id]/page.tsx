@@ -429,7 +429,7 @@ export default function EmployeeDetailPage() {
                                 </div>
                                 <div>
                                     <h4 style={{ fontSize: '16px', fontWeight: 600, color: '#991B1B', margin: 0 }}>{t('Application Rejected')}</h4>
-                                    <p style={{ fontSize: '13px', color: '#B91C1C', margin: 0, marginTop: '2px' }}>This employee&apos;s application was rejected</p>
+                                    <p style={{ fontSize: '13px', color: '#B91C1C', margin: 0, marginTop: '2px' }}>{t("This employee's application was rejected")}</p>
                                 </div>
                             </div>
                             <div style={{ padding: '16px 20px' }}>

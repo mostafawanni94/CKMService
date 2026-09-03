@@ -815,7 +815,7 @@ export default function ProjectsPage() {
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                     <div>
                                         <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' }}>
-                                            Customer *
+                                            {t('Customer')} *
                                         </label>
                                         <select
                                             required
@@ -911,7 +911,7 @@ export default function ProjectsPage() {
 
                                     <div>
                                         <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' }}>
-                                            Project Name *
+                                            {t('Project Name')} *
                                         </label>
                                         <input
                                             type="text"
@@ -933,7 +933,7 @@ export default function ProjectsPage() {
 
                                     <div>
                                         <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase' }}>
-                                            Location *
+                                            {t('Location')} *
                                         </label>
                                         <input
                                             type="text"

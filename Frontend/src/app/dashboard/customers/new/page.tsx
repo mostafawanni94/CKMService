@@ -81,7 +81,7 @@ export default function NewCustomerPage() {
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                        <div><label style={labelStyle}>Company Name *</label><input type="text" value={form.company_name} onChange={(e) => setForm(f => ({ ...f, company_name: e.target.value }))} placeholder="ACME Corporation" style={inputStyle} /></div>
+                        <div><label style={labelStyle}>{t('Company Name')} *</label><input type="text" value={form.company_name} onChange={(e) => setForm(f => ({ ...f, company_name: e.target.value }))} placeholder="ACME Corporation" style={inputStyle} /></div>
 
                         {/* Street Name with Icon */}
                         <div>
@@ -132,7 +132,7 @@ export default function NewCustomerPage() {
 
                         {/* Postcode with Lookup */}
                         <div style={{ position: 'relative' }}>
-                            <label style={labelStyle}>Postcode 🔗</label>
+                            <label style={labelStyle}>{t('Postcode 🔗')}</label>
                             <div style={{ position: 'relative' }}>
                                 <input
                                     type="text"
@@ -434,8 +434,8 @@ export default function NewCustomerPage() {
                     {showAddSupervisor && (
                         <div style={{ padding: '20px', backgroundColor: '#F9FAFB', borderRadius: '12px', border: '1px dashed #D1D5DB' }}>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-                                <div><label style={labelStyle}>First Name *</label><input type="text" value={newSupervisor.first_name} onChange={(e) => setNewSupervisor(s => ({ ...s, first_name: e.target.value }))} placeholder="John" style={inputStyle} /></div>
-                                <div><label style={labelStyle}>Last Name *</label><input type="text" value={newSupervisor.last_name} onChange={(e) => setNewSupervisor(s => ({ ...s, last_name: e.target.value }))} placeholder="Doe" style={inputStyle} /></div>
+                                <div><label style={labelStyle}>{t('First Name')} *</label><input type="text" value={newSupervisor.first_name} onChange={(e) => setNewSupervisor(s => ({ ...s, first_name: e.target.value }))} placeholder="John" style={inputStyle} /></div>
+                                <div><label style={labelStyle}>{t('Last Name')} *</label><input type="text" value={newSupervisor.last_name} onChange={(e) => setNewSupervisor(s => ({ ...s, last_name: e.target.value }))} placeholder="Doe" style={inputStyle} /></div>
                                 <div><label style={labelStyle}>{t('Rayon Name')}</label><input type="text" value={newSupervisor.rayon_name} onChange={(e) => setNewSupervisor(s => ({ ...s, rayon_name: e.target.value }))} placeholder="e.g. Rotterdam Noord" style={inputStyle} /></div>
                             </div>
 
@@ -712,7 +712,7 @@ export default function NewCustomerPage() {
                                                         textAlign: 'center'
                                                     }}
                                                 />
-                                                <span style={{ fontSize: '12px', color: '#6B7280' }}>per hour</span>
+                                                <span style={{ fontSize: '12px', color: '#6B7280' }}>{t('per hour')}</span>
                                             </div>
                                         )}
                                     </div>

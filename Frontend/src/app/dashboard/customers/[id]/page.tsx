@@ -438,8 +438,8 @@ export default function CustomerDetailPage() {
                                 {editingOutfolderId ? 'Edit Supervisor' : 'Add New Supervisor'}
                             </h3>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-                                <div><label style={labelStyle}>First Name *</label><input type="text" value={newOutfolder.first_name} onChange={(e) => setNewOutfolder(s => ({ ...s, first_name: e.target.value }))} placeholder="John" style={inputStyle} /></div>
-                                <div><label style={labelStyle}>Last Name *</label><input type="text" value={newOutfolder.last_name} onChange={(e) => setNewOutfolder(s => ({ ...s, last_name: e.target.value }))} placeholder="Doe" style={inputStyle} /></div>
+                                <div><label style={labelStyle}>{t('First Name')} *</label><input type="text" value={newOutfolder.first_name} onChange={(e) => setNewOutfolder(s => ({ ...s, first_name: e.target.value }))} placeholder="John" style={inputStyle} /></div>
+                                <div><label style={labelStyle}>{t('Last Name')} *</label><input type="text" value={newOutfolder.last_name} onChange={(e) => setNewOutfolder(s => ({ ...s, last_name: e.target.value }))} placeholder="Doe" style={inputStyle} /></div>
                                 <div><label style={labelStyle}>{t('Rayon Name')}</label><input type="text" value={newOutfolder.company_name} onChange={(e) => setNewOutfolder(s => ({ ...s, company_name: e.target.value }))} placeholder="e.g. Rotterdam Noord" style={inputStyle} /></div>
                             </div>
 
@@ -732,7 +732,7 @@ export default function CustomerDetailPage() {
                                                         textAlign: 'center'
                                                     }}
                                                 />
-                                                <span style={{ fontSize: '12px', color: '#6B7280' }}>per hour</span>
+                                                <span style={{ fontSize: '12px', color: '#6B7280' }}>{t('per hour')}</span>
                                             </div>
                                         )}
                                     </div>
@@ -1045,7 +1045,7 @@ export default function CustomerDetailPage() {
                             <Gift style={{ width: '20px', height: '20px', color: '#F59E0B' }} />
                         </div>
                         <div>
-                            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>Allowances Configuration (Toeslag)</h2>
+                            <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{t('Allowances Configuration (Toeslag)')}</h2>
                             <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>{t('Select which allowances this customer pays for')}</p>
                         </div>
                     </div>
@@ -1103,7 +1103,7 @@ export default function CustomerDetailPage() {
                                             {isEnabled && (
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                        <span style={{ fontSize: '13px', color: '#6B7280' }}>Custom €</span>
+                                                        <span style={{ fontSize: '13px', color: '#6B7280' }}>{t('Custom €')}</span>
                                                         <input
                                                             type="number"
                                                             step="0.01"
@@ -1289,7 +1289,7 @@ export default function CustomerDetailPage() {
                             <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', marginBottom: '24px' }}>{t('Upload New Contract')}</h3>
 
                             <div style={{ marginBottom: '20px' }}>
-                                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '8px' }}>Contract Document *</label>
+                                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '8px' }}>{t('Contract Document')} *</label>
                                 <input
                                     type="file"
                                     accept=".pdf,.doc,.docx"
@@ -1299,7 +1299,7 @@ export default function CustomerDetailPage() {
                             </div>
 
                             <div style={{ marginBottom: '24px' }}>
-                                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '8px' }}>Effective From *</label>
+                                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '8px' }}>{t('Effective From')} *</label>
                                 <input
                                     type="date"
                                     value={newContractEffectiveFrom}

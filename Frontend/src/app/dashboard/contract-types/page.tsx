@@ -222,7 +222,7 @@ export default function ContractTypesPage() {
                             color: '#1F2937',
                             margin: 0
                         }}>
-                            Contract Types (NL)
+                            {t('Contract Types (NL)')}
                         </h1>
                         <p style={{
                             fontSize: '15px',
@@ -620,7 +620,7 @@ export default function ContractTypesPage() {
                                 {/* Name & Code */}
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
                                     <div>
-                                        <label style={labelStyle}>Contract Name *</label>
+                                        <label style={labelStyle}>{t('Contract Name')} *</label>
                                         <input
                                             type="text"
                                             value={formData.name}
@@ -630,7 +630,7 @@ export default function ContractTypesPage() {
                                         />
                                     </div>
                                     <div>
-                                        <label style={labelStyle}>Code *</label>
+                                        <label style={labelStyle}>{t('Code')} *</label>
                                         <input
                                             type="text"
                                             value={formData.code}

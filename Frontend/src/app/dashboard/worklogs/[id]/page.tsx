@@ -965,7 +965,7 @@ export default function WorkLogEditPage() {
                                     </p>
                                     {(status === 'draft' || status === 'pending') && (
                                         <p style={{ color: '#6B7280', fontSize: '13px', marginTop: '8px' }}>
-                                            Click &quot;Add Photo&quot; to upload evidence photos
+                                            {t('Click "Add Photo" to upload evidence photos')}
                                         </p>
                                     )}
                                 </div>

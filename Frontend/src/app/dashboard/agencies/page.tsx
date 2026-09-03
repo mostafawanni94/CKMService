@@ -165,7 +165,7 @@ export default function AgenciesPage() {
                             color: '#1F2937',
                             margin: 0
                         }}>
-                            Agencies (Uitzendbureaus)
+                            {t('Agencies (Uitzendbureaus)')}
                         </h1>
                         <p style={{
                             fontSize: '15px',

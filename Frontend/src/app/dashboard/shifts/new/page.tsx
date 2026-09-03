@@ -266,7 +266,7 @@ export default function NewShiftPage() {
                             <div>
                                 <label style={labelStyle}>
                                     <Building2 size={14} style={{ marginRight: '6px' }} />
-                                    Customer *
+                                    {t('Customer')} *
                                 </label>
                                 <select
                                     value={formData.customer}
@@ -285,7 +285,7 @@ export default function NewShiftPage() {
                             </div>
 
                             <div>
-                                <label style={labelStyle}>Project *</label>
+                                <label style={labelStyle}>{t('Project')} *</label>
                                 <select
                                     value={formData.project}
                                     onChange={(e) => {
@@ -538,7 +538,7 @@ export default function NewShiftPage() {
                         {/* Date/Time Row */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                             <div>
-                                <label style={labelStyle}><Clock size={14} style={{ marginRight: '6px' }} />Start Date/Time *</label>
+                                <label style={labelStyle}><Clock size={14} style={{ marginRight: '6px' }} />{t('Start Date/Time')} *</label>
                                 <input
                                     type="datetime-local"
                                     value={formData.scheduled_start_datetime}

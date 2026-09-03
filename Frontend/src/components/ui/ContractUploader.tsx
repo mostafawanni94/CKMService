@@ -183,7 +183,7 @@ export function ContractUploader({
                     border: '1px dashed #3B82F6'
                 }}>
                     <div style={{ marginBottom: '16px' }}>
-                        <label style={labelStyle}>Contract File *</label>
+                        <label style={labelStyle}>{t('Contract File')} *</label>
                         <div
                             onClick={() => document.getElementById('contract-file-input')?.click()}
                             style={{
@@ -240,7 +240,7 @@ export function ContractUploader({
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '16px', marginBottom: '16px' }}>
                         <div>
-                            <label style={labelStyle}>Effective From *</label>
+                            <label style={labelStyle}>{t('Effective From')} *</label>
                             <input
                                 type="date"
                                 value={newContract.effectiveFrom}

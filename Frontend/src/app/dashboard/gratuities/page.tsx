@@ -487,7 +487,7 @@ export default function GratuitiesPage() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             {/* Customer */}
                             <div>
-                                <label style={labelStyle}>Customer *</label>
+                                <label style={labelStyle}>{t('Customer')} *</label>
                                 <select
                                     value={formData.customer}
                                     onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
@@ -502,7 +502,7 @@ export default function GratuitiesPage() {
 
                             {/* Employee */}
                             <div>
-                                <label style={labelStyle}>Employee *</label>
+                                <label style={labelStyle}>{t('Employee')} *</label>
                                 <select
                                     value={formData.employee}
                                     onChange={(e) => setFormData({ ...formData, employee: e.target.value })}
@@ -519,7 +519,7 @@ export default function GratuitiesPage() {
 
                             {/* Amount */}
                             <div>
-                                <label style={labelStyle}>Amount (€) *</label>
+                                <label style={labelStyle}>{t('Amount (€)')} *</label>
                                 <div style={{ position: 'relative' }}>
                                     <Euro style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#6B7280' }} size={18} />
                                     <input
@@ -536,7 +536,7 @@ export default function GratuitiesPage() {
 
                             {/* Date Received */}
                             <div>
-                                <label style={labelStyle}>Date Received *</label>
+                                <label style={labelStyle}>{t('Date Received')} *</label>
                                 <input
                                     type="date"
                                     value={formData.date_received}

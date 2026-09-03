@@ -683,7 +683,7 @@ export default function SurchargeTypesPage() {
                             <div style={{ padding: '24px' }}>
                                 {/* Name */}
                                 <div style={{ marginBottom: '20px' }}>
-                                    <label style={labelStyle}>Name *</label>
+                                    <label style={labelStyle}>{t('Name')} *</label>
                                     <input
                                         type="text"
                                         value={formData.name}
@@ -1069,7 +1069,7 @@ export default function SurchargeTypesPage() {
                                                 placeholder="e.g. 9"
                                                 style={{ ...inputStyle, width: '120px', backgroundColor: 'white' }}
                                             />
-                                            <span style={{ color: '#991B1B', fontSize: '13px' }}>hours per day</span>
+                                            <span style={{ color: '#991B1B', fontSize: '13px' }}>{t('hours per day')}</span>
                                         </div>
                                         <p style={{ fontSize: '12px', color: '#B91C1C', marginTop: '6px' }}>
                                             Example: If set to 9, an employee working 10 hours gets 1 hour of overtime surcharge.
@@ -1141,7 +1141,7 @@ export default function SurchargeTypesPage() {
                                         <label style={{ ...labelStyle, color: '#5B21B6' }}>{t('Min Hours Threshold (optional)')}</label>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                                             <input type="number" step="0.5" min="0" value={formData.min_hours_threshold} onChange={(e) => setFormData({ ...formData, min_hours_threshold: e.target.value })} placeholder="e.g. 9" style={{ ...inputStyle, width: '120px', backgroundColor: 'white' }} />
-                                            <span style={{ color: '#5B21B6', fontSize: '13px' }}>hours per day</span>
+                                            <span style={{ color: '#5B21B6', fontSize: '13px' }}>{t('hours per day')}</span>
                                         </div>
 
                                         {/* Holidays */}
