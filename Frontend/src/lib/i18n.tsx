@@ -819,11 +819,11 @@ const translations: Record<string, Translations> = { nl, en, ar, uk, ru };
 
 /** The languages the switcher offers, in the order it offers them. */
 export const availableLanguages = [
-    { code: 'nl', label: 'Nederlands', rtl: false },
-    { code: 'en', label: 'English', rtl: false },
-    { code: 'ar', label: 'العربية', rtl: true },
-    { code: 'uk', label: 'Українська', rtl: false },
-    { code: 'ru', label: 'Русский', rtl: false },
+    { code: 'nl', label: 'Nederlands', flag: '🇳🇱', rtl: false },
+    { code: 'en', label: 'English', flag: '🇬🇧', rtl: false },
+    { code: 'ar', label: 'العربية', flag: '🇸🇦', rtl: true },
+    { code: 'uk', label: 'Українська', flag: '🇺🇦', rtl: false },
+    { code: 'ru', label: 'Русский', flag: '🇷🇺', rtl: false },
 ] as const;
 
 const DEFAULT_LANGUAGE = 'nl';

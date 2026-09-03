@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { useLanguage } from '@/lib/i18n';
+import { availableLanguages, useLanguage } from '@/lib/i18n';
 import { useState, useEffect, useRef } from 'react';
 import { clearTokens, getRole, isAdmin, isFinance, isOperations } from '@/lib/auth';
 import {
@@ -598,14 +598,12 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
     const { t, language, setLanguage, isRTL } = useLanguage();
     const [langMenuOpen, setLangMenuOpen] = useState(false);
 
-    const languages = [
-        { code: 'en', name: 'English', flag: '🇬🇧' },
-        { code: 'ar', name: 'العربية', flag: '🇸🇦' },
-        { code: 'uk', name: 'Українська', flag: '🇺🇦' },
-        { code: 'ru', name: 'Русский', flag: '🇷🇺' },
-    ];
+    // This list used to be hardcoded here without Dutch — the default language
+    // and the company's own. Switching away from it was a one-way trip, and the
+    // badge fell back to "EN" while the app was actually rendering Dutch.
+    const languages = availableLanguages;
 
-    const currentLang = languages.find(l => l.code === language) || languages[0];
+    const currentLang = languages.find(l => l.code === language) ?? languages[0];
 
     useEffect(() => {
         const handleClickOutside = () => setLangMenuOpen(false);
@@ -721,7 +719,7 @@ function Header({ onMenuClick }: { onMenuClick: () => void }) {
                                     className="hover:bg-gray-50"
                                 >
                                     <span>{lang.flag}</span>
-                                    <span style={{ flex: 1 }}>{lang.name}</span>
+                                    <span style={{ flex: 1 }}>{lang.label}</span>
                                     {lang.code === language && <Check size={16} style={{ color: '#1F2937' }} />}
                                 </button>
                             ))}

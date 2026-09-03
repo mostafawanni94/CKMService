@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
-import { LanguageProvider, useLanguage } from './i18n';
+import { availableLanguages, LanguageProvider, useLanguage } from './i18n';
 import { phrases } from './phrases';
 
 function Probe({ keys }: { keys: string[] }) {
@@ -63,6 +63,33 @@ describe('t()', () => {
         for (const lang of ['ar', 'ru', 'uk']) {
             const missing = all.filter(k => !(k in phrases[lang]));
             expect(missing, `${lang} is missing translations`).toEqual([]);
+        }
+    });
+
+    it('offers every supported language, Dutch included', () => {
+        // The header used to hardcode four languages and omit Dutch — the
+        // default and the company's own — so leaving it was a one-way trip.
+        const codes = availableLanguages.map(l => l.code);
+        expect(codes).toContain('nl');
+        expect(new Set(codes)).toEqual(new Set(['nl', 'en', 'ar', 'ru', 'uk']));
+        for (const language of availableLanguages) {
+            expect(language.label.trim(), `${language.code} label`).not.toBe('');
+            expect(language.flag.trim(), `${language.code} flag`).not.toBe('');
+        }
+    });
+
+    it('keeps each table in its own script', () => {
+        const SCRIPTS: Record<string, RegExp> = {
+            nl: /[\u0600-\u06FF\u0400-\u04FF]/,
+            en: /[\u0600-\u06FF\u0400-\u04FF]/,
+            ar: /[\u0400-\u04FF]/,
+            ru: /[\u0600-\u06FF]/,
+            uk: /[\u0600-\u06FF]/,
+        };
+        for (const [lang, forbidden] of Object.entries(SCRIPTS)) {
+            for (const [key, value] of Object.entries(phrases[lang])) {
+                expect(forbidden.test(value), `${lang}: ${key} -> ${value}`).toBe(false);
+            }
         }
     });
 
