@@ -279,7 +279,14 @@ Both Flutter apps carry the same idea in
 `main.dart`, and `context.strings.<key>` inside any `build()` or `State` method.
 `context.strings` *watches* the provider, so outside the widget tree use
 `context.stringsOnce`. A literal inside a `const` expression cannot be swapped
-for a translation — drop the `const` on the enclosing widget.
+for a translation — drop the `const` on the enclosing widget. Two traps when
+editing `app_strings.dart`: a single-quoted Dart string cannot span lines, so a
+line break must be written `\n`; and two adjacent string literals are
+concatenated implicitly, so replacing only the first silently changes the text.
+
+`src/lib/i18n.test.tsx` and each app's `test/localization_test.dart` fail if a
+language falls behind, if a table holds another language's script, or if the
+picker stops offering all five languages.
 
 ---
 
