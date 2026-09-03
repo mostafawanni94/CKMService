@@ -38,6 +38,43 @@ interface ProjectHours {
     employee_count: number;
 }
 
+const iso = (date: Date) => date.toISOString().split('T')[0];
+
+/** Ranges an operator actually asks for, so widening is one click. */
+const QUICK_RANGES: { label: string; dates: () => [string, string] }[] = [
+    {
+        label: 'This month',
+        dates: () => {
+            const now = new Date();
+            return [iso(new Date(now.getFullYear(), now.getMonth(), 1)), iso(now)];
+        },
+    },
+    {
+        label: 'This year',
+        dates: () => {
+            const now = new Date();
+            return [iso(new Date(now.getFullYear(), 0, 1)), iso(now)];
+        },
+    },
+    {
+        label: 'Last 12 months',
+        dates: () => {
+            const now = new Date();
+            const from = new Date(now);
+            from.setFullYear(from.getFullYear() - 1);
+            return [iso(from), iso(now)];
+        },
+    },
+];
+
+/** ISO date -> the Dutch short form the rest of the app prints. */
+function nlDate(iso: string): string {
+    const date = new Date(iso);
+    return Number.isNaN(date.getTime())
+        ? iso
+        : date.toLocaleDateString('nl-NL', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
 /** Money and hours arrive as decimal strings; anything unparseable is zero. */
 function num(value: unknown): number {
     const parsed = parseFloat(String(value ?? ''));
@@ -301,13 +338,29 @@ export default function ReportsPage() {
                                     onChange={(e) => setDateFrom(e.target.value)}
                                     className="px-3 py-2 border rounded-lg text-sm"
                                 />
-                                <span className="text-gray-400">to</span>
+                                <span className="text-gray-400">{t('to')}</span>
                                 <input
                                     type="date"
                                     value={dateTo}
                                     onChange={(e) => setDateTo(e.target.value)}
                                     className="px-3 py-2 border rounded-lg text-sm"
                                 />
+                            </div>
+                            {/* Widening the window should not mean typing two dates. */}
+                            <div className="flex gap-1">
+                                {QUICK_RANGES.map((range) => (
+                                    <button
+                                        key={range.label}
+                                        onClick={() => {
+                                            const [from, to] = range.dates();
+                                            setDateFrom(from);
+                                            setDateTo(to);
+                                        }}
+                                        className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                                    >
+                                        {t(range.label)}
+                                    </button>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -335,8 +388,10 @@ export default function ReportsPage() {
                                         <tr>
                                             <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
                                                 <BarChart3 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                                                <p className="font-medium">No data for selected period</p>
-                                                <p className="text-sm">Try adjusting the date range</p>
+                                                <p className="font-medium">
+                                                    {t('No approved hours between')} {nlDate(dateFrom)} {t('and')} {nlDate(dateTo)}
+                                                </p>
+                                                <p className="text-sm mt-1">{t('Widen the range to see earlier work')}</p>
                                             </td>
                                         </tr>
                                     ) : (

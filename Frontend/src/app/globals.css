@@ -4,10 +4,19 @@
 /* ============================================================================
    GLOBAL RESET & BASE STYLES
    ============================================================================ */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+
+/* This belongs in the base layer, not at the top level. Tailwind v4 emits
+   space-y-* as `:where(.space-y-6 > :not(:last-child))`, which has zero
+   specificity — exactly like `*`. Sitting after the Tailwind import, a
+   top-level reset therefore won on source order and silently removed the
+   vertical rhythm from every page that used space-y. Utilities always beat
+   the base layer, whatever the specificity. */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 }
 
 html {

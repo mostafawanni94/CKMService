@@ -13,6 +13,15 @@ export type PhraseTable = Record<string, string>;
 
 /** English is the key space, so it needs no table of its own. */
 const nl: PhraseTable = {
+    // Reports date ranges
+    'This month': 'Deze maand',
+    'This year': 'Dit jaar',
+    'Last 12 months': 'Laatste 12 maanden',
+    'No approved hours between': 'Geen goedgekeurde uren tussen',
+    'Widen the range to see earlier work': 'Verruim de periode om eerder werk te zien',
+    'and': 'en',
+    'to': 'tot',
+
     // Wallet page
     'Total Balance': 'Totaal saldo',
     'Balance': 'Saldo',
@@ -402,6 +411,15 @@ const nl: PhraseTable = {
 };
 
 const ar: PhraseTable = {
+    // Reports date ranges
+    'This month': 'هذا الشهر',
+    'This year': 'هذه السنة',
+    'Last 12 months': 'آخر ١٢ شهراً',
+    'No approved hours between': 'لا توجد ساعات معتمدة بين',
+    'Widen the range to see earlier work': 'وسّع الفترة لعرض عمل سابق',
+    'and': 'و',
+    'to': 'إلى',
+
     // Wallet page
     'Total Balance': 'إجمالي الرصيد',
     'Balance': 'الرصيد',
@@ -843,6 +861,15 @@ const ar: PhraseTable = {
 };
 
 const ru: PhraseTable = {
+    // Reports date ranges
+    'This month': 'Этот месяц',
+    'This year': 'Этот год',
+    'Last 12 months': 'Последние 12 месяцев',
+    'No approved hours between': 'Нет утверждённых часов между',
+    'Widen the range to see earlier work': 'Расширьте период, чтобы увидеть более раннюю работу',
+    'and': 'и',
+    'to': 'по',
+
     // Wallet page
     'Total Balance': 'Общий баланс',
     'Balance': 'Баланс',
@@ -1284,6 +1311,15 @@ const ru: PhraseTable = {
 };
 
 const uk: PhraseTable = {
+    // Reports date ranges
+    'This month': 'Цей місяць',
+    'This year': 'Цей рік',
+    'Last 12 months': 'Останні 12 місяців',
+    'No approved hours between': 'Немає затверджених годин між',
+    'Widen the range to see earlier work': 'Розширте період, щоб побачити ранішу роботу',
+    'and': 'і',
+    'to': 'до',
+
     // Wallet page
     'Total Balance': 'Загальний баланс',
     'Balance': 'Баланс',
