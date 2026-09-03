@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -52,6 +54,42 @@ void main() {
           language.code: AppStrings(language).signOut,
       };
       expect(wording.values.toSet().length, AppLanguage.values.length);
+    });
+  });
+
+  group('coverage', () {
+    final source = File('lib/core/localization/app_strings.dart').readAsStringSync();
+    final decl = RegExp(
+        r"String get (\w+) =>\s*_t\(\s*'((?:\\.|[^'\\])*)'\s*,"
+        r"\s*'((?:\\.|[^'\\])*)'\s*,\s*'((?:\\.|[^'\\])*)'\s*,"
+        r"\s*'((?:\\.|[^'\\])*)'");
+
+    test('every key is filled in all four languages', () {
+      final matches = decl.allMatches(source).toList();
+      expect(matches, isNotEmpty);
+      for (final m in matches) {
+        for (var slot = 2; slot <= 5; slot++) {
+          expect(m.group(slot)!.trim(), isNotEmpty,
+              reason: '${m.group(1)} slot $slot');
+        }
+      }
+    });
+
+    test('no slot holds another language\'s script', () {
+      const brands = {'appName', 'copyrightLine', 'copyrightFull'};
+      final arabic = RegExp(r'[\u0600-\u06FF]');
+      final cyrillic = RegExp(r'[\u0400-\u04FF]');
+      for (final m in decl.allMatches(source)) {
+        if (brands.contains(m.group(1))) continue;
+        expect(arabic.hasMatch(m.group(2)! + m.group(3)!), isFalse,
+            reason: '${m.group(1)}: Arabic in a Latin slot');
+        expect(cyrillic.hasMatch(m.group(2)! + m.group(3)!), isFalse,
+            reason: '${m.group(1)}: Cyrillic in a Latin slot');
+      }
+    });
+
+    test('a newline is a real break, not a literal backslash-n', () {
+      expect(source.contains(r'\\n'), isFalse);
     });
   });
 

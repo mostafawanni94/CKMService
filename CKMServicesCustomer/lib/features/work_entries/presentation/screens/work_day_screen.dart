@@ -60,8 +60,8 @@ class WorkDayScreen extends StatelessWidget {
           ],
           
           // Individual worker entries
-          const Text(
-            'Workers',
+          Text(
+            context.strings.workers,
             style: TextStyle(
               color: AppTheme.textPrimary,
               fontSize: 18,

@@ -492,8 +492,8 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
           TextField(
             controller: _nameFilterController,
             style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
-            decoration: const InputDecoration(
-              hintText: 'Search by employee name...',
+            decoration: InputDecoration(
+              hintText: context.strings.searchByEmployeeName,
               prefixIcon: Icon(Icons.person_search_rounded, size: 18, color: AppTheme.textMuted),
               contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               isDense: true,

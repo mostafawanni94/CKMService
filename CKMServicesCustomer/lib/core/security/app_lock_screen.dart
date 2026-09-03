@@ -207,7 +207,7 @@ class _AppLockScreenState extends State<AppLockScreen> {
                   ),
                 TextButton(
                   onPressed: widget.onSignOut,
-                  child: const Text('Sign out',
+                  child: Text(context.strings.signOutLower,
                       style: TextStyle(color: Colors.white54)),
                 ),
               ],

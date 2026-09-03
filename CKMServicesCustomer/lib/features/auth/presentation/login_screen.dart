@@ -83,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       
                       // Footer
                       Text(
-                        '© 2026 CKM Services',
+                        context.strings.copyrightLine,
                         style: TextStyle(
                           color: AppTheme.textMuted,
                           fontSize: 12,
@@ -129,8 +129,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           ),
         ),
         const SizedBox(height: 24),
-        const Text(
-          'Customer Portal',
+        Text(
+          context.strings.customerPortal,
           style: TextStyle(
             color: AppTheme.textPrimary,
             fontSize: 28,
@@ -139,8 +139,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Track your projects & work progress',
+        Text(
+          context.strings.trackYourProjects,
           style: TextStyle(
             color: AppTheme.textSecondary,
             fontSize: 15,

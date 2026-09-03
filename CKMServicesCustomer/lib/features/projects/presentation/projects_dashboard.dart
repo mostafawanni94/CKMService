@@ -69,8 +69,8 @@ class _ProjectsDashboardState extends State<ProjectsDashboard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'My Projects',
+                  Text(
+                    context.strings.myProjects,
                     style: TextStyle(
                       color: AppTheme.textPrimary,
                       fontSize: 28,
@@ -99,7 +99,7 @@ class _ProjectsDashboardState extends State<ProjectsDashboard> {
                 controller: _searchController,
                 style: const TextStyle(color: AppTheme.textPrimary),
                 decoration: InputDecoration(
-                  hintText: 'Search projects...',
+                  hintText: context.strings.searchProjects,
                   prefixIcon: const Icon(Icons.search, color: AppTheme.textMuted),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(

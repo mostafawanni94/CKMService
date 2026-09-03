@@ -21,8 +21,8 @@ class ProfileScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           children: [
-            const Text(
-              'Profile',
+            Text(
+              context.strings.profile,
               style: TextStyle(
                 color: AppTheme.textPrimary,
                 fontSize: 28,
@@ -106,9 +106,9 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 32),
             
             // Footer
-            const Center(
+            Center(
               child: Text(
-                '© 2026 CKM Services B.V.\nAll rights reserved',
+                context.strings.copyrightFull,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppTheme.textMuted, fontSize: 11),
               ),

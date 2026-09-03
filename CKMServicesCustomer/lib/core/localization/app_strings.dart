@@ -117,6 +117,21 @@ class AppStrings {
   String get downloadWorkReport => _t('Werkrapport downloaden als .xlsx', 'Download work report as .xlsx', 'تنزيل تقرير العمل بصيغة .xlsx', 'Скачать отчёт о работе в .xlsx');
   String get languageLabel => _t('Taal', 'Language', 'اللغة', 'Язык');
 
+
+  // ===================
+  // SCREEN COPY
+  // ===================
+  String get signOutLower => _t('Uitloggen', 'Sign out', 'تسجيل الخروج', 'Выйти');
+  String get customerPortal => _t('Klantportaal', 'Customer Portal', 'بوابة العملاء', 'Портал клиента');
+  String get trackYourProjects => _t('Volg je projecten en voortgang', 'Track your projects & work progress', 'تابع مشاريعك وتقدم العمل', 'Отслеживайте проекты и ход работ');
+  String get profile => _t('Profiel', 'Profile', 'الملف الشخصي', 'Профиль');
+  String get myProjects => _t('Mijn projecten', 'My Projects', 'مشاريعي', 'Мои проекты');
+  String get workers => _t('Medewerkers', 'Workers', 'العاملون', 'Работники');
+  String get searchProjects => _t('Projecten zoeken...', 'Search projects...', 'ابحث عن المشاريع...', 'Поиск проектов...');
+  String get searchByEmployeeName => _t('Zoeken op naam van medewerker...', 'Search by employee name...', 'ابحث باسم الموظف...', 'Поиск по имени сотрудника...');
+  String get copyrightLine => _t('© 2026 CKM Services', '© 2026 CKM Services', '© 2026 CKM Services', '© 2026 CKM Services');
+  String get copyrightFull => _t('© 2026 CKM Services B.V.\nAlle rechten voorbehouden', '© 2026 CKM Services B.V.\nAll rights reserved', '© 2026 CKM Services B.V.\nجميع الحقوق محفوظة', '© 2026 CKM Services B.V.\nВсе права защищены');
+
   String _t(String nl, String en, String ar, String ru) {
     switch (language) {
       case AppLanguage.english:
