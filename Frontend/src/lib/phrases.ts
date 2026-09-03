@@ -13,6 +13,23 @@ export type PhraseTable = Record<string, string>;
 
 /** English is the key space, so it needs no table of its own. */
 const nl: PhraseTable = {
+    // Employee detail tab
+    'Contract': 'Contract',
+
+    // Planning card
+    'shifts scheduled →': 'diensten ingepland →',
+
+    // Singular field labels
+    'Phone Number': 'Telefoonnummer',
+    'Add Photo': 'Foto toevoegen',
+    'Certificate Type': 'Certificaattype',
+
+    // Planning summary cards
+    'work entries →': 'werkregels →',
+    'with entries →': 'met regels →',
+    'shifts planned →': 'diensten gepland →',
+    'Total Entries': 'Totaal regels',
+
     // Wallet and reports totals
     'Total Earnings': 'Totaal verdiend',
     'Employee Earnings': 'Verdiensten medewerkers',
@@ -978,6 +995,23 @@ const nl: PhraseTable = {
 };
 
 const ar: PhraseTable = {
+    // Employee detail tab
+    'Contract': 'العقد',
+
+    // Planning card
+    'shifts scheduled →': 'مناوبات مجدولة ←',
+
+    // Singular field labels
+    'Phone Number': 'رقم الهاتف',
+    'Add Photo': 'إضافة صورة',
+    'Certificate Type': 'نوع الشهادة',
+
+    // Planning summary cards
+    'work entries →': 'سجلات عمل ←',
+    'with entries →': 'بها سجلات ←',
+    'shifts planned →': 'مناوبات مجدولة ←',
+    'Total Entries': 'إجمالي السجلات',
+
     // Wallet and reports totals
     'Total Earnings': 'إجمالي الأرباح',
     'Employee Earnings': 'أرباح الموظفين',
@@ -2052,6 +2086,23 @@ const ar: PhraseTable = {
 };
 
 const ru: PhraseTable = {
+    // Employee detail tab
+    'Contract': 'Договор',
+
+    // Planning card
+    'shifts scheduled →': 'смен запланировано →',
+
+    // Singular field labels
+    'Phone Number': 'Номер телефона',
+    'Add Photo': 'Добавить фото',
+    'Certificate Type': 'Тип сертификата',
+
+    // Planning summary cards
+    'work entries →': 'записей о работе →',
+    'with entries →': 'с записями →',
+    'shifts planned →': 'смен запланировано →',
+    'Total Entries': 'Всего записей',
+
     // Wallet and reports totals
     'Total Earnings': 'Общий заработок',
     'Employee Earnings': 'Заработок сотрудников',
@@ -3126,6 +3177,23 @@ const ru: PhraseTable = {
 };
 
 const uk: PhraseTable = {
+    // Employee detail tab
+    'Contract': 'Договір',
+
+    // Planning card
+    'shifts scheduled →': 'змін заплановано →',
+
+    // Singular field labels
+    'Phone Number': 'Номер телефону',
+    'Add Photo': 'Додати фото',
+    'Certificate Type': 'Тип сертифіката',
+
+    // Planning summary cards
+    'work entries →': 'записів про роботу →',
+    'with entries →': 'із записами →',
+    'shifts planned →': 'змін заплановано →',
+    'Total Entries': 'Усього записів',
+
     // Wallet and reports totals
     'Total Earnings': 'Загальний заробіток',
     'Employee Earnings': 'Заробіток працівників',

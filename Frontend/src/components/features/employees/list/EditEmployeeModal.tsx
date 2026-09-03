@@ -379,7 +379,7 @@ export function EditEmployeeModal({ vm }: { vm: ViewModel }) {
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('Phone Number')} *</label>
                                                 <Input
                                                     value={editForm.phone_number}
                                                     onChange={(e) => setEditForm(f => ({ ...f, phone_number: e.target.value }))}

@@ -89,7 +89,7 @@ export function AddCertificateModal({ vm }: { vm: ViewModel }) {
                                 <form onSubmit={handleAddCertificate}>
                                     <div style={{ marginBottom: '16px' }}>
                                         <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: '8px' }}>
-                                            Certificate Type *
+                                            {t('Certificate Type')} *
                                         </label>
                                         <select
                                             value={certificateForm.certificate_type_id}

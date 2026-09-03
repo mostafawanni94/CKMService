@@ -84,7 +84,7 @@ export default function EmployeeDetailPage() {
     const tabs = [
         { id: 'overview' as TabType, label: t('Overview'), icon: User },
         { id: 'documents' as TabType, label: t('Documents'), icon: FileText },
-        { id: 'contract' as TabType, label: 'Contract', icon: Briefcase },
+        { id: 'contract' as TabType, label: t('Contract'), icon: Briefcase },
         { id: 'certificates' as TabType, label: t('Certificates'), icon: Award },
     ];
 

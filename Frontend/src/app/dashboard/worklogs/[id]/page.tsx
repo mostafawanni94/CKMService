@@ -938,7 +938,7 @@ export default function WorkLogEditPage() {
                                     ) : (
                                         <>
                                             <Plus size={16} />
-                                            Add Photo
+                                            {t('Add Photo')}
                                         </>
                                     )}
                                 </button>

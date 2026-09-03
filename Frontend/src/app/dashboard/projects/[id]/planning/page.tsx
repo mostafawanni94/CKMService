@@ -729,7 +729,7 @@ export default function PlanningPage() {
                     >
                         <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '4px' }}>📅 This Week</div>
                         <div style={{ fontSize: '32px', fontWeight: 700 }}>{stats.thisWeek}</div>
-                        <div style={{ fontSize: '13px', opacity: 0.8 }}>shifts scheduled →</div>
+                        <div style={{ fontSize: '13px', opacity: 0.8 }}>{t('shifts scheduled →')}</div>
                     </div>
                     <div
                         onClick={() => window.location.href = '/dashboard/employees'}
@@ -745,9 +745,9 @@ export default function PlanningPage() {
                         onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(16, 185, 129, 0.5)'; }}
                         onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(16, 185, 129, 0.4)'; }}
                     >
-                        <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '4px' }}>👥 Total Entries</div>
+                        <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '4px' }}>👥 {t('Total Entries')}</div>
                         <div style={{ fontSize: '32px', fontWeight: 700 }}>{stats.totalEntries}</div>
-                        <div style={{ fontSize: '13px', opacity: 0.8 }}>work entries →</div>
+                        <div style={{ fontSize: '13px', opacity: 0.8 }}>{t('work entries →')}</div>
                     </div>
                     <div
                         onClick={() => { setFilterMonth(null); document.getElementById('shifts-table')?.scrollIntoView({ behavior: 'smooth' }); }}
@@ -765,7 +765,7 @@ export default function PlanningPage() {
                     >
                         <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '4px' }}>📋 Scheduled Days</div>
                         <div style={{ fontSize: '32px', fontWeight: 700 }}>{stats.total}</div>
-                        <div style={{ fontSize: '13px', opacity: 0.8 }}>with entries →</div>
+                        <div style={{ fontSize: '13px', opacity: 0.8 }}>{t('with entries →')}</div>
                     </div>
                     <div
                         onClick={() => document.getElementById('year-calendar')?.scrollIntoView({ behavior: 'smooth' })}
@@ -783,7 +783,7 @@ export default function PlanningPage() {
                     >
                         <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '4px' }}>📊 Total {currentYear}</div>
                         <div style={{ fontSize: '32px', fontWeight: 700 }}>{stats.total}</div>
-                        <div style={{ fontSize: '13px', opacity: 0.8 }}>shifts planned →</div>
+                        <div style={{ fontSize: '13px', opacity: 0.8 }}>{t('shifts planned →')}</div>
                     </div>
                 </div>
 
