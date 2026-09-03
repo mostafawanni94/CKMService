@@ -35,7 +35,7 @@ interface SurchargeType {
 }
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const CATEGORIES = [
+const CATEGORIES_KEYS = [
     { value: 'weekend', label: 'Weekend', icon: Sun, color: '#F59E0B' },
     { value: 'night_shift', label: 'Night Shift', icon: Moon, color: '#3B82F6' },
     { value: 'holiday', label: 'Public Holiday', icon: Star, color: '#10B981' },
@@ -62,6 +62,7 @@ const NL_PUBLIC_HOLIDAYS = [
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 export default function SurchargeTypesPage() {
+    const CATEGORIES = CATEGORIES_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
     const [surchargeTypes, setSurchargeTypes] = useState<SurchargeType[]>([]);
     const [searchQuery, setSearchQuery] = useState('');

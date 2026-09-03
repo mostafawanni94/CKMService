@@ -67,7 +67,7 @@ const priorityConfig: Record<string, { label: string; color: string; bg: string 
     low: { label: 'Low', color: '#6B7280', bg: '#F3F4F6' }
 };
 
-const categoryTabs = [
+const categoryTabs_KEYS = [
     { key: 'all', label: 'All', icon: '📢' },
     { key: 'employees', label: 'Employees', icon: '👤' },
     { key: 'worklogs', label: 'Work Logs', icon: '📝' },
@@ -79,6 +79,7 @@ const categoryTabs = [
 ];
 
 export default function NotificationsPage() {
+    const categoryTabs = categoryTabs_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [loading, setLoading] = useState(true);

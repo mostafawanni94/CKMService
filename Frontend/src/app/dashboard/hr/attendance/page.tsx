@@ -17,7 +17,7 @@ import { useAttendance, type AttendanceRecord } from '@/hooks/useHr';
 import styles from '../page.module.css';
 import { useLanguage } from '@/lib/i18n';
 
-const STATUS_OPTIONS = [
+const STATUS_OPTIONS_KEYS = [
     { value: 'all', label: 'All statuses' },
     { value: 'present', label: 'Present' },
     { value: 'late', label: 'Late' },
@@ -26,6 +26,7 @@ const STATUS_OPTIONS = [
 ];
 
 export default function HRAttendancePage() {
+    const STATUS_OPTIONS = STATUS_OPTIONS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
     const vm = useAttendance();
 

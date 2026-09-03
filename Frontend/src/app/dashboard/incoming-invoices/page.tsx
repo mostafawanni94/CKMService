@@ -18,7 +18,7 @@ import { useIncomingInvoices, type IncomingInvoice } from '@/hooks/useIncomingIn
 import styles from './page.module.css';
 import { useLanguage } from '@/lib/i18n';
 
-const STATUS_OPTIONS = [
+const STATUS_OPTIONS_KEYS = [
     { value: 'all', label: 'All statuses' },
     { value: 'pending', label: 'Pending' },
     { value: 'overdue', label: 'Overdue' },
@@ -27,12 +27,14 @@ const STATUS_OPTIONS = [
     { value: 'draft', label: 'Draft' },
 ];
 
-const FORM_STATUS_OPTIONS = STATUS_OPTIONS.filter(o => o.value !== 'all');
+const FORM_STATUS_OPTIONS_KEYS = STATUS_OPTIONS_KEYS.filter(o => o.value !== 'all');
 
 const euro = (value: string | number) =>
     `€ ${Number(value || 0).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export default function IncomingInvoicesPage() {
+    const STATUS_OPTIONS = STATUS_OPTIONS_KEYS.map(o => ({ ...o, label: t(o.label) }));
+    const FORM_STATUS_OPTIONS = FORM_STATUS_OPTIONS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
     const vm = useIncomingInvoices();
 

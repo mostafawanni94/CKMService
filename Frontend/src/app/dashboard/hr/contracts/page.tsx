@@ -17,7 +17,7 @@ import { useContracts, type ContractRow } from '@/hooks/useHr';
 import styles from '../page.module.css';
 import { useLanguage } from '@/lib/i18n';
 
-const STATUS_OPTIONS = [
+const STATUS_OPTIONS_KEYS = [
     { value: 'all', label: 'All statuses' },
     { value: 'active', label: 'Active' },
     { value: 'expiring', label: 'Expiring (60 days)' },
@@ -25,6 +25,7 @@ const STATUS_OPTIONS = [
 ];
 
 export default function HRContractsPage() {
+    const STATUS_OPTIONS = STATUS_OPTIONS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
     const vm = useContracts();
 

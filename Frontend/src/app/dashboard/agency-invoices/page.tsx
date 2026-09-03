@@ -17,7 +17,7 @@ import type { AgencyInvoice } from '@/lib/types';
 import styles from './page.module.css';
 import { useLanguage } from '@/lib/i18n';
 
-const STATUS_OPTIONS = [
+const STATUS_OPTIONS_KEYS = [
   { value: '', label: 'All Statuses' },
   { value: 'draft', label: 'Draft' },
   { value: 'sent', label: 'Sent' },
@@ -27,6 +27,7 @@ const STATUS_OPTIONS = [
 ];
 
 export default function AgencyInvoicesPage() {
+    const STATUS_OPTIONS = STATUS_OPTIONS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
   const vm = useAgencyInvoices();
   const router = useRouter();

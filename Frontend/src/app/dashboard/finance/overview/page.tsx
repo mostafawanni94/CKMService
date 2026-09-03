@@ -17,8 +17,11 @@ import { colors, spacing } from '@/styles/tokens';
 import styles from '../page.module.css';
 import { useLanguage } from '@/lib/i18n';
 
-const YEARS = [2024, 2025, 2026, 2027, 2028].map(y => ({ value: String(y), label: String(y) }));
-const QUARTERS = [
+const YEARS_KEYS = [2024, 2025, 2026, 2027, 2028].map(y => ({ value: String(y), label: String(y) }));
+// Labels are resolved inside the component, where t() is in scope; a
+// module-level constant would freeze them in whatever language was current
+// when the module first loaded.
+const QUARTER_KEYS = [
     { value: '', label: 'Heel jaar' },
     { value: '1', label: 'Q1 (jan–mrt)' },
     { value: '2', label: 'Q2 (apr–jun)' },
@@ -27,7 +30,9 @@ const QUARTERS = [
 ];
 
 export default function FinanceOverviewPage() {
+    const YEARS = YEARS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
+    const QUARTERS = QUARTER_KEYS.map(q => ({ ...q, label: t(q.label) }));
     const vm = useFinanceDashboard();
     const router = useRouter();
 

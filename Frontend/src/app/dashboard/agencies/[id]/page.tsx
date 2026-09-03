@@ -17,7 +17,7 @@ import { useAgencyDetail } from '@/hooks/useAgencyDetail';
 import styles from './page.module.css';
 import { useLanguage } from '@/lib/i18n';
 
-const TABS = [
+const TABS_KEYS = [
   { key: 'overview', label: 'Overview', icon: <Building2 size={15} /> },
   { key: 'employees', label: 'Employees', icon: <Users size={15} /> },
   { key: 'billing', label: 'Billing', icon: <FileText size={15} /> },
@@ -25,6 +25,7 @@ const TABS = [
 ];
 
 export default function AgencyDetailPage() {
+    const TABS = TABS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
   const vm = useAgencyDetail();
   const router = useRouter();

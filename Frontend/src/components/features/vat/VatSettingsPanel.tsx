@@ -29,7 +29,7 @@ export interface VatFacts {
     vat_notes: string;
 }
 
-const TREATMENTS = [
+const TREATMENTS_KEYS = [
     { value: 'UNKNOWN', label: 'Nog niet vastgesteld' },
     { value: 'NORMAL', label: 'Normaal belast (21%)' },
     { value: 'REVERSE_CHARGE', label: 'Btw verlegd (verleggingsregeling)' },
@@ -38,7 +38,7 @@ const TREATMENTS = [
     { value: 'OUT_OF_SCOPE', label: 'Buiten de heffing' },
 ];
 
-const TRISTATE = [
+const TRISTATE_KEYS = [
     { value: '', label: 'Niet vastgesteld' },
     { value: 'true', label: 'Ja' },
     { value: 'false', label: 'Nee' },
@@ -80,6 +80,8 @@ export function VatSettingsPanel({ endpoint, title, subtitle }: {
     title?: string;
     subtitle?: string;
 }) {
+    const TREATMENTS = TREATMENTS_KEYS.map(o => ({ ...o, label: t(o.label) }));
+    const TRISTATE = TRISTATE_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
     const [facts, setFacts] = useState<VatFacts | null>(null);
     const [loading, setLoading] = useState(true);

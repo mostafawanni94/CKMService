@@ -126,7 +126,7 @@ export function VatQuarters({ periods, onOpen }: {
                             {period.requires_review_count > 0 && (
                                 <div style={{ fontSize: fontSize.xs, color: colors.warning,
                                               marginTop: spacing.xs }}>
-                                    {period.requires_review_count} vast te stellen
+                                    {period.requires_review_count} {t('vast te stellen')}
                                 </div>
                             )}
                         </button>

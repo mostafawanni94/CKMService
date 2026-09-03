@@ -14,7 +14,7 @@ import { useFinanceSummary } from '@/hooks/useFinanceSummary';
 import styles from './page.module.css';
 import { useLanguage } from '@/lib/i18n';
 
-const YEAR_OPTIONS = [2024, 2025, 2026, 2027].map(y => ({ value: String(y), label: String(y) }));
+const YEAR_OPTIONS_KEYS = [2024, 2025, 2026, 2027].map(y => ({ value: String(y), label: String(y) }));
 const QUARTER_OPTIONS = [
   { value: '', label: 'Full Year' },
   { value: '1', label: 'Q1 (Jan-Mar)' },
@@ -24,6 +24,7 @@ const QUARTER_OPTIONS = [
 ];
 
 export default function FinancialOverviewPage() {
+    const YEAR_OPTIONS = YEAR_OPTIONS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
   const vm = useFinanceSummary();
 

@@ -18,7 +18,7 @@ import { usePayroll, type PayrollPeriod, type Payslip } from '@/hooks/useHr';
 import styles from '../page.module.css';
 import { useLanguage } from '@/lib/i18n';
 
-const STATUS_OPTIONS = [
+const STATUS_OPTIONS_KEYS = [
     { value: 'all', label: 'All statuses' },
     { value: 'draft', label: 'Draft' },
     { value: 'pending', label: 'Pending' },
@@ -32,6 +32,7 @@ const euro = (value: string | number) =>
 const emptyForm = { name: '', start_date: '', end_date: '', notes: '' };
 
 export default function HRPayrollPage() {
+    const STATUS_OPTIONS = STATUS_OPTIONS_KEYS.map(o => ({ ...o, label: t(o.label) }));
     const { t } = useLanguage();
     const vm = usePayroll();
     const [showModal, setShowModal] = useState(false);
