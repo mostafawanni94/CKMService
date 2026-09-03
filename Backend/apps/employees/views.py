@@ -7,6 +7,7 @@ ViewSets with proper permissions and business logic.
 import os
 
 from django.conf import settings
+from django.db.models import Q
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, MultiPartParser
@@ -159,7 +160,31 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
     queryset = EmployeeProfile.objects.select_related(
         'user', 'document_type', 'approved_by'
     ).order_by('-created_at')
-    
+
+    def get_queryset(self):
+        """Filter here rather than in the browser.
+
+        The list page used to fetch every profile so it could search and filter
+        client-side. That is fine at seven employees and wasteful at seven
+        hundred, and it makes the header count depend on having them all in
+        memory.
+        """
+        queryset = super().get_queryset()
+        params = self.request.query_params
+
+        statuses = [v for v in params.getlist('status') if v and v != 'all']
+        if statuses:
+            queryset = queryset.filter(status__in=statuses)
+
+        search = (params.get('search') or '').strip()
+        if search:
+            queryset = queryset.filter(
+                Q(first_name__icontains=search)
+                | Q(last_name__icontains=search)
+                | Q(user__email__icontains=search)
+            )
+        return queryset
+
     def get_permissions(self):
         if self.action in ['list', 'retrieve', 'approve', 'reject', 'soft_delete', 'restore', 'deleted']:
             return [IsAdmin()]

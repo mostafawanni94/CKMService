@@ -79,6 +79,10 @@ export function useEmployees() {
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
     const [creating, setCreating] = useState(false);
     const [saving, setSaving] = useState(false);
+    // Server-side paging: the list is filtered and counted by the API.
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(25);
+    const [totalCount, setTotalCount] = useState(0);
     const [editLoading, setEditLoading] = useState(false);
     const [editError, setEditError] = useState<string | null>(null);
     const [createError, setCreateError] = useState<string | null>(null);
@@ -134,19 +138,32 @@ export function useEmployees() {
 
     useEffect(() => {
         loadEmployees();
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, pageSize, search, filter]);
+
+    // A narrower result set must not strand the reader on a page that is gone.
+    useEffect(() => { setPage(1); }, [search, filter]);
 
     async function loadEmployees() {
         setLoading(true);
         setError(null);
         try {
-            // Every page. `api.getEmployees()` returns the first twenty; the
-            // list is searched and filtered in the browser, so stopping there
-            // hid every employee past the twentieth with no way to reach them.
-            const [all, pending] = await Promise.all([
-                apiGetAll<Employee>('/employees/profiles/'),
+            // One page, filtered by the server. Fetching every profile so the
+            // browser could search them does not scale, and made the header
+            // count depend on holding the whole table in memory.
+            const query = new URLSearchParams();
+            if (search.trim()) query.set('search', search.trim());
+            if (filter !== 'all') query.set('status', filter);
+            query.set('page', String(page));
+            query.set('page_size', String(pageSize));
+
+            const [listRes, pending] = await Promise.all([
+                apiFetch(`/employees/profiles/?${query}`).then(r =>
+                    r.ok ? r.json() : { results: [], count: 0 }),
                 api.getPendingEmployees(),
             ]);
+            const all = listRes.results ?? [];
+            setTotalCount(listRes.count ?? 0);
             setEmployees(all);
             setPendingEmployees(pending || []);
         } catch (err) {
@@ -381,15 +398,10 @@ export function useEmployees() {
         }
     }
 
-    const filteredEmployees = employees.filter(emp => {
-        if (filter !== 'all' && emp.status !== filter) return false;
-        if (search) {
-            const searchLower = search.toLowerCase();
-            return emp.full_name?.toLowerCase().includes(searchLower) ||
-                emp.user_email?.toLowerCase().includes(searchLower);
-        }
-        return true;
-    });
+    // The server applies search and status, so this page is already the
+    // filtered result. Filtering again would hide rows the count still counts.
+    const filteredEmployees = employees;
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
     const statusColors: Record<string, string> = {
         approved: 'bg-green-100 text-green-700',
@@ -402,7 +414,8 @@ export function useEmployees() {
 
     return {
         t, router,
-        statusColors, availableDocuments, copied, editLoading, editError, copyCredentials, createError, createForm, createdEmployee, creating, deleting, editForm, employees, error, exporting, extractEmployee, filter, filteredEmployees, generatePassword, handleApprove, handleCreateEmployee, handleDelete, handleReject, handleSaveEdit, loadEmployees, loading, loadingDocs, nationalityDropdownOpen, nationalityDropdownRef, nationalitySearch, openDeleteModal, openEditModal, pendingEmployees, saving, search, selectedDocuments, selectedEmployee, setAvailableDocuments, setCreateForm, setEditForm, setExporting, setExtractEmployee, setFilter, setLoadingDocs, setNationalityDropdownOpen, setNationalitySearch, setSearch, setSelectedDocuments, setShowCreateModal, setShowDeleteModal, setShowEditModal, setShowExtractModal, setShowShareModal, setShowViewModal, shareWhatsApp, showCreateModal, showDeleteModal, showEditModal, showExtractModal, showShareModal, showViewModal,
+        statusColors, availableDocuments, copied, editLoading, editError,
+        page, setPage, pageSize, setPageSize, totalCount, totalPages, copyCredentials, createError, createForm, createdEmployee, creating, deleting, editForm, employees, error, exporting, extractEmployee, filter, filteredEmployees, generatePassword, handleApprove, handleCreateEmployee, handleDelete, handleReject, handleSaveEdit, loadEmployees, loading, loadingDocs, nationalityDropdownOpen, nationalityDropdownRef, nationalitySearch, openDeleteModal, openEditModal, pendingEmployees, saving, search, selectedDocuments, selectedEmployee, setAvailableDocuments, setCreateForm, setEditForm, setExporting, setExtractEmployee, setFilter, setLoadingDocs, setNationalityDropdownOpen, setNationalitySearch, setSearch, setSelectedDocuments, setShowCreateModal, setShowDeleteModal, setShowEditModal, setShowExtractModal, setShowShareModal, setShowViewModal, shareWhatsApp, showCreateModal, showDeleteModal, showEditModal, showExtractModal, showShareModal, showViewModal,
     };
 }
 

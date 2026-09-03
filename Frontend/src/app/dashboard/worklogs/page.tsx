@@ -8,6 +8,7 @@ import { useWorklogs } from '@/hooks/useWorklogs';
 import { WorklogFilters } from '@/components/features/worklogs/WorklogFilters';
 import { WorklogBulkBar } from '@/components/features/worklogs/WorklogBulkBar';
 import type { AllowanceType, WorkLogAllowance, Project } from '@/hooks/useWorklogs';
+import { ListPager } from '@/components/ui/ListPager';
 
 export default function WorkLogsPage() {
     const vm = useWorklogs();
@@ -699,70 +700,14 @@ export default function WorkLogsPage() {
 
                             {/* Paging — the totals below cover every page, not
                                 just the rows on screen. */}
-                            {totalCount > 0 && (
-                                <div style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    flexWrap: 'wrap',
-                                    gap: '12px',
-                                    marginTop: '16px',
-                                    padding: '12px 16px',
-                                    background: '#FFFFFF',
-                                    border: '1px solid #E5E7EB',
-                                    borderRadius: '12px',
-                                }}>
-                                    <span style={{ fontSize: '13px', color: '#6B7280' }}>
-                                        {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, totalCount)} {t('of')} {totalCount}
-                                    </span>
-
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <select
-                                            value={pageSize}
-                                            onChange={e => { setPage(1); setPageSize(Number(e.target.value)); }}
-                                            aria-label={t('Rows per page')}
-                                            style={{
-                                                padding: '6px 10px', fontSize: '13px',
-                                                border: '1px solid #E5E7EB', borderRadius: '8px',
-                                            }}
-                                        >
-                                            {[25, 50, 100, 200].map(size => (
-                                                <option key={size} value={size}>{size} {t('per page')}</option>
-                                            ))}
-                                        </select>
-
-                                        <button
-                                            onClick={() => setPage(p => Math.max(1, p - 1))}
-                                            disabled={page <= 1}
-                                            style={{
-                                                padding: '6px 14px', fontSize: '13px', fontWeight: 500,
-                                                border: '1px solid #E5E7EB', borderRadius: '8px',
-                                                background: '#FFFFFF',
-                                                cursor: page <= 1 ? 'not-allowed' : 'pointer',
-                                                opacity: page <= 1 ? 0.5 : 1,
-                                            }}
-                                        >
-                                            {t('Prev')}
-                                        </button>
-                                        <span style={{ fontSize: '13px', color: '#374151', fontWeight: 600 }}>
-                                            {page} / {totalPages}
-                                        </span>
-                                        <button
-                                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                                            disabled={page >= totalPages}
-                                            style={{
-                                                padding: '6px 14px', fontSize: '13px', fontWeight: 500,
-                                                border: '1px solid #E5E7EB', borderRadius: '8px',
-                                                background: '#FFFFFF',
-                                                cursor: page >= totalPages ? 'not-allowed' : 'pointer',
-                                                opacity: page >= totalPages ? 0.5 : 1,
-                                            }}
-                                        >
-                                            {t('Next')}
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
+                            <ListPager
+                                page={page}
+                                totalPages={totalPages}
+                                totalCount={totalCount}
+                                pageSize={pageSize}
+                                onPageChange={setPage}
+                                onPageSizeChange={size => { setPage(1); setPageSize(size); }}
+                            />
 
                             {/* Summary Card - Below Table */}
                             {totalCount > 0 && (

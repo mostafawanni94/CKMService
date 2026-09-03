@@ -15,6 +15,7 @@ import { api, Employee } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n';
 import { Users, UserCheck, UserX, Search, Eye, Plus, X, Mail, Phone, Copy, MessageCircle, CheckCircle, AlertCircle, MapPin, Calendar, CreditCard, Globe, FileText, Edit, Save, Trash2, AlertTriangle, ChevronDown, Download } from 'lucide-react';
 import { apiFetch, readApiError, apiGetAll } from '@/hooks/useApi';
+import { ListPager } from '@/components/ui/ListPager';
 
 // Comprehensive list of nationalities with country flags
 const NATIONALITIES = [
@@ -117,6 +118,7 @@ export default function EmployeesPage() {
     const vm = useEmployees();
     const {
         t, router,
+        page, setPage, pageSize, setPageSize, totalCount, totalPages,
         statusColors, availableDocuments, copied, copyCredentials, createError, createForm, createdEmployee, creating, deleting, editForm, employees, error, exporting, extractEmployee, filter, filteredEmployees, generatePassword, handleApprove, handleCreateEmployee, handleDelete, handleReject, handleSaveEdit, loadEmployees, loading, loadingDocs, nationalityDropdownOpen, nationalityDropdownRef, nationalitySearch, openDeleteModal, openEditModal, pendingEmployees, saving, search, selectedDocuments, selectedEmployee, setAvailableDocuments, setCreateForm, setEditForm, setExporting, setExtractEmployee, setFilter, setLoadingDocs, setNationalityDropdownOpen, setNationalitySearch, setSearch, setSelectedDocuments, setShowCreateModal, setShowDeleteModal, setShowEditModal, setShowExtractModal, setShowShareModal, setShowViewModal, shareWhatsApp, showCreateModal, showDeleteModal, showEditModal, showExtractModal, showShareModal, showViewModal,
     } = vm;
 
@@ -489,6 +491,15 @@ export default function EmployeesPage() {
                             </table>
                         </div>
                     )}
+
+                    <ListPager
+                        page={page}
+                        totalPages={totalPages}
+                        totalCount={totalCount}
+                        pageSize={pageSize}
+                        onPageChange={setPage}
+                        onPageSizeChange={size => { setPage(1); setPageSize(size); }}
+                    />
                 </div>
 
                 {/* Create Employee Modal */}
