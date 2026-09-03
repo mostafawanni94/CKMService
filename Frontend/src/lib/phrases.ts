@@ -13,6 +13,10 @@ export type PhraseTable = Record<string, string>;
 
 /** English is the key space, so it needs no table of its own. */
 const nl: PhraseTable = {
+    // Wallet and reports totals
+    'Total Earnings': 'Totaal verdiend',
+    'Employee Earnings': 'Verdiensten medewerkers',
+
     // Remaining labels and units
     'Active (available for selection)': 'Actief (beschikbaar om te kiezen)',
     'Admin Dashboard Login': 'Inloggen beheerdersdashboard',
@@ -974,6 +978,10 @@ const nl: PhraseTable = {
 };
 
 const ar: PhraseTable = {
+    // Wallet and reports totals
+    'Total Earnings': 'إجمالي الأرباح',
+    'Employee Earnings': 'أرباح الموظفين',
+
     // Remaining labels and units
     'Active (available for selection)': 'نشط (متاح للاختيار)',
     'Admin Dashboard Login': 'تسجيل الدخول للوحة التحكم',
@@ -2044,6 +2052,10 @@ const ar: PhraseTable = {
 };
 
 const ru: PhraseTable = {
+    // Wallet and reports totals
+    'Total Earnings': 'Общий заработок',
+    'Employee Earnings': 'Заработок сотрудников',
+
     // Remaining labels and units
     'Active (available for selection)': 'Активно (доступно для выбора)',
     'Admin Dashboard Login': 'Вход в панель администратора',
@@ -3114,6 +3126,10 @@ const ru: PhraseTable = {
 };
 
 const uk: PhraseTable = {
+    // Wallet and reports totals
+    'Total Earnings': 'Загальний заробіток',
+    'Employee Earnings': 'Заробіток працівників',
+
     // Remaining labels and units
     'Active (available for selection)': 'Активно (доступно для вибору)',
     'Admin Dashboard Login': 'Вхід до панелі адміністратора',

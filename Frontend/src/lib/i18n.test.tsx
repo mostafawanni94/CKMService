@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
-import { availableLanguages, LanguageProvider, useLanguage } from './i18n';
+import { availableLanguages, englishKeys, LanguageProvider, useLanguage } from './i18n';
 import { phrases } from './phrases';
 
 function Probe({ keys }: { keys: string[] }) {
@@ -91,6 +91,34 @@ describe('t()', () => {
                 expect(forbidden.test(value), `${lang}: ${key} -> ${value}`).toBe(false);
             }
         }
+    });
+
+    it('defines every key the app actually asks for', () => {
+        // A t('...') whose key no table defines renders the key itself. That
+        // reads correctly in English and silently stays English everywhere
+        // else, which is exactly how "Total Earnings" survived on the wallet
+        // page after the rest of it had been translated.
+        const sources = import.meta.glob('/src/**/*.{ts,tsx}', {
+            eager: true, query: '?raw', import: 'default',
+        }) as Record<string, string>;
+
+        const defined = new Set([
+            ...Object.values(phrases).flatMap(table => Object.keys(table)),
+            ...Object.keys(englishKeys),
+        ]);
+
+        const call = /\bt\(\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")\s*\)/g;
+        const missing = new Map<string, string>();
+        for (const [file, source] of Object.entries(sources)) {
+            if (file.includes('.test.') || file.endsWith('phrases.ts') || file.endsWith('i18n.tsx')) {
+                continue;
+            }
+            for (const match of source.matchAll(call)) {
+                const key = (match[1] ?? match[2]).replace(/\\'/g, "'");
+                if (!defined.has(key)) missing.set(key, file);
+            }
+        }
+        expect([...missing.entries()], 'keys used but never defined').toEqual([]);
     });
 
     it('leaves no phrase untranslated in any table', () => {

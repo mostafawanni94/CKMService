@@ -918,4 +918,7 @@ export function useLanguage() {
     return context;
 }
 
+/** The camelCase key space, exported so tests can check for undefined keys. */
+export const englishKeys: Readonly<Record<string, string>> = en;
+
 export type { Translations };
