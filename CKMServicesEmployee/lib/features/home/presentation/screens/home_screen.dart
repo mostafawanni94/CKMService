@@ -167,7 +167,7 @@ class _DashboardTab extends StatelessWidget {
                   Expanded(
                     child: _QuickActionCard(
                       icon: Icons.calendar_month_outlined,
-                      title: 'My Shifts',
+                      title: context.strings.myShifts,
                       color: const Color(0xFF7C3AED),
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyShiftsScreen())),
                     ),
@@ -176,7 +176,7 @@ class _DashboardTab extends StatelessWidget {
                   Expanded(
                     child: _QuickActionCard(
                       icon: Icons.payments_outlined,
-                      title: 'Advance',
+                      title: context.strings.advance,
                       color: AppColors.accent,
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdvanceRequestScreen())),
                     ),
@@ -410,12 +410,12 @@ class _UpcomingShiftsListState extends State<_UpcomingShiftsList> {
             Icon(Icons.calendar_today_outlined, size: 40, color: Colors.grey[400]),
             const SizedBox(height: 12),
             Text(
-              'No upcoming shifts',
+              context.strings.noUpcomingShiftsLower,
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.grey[600]),
             ),
             const SizedBox(height: 4),
             Text(
-              'Your scheduled shifts will appear here',
+              context.strings.scheduledShiftsAppearHere,
               style: TextStyle(fontSize: 13, color: Colors.grey[400]),
             ),
           ],

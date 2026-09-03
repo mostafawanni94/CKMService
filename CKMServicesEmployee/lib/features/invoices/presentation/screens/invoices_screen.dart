@@ -110,9 +110,9 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
   Widget _buildAllTab(InvoiceViewModel vm) {
     final allInvoices = [...vm.pendingInvoices, ...vm.paidInvoices];
     if (allInvoices.isEmpty) {
-      return const EmptyState(
+      return EmptyState(
         icon: Icons.receipt_long_outlined,
-        title: 'No invoices yet',
+        title: context.strings.noInvoicesYet,
         message: 'Your invoices will appear here',
       );
     }
@@ -148,8 +148,8 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Center(
-                child: Text('No pending invoices', style: TextStyle(color: AppColors.textSecondary)),
+              child: Center(
+                child: Text(context.strings.noPendingInvoices, style: TextStyle(color: AppColors.textSecondary)),
               ),
             )
           else
@@ -198,9 +198,9 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
 
   Widget _buildPaidTab(InvoiceViewModel vm) {
     if (vm.paidInvoices.isEmpty) {
-      return const EmptyState(
+      return EmptyState(
         icon: Icons.receipt_long_outlined,
-        title: 'No payments yet',
+        title: context.strings.noPaymentsYet,
         message: 'Your completed payments will appear here',
       );
     }

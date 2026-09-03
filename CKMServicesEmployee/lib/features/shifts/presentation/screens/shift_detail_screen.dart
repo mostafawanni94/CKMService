@@ -169,10 +169,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(context.strings.submitShift),
-        content: const Text(
-          'Once submitted, you cannot edit this shift. '
-          'Your supervisor will review and approve it.',
-        ),
+        content: Text(context.strings.submitShiftWarning),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -254,8 +251,8 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
           color: Colors.grey[700],
         ),
-        title: const Text(
-          'Shift Details',
+        title: Text(
+          context.strings.shiftDetails,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -486,8 +483,8 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Supervisor Contact',
+          Text(
+            context.strings.supervisorContact,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -539,7 +536,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
               Icon(Icons.info_outline_rounded, size: 20, color: Colors.amber[700]),
               const SizedBox(width: 8),
               Text(
-                'Instructions',
+                context.strings.instructions,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -596,8 +593,8 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Upcoming Shift',
+          Text(
+            context.strings.upcomingShift,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -631,7 +628,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Work hours can only be submitted on the scheduled work date',
+                    context.strings.submitOnScheduledDateOnly,
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey[600],
@@ -678,8 +675,8 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Fill Actual Work Times',
+              Text(
+                context.strings.fillActualWorkTimes,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -695,7 +692,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
             children: [
               Expanded(
                 child: _buildTimeField(
-                  label: 'Start Time *',
+                  label: context.strings.startTimeRequired,
                   controller: _startTimeController,
                   onTap: () => _selectTime(
                     context,
@@ -708,7 +705,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
               const SizedBox(width: 16),
               Expanded(
                 child: _buildTimeField(
-                  label: 'End Time *',
+                  label: context.strings.endTimeRequired,
                   controller: _endTimeController,
                   onTap: () => _selectTime(
                     context,
@@ -727,7 +724,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
             children: [
               Expanded(
                 child: _buildTimeField(
-                  label: 'Break Start',
+                  label: context.strings.breakStart,
                   controller: _breakStartController,
                   onTap: () => _selectTime(
                     context,
@@ -740,7 +737,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
               const SizedBox(width: 16),
               Expanded(
                 child: _buildTimeField(
-                  label: 'Break End',
+                  label: context.strings.breakEnd,
                   controller: _breakEndController,
                   onTap: () => _selectTime(
                     context,
@@ -814,7 +811,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Notes (optional)',
+          context.strings.notesOptional,
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -826,7 +823,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
           controller: _notesController,
           maxLines: 3,
           decoration: InputDecoration(
-            hintText: 'Add any notes about this shift...',
+            hintText: context.strings.addNotesAboutShift,
             hintStyle: TextStyle(color: Colors.grey[400]),
             filled: true,
             fillColor: const Color(0xFFF8FAFC),
@@ -865,8 +862,8 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Your Submitted Times',
+          Text(
+            context.strings.yourSubmittedTimes,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -914,7 +911,7 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
               Icon(Icons.error_outline_rounded, size: 20, color: Colors.red[700]),
               const SizedBox(width: 8),
               Text(
-                'Shift Rejected',
+                context.strings.shiftRejected,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -968,8 +965,8 @@ class _ShiftDetailScreenState extends State<ShiftDetailScreen> {
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text(
-                        'Save Draft',
+                    : Text(
+                        context.strings.saveDraft,
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,

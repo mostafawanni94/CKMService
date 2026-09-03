@@ -100,7 +100,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Notification Settings'),
+        title: Text(context.strings.notificationSettings),
         backgroundColor: AppColors.surface,
         elevation: 0,
         actions: [
@@ -147,7 +147,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   _buildSettingCard(
                     icon: Icons.badge_outlined,
                     iconColor: Colors.green,
-                    title: 'Certificate Expiry',
+                    title: context.strings.certificateExpiry,
                     subtitle: 'Reminders when certificates are expiring',
                     value: _certificateExpiry,
                     onChanged: (v) => setState(() => _certificateExpiry = v),
@@ -155,7 +155,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   _buildSettingCard(
                     icon: Icons.description_outlined,
                     iconColor: Colors.blue,
-                    title: 'Contract Expiry',
+                    title: context.strings.contractExpiry,
                     subtitle: 'Reminders when your contract is expiring',
                     value: _contractExpiry,
                     onChanged: (v) => setState(() => _contractExpiry = v),
@@ -163,7 +163,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   _buildSettingCard(
                     icon: Icons.access_time,
                     iconColor: Colors.orange,
-                    title: 'Work Log Reminders',
+                    title: context.strings.workLogReminders,
                     subtitle: 'Reminders to log your work hours',
                     value: _worklogReminders,
                     onChanged: (v) => setState(() => _worklogReminders = v),
@@ -171,7 +171,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   _buildSettingCard(
                     icon: Icons.calendar_today,
                     iconColor: Colors.purple,
-                    title: 'Shift Changes',
+                    title: context.strings.shiftChanges,
                     subtitle: 'Updates about your shift schedule',
                     value: _shiftChanges,
                     onChanged: (v) => setState(() => _shiftChanges = v),
@@ -179,7 +179,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   _buildSettingCard(
                     icon: Icons.check_circle_outline,
                     iconColor: AppColors.primary,
-                    title: 'Approvals & Rejections',
+                    title: context.strings.approvalsAndRejections,
                     subtitle: 'When your work logs are reviewed',
                     value: _approvals,
                     onChanged: (v) => setState(() => _approvals = v),
@@ -222,8 +222,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Push Notifications',
+                Text(
+                  context.strings.pushNotifications,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,

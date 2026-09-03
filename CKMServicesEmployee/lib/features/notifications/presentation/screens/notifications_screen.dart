@@ -33,7 +33,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         actions: [
           TextButton(
             onPressed: () => context.read<NotificationViewModel>().markAllAsRead(),
-            child: const Text('Mark all read', style: TextStyle(color: Colors.white70)),
+            child: Text(context.strings.markAllRead, style: TextStyle(color: Colors.white70)),
           ),
         ],
       ),
@@ -44,9 +44,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           }
 
           if (viewModel.notifications.isEmpty) {
-            return const EmptyState(
+            return EmptyState(
               icon: Icons.notifications_none,
-              title: 'No Notifications',
+              title: context.strings.noNotifications,
               message: 'You\'re all caught up!',
             );
           }

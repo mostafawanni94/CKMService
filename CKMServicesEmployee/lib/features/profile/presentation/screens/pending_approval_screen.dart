@@ -122,7 +122,7 @@ class _PendingApprovalScreenState extends State<PendingApprovalScreen>
                     
                     // Subtitle
                     Text(
-                      'Your profile has been submitted and is\nawaiting admin approval.',
+                      context.strings.profileAwaitingApproval,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
@@ -215,14 +215,14 @@ class _PendingApprovalScreenState extends State<PendingApprovalScreen>
                             // TODO: Implement contact admin
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: const Text('Contact your administrator for assistance'),
+                                content: Text(context.strings.contactAdminForHelp),
                                 behavior: SnackBarBehavior.floating,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                               ),
                             );
                           },
                           icon: const Icon(Icons.support_agent, size: 18),
-                          label: const Text('Need Help? Contact Admin'),
+                          label: Text(context.strings.needHelpContactAdmin),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.grey.shade600,
                           ),

@@ -530,13 +530,13 @@ class _WorkLogCard extends StatelessWidget {
                     color: Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.hourglass_empty, color: Colors.orange, size: 16),
                       SizedBox(width: 4),
                       Text(
-                        'Awaiting admin approval',
+                        context.strings.awaitingAdminApproval,
                         style: TextStyle(color: Colors.orange, fontSize: 12),
                       ),
                     ],
@@ -705,7 +705,7 @@ class _WorkLogDetailsSheet extends StatelessWidget {
             
             if (workLog.notes != null && workLog.notes!.isNotEmpty) ...[
               const SizedBox(height: 16),
-              const Text('Notes', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+              Text(context.strings.notes, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
               const SizedBox(height: 8),
               Container(
                 width: double.infinity,
@@ -731,12 +731,12 @@ class _WorkLogDetailsSheet extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
                         Icon(Icons.warning_amber, color: AppColors.error, size: 20),
                         SizedBox(width: 8),
                         Text(
-                          'Correction Required',
+                          context.strings.correctionRequired,
                           style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold),
                         ),
                       ],

@@ -121,8 +121,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 24),
                 
                 // Title
-                const Text(
-                  'Login Failed',
+                Text(
+                  context.strings.loginFailed,
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -134,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 
                 // Error Message
                 Text(
-                  'Your username or password is incorrect.\nPlease check your credentials and try again.',
+                  context.strings.loginFailedMessage,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 15,
@@ -178,8 +178,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      'Try Again',
+                    child: Text(
+                      context.strings.tryAgain,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -360,7 +360,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          '© 2026 CKM Services',
+          context.strings.copyrightLine,
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey.shade400,

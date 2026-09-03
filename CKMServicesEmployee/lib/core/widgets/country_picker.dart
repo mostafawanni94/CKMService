@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/localization/app_strings.dart';
 
 /// All countries with their flag emoji and name
 const List<Map<String, String>> allCountries = [
@@ -330,8 +331,8 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                const Text(
-                  'Select Nationality',
+                Text(
+                  context.strings.selectNationality,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -355,7 +356,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                           controller: _searchController,
                           onChanged: _filterCountries,
                           decoration: InputDecoration(
-                            hintText: 'Search countries...',
+                            hintText: context.strings.searchCountries,
                             hintStyle: TextStyle(color: Colors.grey.shade500),
                             border: InputBorder.none,
                             contentPadding: const EdgeInsets.symmetric(vertical: 14),

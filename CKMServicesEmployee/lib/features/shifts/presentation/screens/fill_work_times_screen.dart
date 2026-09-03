@@ -223,8 +223,8 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Work Log Submitted!',
+              Text(
+                context.strings.workLogSubmittedTitle,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
@@ -300,13 +300,13 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
                       const SizedBox(height: 12),
                       _buildReadOnlyField(
                         icon: Icons.work_rounded,
-                        label: 'Project',
+                        label: context.strings.project,
                         value: widget.shift.projectName,
                       ),
                       const SizedBox(height: 12),
                       _buildReadOnlyField(
                         icon: Icons.label_rounded,
-                        label: 'Shift Type',
+                        label: context.strings.shiftType,
                         value: widget.shift.shiftName,
                         color: _parseColor(widget.shift.shiftColor),
                       ),
@@ -314,7 +314,7 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
                         const SizedBox(height: 12),
                         _buildReadOnlyField(
                           icon: Icons.business_rounded,
-                          label: 'Customer',
+                          label: context.strings.customer,
                           value: widget.shift.customerName,
                         ),
                       ],
@@ -322,7 +322,7 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
                         const SizedBox(height: 12),
                         _buildReadOnlyField(
                           icon: Icons.person_rounded,
-                          label: 'Supervisor',
+                          label: context.strings.supervisor,
                           value: widget.shift.supervisorName!,
                         ),
                       ],
@@ -340,7 +340,7 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
                       // Location Field
                       _buildTextField(
                         controller: _locationController,
-                        label: 'Work Location',
+                        label: context.strings.workLocation,
                         icon: Icons.location_on_rounded,
                         iconColor: const Color(0xFFEF4444),
                       ),
@@ -357,7 +357,7 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
                           Expanded(
                             child: _buildTimePickerField(
                               controller: _startTimeController,
-                              label: 'Start Time',
+                              label: context.strings.startTime,
                               icon: Icons.play_circle_rounded,
                               iconColor: const Color(0xFF10B981),
                             ),
@@ -366,7 +366,7 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
                           Expanded(
                             child: _buildTimePickerField(
                               controller: _endTimeController,
-                              label: 'End Time',
+                              label: context.strings.endTime,
                               icon: Icons.stop_circle_rounded,
                               iconColor: const Color(0xFFEF4444),
                             ),
@@ -445,9 +445,9 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
             ),
             onPressed: () => Navigator.pop(context),
           ),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Log Work Hours',
+              context.strings.logWorkHours,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 18,
@@ -567,8 +567,8 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Work Date',
+                  Text(
+                    context.strings.workDate,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -855,7 +855,7 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
                   style: BorderStyle.solid,
                 ),
               ),
-              child: const Center(
+              child: Center(
                 child: Column(
                   children: [
                     Icon(
@@ -865,7 +865,7 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'No photos added yet',
+                      context.strings.noPhotosAdded,
                       style: TextStyle(
                         fontSize: 13,
                         color: Color(0xFF94A3B8),
@@ -933,8 +933,8 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Text(
-                  'Breaks',
+                Text(
+                  context.strings.breaks,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -942,8 +942,8 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
                   ),
                 ),
                 const SizedBox(width: 6),
-                const Text(
-                  '(optional)',
+                Text(
+                  context.strings.optionalLabel,
                   style: TextStyle(
                     fontSize: 12,
                     color: Color(0xFF94A3B8),
@@ -971,13 +971,13 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
                     ),
                   ],
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.add_rounded, color: Colors.white, size: 18),
                     SizedBox(width: 4),
                     Text(
-                      'Add Break',
+                      context.strings.addBreak,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 13,
@@ -1001,9 +1001,9 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: const Color(0xFFE2E8F0), style: BorderStyle.solid),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
-                'No breaks added. Tap "+ Add Break" to add one.',
+                context.strings.noBreaksAddedHint,
                 style: TextStyle(
                   fontSize: 13,
                   color: Color(0xFF94A3B8),
@@ -1030,8 +1030,8 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Total Break Time',
+                Text(
+                  context.strings.totalBreakTime,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -1239,8 +1239,8 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'TOTAL WORKING HOURS',
+                Text(
+                  context.strings.totalWorkingHours,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -1288,8 +1288,8 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
                 child: const Icon(Icons.note_alt_rounded, color: Color(0xFF6366F1), size: 18),
               ),
               const SizedBox(width: 10),
-              const Text(
-                'Notes (Optional)',
+              Text(
+                context.strings.notesOptionalCap,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -1307,9 +1307,9 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
               color: Color(0xFF1E293B),
               height: 1.5,
             ),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               border: InputBorder.none,
-              hintText: 'Add any notes about your work...',
+              hintText: context.strings.addNotesAboutWork,
               hintStyle: TextStyle(color: Color(0xFFCBD5E1)),
             ),
           ),
@@ -1379,13 +1379,13 @@ class _FillWorkTimesScreenState extends State<FillWorkTimesScreen> {
                       ),
                     ),
                   )
-                : const Row(
+                : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.send_rounded, color: Colors.white, size: 22),
                       SizedBox(width: 12),
                       Text(
-                        'Submit Work Log',
+                        context.strings.submitWorkLog,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 17,

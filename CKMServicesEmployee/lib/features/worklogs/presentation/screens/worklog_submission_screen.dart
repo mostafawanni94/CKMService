@@ -113,7 +113,7 @@ class _WorkLogSubmissionScreenState extends State<WorkLogSubmissionScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Location (read-only from assignment)
-            const Text('Location', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(context.strings.location, style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(16),
@@ -140,7 +140,7 @@ class _WorkLogSubmissionScreenState extends State<WorkLogSubmissionScreen> {
             const SizedBox(height: 24),
 
             // Date
-            const Text('Date', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(context.strings.dateLabel, style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             GestureDetector(
               onTap: () async {
@@ -241,7 +241,7 @@ class _WorkLogSubmissionScreenState extends State<WorkLogSubmissionScreen> {
             const SizedBox(height: 24),
 
             // Break
-            const Text('Break (minutes)', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(context.strings.breakMinutes, style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Row(
               children: [0, 15, 30, 45, 60].map((minutes) {
@@ -295,7 +295,7 @@ class _WorkLogSubmissionScreenState extends State<WorkLogSubmissionScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Allowances (Toeslag)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(context.strings.allowancesWithDutch, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 TextButton.icon(
                   onPressed: _addAllowance,
                   icon: const Icon(Icons.add, size: 18),
@@ -312,13 +312,13 @@ class _WorkLogSubmissionScreenState extends State<WorkLogSubmissionScreen> {
                   color: Colors.purple.shade50,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(Icons.card_giftcard, color: Colors.purple),
                     SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'No allowances added. Tap "Add" to include special allowances.',
+                        context.strings.noAllowancesAddedHint,
                         style: TextStyle(color: Colors.purple),
                       ),
                     ),
@@ -357,13 +357,13 @@ class _WorkLogSubmissionScreenState extends State<WorkLogSubmissionScreen> {
                       // Type dropdown
                       DropdownButtonFormField<int?>(
                         value: entry.selectedTypeId,
-                        decoration: const InputDecoration(
-                          labelText: 'Allowance Type',
+                        decoration: InputDecoration(
+                          labelText: context.strings.allowanceType,
                           border: OutlineInputBorder(),
                           contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         ),
                         items: [
-                          const DropdownMenuItem(value: null, child: Text('Custom / Other')),
+                          DropdownMenuItem(value: null, child: Text(context.strings.customOrOther)),
                           ...(_loadingAllowanceTypes
                               ? []
                               : _allowanceTypes.map((type) => DropdownMenuItem(
@@ -384,8 +384,8 @@ class _WorkLogSubmissionScreenState extends State<WorkLogSubmissionScreen> {
                         const SizedBox(height: 8),
                         TextFormField(
                           initialValue: entry.customName,
-                          decoration: const InputDecoration(
-                            labelText: 'Custom Allowance Name',
+                          decoration: InputDecoration(
+                            labelText: context.strings.customAllowanceName,
                             border: OutlineInputBorder(),
                             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           ),
@@ -398,7 +398,7 @@ class _WorkLogSubmissionScreenState extends State<WorkLogSubmissionScreen> {
                       // Hours
                       Row(
                         children: [
-                          const Text('Hours: ', style: TextStyle(fontWeight: FontWeight.w500)),
+                          Text(context.strings.hoursLabel, style: TextStyle(fontWeight: FontWeight.w500)),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Slider(
@@ -421,7 +421,7 @@ class _WorkLogSubmissionScreenState extends State<WorkLogSubmissionScreen> {
 
             // Notes
             AppTextField(
-              label: 'Notes (optional)',
+              label: context.strings.notesOptional,
               controller: _notesController,
               maxLines: 3,
               hint: 'Any additional notes...',

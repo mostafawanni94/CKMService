@@ -327,8 +327,8 @@ class DocumentUploadBox extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          const Text(
-                            'Tap to upload',
+                          Text(
+                            context.strings.tapToUpload,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -337,7 +337,7 @@ class DocumentUploadBox extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Camera or Gallery',
+                            context.strings.cameraOrGallery,
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.grey.shade500,
@@ -450,7 +450,7 @@ class OrDivider extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
-              'OR',
+              context.strings.orSeparator,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -658,8 +658,8 @@ class LicenseCategoriesSelector extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'License Categories',
+        Text(
+          context.strings.licenseCategories,
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,

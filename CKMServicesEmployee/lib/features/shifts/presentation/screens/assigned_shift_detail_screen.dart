@@ -328,7 +328,7 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
           child: _buildQuickInfoCard(
             icon: Icons.schedule_rounded,
             iconColor: const Color(0xFF6366F1),
-            label: 'TIME',
+            label: context.strings.timeUpper,
             value: '${widget.shift.startTime} - ${widget.shift.endTime}',
           ),
         ),
@@ -342,7 +342,7 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
             iconColor: widget.shift.isToday 
                 ? const Color(0xFF10B981) 
                 : const Color(0xFF0EA5E9),
-            label: 'STATUS',
+            label: context.strings.statusUpper,
             value: widget.shift.isToday ? 'Today' : 'Upcoming',
             highlight: widget.shift.isToday,
           ),
@@ -463,8 +463,8 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'CUSTOMER',
+                Text(
+                  context.strings.customerUpper,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -526,8 +526,8 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
                 ),
               ),
               const SizedBox(width: 14),
-              const Text(
-                'REQUIREMENTS',
+              Text(
+                context.strings.requirementsUpper,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -597,8 +597,8 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'LOCATION',
+                          Text(
+                            context.strings.locationUpper,
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -707,13 +707,13 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
                             ),
                           ],
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.directions_rounded, color: Colors.white, size: 20),
                             SizedBox(width: 8),
                             Text(
-                              'Get Directions',
+                              context.strings.getDirections,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -790,8 +790,8 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'SUPERVISOR',
+                    Text(
+                      context.strings.supervisorUpper,
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -839,13 +839,13 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
                               ),
                             ],
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.phone_rounded, color: Colors.white, size: 20),
                               SizedBox(width: 8),
                               Text(
-                                'Call',
+                                context.strings.call,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
@@ -956,8 +956,8 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
                 ),
               ),
               const SizedBox(width: 14),
-              const Text(
-                'NOTES',
+              Text(
+                context.strings.notesUpper,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -1151,7 +1151,7 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
             }
           },
           borderRadius: BorderRadius.circular(20),
-          child: const Padding(
+          child: Padding(
             padding: EdgeInsets.symmetric(vertical: 18),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -1159,7 +1159,7 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
                 Icon(Icons.edit_calendar_rounded, color: Colors.white, size: 22),
                 SizedBox(width: 12),
                 Text(
-                  'Fill Actual Work Times',
+                  context.strings.fillActualWorkTimes,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -1199,8 +1199,8 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
             ),
             const SizedBox(height: 24),
             // Title
-            const Text(
-              'Navigate With',
+            Text(
+              context.strings.navigateWith,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
@@ -1211,7 +1211,7 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
             // Map options
             _buildMapOption(
               icon: '🗺️',
-              title: 'Google Maps',
+              title: context.strings.googleMaps,
               subtitle: 'Open in Google Maps',
               color: const Color(0xFF4285F4),
               onTap: () => _launchMaps('google'),
@@ -1219,7 +1219,7 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
             const SizedBox(height: 12),
             _buildMapOption(
               icon: '🍎',
-              title: 'Apple Maps',
+              title: context.strings.appleMaps,
               subtitle: 'Open in Apple Maps',
               color: const Color(0xFF000000),
               onTap: () => _launchMaps('apple'),
@@ -1227,7 +1227,7 @@ class _AssignedShiftDetailScreenState extends State<AssignedShiftDetailScreen>
             const SizedBox(height: 12),
             _buildMapOption(
               icon: '🚗',
-              title: 'Waze',
+              title: context.strings.waze,
               subtitle: 'Navigate with Waze',
               color: const Color(0xFF33CCFF),
               onTap: () => _launchMaps('waze'),

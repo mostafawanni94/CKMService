@@ -132,7 +132,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> with Single
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Password changed successfully!'),
+          content: Text(context.strings.passwordChangedSuccessfully),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -194,7 +194,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> with Single
                   // Title
                   Center(
                     child: Text(
-                      'Create New Password',
+                      context.strings.createNewPassword,
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -207,7 +207,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> with Single
                   // Subtitle
                   Center(
                     child: Text(
-                      'Your temporary password must be changed\nfor security reasons.',
+                      context.strings.temporaryPasswordMustChange,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 15,
@@ -277,7 +277,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> with Single
                     child: TextButton.icon(
                       onPressed: () => context.read<AuthViewModel>().logout(),
                       icon: const Icon(Icons.logout, size: 18),
-                      label: const Text('Logout & Try Later'),
+                      label: Text(context.strings.logoutAndTryLater),
                       style: TextButton.styleFrom(
                         foregroundColor: Colors.grey.shade600,
                       ),

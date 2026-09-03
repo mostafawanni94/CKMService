@@ -102,8 +102,8 @@ class _MyAssignedShiftsScreenState extends State<MyAssignedShiftsScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'My Schedule',
+            Text(
+              context.strings.mySchedule,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
@@ -133,13 +133,13 @@ class _MyAssignedShiftsScreenState extends State<MyAssignedShiftsScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(strokeWidth: 3, color: Color(0xFF1E3A5F)),
             SizedBox(height: 16),
-            Text('Loading your schedule...', style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w500)),
+            Text(context.strings.loadingSchedule, style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w500)),
           ],
         ),
       );
@@ -154,7 +154,7 @@ class _MyAssignedShiftsScreenState extends State<MyAssignedShiftsScreen> {
             children: [
               Icon(Icons.error_outline_rounded, size: 64, color: Colors.red[300]),
               const SizedBox(height: 16),
-              Text('Failed to load schedule', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey[800])),
+              Text(context.strings.failedToLoadSchedule, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey[800])),
               const SizedBox(height: 8),
               Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey[600])),
               const SizedBox(height: 24),
@@ -190,9 +190,9 @@ class _MyAssignedShiftsScreenState extends State<MyAssignedShiftsScreen> {
                 child: const Icon(Icons.calendar_today_rounded, size: 48, color: Color(0xFF1E3A5F)),
               ),
               const SizedBox(height: 24),
-              Text('No Upcoming Shifts', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.grey[800])),
+              Text(context.strings.noUpcomingShifts, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.grey[800])),
               const SizedBox(height: 8),
-              Text('You have no scheduled shifts at the moment.\nCheck back later!', textAlign: TextAlign.center, style: TextStyle(fontSize: 15, color: Colors.grey[600], height: 1.4)),
+              Text(context.strings.noShiftsAtTheMoment, textAlign: TextAlign.center, style: TextStyle(fontSize: 15, color: Colors.grey[600], height: 1.4)),
             ],
           ),
         ),

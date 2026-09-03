@@ -288,11 +288,11 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
       _currentCard = originalCard;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Row(
+          content: Row(
             children: [
               Icon(Icons.warning_amber_rounded, color: Colors.white),
               SizedBox(width: 12),
-              Text('Please complete ID Document section first'),
+              Text(context.strings.completeIdDocumentFirst),
             ],
           ),
           backgroundColor: Colors.red.shade600,
@@ -733,7 +733,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Your banking details are encrypted and secure.',
+                      context.strings.bankingDetailsSecure,
                       style: TextStyle(fontSize: 12, color: Colors.green.shade700),
                     ),
                   ),
@@ -768,7 +768,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
         children: [
           // ID Document Card
           _buildCard(
-            title: 'ID Document',
+            title: context.strings.idDocument,
             subtitle: 'Upload your identification document',
             icon: Icons.badge_outlined,
             color: Colors.purple,
@@ -830,7 +830,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
           
           // Driver's License Card
           _buildCard(
-            title: 'Driver\'s License',
+            title: context.strings.driversLicense,
             subtitle: 'Add your driving license (optional)',
             icon: Icons.directions_car_outlined,
             color: Colors.teal,
@@ -900,7 +900,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: _buildCard(
-        title: 'Certificates',
+        title: context.strings.certificatesPlain,
         subtitle: 'Add your work certificates',
         icon: Icons.workspace_premium_outlined,
         color: Colors.orange,
@@ -922,7 +922,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Add any certificates you have, such as VCA Basis, VCA VOL, BHV, Forklift, etc.',
+                      context.strings.addCertificatesHint,
                       style: TextStyle(fontSize: 13, color: Colors.blue.shade700),
                     ),
                   ),
@@ -945,12 +945,12 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                     Icon(Icons.folder_open_outlined, size: 48, color: Colors.grey.shade400),
                     const SizedBox(height: 12),
                     Text(
-                      'No certificates added yet',
+                      context.strings.noCertificatesAdded,
                       style: TextStyle(fontSize: 15, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Tap the button below to add your certificates',
+                      context.strings.tapButtonToAddCertificates,
                       style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
                     ),
                   ],
@@ -1093,7 +1093,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                 const SizedBox(height: 24),
                 
                 // Certificate Type Selection
-                Text('Certificate Type *', 
+                Text(context.strings.certificateTypeRequired, 
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
                 const SizedBox(height: 10),
                 Wrap(
@@ -1127,13 +1127,13 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                 const SizedBox(height: 20),
                 
                 // Certificate Number
-                Text('Certificate Number *', 
+                Text(context.strings.certificateNumberRequired, 
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: numberController,
                   decoration: InputDecoration(
-                    hintText: 'Enter certificate number',
+                    hintText: context.strings.enterCertificateNumber,
                     hintStyle: TextStyle(color: Colors.grey.shade400),
                     filled: true,
                     fillColor: Colors.grey.shade50,
@@ -1151,7 +1151,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                 const SizedBox(height: 20),
                 
                 // Expiry Date
-                Text('Expiry Date *', 
+                Text(context.strings.expiryDateRequired, 
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
                 const SizedBox(height: 8),
                 InkWell(
@@ -1192,7 +1192,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen>
                 const SizedBox(height: 24),
                 
                 // Document Upload Section
-                Text('Upload Certificate *', 
+                Text(context.strings.uploadCertificateRequired, 
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
                 const SizedBox(height: 8),
                 Text(context.strings.uploadFrontAndBack,

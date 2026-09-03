@@ -97,8 +97,8 @@ class _AdvanceRequestScreenState extends State<AdvanceRequestScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Request Submitted!',
+            Text(
+              context.strings.requestSubmitted,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -159,7 +159,7 @@ class _AdvanceRequestScreenState extends State<AdvanceRequestScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Request an advance on your earnings. Maximum €5,000. Subject to admin approval.',
+                        context.strings.advanceRequestHint,
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey.shade700,
@@ -172,8 +172,8 @@ class _AdvanceRequestScreenState extends State<AdvanceRequestScreen> {
               const SizedBox(height: 32),
 
               // Amount Field
-              const Text(
-                'Amount (€)',
+              Text(
+                context.strings.amountEuro,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -247,7 +247,7 @@ class _AdvanceRequestScreenState extends State<AdvanceRequestScreen> {
 
               // Reason Field
               AppTextField(
-                label: 'Reason for Request',
+                label: context.strings.reasonForRequest,
                 hint: 'Explain why you need this advance...',
                 controller: _reasonController,
                 validator: _validateReason,

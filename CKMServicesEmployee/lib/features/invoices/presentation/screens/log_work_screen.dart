@@ -218,8 +218,8 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Open in Maps',
+            Text(
+              context.strings.openInMaps,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -233,7 +233,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
             _buildMapOption(
               icon: Icons.map,
               iconColor: Colors.red,
-              title: 'Google Maps',
+              title: context.strings.googleMaps,
               onTap: () async {
                 Navigator.pop(context);
                 final url = 'https://www.google.com/maps/search/?api=1&query=$encodedAddress';
@@ -249,7 +249,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
               _buildMapOption(
                 icon: Icons.map_outlined,
                 iconColor: Colors.blue,
-                title: 'Apple Maps',
+                title: context.strings.appleMaps,
                 onTap: () async {
                   Navigator.pop(context);
                   final url = 'https://maps.apple.com/?q=$encodedAddress';
@@ -265,7 +265,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
             _buildMapOption(
               icon: Icons.navigation,
               iconColor: Colors.cyan,
-              title: 'Waze',
+              title: context.strings.waze,
               onTap: () async {
                 Navigator.pop(context);
                 final url = 'https://waze.com/ul?q=$encodedAddress&navigate=yes';
@@ -411,8 +411,8 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
         });
         
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Work log submitted! You can add another entry.'),
+          SnackBar(
+            content: Text(context.strings.workLogSubmittedAddAnother),
             backgroundColor: AppColors.success,
           ),
         );
@@ -495,7 +495,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                   
                   // 1. Customer Selection
                   _buildSearchableDropdown(
-                    label: 'Customer',
+                    label: context.strings.customer,
                     hint: 'Select customer...',
                     selectedValue: _selectedCustomerId,
                     items: _customers,
@@ -508,7 +508,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                   // 2. Project Selection (only if customer selected)
                   if (_selectedCustomerId != null) ...[
                     _buildSearchableDropdown(
-                      label: 'Project',
+                      label: context.strings.project,
                       hint: _loadingProjects ? 'Loading...' : 'Select project...',
                       selectedValue: _selectedProjectId,
                       items: _projects,
@@ -523,7 +523,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                   // 3. Supervisor Selection (only if customer selected)
                   if (_selectedCustomerId != null) ...[
                     _buildSearchableDropdown(
-                      label: 'Supervisor',
+                      label: context.strings.supervisor,
                       hint: _loadingProjects ? 'Loading...' : 'Select supervisor...',
                       selectedValue: _selectedSupervisorId,
                       items: _supervisors,
@@ -538,7 +538,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                   // 4. Service Selection (only if customer selected)
                   if (_selectedCustomerId != null && _services.isNotEmpty) ...[
                     _buildSearchableDropdown(
-                      label: 'Service Type',
+                      label: context.strings.serviceType,
                       hint: 'Select service type...',
                       selectedValue: _selectedServiceId,
                       items: _services,
@@ -553,7 +553,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                   // 5. Location (auto from project or manual)
                   if (_selectedProjectId != null) ...[
                     _buildTextField(
-                      label: 'Location',
+                      label: context.strings.location,
                       controller: _locationController,
                       hint: 'Location address...',
                       icon: Icons.location_on,
@@ -589,7 +589,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'View in Maps',
+                              context.strings.viewInMaps,
                               style: TextStyle(
                                 color: _locationController.text.isNotEmpty 
                                     ? Colors.blue.shade700 
@@ -632,7 +632,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                   
                   // 10. Notes
                   _buildTextField(
-                    label: 'Notes',
+                    label: context.strings.notes,
                     controller: _notesController,
                     hint: 'Add any notes about your work...',
                     maxLines: 3,
@@ -686,7 +686,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
       children: [
         Row(children: [
           Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey)),
-          if (optional) Text(' (optional)', style: TextStyle(fontSize: 10, color: Colors.grey.shade400)),
+          if (optional) Text(context.strings.optionalSuffix, style: TextStyle(fontSize: 10, color: Colors.grey.shade400)),
         ]),
         const SizedBox(height: 8),
         GestureDetector(
@@ -770,7 +770,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Allowances (Toeslag)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+            Text(context.strings.allowancesWithDutch, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
             TextButton.icon(
               onPressed: _addAllowance,
               icon: const Icon(Icons.add, size: 18),
@@ -814,13 +814,13 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                     Expanded(
                       child: DropdownButtonFormField<int>(
                         value: allowance.selectedTypeId,
-                        decoration: const InputDecoration(
-                          labelText: 'Type',
+                        decoration: InputDecoration(
+                          labelText: context.strings.typeLabel,
                           border: OutlineInputBorder(),
                           contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         ),
                         items: [
-                          const DropdownMenuItem<int>(value: null, child: Text('Custom...')),
+                          DropdownMenuItem<int>(value: null, child: Text(context.strings.customEllipsis)),
                           ..._allowanceTypes.map((t) => DropdownMenuItem<int>(
                             value: t['id'],
                             child: Text(t['name'] ?? 'Unknown'),
@@ -839,8 +839,8 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                 if (allowance.selectedTypeId == null) ...[
                   const SizedBox(height: 12),
                   TextField(
-                    decoration: const InputDecoration(
-                      labelText: 'Custom Name',
+                    decoration: InputDecoration(
+                      labelText: context.strings.customName,
                       border: OutlineInputBorder(),
                     ),
                     onChanged: (v) => allowance.customName = v,
@@ -849,7 +849,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    const Text('Hours: '),
+                    Text(context.strings.hoursLabel),
                     Expanded(
                       child: Slider(
                         value: allowance.hours,
@@ -980,7 +980,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
         child: Row(children: [
           Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
           const SizedBox(width: 12),
-          Expanded(child: Text('No worklogs submitted for this day yet', style: TextStyle(color: Colors.blue.shade700))),
+          Expanded(child: Text(context.strings.noWorklogsForDay, style: TextStyle(color: Colors.blue.shade700))),
         ]),
       );
     }
@@ -1118,8 +1118,8 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(children: [
-              const Text('Breaks', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey)),
-              Text(' (optional)', style: TextStyle(fontSize: 10, color: Colors.grey.shade400)),
+              Text(context.strings.breaks, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey)),
+              Text(context.strings.optionalSuffix, style: TextStyle(fontSize: 10, color: Colors.grey.shade400)),
             ]),
             GestureDetector(
               onTap: () => setState(() => _breaks.add(_BreakEntry())),
@@ -1134,7 +1134,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                   children: [
                     Icon(Icons.add, size: 16, color: AppColors.primary),
                     const SizedBox(width: 4),
-                    Text('Add Break', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primary)),
+                    Text(context.strings.addBreak, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primary)),
                   ],
                 ),
               ),
@@ -1150,7 +1150,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
-              child: Text('No breaks added', style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+              child: Text(context.strings.noBreaksAdded, style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
             ),
           )
         else
@@ -1252,7 +1252,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Photos', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey)),
+        Text(context.strings.photos, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey)),
         const SizedBox(height: 8),
         SizedBox(
           height: 100,
@@ -1308,7 +1308,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                 children: [
                   _buildPhotoOption(
                     icon: Icons.camera_alt_rounded,
-                    label: 'Camera',
+                    label: context.strings.camera,
                     color: const Color(0xFF3B82F6),
                     onTap: () async {
                       Navigator.pop(context);
@@ -1319,7 +1319,7 @@ class _LogWorkScreenState extends State<LogWorkScreen> {
                   ),
                   _buildPhotoOption(
                     icon: Icons.photo_library_rounded,
-                    label: 'Gallery',
+                    label: context.strings.gallery,
                     color: const Color(0xFF10B981),
                     onTap: () async {
                       Navigator.pop(context);
@@ -1574,7 +1574,7 @@ class _SearchableDropdownSheetState<T> extends State<_SearchableDropdownSheet<T>
                       children: [
                         Icon(Icons.search_off, size: 48, color: Colors.grey.shade300),
                         const SizedBox(height: 8),
-                        Text('No results found', style: TextStyle(color: Colors.grey.shade500)),
+                        Text(context.strings.noResultsFound, style: TextStyle(color: Colors.grey.shade500)),
                       ],
                     ),
                   )

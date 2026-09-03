@@ -162,7 +162,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
                 // Description
                 Text(
-                  'No worries! Enter the email address associated with your account and we\'ll send you instructions to reset your password.',
+                  context.strings.forgotPasswordHelp,
                   style: TextStyle(
                     fontSize: 15,
                     color: Colors.grey.shade600,
@@ -173,7 +173,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
                 // Email Field
                 AppTextField(
-                  label: 'Email Address',
+                  label: context.strings.emailAddressLabel,
                   hint: 'Enter your registered email',
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,

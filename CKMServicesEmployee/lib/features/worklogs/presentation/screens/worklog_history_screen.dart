@@ -688,7 +688,7 @@ class _WorkLogHistoryScreenState extends State<WorkLogHistoryScreen> with Single
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Rejection Reason',
+                                    context.strings.rejectionReason,
                                     style: TextStyle(
                                       color: Colors.red.shade900,
                                       fontWeight: FontWeight.bold,

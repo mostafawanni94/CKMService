@@ -149,8 +149,8 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'My Shifts',
+            Text(
+              context.strings.myShifts,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
@@ -218,7 +218,7 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -228,7 +228,7 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
             ),
             SizedBox(height: 16),
             Text(
-              'Loading shifts...',
+              context.strings.loadingShifts,
               style: TextStyle(
                 color: Color(0xFF64748B),
                 fontSize: 15,
@@ -253,7 +253,7 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Failed to load shifts',
+                context.strings.failedToLoadShifts,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -308,7 +308,7 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'No upcoming shifts',
+              context.strings.noUpcomingShiftsLower,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -317,7 +317,7 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Your scheduled shifts will appear here',
+              context.strings.scheduledShiftsAppearHere,
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[500],
@@ -580,7 +580,7 @@ class _MyShiftsScreenState extends State<MyShiftsScreen> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'Tap to fill your actual work times',
+                              context.strings.tapToFillActualTimes,
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
