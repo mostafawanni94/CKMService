@@ -72,6 +72,18 @@ function getDefaultFormData() {
 }
 
 // ─── Hook ───────────────────────────────────────────────────
+export interface WorklogSummary {
+    count: number;
+    status_counts: Record<string, number>;
+    hours: string;
+    night_hours: string;
+    base_amount: string;
+    surcharge_amount: string;
+    allowance_amount: string;
+    total_amount: string;
+    surcharges: { name: string; category: string | null; hours: string }[];
+}
+
 export function useWorklogs() {
   const { t } = useLanguage();
   const router = useRouter();
@@ -125,19 +137,58 @@ export function useWorklogs() {
   // Bulk selection
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
+  // Server-side paging. The page used to pull every entry so it could add the
+  // hours up in the browser; the totals now come from /entries/summary/, which
+  // covers the whole filtered set however few rows are on screen.
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [totalCount, setTotalCount] = useState(0);
+  const [summary, setSummary] = useState<WorklogSummary | null>(null);
+
   // ─── Loaders ────────────────────────────────────────────
+
+  /**
+   * The filters the server applies, so the page it returns and the totals it
+   * reports describe the same set. Anything added here must be understood by
+   * WorkEntryViewSet.get_queryset, or the rows and the totals drift apart.
+   */
+  function serverFilters(): URLSearchParams {
+    const params = new URLSearchParams();
+    params.set('include_past', 'true');
+    if (search.trim()) params.set('search', search.trim());
+    if (filterCustomer) params.set('customer', filterCustomer);
+    if (filterSupervisor) params.set('supervisor', filterSupervisor);
+    filterEmployees.forEach(id => params.append('employee', id));
+    filterStatuses.forEach(value => params.append('status', value));
+    const from = filterStartDate || (filterStartWeek ? getWeekStartDate(filterStartWeek) : '');
+    const to = filterEndDate || (filterEndWeek ? getWeekEndDate(filterEndWeek) : '');
+    if (from) params.set('start_date', from);
+    if (to) params.set('end_date', to);
+    return params;
+  }
+
   async function loadWorkLogs() {
     setLoading(true);
     setError(null);
     try {
-      const [allResponse, pending, unassignedRes] = await Promise.all([
-        api.getWorkEntries({ include_past: true, page_size: 9999 }),
+      const filters = serverFilters();
+      const listParams = new URLSearchParams(filters);
+      listParams.set('page', String(page));
+      listParams.set('page_size', String(pageSize));
+
+      const [listRes, summaryRes, pending, unassignedRes] = await Promise.all([
+        apiFetch(`/worklogs/entries/?${listParams}`).then(r =>
+          r.ok ? r.json() : { results: [], count: 0 }),
+        apiFetch(`/worklogs/entries/summary/?${filters}`).then(r =>
+          r.ok ? r.json() : null),
         api.getPendingWorkEntries(),
         apiFetch(`/projects/planned-days/unassigned_shifts/`).then(r =>
           r.ok ? r.json() : { results: [] },
         ),
       ]);
-      const workEntries = allResponse.results || [];
+      const workEntries = listRes.results || [];
+      setTotalCount(listRes.count || 0);
+      setSummary(summaryRes);
       const unassignedShifts = (unassignedRes.results || []).map(
         (shift: any) => ({
           ...shift,
@@ -256,13 +307,21 @@ export function useWorklogs() {
   }
 
   // ─── Initial load ─────────────────────────────────────
+  // Reference data is fetched once; the list is fetched again whenever the
+  // page or a server-side filter changes, since the server now does the work.
   useEffect(() => {
-    loadWorkLogs();
     loadProjects();
     loadAllowanceTypes();
     loadEmployees();
     loadCustomers();
   }, []);
+
+  useEffect(() => {
+    loadWorkLogs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize, search, filterCustomer, filterSupervisor,
+      filterEmployees.join(','), filterStatuses.join(','),
+      filterStartDate, filterEndDate, filterStartWeek, filterEndWeek]);
 
   // ─── Actions ──────────────────────────────────────────
   async function handleStatusChange(logId: string, newStatus: string) {
@@ -541,37 +600,31 @@ export function useWorklogs() {
   }
 
   // ─── Filtered / computed ──────────────────────────────
+  //
+  // The server applies the filters now, so what comes back is already the
+  // page the user asked for. Filtering again here would hide rows that the
+  // count and the totals still include.
   const displayLogs = filter === 'pending' ? pendingLogs : workLogs;
-  const filteredLogs = displayLogs.filter(log => {
-    if (
-      search &&
-      !log.employee_name?.toLowerCase().includes(search.toLowerCase()) &&
-      !log.project_name?.toLowerCase().includes(search.toLowerCase())
-    )
-      return false;
-    if (filterCustomer) {
-      const project = projects.find(p => p.id === (log as any).project);
-      if ((project as any)?.customer !== filterCustomer) return false;
-    }
-    if (filterSupervisor && (log as any).supervisor !== filterSupervisor) return false;
-    if (filterEmployees.length > 0 && !filterEmployees.includes((log as any).employee)) return false;
-    if (filterStartWeek || filterEndWeek) {
-      const logDate = log.work_date;
-      if (filterStartWeek && logDate < getWeekStartDate(filterStartWeek)) return false;
-      if (filterEndWeek && logDate > getWeekEndDate(filterEndWeek)) return false;
-    }
-    if (filterStartDate && log.work_date < filterStartDate) return false;
-    if (filterEndDate && log.work_date > filterEndDate) return false;
-    if (filterStatuses.length > 0 && !filterStatuses.includes(log.status)) return false;
-    return true;
-  });
+  const filteredLogs = displayLogs;
 
+  // Counts come from the summary, which sees every entry — not just this page.
+  const statusCounts = summary?.status_counts ?? {};
   const stats = {
-    total: workLogs.length,
-    pending: workLogs.filter(w => ['pending', 'submitted', 'draft'].includes(w.status)).length,
-    approved: workLogs.filter(w => w.status === 'approved').length,
-    rejected: workLogs.filter(w => w.status === 'rejected').length
+    total: summary?.count ?? totalCount,
+    pending: (statusCounts.pending ?? 0) + (statusCounts.submitted ?? 0) + (statusCounts.draft ?? 0),
+    approved: statusCounts.approved ?? 0,
+    rejected: statusCounts.rejected ?? 0,
   };
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+
+  /** Any filter change puts the user back on the first page. */
+  function onFilterChange<T>(setter: (value: T) => void) {
+    return (value: T) => {
+      setPage(1);
+      setter(value);
+    };
+  }
 
   // ─── Return ───────────────────────────────────────────
   return {
@@ -581,6 +634,9 @@ export function useWorklogs() {
     workLogs, pendingLogs, displayedLogs, loading, error,
     filter, setFilter, search, setSearch,
     filteredLogs, stats,
+
+    // Paging
+    page, setPage, pageSize, setPageSize, totalCount, totalPages, summary,
 
     // Advanced filters
     showAdvancedFilters, setShowAdvancedFilters,

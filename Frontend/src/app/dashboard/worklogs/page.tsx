@@ -14,6 +14,7 @@ export default function WorkLogsPage() {
     const {
         t, router,
         workLogs, pendingLogs, displayedLogs, loading, error,
+        page, setPage, pageSize, setPageSize, totalCount, totalPages, summary,
         filter, setFilter, search, setSearch,
         filteredLogs, stats,
         showAdvancedFilters, setShowAdvancedFilters,
@@ -696,8 +697,75 @@ export default function WorkLogsPage() {
                                 </table>
                             </div>
 
+                            {/* Paging — the totals below cover every page, not
+                                just the rows on screen. */}
+                            {totalCount > 0 && (
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    flexWrap: 'wrap',
+                                    gap: '12px',
+                                    marginTop: '16px',
+                                    padding: '12px 16px',
+                                    background: '#FFFFFF',
+                                    border: '1px solid #E5E7EB',
+                                    borderRadius: '12px',
+                                }}>
+                                    <span style={{ fontSize: '13px', color: '#6B7280' }}>
+                                        {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, totalCount)} {t('of')} {totalCount}
+                                    </span>
+
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <select
+                                            value={pageSize}
+                                            onChange={e => { setPage(1); setPageSize(Number(e.target.value)); }}
+                                            aria-label={t('Rows per page')}
+                                            style={{
+                                                padding: '6px 10px', fontSize: '13px',
+                                                border: '1px solid #E5E7EB', borderRadius: '8px',
+                                            }}
+                                        >
+                                            {[25, 50, 100, 200].map(size => (
+                                                <option key={size} value={size}>{size} {t('per page')}</option>
+                                            ))}
+                                        </select>
+
+                                        <button
+                                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                                            disabled={page <= 1}
+                                            style={{
+                                                padding: '6px 14px', fontSize: '13px', fontWeight: 500,
+                                                border: '1px solid #E5E7EB', borderRadius: '8px',
+                                                background: '#FFFFFF',
+                                                cursor: page <= 1 ? 'not-allowed' : 'pointer',
+                                                opacity: page <= 1 ? 0.5 : 1,
+                                            }}
+                                        >
+                                            {t('Prev')}
+                                        </button>
+                                        <span style={{ fontSize: '13px', color: '#374151', fontWeight: 600 }}>
+                                            {page} / {totalPages}
+                                        </span>
+                                        <button
+                                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                                            disabled={page >= totalPages}
+                                            style={{
+                                                padding: '6px 14px', fontSize: '13px', fontWeight: 500,
+                                                border: '1px solid #E5E7EB', borderRadius: '8px',
+                                                background: '#FFFFFF',
+                                                cursor: page >= totalPages ? 'not-allowed' : 'pointer',
+                                                opacity: page >= totalPages ? 0.5 : 1,
+                                            }}
+                                        >
+                                            {t('Next')}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Summary Card - Below Table */}
-                            {filteredLogs.length > 0 && (
+                            {totalCount > 0 && (
                                 <div style={{
                                     marginTop: '16px',
                                     padding: '20px 24px',
@@ -734,15 +802,13 @@ export default function WorkLogsPage() {
                                                     borderRadius: '8px',
                                                     boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
                                                 }}>
-                                                    {filteredLogs.reduce((sum, log) => sum + (parseFloat(String(log.calculated_hours)) || 0), 0).toFixed(2)}h
+                                                    {summary ? Number(summary.hours).toFixed(2) : '0.00'}h
                                                 </span>
                                             </div>
 
                                             {/* Night hours badge */}
                                             {(() => {
-                                                const totalNightHours = filteredLogs.reduce((sum, log) => {
-                                                    return sum + (parseFloat(String((log as any).hours_breakdown?.night_hours || 0)));
-                                                }, 0);
+                                                const totalNightHours = Number(summary?.night_hours ?? 0);
                                                 if (totalNightHours > 0) {
                                                     return (
                                                         <span style={{
@@ -768,18 +834,12 @@ export default function WorkLogsPage() {
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                                             {/* Surcharge badges by name */}
                                             {(() => {
-                                                const surchargesByName: { [name: string]: { hours: number, category: string } } = {};
-                                                filteredLogs.forEach(log => {
-                                                    const breakdown = (log as any).surcharges_breakdown?.breakdown || [];
-                                                    breakdown.forEach((s: any) => {
-                                                        const name = s.name || 'Unknown';
-                                                        const hours = parseFloat(s.hours) || 0;
-                                                        if (!surchargesByName[name]) {
-                                                            surchargesByName[name] = { hours: 0, category: s.category };
-                                                        }
-                                                        surchargesByName[name].hours += hours;
-                                                    });
-                                                });
+                                                const surchargesByName = Object.fromEntries(
+                                                    (summary?.surcharges ?? []).map(s => [
+                                                        s.name,
+                                                        { hours: Number(s.hours), category: s.category ?? '' },
+                                                    ]),
+                                                );
                                                 return Object.entries(surchargesByName).map(([name, data]) => (
                                                     <span key={name} style={{
                                                         display: 'inline-flex',
@@ -804,21 +864,14 @@ export default function WorkLogsPage() {
 
                                             {/* Surcharge amount */}
                                             <span style={{ fontSize: '14px', fontWeight: 700, color: '#10B981' }}>
-                                                +€{filteredLogs.reduce((sum, log) => {
-                                                    const surcharges = (log as any).surcharges_breakdown;
-                                                    return sum + (surcharges?.total_surcharge_amount ? parseFloat(surcharges.total_surcharge_amount) : 0);
-                                                }, 0).toFixed(2)}
+                                                +€{Number(summary?.surcharge_amount ?? 0).toFixed(2)}
                                             </span>
 
                                             <span style={{ color: '#D1D5DB', fontSize: '18px' }}>|</span>
 
                                             {/* Base amount */}
                                             <span style={{ fontSize: '14px', fontWeight: 600, color: '#1E3A5F' }}>
-                                                €{filteredLogs.reduce((sum, log) => {
-                                                    const surcharges = (log as any).surcharges_breakdown;
-                                                    const hours = parseFloat(String(log.calculated_hours)) || 0;
-                                                    return sum + (hours * (surcharges?.base_rate || 0));
-                                                }, 0).toFixed(2)}
+                                                €{Number(summary?.base_amount ?? 0).toFixed(2)}
                                             </span>
 
                                             <span style={{ color: '#D1D5DB', fontSize: '18px' }}>|</span>
@@ -832,14 +885,7 @@ export default function WorkLogsPage() {
                                                 padding: '8px 16px',
                                                 borderRadius: '8px'
                                             }}>
-                                                €{filteredLogs.reduce((sum, log) => {
-                                                    const surcharges = (log as any).surcharges_breakdown;
-                                                    const hours = parseFloat(String(log.calculated_hours)) || 0;
-                                                    const base = hours * (surcharges?.base_rate || 0);
-                                                    const surchargeAmount = surcharges?.total_surcharge_amount ? parseFloat(surcharges.total_surcharge_amount) : 0;
-                                                    const allowancesAmount = surcharges?.total_allowances_amount ? parseFloat(surcharges.total_allowances_amount) : 0;
-                                                    return sum + base + surchargeAmount + allowancesAmount;
-                                                }, 0).toFixed(2)}
+                                                €{Number(summary?.total_amount ?? 0).toFixed(2)}
                                             </span>
                                         </div>
                                     </div>

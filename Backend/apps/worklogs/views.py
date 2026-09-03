@@ -6,7 +6,7 @@ from decimal import Decimal
 from rest_framework import viewsets, status, permissions, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.db import models
 
 from apps.core.permissions import IsAdmin, IsAdminOrSelf
@@ -173,10 +173,23 @@ class WorkEntryViewSet(viewsets.ModelViewSet):
         # Apply filters from query params
         params = self.request.query_params
         
-        # Status filter
-        status_filter = params.get('status')
-        if status_filter:
-            queryset = queryset.filter(status=status_filter)
+        # Status filter — accepts one value or several, because the list page
+        # offers a multi-select.
+        status_values = [v for v in params.getlist('status') if v]
+        if status_values:
+            queryset = queryset.filter(status__in=status_values)
+
+        # Free-text search over the columns the list page shows. Filtering here
+        # rather than in the browser is what lets the page ask for one page at
+        # a time instead of every row.
+        search = (params.get('search') or '').strip()
+        if search:
+            queryset = queryset.filter(
+                Q(employee__first_name__icontains=search)
+                | Q(employee__last_name__icontains=search)
+                | Q(project__name__icontains=search)
+                | Q(project__customer__company_name__icontains=search)
+            )
         
         # Status exclusion
         exclude_status = params.getlist('exclude_status')
@@ -316,6 +329,77 @@ class WorkEntryViewSet(viewsets.ModelViewSet):
         """Delete a work entry."""
         return super().destroy(request, *args, **kwargs)
     
+    @action(detail=False, methods=['get'])
+    def summary(self, request):
+        """Totals over the whole filtered set, for a page that shows one page.
+
+        The list page used to fetch every entry so it could add the hours up in
+        the browser — the only reason it asked for 9999 rows. The same filters
+        apply here as to the list, so the totals describe exactly the set the
+        user is paging through, not just the rows on screen.
+
+        The figures come from the same two model methods the list serializer
+        uses for `surcharges_breakdown` and `hours_breakdown`, so a total can
+        never disagree with the rows it covers.
+        """
+        entries = self.filter_queryset(self.get_queryset())
+
+        count = 0
+        hours = Decimal('0')
+        night_hours = Decimal('0')
+        base_amount = Decimal('0')
+        surcharge_amount = Decimal('0')
+        allowance_amount = Decimal('0')
+        by_surcharge = {}
+
+        def dec(value):
+            return Decimal(str(value or 0))
+
+        for entry in entries.iterator(chunk_size=500):
+            breakdown = entry.get_hours_breakdown_detailed() or {}
+            entry_hours = dec(entry.calculated_hours)
+
+            count += 1
+            hours += entry_hours
+            night_hours += dec(breakdown.get('night_hours'))
+            base_amount += entry_hours * dec(entry.get_service_rate())
+            allowance_amount += dec(breakdown.get('total_allowances_amount'))
+
+            for line in breakdown.get('surcharges') or []:
+                surcharge_amount += dec(line.get('amount'))
+                name = line.get('name') or 'Unknown'
+                row = by_surcharge.setdefault(
+                    name,
+                    {'name': name, 'category': line.get('category'), 'hours': Decimal('0')})
+                row['hours'] += dec(line.get('hours'))
+
+        def money(value):
+            return str(value.quantize(Decimal('0.01')))
+
+        # The stat cards count by status over the same set, so one request
+        # serves both them and the totals bar.
+        # order_by() is cleared first: the list ordering would otherwise join
+        # the GROUP BY and return one row per entry instead of one per status.
+        status_counts = {
+            row['status']: row['n']
+            for row in entries.order_by().values('status').annotate(n=Count('id'))
+        }
+
+        return Response({
+            'count': count,
+            'status_counts': status_counts,
+            'hours': money(hours),
+            'night_hours': money(night_hours),
+            'base_amount': money(base_amount),
+            'surcharge_amount': money(surcharge_amount),
+            'allowance_amount': money(allowance_amount),
+            'total_amount': money(base_amount + surcharge_amount + allowance_amount),
+            'surcharges': [
+                {**row, 'hours': money(row['hours'])}
+                for row in sorted(by_surcharge.values(), key=lambda r: r['name'])
+            ],
+        })
+
     @action(detail=False, methods=['get'])
     def calendar(self, request):
         """Lightweight calendar endpoint — returns only dates and counts.

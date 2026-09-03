@@ -13,6 +13,13 @@ export type PhraseTable = Record<string, string>;
 
 /** English is the key space, so it needs no table of its own. */
 const nl: PhraseTable = {
+    // Pagination
+    'of': 'van',
+
+    // Pagination
+    'Rows per page': 'Rijen per pagina',
+    'per page': 'per pagina',
+
     // Employee detail tab
     'Contract': 'Contract',
 
@@ -995,6 +1002,13 @@ const nl: PhraseTable = {
 };
 
 const ar: PhraseTable = {
+    // Pagination
+    'of': 'من',
+
+    // Pagination
+    'Rows per page': 'صفوف لكل صفحة',
+    'per page': 'لكل صفحة',
+
     // Employee detail tab
     'Contract': 'العقد',
 
@@ -2086,6 +2100,13 @@ const ar: PhraseTable = {
 };
 
 const ru: PhraseTable = {
+    // Pagination
+    'of': 'из',
+
+    // Pagination
+    'Rows per page': 'Строк на странице',
+    'per page': 'на странице',
+
     // Employee detail tab
     'Contract': 'Договор',
 
@@ -3177,6 +3198,13 @@ const ru: PhraseTable = {
 };
 
 const uk: PhraseTable = {
+    // Pagination
+    'of': 'з',
+
+    // Pagination
+    'Rows per page': 'Рядків на сторінці',
+    'per page': 'на сторінці',
+
     // Employee detail tab
     'Contract': 'Договір',
 
