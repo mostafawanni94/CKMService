@@ -552,6 +552,17 @@ class GratuityViewSet(viewsets.ModelViewSet):
         status = self.request.query_params.get('status')
         if status:
             queryset = queryset.filter(status=status)
+
+        # Searching here rather than in the browser is what lets the page ask
+        # for one page instead of every gratuity.
+        search = (self.request.query_params.get('search') or '').strip()
+        if search:
+            queryset = queryset.filter(
+                Q(customer__company_name__icontains=search)
+                | Q(employee__first_name__icontains=search)
+                | Q(employee__last_name__icontains=search)
+                | Q(notes__icontains=search)
+            )
         
         # Filter by date range
         date_from = self.request.query_params.get('date_from')
@@ -572,6 +583,7 @@ class GratuityViewSet(viewsets.ModelViewSet):
         gratuity.status = 'paid'
         gratuity.paid_to_employee_date = paid_date
         gratuity.save()
+
         return Response(GratuitySerializer(gratuity).data)
 
 

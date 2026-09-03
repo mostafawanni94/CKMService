@@ -12,6 +12,7 @@ import { InvoiceFilters } from '@/components/features/invoices/InvoiceFilters';
 import { ExportInvoiceModal } from '@/components/features/invoices/ExportInvoiceModal';
 import { apiDownload, apiFetch, apiGetAll } from '@/hooks/useApi';
 import { useLanguage } from '@/lib/i18n';
+import { ListPager } from '@/components/ui/ListPager';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -33,6 +34,15 @@ export default function InvoicesPage() {
                 <div className="flex items-center justify-center h-64">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 </div>
+
+                <ListPager
+                    page={vm.page}
+                    totalPages={vm.totalPages}
+                    totalCount={vm.totalCount}
+                    pageSize={vm.pageSize}
+                    onPageChange={vm.setPage}
+                    onPageSizeChange={size => { vm.setPage(1); vm.setPageSize(size); }}
+                />
             </DashboardLayout>
         );
     }

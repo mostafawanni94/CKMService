@@ -38,9 +38,20 @@ class ShiftViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        if user.is_admin:
-            return self.queryset
-        return self.queryset.filter(employee__user=user)
+        queryset = self.queryset if user.is_admin else self.queryset.filter(
+            employee__user=user)
+
+        # Searching here rather than in the browser is what lets the page ask
+        # for one page instead of every shift.
+        search = (self.request.query_params.get('search') or '').strip()
+        if search:
+            queryset = queryset.filter(
+                Q(employee__first_name__icontains=search)
+                | Q(employee__last_name__icontains=search)
+                | Q(project__name__icontains=search)
+                | Q(project__customer__company_name__icontains=search)
+            )
+        return queryset
     
     def get_serializer_class(self):
         if self.action == 'create':
@@ -384,6 +395,7 @@ class WorkEntryViewSet(viewsets.ModelViewSet):
             row['status']: row['n']
             for row in entries.order_by().values('status').annotate(n=Count('id'))
         }
+
 
         return Response({
             'count': count,

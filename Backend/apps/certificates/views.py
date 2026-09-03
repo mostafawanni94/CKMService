@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from apps.core.permissions import IsAdmin, IsAdminOrReadOnly
 from .models import CertificateType, EmployeeCertificate
 from .serializers import CertificateTypeSerializer, EmployeeCertificateSerializer
+from django.db.models import Q
 
 
 class CertificateTypeViewSet(viewsets.ModelViewSet):
@@ -40,7 +41,17 @@ class EmployeeCertificateViewSet(viewsets.ModelViewSet):
         employee_id = self.request.query_params.get('employee', None)
         if employee_id is not None:
             queryset = queryset.filter(employee__id=employee_id)
-            
+
+        # Searching here rather than in the browser is what lets the page ask
+        # for one page instead of every row.
+        search = (self.request.query_params.get('search') or '').strip()
+        if search:
+            queryset = queryset.filter(
+                Q(employee__first_name__icontains=search)
+                | Q(employee__last_name__icontains=search)
+                | Q(certificate_type__name__icontains=search)
+            )
+
         user = self.request.user
         if user.is_admin:
             return queryset

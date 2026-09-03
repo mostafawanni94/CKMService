@@ -18,6 +18,7 @@ import {
 import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { apiFetch, apiGetAll } from '@/hooks/useApi';
+import { ListPager } from '@/components/ui/ListPager';
 
 // Types
 interface Gratuity {
@@ -54,6 +55,10 @@ export default function GratuitiesPage() {
     const { t } = useLanguage();
 
     // State
+    // Server-side paging; the count comes from the API.
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(25);
+    const [totalCount, setTotalCount] = useState(0);
     const [gratuities, setGratuities] = useState<Gratuity[]>([]);
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [employees, setEmployees] = useState<Employee[]>([]);
@@ -77,22 +82,34 @@ export default function GratuitiesPage() {
         notes: ''
     });
 
+    // Reference data once; the list again whenever paging or a filter changes.
     useEffect(() => {
-        fetchGratuities();
         fetchCustomers();
         fetchEmployees();
-    }, [filterStatus, filterCustomer]);
+    }, []);
+
+    useEffect(() => {
+        fetchGratuities();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, pageSize, searchQuery, filterStatus, filterCustomer]);
+
+    // A narrower result set must not strand the reader on a page that is gone.
+    useEffect(() => { setPage(1); }, [searchQuery, filterStatus, filterCustomer]);
 
     async function fetchGratuities() {
         try {
-            let url = `${API_URL}/customers/gratuities/`;
+            // One page, searched and filtered by the server.
             const params = new URLSearchParams();
             if (filterStatus) params.append('status', filterStatus);
             if (filterCustomer) params.append('customer', filterCustomer);
-            if (params.toString()) url += `?${params.toString()}`;
+            if (searchQuery.trim()) params.set('search', searchQuery.trim());
+            params.set('page', String(page));
+            params.set('page_size', String(pageSize));
 
-            // Every page: DRF pages at 20 and this list is filtered client-side.
-            setGratuities(await apiGetAll<Gratuity>(url));
+            const listRes = await apiFetch(`/customers/gratuities/?${params}`)
+                .then(r => (r.ok ? r.json() : { results: [], count: 0 }));
+            setGratuities(listRes.results ?? []);
+            setTotalCount(listRes.count ?? 0);
         } catch (error) {
             console.error('Failed to fetch gratuities:', error);
         } finally {
@@ -125,11 +142,10 @@ export default function GratuitiesPage() {
     }
 
     // Filter by search
-    const filtered = gratuities.filter(g =>
-        g.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        g.employee_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        g.notes?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // The server searched already; searching again would hide rows the count
+    // still includes.
+    const filtered = gratuities;
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
     // Stats
     const totalAmount = gratuities.reduce((sum, g) => sum + parseFloat(g.amount), 0);
@@ -608,6 +624,15 @@ export default function GratuitiesPage() {
                     </div>
                 </div>
             )}
+
+                <ListPager
+                    page={page}
+                    totalPages={totalPages}
+                    totalCount={totalCount}
+                    pageSize={pageSize}
+                    onPageChange={setPage}
+                    onPageSizeChange={size => { setPage(1); setPageSize(size); }}
+                />
         </DashboardLayout>
     );
 }

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui';
 import { Calendar, Clock, MapPin, User, Building2, Phone, Mail, Plus, Check, X, AlertCircle, Search, Filter } from 'lucide-react';
 import { apiFetch, apiGetAll } from '@/hooks/useApi';
 import { useLanguage } from '@/lib/i18n';
+import { ListPager } from '@/components/ui/ListPager';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -64,6 +65,10 @@ interface Service {
 export default function ShiftsPage() {
     const { t } = useLanguage();
     const router = useRouter();
+    // Server-side paging; the count comes from the API, not the page.
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(25);
+    const [totalCount, setTotalCount] = useState(0);
     const [shifts, setShifts] = useState<Shift[]>([]);
     const [pendingShifts, setPendingShifts] = useState<Shift[]>([]);
     const [loading, setLoading] = useState(true);
@@ -100,8 +105,16 @@ export default function ShiftsPage() {
     const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
 
+    // Reference data once; the list again whenever the page or search changes.
     useEffect(() => {
         loadShifts();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, pageSize, searchQuery]);
+
+    // A narrower result set must not strand the reader on a page that is gone.
+    useEffect(() => { setPage(1); }, [searchQuery]);
+
+    useEffect(() => {
         loadPendingShifts();
         loadEmployees();
         loadProjects();
@@ -111,7 +124,16 @@ export default function ShiftsPage() {
     async function loadShifts() {
         setLoading(true);
         try {
-            setShifts(await apiGetAll('/worklogs/shifts/'));
+            // One page, searched by the server. Fetching every row so the
+            // browser could search them does not scale.
+            const query = new URLSearchParams();
+            if (searchQuery.trim()) query.set('search', searchQuery.trim());
+            query.set('page', String(page));
+            query.set('page_size', String(pageSize));
+            const listRes = await apiFetch(`/worklogs/shifts/?${query}`)
+                .then(r => (r.ok ? r.json() : { results: [], count: 0 }));
+            setShifts(listRes.results ?? []);
+            setTotalCount(listRes.count ?? 0);
         } catch (error) {
             console.error('Failed to load shifts:', error);
         }
@@ -326,11 +348,10 @@ export default function ShiftsPage() {
     }
 
     const displayShifts = activeTab === 'pending' ? pendingShifts : shifts;
-    const filteredShifts = displayShifts.filter(s =>
-        s.employee_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.project_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.customer_name?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // The server applied the search; filtering again here would hide rows the
+    // count still includes.
+    const filteredShifts = displayShifts;
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
     const statusColors: Record<string, { bg: string, text: string }> = {
         scheduled: { bg: '#DBEAFE', text: '#1E40AF' },
@@ -796,6 +817,15 @@ export default function ShiftsPage() {
                     </div>
                 )}
             </div>
+
+                <ListPager
+                    page={page}
+                    totalPages={totalPages}
+                    totalCount={totalCount}
+                    pageSize={pageSize}
+                    onPageChange={setPage}
+                    onPageSizeChange={size => { setPage(1); setPageSize(size); }}
+                />
         </DashboardLayout>
     );
 }

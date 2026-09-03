@@ -78,6 +78,10 @@ export interface InvoiceGratuity {
 
 
 export function useInvoices() {
+    // Server-side paging; the count comes from the API.
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(25);
+    const [totalCount, setTotalCount] = useState(0);
     const [invoices, setInvoices] = useState<Invoice[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -122,9 +126,13 @@ export function useInvoices() {
     const [customerSurcharges, setCustomerSurcharges] = useState<{ name: string; percentage: number }[]>([]);
 
     useEffect(() => {
-        loadInvoices();
         loadFilterData();
     }, []);
+
+    useEffect(() => {
+        loadInvoices();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, pageSize]);
 
     // Load worklogs when filters change
     useEffect(() => {
@@ -455,9 +463,15 @@ export function useInvoices() {
         setLoading(true);
         setError(null);
         try {
-            // Every page. Only the first twenty invoices were reachable, and
-            // an invoice you cannot see is an invoice you cannot chase.
-            setInvoices(await apiGetAll<Invoice>('/invoices/invoices/'));
+            // One page, counted by the server. Fetching every invoice so the
+            // browser could hold them all does not scale past a year or two.
+            const query = new URLSearchParams();
+            query.set('page', String(page));
+            query.set('page_size', String(pageSize));
+            const listRes = await apiFetch(`/invoices/invoices/?${query}`)
+                .then(r => (r.ok ? r.json() : { results: [], count: 0 }));
+            setInvoices(listRes.results ?? []);
+            setTotalCount(listRes.count ?? 0);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load invoices');
         } finally {
@@ -543,6 +557,8 @@ export function useInvoices() {
 
 
     return {
+        page, setPage, pageSize, setPageSize, totalCount,
+        totalPages: Math.max(1, Math.ceil(totalCount / pageSize)),
         statusColors, customerSearch, customerSurcharges, customers, employeeSearch, employees, error, exportExcelForCustomer, exportExcelForEmployee, exportPDF, filter, filteredInvoices, generateInvoice, getFilteredHours, invoiceMessage, invoices, loadInvoiceDetail, loadInvoices, loadSupervisors, loading, loadingWorklogs, router, search, selectedCustomer, selectedEmployees, selectedInvoice, selectedSupervisor, setCustomerSearch, setEmployeeSearch, setFilter, setInvoiceMessage, setSearch, setSelectedCustomer, setSelectedEmployees, setSelectedInvoice, setSelectedSupervisor, setShowCustomerDropdown, setShowEmployeeDropdown, setShowExportModal, setShowFilters, setShowSupervisorDropdown, setSupervisorSearch, setSupervisors, setWeekEnd, setWeekStart, setWorklogStatusFilter, setWorklogs, showCustomerDropdown, showEmployeeDropdown, showExportModal, showFilters, showSupervisorDropdown, supervisorSearch, supervisors, weekEnd, weekStart, worklogStatusFilter, worklogs,
     };
 }

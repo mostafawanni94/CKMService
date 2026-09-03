@@ -20,6 +20,7 @@ import {
 import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { apiFetch, readApiError, apiGetAll } from '@/hooks/useApi';
+import { ListPager } from '@/components/ui/ListPager';
 
 // Types
 interface CertificateType {
@@ -36,6 +37,10 @@ interface CertificateType {
 
 export default function CertificatesPage() {
     const { t } = useLanguage();
+    // Server-side paging; the count comes from the API, not the page.
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(25);
+    const [totalCount, setTotalCount] = useState(0);
     const [certificates, setCertificates] = useState<CertificateType[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -59,7 +64,11 @@ export default function CertificatesPage() {
     // Load certificate types from API
     useEffect(() => {
         loadCertificates();
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, pageSize, searchQuery]);
+
+    // A narrower result set must not strand the reader on a page that is gone.
+    useEffect(() => { setPage(1); }, [searchQuery]);
 
     async function loadCertificates() {
         setLoading(true);
@@ -71,7 +80,16 @@ export default function CertificatesPage() {
             const data = await response.json();
             // Every page, not just the first: DRF pages at 20, and this list is
             // filtered in the browser, so a partial fetch silently hid rows.
-            setCertificates(await apiGetAll('/certificates/employee-certificates/'));
+            // One page, searched by the server. Fetching every row so the
+            // browser could search them does not scale.
+            const query = new URLSearchParams();
+            if (searchQuery.trim()) query.set('search', searchQuery.trim());
+            query.set('page', String(page));
+            query.set('page_size', String(pageSize));
+            const listRes = await apiFetch(`/certificates/employee-certificates/?${query}`)
+                .then(r => (r.ok ? r.json() : { results: [], count: 0 }));
+            setCertificates(listRes.results ?? []);
+            setTotalCount(listRes.count ?? 0);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load certificate types');
         } finally {
@@ -80,14 +98,13 @@ export default function CertificatesPage() {
     }
 
     // Filter certificates
-    const filteredCertificates = certificates.filter(cert => {
-        const matchesSearch = cert.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            cert.description.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesFilter = filterActive === 'all' ||
-            (filterActive === 'active' && cert.is_active) ||
-            (filterActive === 'inactive' && !cert.is_active);
-        return matchesSearch && matchesFilter;
-    });
+    // The server applied the search; the active/inactive toggle stays local
+    // because it is a property of the row, not a query the API offers.
+    const filteredCertificates = certificates.filter(cert =>
+        filterActive === 'all'
+        || (filterActive === 'active' && cert.is_active)
+        || (filterActive === 'inactive' && !cert.is_active));
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
     // Stats
     const stats = {
@@ -838,6 +855,15 @@ export default function CertificatesPage() {
                     </div>
                 )}
             </div>
+
+                <ListPager
+                    page={page}
+                    totalPages={totalPages}
+                    totalCount={totalCount}
+                    pageSize={pageSize}
+                    onPageChange={setPage}
+                    onPageSizeChange={size => { setPage(1); setPageSize(size); }}
+                />
         </DashboardLayout>
     );
 }
