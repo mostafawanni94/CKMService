@@ -14,6 +14,11 @@ class VatTreatmentCode(models.TextChoices):
     NORMAL = 'NORMAL', 'Normal (VAT charged)'
     VAT_INCLUDED = 'VAT_INCLUDED', 'Normal, price includes VAT'
     REVERSE_CHARGE = 'REVERSE_CHARGE', 'Reverse charge (btw verlegd)'
+    # Buying from abroad. REVERSE_CHARGE above is the domestic
+    # verleggingsregeling on what CKM supplies, and posts to rubriek 1e; an
+    # acquisition belongs in 4b or 4a instead, with the VAT reclaimed in 5b.
+    EU_ACQUISITION = 'EU_ACQUISITION', 'Purchase from within the EU (rubriek 4b)'
+    IMPORT_ACQUISITION = 'IMPORT_ACQUISITION', 'Purchase from outside the EU (rubriek 4a)'
     ZERO_RATE = 'ZERO_RATE', 'Zero rated (0%)'
     EXEMPT = 'EXEMPT', 'Exempt (vrijgesteld)'
     OUT_OF_SCOPE = 'OUT_OF_SCOPE', 'Outside the scope of VAT'

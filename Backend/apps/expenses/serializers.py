@@ -68,9 +68,29 @@ class ExpenseDetailSerializer(serializers.ModelSerializer):
         return None
 
 
+class VatRateField(serializers.ChoiceField):
+    """The VAT rate: one of a fixed set, but stored as a decimal.
+
+    `Expense.vat_rate` is a DecimalField that carries `choices`, so DRF builds
+    a ChoiceField for it — and a ChoiceField hands the raw string on. It also
+    copies the model's DecimalValidator, which calls `.as_tuple()`. A string
+    has no such method, so every write raised AttributeError and the API
+    answered 500 — including the dashboard's own expense form, for all three
+    rates.
+
+    Coercing to Decimal here satisfies the validator while the choice list
+    keeps rejecting rates that are not 0, 9 or 21 percent.
+    """
+
+    def to_internal_value(self, data):
+        return Decimal(super().to_internal_value(data))
+
+
 class ExpenseCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating/updating expenses."""
     receipt_file = serializers.FileField(required=False, allow_null=True)
+    vat_rate = VatRateField(
+        choices=Expense._meta.get_field('vat_rate').choices, required=False)
     
     class Meta:
         model = Expense
@@ -81,6 +101,16 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
             'reference_number', 'receipt_file',
             'is_recurring', 'recurring_frequency',
             'status', 'notes',
+            # Without these the VAT panel's PATCH answered 200 and changed
+            # nothing, so an expense could never be anything but UNKNOWN and
+            # every one of them sat in "requires review" for ever.
+            'vat_treatment_code', 'deductible_percentage', 'vat_notes',
+            'is_staff_lending_or_subcontracting',
+            'is_physical_work_on_immovable_property',
+            'invoice_states_reverse_charge',
+            'majority_work_in_own_workshop',
+            'lent_to_subcontractor_working_own_premises',
+            'ancillary_to_goods_sold', 'is_design_work', 'is_guarding_or_rental',
         ]
     
     def create(self, validated_data):
@@ -88,21 +118,12 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
         if request and request.user:
             validated_data['created_by'] = request.user
         
-        # Auto-calculate VAT and total
-        amount = validated_data.get('amount_excl_vat', Decimal('0'))
-        vat_rate = validated_data.get('vat_rate', Decimal('21.00'))
-        validated_data['vat_amount'] = (amount * vat_rate / 100).quantize(Decimal('0.01'))
-        validated_data['total_amount'] = amount + validated_data['vat_amount']
-        
+        # Expense.save() derives vat_amount and total_amount from the net
+        # amount and the rate; they are what the supplier charged. How much of
+        # it CKM may reclaim is decided separately, from vat_treatment_code.
         return super().create(validated_data)
     
     def update(self, instance, validated_data):
-        # Recalculate VAT if amount changed
-        amount = validated_data.get('amount_excl_vat', instance.amount_excl_vat)
-        vat_rate = validated_data.get('vat_rate', instance.vat_rate)
-        validated_data['vat_amount'] = (amount * vat_rate / 100).quantize(Decimal('0.01'))
-        validated_data['total_amount'] = amount + validated_data['vat_amount']
-        
         return super().update(instance, validated_data)
 
 
