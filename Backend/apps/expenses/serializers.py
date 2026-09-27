@@ -91,12 +91,19 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
     receipt_file = serializers.FileField(required=False, allow_null=True)
     vat_rate = VatRateField(
         choices=Expense._meta.get_field('vat_rate').choices, required=False)
+    # Optional: supply them to record what the document prints, or leave them
+    # out and let Expense.save() derive them from the net amount and the rate.
+    vat_amount = serializers.DecimalField(
+        max_digits=10, decimal_places=2, required=False)
+    total_amount = serializers.DecimalField(
+        max_digits=10, decimal_places=2, required=False)
     
     class Meta:
         model = Expense
         fields = [
             'category', 'description', 'vendor_name',
-            'amount_excl_vat', 'vat_rate', 'expense_date',
+            'amount_excl_vat', 'vat_rate', 'vat_amount', 'total_amount',
+            'expense_date',
             'payment_method', 'is_paid', 'paid_date',
             'reference_number', 'receipt_file',
             'is_recurring', 'recurring_frequency',
@@ -118,12 +125,17 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
         if request and request.user:
             validated_data['created_by'] = request.user
         
-        # Expense.save() derives vat_amount and total_amount from the net
-        # amount and the rate; they are what the supplier charged. How much of
-        # it CKM may reclaim is decided separately, from vat_treatment_code.
-        return super().create(validated_data)
+        # A caller that read the VAT off the document keeps it; otherwise
+        # Expense.save() derives it from the net amount and the rate.
+        instance = Expense(**validated_data)
+        instance.amounts_stated_on_document = (
+            'vat_amount' in validated_data or 'total_amount' in validated_data)
+        instance.save()
+        return instance
     
     def update(self, instance, validated_data):
+        instance.amounts_stated_on_document = (
+            'vat_amount' in validated_data or 'total_amount' in validated_data)
         return super().update(instance, validated_data)
 
 

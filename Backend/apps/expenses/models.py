@@ -319,6 +319,10 @@ class Expense(VatClassifiableMixin, BaseModel):
     def __str__(self):
         return f"{self.vendor_name} - €{self.total_amount} ({self.expense_date})"
     
+    #: Set when the caller supplied the figures printed on the document, so
+    #: `save` records those instead of deriving its own.
+    amounts_stated_on_document = False
+
     def save(self, *args, **kwargs):
         """
         Derive VAT and the total from the net amount and the rate.
@@ -326,8 +330,17 @@ class Expense(VatClassifiableMixin, BaseModel):
         These are the figures on the supplier's receipt. What CKM may deduct is
         a separate question, decided by the VAT engine from `vat_treatment_code`
         and `deductible_percentage` — never by this arithmetic.
+
+        Deriving them is right when only a net amount and a rate are known, and
+        wrong when the document itself states them. A Dutch till computes the
+        VAT on a gross price as 21/121 and rounds that; this computes 21/100 of
+        the net and rounds that. The two disagree by a cent often enough — two
+        of four Action and Praxis receipts in one week — and when they do, the
+        receipt and the bank statement are the record, not this arithmetic. So
+        a caller that has read the figures off the document says so, and they
+        are kept.
         """
-        if self.amount_excl_vat:
+        if self.amount_excl_vat and not self.amounts_stated_on_document:
             self.vat_amount = (self.amount_excl_vat * self.vat_rate / 100).quantize(Decimal('0.01'))
             self.total_amount = self.amount_excl_vat + self.vat_amount
         if self.paid_by_employee_id and self.reimbursement_status == self.Reimbursement.NOT_APPLICABLE:
