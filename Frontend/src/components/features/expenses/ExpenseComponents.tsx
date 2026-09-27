@@ -4,7 +4,7 @@
 'use client';
 
 import React from 'react';
-import { Receipt, Trash2, Edit3, Upload, Euro } from 'lucide-react';
+import { Receipt, Trash2, Edit3, Upload, Euro, FileText, Eye, Download } from 'lucide-react';
 import {
   Modal, Button, Input, Select, FormGrid, Badge,
   DataTable, StatCard, EmptyState
@@ -12,6 +12,7 @@ import {
 import type { Column } from '@/components/ui/shared';
 import { colors, spacing, fontSize, fontWeight } from '@/styles/tokens';
 import type { Expense, ExpenseCategory } from '@/lib/types';
+import { mediaHref, mediaName } from '@/lib/media';
 import { PAYMENT_METHODS, VAT_RATES } from '@/lib/types';
 import type { ExpenseForm } from '@/hooks/useExpenses';
 import { useLanguage } from '@/lib/i18n';
@@ -84,6 +85,20 @@ export function ExpenseTable({ expenses, loading, onEdit, onDelete }: ExpenseTab
       render: (e) => <span style={{ fontSize: fontSize.md, color: colors.textMuted }}>{e.payment_method_display}</span>
     },
     {
+      key: 'receipt', header: t('Receipt'), align: 'center',
+      render: (e) => {
+        const href = mediaHref(e.receipt_url);
+        if (!href) return <span style={{ fontSize: fontSize.xs, color: colors.textMuted }}>—</span>;
+        return (
+          <a href={href} target="_blank" rel="noopener noreferrer"
+            title={e.receipt_name || t('View receipt')}
+            style={{ display: 'inline-flex', color: colors.primary, padding: '4px' }}>
+            <FileText size={16} />
+          </a>
+        );
+      }
+    },
+    {
       key: 'actions', header: '',
       render: (e) => (
         <div style={{ display: 'flex', gap: spacing.sm }}>
@@ -124,18 +139,30 @@ interface ExpenseModalProps {
   setReceiptFile: (file: File | null) => void;
   onSave: () => void;
   saving: boolean;
+  /** The document already on file, when editing. */
+  currentReceipt?: { url: string | null; name: string | null } | null;
+  /** What the document states, so an untouched form previews the stored
+   *  figures rather than re-deriving them. */
+  stated?: { net: string; rate: string; vat: string; total: string } | null;
 }
 
 export function ExpenseModal({
   open, onClose, title, form, updateForm,
-  categories, receiptFile, setReceiptFile, onSave, saving
+  categories, receiptFile, setReceiptFile, onSave, saving,
+  currentReceipt, stated
 }: ExpenseModalProps) {
     const { t } = useLanguage();
-  // Calculate preview
+  const href = mediaHref(currentReceipt?.url);
+  const storedName = currentReceipt?.name || mediaName(currentReceipt?.url, t('Receipt'));
+
+  // Preview. While the amounts are untouched, show what the document states —
+  // several receipts print a VAT a cent away from net x rate, and that is the
+  // figure that will be saved.
   const amountExcl = parseFloat(form.amount_excl_vat) || 0;
   const vatRate = parseFloat(form.vat_rate) || 0;
-  const vatAmount = amountExcl * vatRate / 100;
-  const total = amountExcl + vatAmount;
+  const untouched = !!stated && stated.net === form.amount_excl_vat && stated.rate === form.vat_rate;
+  const vatAmount = untouched && stated.vat ? parseFloat(stated.vat) : amountExcl * vatRate / 100;
+  const total = untouched && stated.total ? parseFloat(stated.total) : amountExcl + vatAmount;
 
   return (
     <Modal open={open} onClose={onClose} title={title} width="640px" footer={
@@ -196,16 +223,46 @@ export function ExpenseModal({
             <label style={{ display: 'block', fontSize: fontSize.md, fontWeight: fontWeight.semibold, color: colors.textSecondary, marginBottom: '6px' }}>
               {t('Receipt (Photo/PDF)')}
             </label>
+
+            {/* The stored document, if there is one. Without this the form
+                only ever offered an upload box, so an invoice that was already
+                filed could not be read back or saved off. */}
+            {href && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px',
+                marginBottom: '8px', background: colors.bgAlt, borderRadius: '8px',
+              }}>
+                <FileText size={16} color={colors.primary} style={{ flexShrink: 0 }} />
+                <span title={storedName} style={{
+                  flex: 1, minWidth: 0, fontSize: fontSize.sm, color: colors.textSecondary,
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                }}>{storedName}</span>
+                <a href={href} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: fontSize.sm, fontWeight: fontWeight.semibold, color: colors.primary, textDecoration: 'none', flexShrink: 0 }}>
+                  <Eye size={14} />{t('View')}
+                </a>
+                <a href={href} download={storedName}
+                  style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: fontSize.sm, fontWeight: fontWeight.semibold, color: colors.primary, textDecoration: 'none', flexShrink: 0 }}>
+                  <Download size={14} />{t('Download')}
+                </a>
+              </div>
+            )}
+
             <label style={{
               display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px',
               border: `1.5px dashed ${colors.border}`, borderRadius: '8px', cursor: 'pointer',
               fontSize: fontSize.base, color: colors.textMuted
             }}>
               <Upload size={16} />
-              {receiptFile ? receiptFile.name : 'Choose file...'}
+              {receiptFile ? receiptFile.name : (href ? t('Replace file...') : t('Choose file...'))}
               <input type="file" accept="image/*,.pdf" style={{ display: 'none' }}
                 onChange={e => setReceiptFile(e.target.files?.[0] || null)} />
             </label>
+            {href && receiptFile && (
+              <div style={{ marginTop: '6px', fontSize: fontSize.xs, color: colors.warning ?? colors.textMuted }}>
+                {t('Saving will replace the stored document.')}
+              </div>
+            )}
           </div>
         </FormGrid>
       </div>

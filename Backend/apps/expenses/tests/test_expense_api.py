@@ -8,6 +8,7 @@ answered 500, at all three rates, so no expense could be recorded at all.
 
 from decimal import Decimal
 
+from django.core.files.base import ContentFile
 from django.test import TestCase
 from rest_framework.test import APIClient
 
@@ -128,3 +129,141 @@ class DocumentFiguresTests(TestCase):
         expense = Expense.objects.latest('created_at')
         self.assertEqual(expense.total_amount, Decimal('43.38'))
         self.assertEqual(expense.vat_treatment_code, 'EU_ACQUISITION')
+
+
+class ExpenseTotalsTests(TestCase):
+    """The header cards must describe the whole filtered set, not the page.
+
+    The list is paged at 20 by default. Summing the rows in the browser made
+    the Expenses page report "20 expenses / EUR 311.77" for a year that held
+    54 and EUR 1,573.74 — the count was simply the page size.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.admin = make_user(role='admin')
+        vehicle = ExpenseCategory.objects.get(code='VEHICLE')
+        cls.marketing = ExpenseCategory.objects.get(code='MARKETING')
+        for i in range(30):
+            Expense.objects.create(
+                category=vehicle, description='Euro 95', vendor_name=f'ESSO {i}',
+                expense_date='2026-09-18', payment_method='credit_card',
+                amount_excl_vat=Decimal('10.00'), vat_rate=Decimal('21.00'))
+        for i in range(5):
+            Expense.objects.create(
+                category=cls.marketing, description='Flyers',
+                vendor_name=f'Vistaprint {i}', expense_date='2026-08-14',
+                payment_method='ideal', amount_excl_vat=Decimal('100.00'),
+                vat_rate=Decimal('21.00'))
+        # A different year, to prove the filter is applied.
+        Expense.objects.create(
+            category=vehicle, description='Euro 95', vendor_name='ESSO old',
+            expense_date='2025-01-05', payment_method='credit_card',
+            amount_excl_vat=Decimal('999.00'), vat_rate=Decimal('21.00'))
+
+    def setUp(self):
+        self.client = APIClient()
+        self.client.force_authenticate(self.admin)
+
+    def totals(self, query=''):
+        r = self.client.get('/api/expenses/expenses/totals/' + query)
+        self.assertEqual(r.status_code, 200)
+        return r.json()
+
+    def test_totals_cover_every_row_not_just_the_first_page(self):
+        listing = self.client.get('/api/expenses/expenses/?year=2026').json()
+        self.assertEqual(len(listing['results']), 20, 'default page is 20')
+        self.assertEqual(listing['count'], 35)
+
+        totals = self.totals('?year=2026')
+        self.assertEqual(totals['count'], 35)
+        # 30 x 12.10 + 5 x 121.00
+        self.assertEqual(Decimal(totals['total_incl_vat']), Decimal('968.00'))
+        self.assertEqual(Decimal(totals['total_excl_vat']), Decimal('800.00'))
+        self.assertEqual(Decimal(totals['total_vat']), Decimal('168.00'))
+
+    def test_totals_do_not_move_between_pages(self):
+        first = self.totals('?year=2026&page=1&page_size=20')
+        last = self.totals('?year=2026&page=2&page_size=20')
+        self.assertEqual(first, last)
+
+    def test_totals_follow_the_same_filters_as_the_list(self):
+        listing = self.client.get(
+            f'/api/expenses/expenses/?year=2026&category={self.marketing.id}').json()
+        totals = self.totals(f'?year=2026&category={self.marketing.id}')
+        self.assertEqual(totals['count'], listing['count'])
+        self.assertEqual(Decimal(totals['total_incl_vat']), Decimal('605.00'))
+
+        search = self.client.get('/api/expenses/expenses/?year=2026&search=Vistaprint').json()
+        self.assertEqual(self.totals('?year=2026&search=Vistaprint')['count'],
+                         search['count'])
+
+    def test_year_filter_excludes_other_years(self):
+        self.assertEqual(self.totals('?year=2025')['count'], 1)
+        self.assertEqual(Decimal(self.totals('?year=2025')['total_incl_vat']),
+                         Decimal('1208.79'))
+
+    def test_category_breakdown_groups_rather_than_listing_each_row(self):
+        by_cat = {c['code']: c for c in self.totals('?year=2026')['by_category']}
+        self.assertEqual(by_cat['VEHICLE']['count'], 30)
+        self.assertEqual(by_cat['MARKETING']['count'], 5)
+        self.assertEqual(Decimal(by_cat['MARKETING']['total']), Decimal('605.00'))
+
+    def test_empty_set_reports_zero_not_null(self):
+        totals = self.totals('?year=2026&search=nothing-matches-this')
+        self.assertEqual(totals['count'], 0)
+        self.assertEqual(Decimal(totals['total_incl_vat']), Decimal('0.00'))
+
+    def test_money_is_a_string_so_it_survives_json(self):
+        """A bare Decimal renders as a float: EUR 1208.79 -> 1208.7899999999999."""
+        totals = self.totals('?year=2025')
+        self.assertIsInstance(totals['total_incl_vat'], str)
+        self.assertEqual(totals['total_incl_vat'], '1208.79')
+
+
+class ExpenseReceiptLinkTests(TestCase):
+    """The stored document has to be reachable from the list and the form.
+
+    The edit modal offered an upload box and nothing else, so an invoice that
+    was already filed could not be read back or saved off — the only way to
+    the file was the detail endpoint, which the page never called.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.admin = make_user(role='admin')
+        cls.category = ExpenseCategory.objects.get(code='VEHICLE')
+
+    def setUp(self):
+        self.client = APIClient()
+        self.client.force_authenticate(self.admin)
+
+    def make(self, receipt=None):
+        expense = Expense.objects.create(
+            category=self.category, description='Euro 95', vendor_name='ESSO',
+            expense_date='2026-09-18', payment_method='credit_card',
+            amount_excl_vat=Decimal('24.80'), vat_rate=Decimal('21.00'))
+        if receipt:
+            expense.receipt_file.save(receipt, ContentFile(b'%PDF-1.4 test'), save=True)
+        return expense
+
+    def test_list_row_carries_a_signed_link_and_a_name(self):
+        self.make('bon.pdf')
+        row = self.client.get('/api/expenses/expenses/').json()['results'][0]
+        self.assertTrue(row['has_receipt'])
+        self.assertIn('/media/', row['receipt_url'])
+        self.assertIn('sig=', row['receipt_url'], 'unsigned media links are refused')
+        self.assertTrue(row['receipt_name'].endswith('.pdf'))
+
+    def test_detail_carries_the_name_too(self):
+        expense = self.make('factuur.pdf')
+        body = self.client.get(f'/api/expenses/expenses/{expense.id}/').json()
+        self.assertIn('sig=', body['receipt_url'])
+        self.assertTrue(body['receipt_name'].endswith('.pdf'))
+
+    def test_an_expense_without_a_document_reports_null_not_a_broken_link(self):
+        self.make()
+        row = self.client.get('/api/expenses/expenses/').json()['results'][0]
+        self.assertFalse(row['has_receipt'])
+        self.assertIsNone(row['receipt_url'])
+        self.assertIsNone(row['receipt_name'])

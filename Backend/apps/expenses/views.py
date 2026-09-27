@@ -182,6 +182,58 @@ class ExpenseViewSet(viewsets.ModelViewSet):
         return qs
     
     @action(detail=False, methods=['get'])
+    def totals(self, request):
+        """
+        Totals over the whole filtered set, not the page on screen.
+
+        The list is paged, so the header cards cannot be summed in the browser:
+        they would only ever describe the twenty rows that happen to be loaded,
+        and the count would read 20 however many expenses the year holds. This
+        runs the same filters as the list and aggregates in the database, so
+        narrowing by year, category or search moves the cards with the table.
+
+        Unlike `summary`, this follows the list exactly — every status, not
+        only approved — because it is describing the rows underneath it.
+        """
+        qs = self.filter_queryset(self.get_queryset())
+        agg = qs.aggregate(
+            count=Count('id'),
+            total_excl_vat=Sum('amount_excl_vat'),
+            total_vat=Sum('vat_amount'),
+            total_incl_vat=Sum('total_amount'),
+        )
+        # order_by() clears the queryset's -expense_date ordering; without it
+        # the sort column joins the GROUP BY and every row comes back its own
+        # group.
+        by_category = (
+            qs.order_by()
+              .values('category__code', 'category__name')
+              .annotate(count=Count('id'), total=Sum('total_amount'))
+              .order_by('-total')
+        )
+        # As strings, like every other money field the API returns. Rendered
+        # bare, a Decimal reaches JSON as a float and EUR 1208.79 arrives as
+        # 1208.7899999999999.
+        def money(value):
+            return str((value or Decimal('0.00')).quantize(Decimal('0.01')))
+
+        return Response({
+            'count': agg['count'] or 0,
+            'total_excl_vat': money(agg['total_excl_vat']),
+            'total_vat': money(agg['total_vat']),
+            'total_incl_vat': money(agg['total_incl_vat']),
+            'by_category': [
+                {
+                    'code': row['category__code'],
+                    'name': row['category__name'],
+                    'count': row['count'],
+                    'total': money(row['total']),
+                }
+                for row in by_category
+            ],
+        })
+
+    @action(detail=False, methods=['get'])
     def summary(self, request):
         """
         Financial summary with BTW overview.

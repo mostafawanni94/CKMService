@@ -6,6 +6,7 @@
 import { Plus, Download } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/dashboard';
 import { PageHeader, SectionCard, SearchBar, Select, Button } from '@/components/ui/shared';
+import { ListPager } from '@/components/ui/ListPager';
 import { ExpenseStats, ExpenseTable, ExpenseModal } from '@/components/features/expenses/ExpenseComponents';
 import { useExpenses } from '@/hooks/useExpenses';
 import styles from './page.module.css';
@@ -50,6 +51,14 @@ export default function ExpensesPage() {
             onEdit={vm.openEdit}
             onDelete={vm.handleDelete}
           />
+          <ListPager
+            page={vm.page}
+            totalPages={vm.totalPages}
+            totalCount={vm.totalCount}
+            pageSize={vm.pageSize}
+            onPageChange={vm.setPage}
+            onPageSizeChange={vm.setPageSize}
+          />
         </SectionCard>
 
         <ExpenseModal
@@ -63,6 +72,8 @@ export default function ExpensesPage() {
           setReceiptFile={vm.setReceiptFile}
           onSave={vm.handleSave}
           saving={vm.saving}
+          currentReceipt={vm.currentReceipt}
+          stated={vm.statedAmounts}
         />
       </div>
     </DashboardLayout>

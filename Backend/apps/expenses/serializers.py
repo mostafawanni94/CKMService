@@ -29,7 +29,12 @@ class ExpenseListSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     payment_method_display = serializers.CharField(source='get_payment_method_display', read_only=True)
     has_receipt = serializers.SerializerMethodField()
-    
+    # The list carries the link too, so the stored invoice can be opened from
+    # the table without a round trip to the detail endpoint. Signing is pure
+    # computation — no extra query per row.
+    receipt_url = serializers.SerializerMethodField()
+    receipt_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Expense
         fields = [
@@ -38,14 +43,20 @@ class ExpenseListSerializer(serializers.ModelSerializer):
             'vat_amount', 'total_amount', 'expense_date', 'payment_method',
             'payment_method_display', 'is_paid', 'paid_date', 'reference_number',
             'is_recurring', 'recurring_frequency', 'status', 'status_display',
-            'has_receipt', 'created_at',
+            'has_receipt', 'receipt_url', 'receipt_name', 'created_at',
             'paid_by_employee', 'paid_by_employee_name', 'reimbursement_status',
             'reimbursed_at', 'incoming_invoice',
             'vat_treatment_code', 'deductible_percentage',
         ]
-    
+
     def get_has_receipt(self, obj):
         return bool(obj.receipt_file)
+
+    def get_receipt_url(self, obj):
+        return signed_media_url(obj.receipt_file, self.context.get('request'))
+
+    def get_receipt_name(self, obj):
+        return obj.receipt_file.name.rsplit('/', 1)[-1] if obj.receipt_file else None
 
 
 class ExpenseDetailSerializer(serializers.ModelSerializer):
@@ -54,11 +65,12 @@ class ExpenseDetailSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     payment_method_display = serializers.CharField(source='get_payment_method_display', read_only=True)
     receipt_url = serializers.SerializerMethodField()
-    
+    receipt_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Expense
         fields = '__all__'
-    
+
     def get_receipt_url(self, obj):
         if obj.receipt_file:
             request = self.context.get('request')
@@ -66,6 +78,9 @@ class ExpenseDetailSerializer(serializers.ModelSerializer):
                 return signed_media_url(obj.receipt_file, request)
             return obj.receipt_file.url
         return None
+
+    def get_receipt_name(self, obj):
+        return obj.receipt_file.name.rsplit('/', 1)[-1] if obj.receipt_file else None
 
 
 class VatRateField(serializers.ChoiceField):

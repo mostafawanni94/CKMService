@@ -136,6 +136,10 @@ export interface Expense {
   paid_date: string | null;
   reference_number: string;
   receipt_file: string | null;
+  /** Signed link to the stored document; present on both list and detail. */
+  receipt_url: string | null;
+  receipt_name: string | null;
+  has_receipt?: boolean;
   is_recurring: boolean;
   recurring_frequency: string;
   status: string;
