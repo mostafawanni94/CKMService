@@ -482,8 +482,13 @@ export default function Home() {
                 EN
               </button>
             </div>
-            <a href="#contact" className="ckm-btn ckm-btn-primary">
-              {t.getQuote}
+            {/* Two labels: the bar has room for "Get In Touch" / "Neem
+                Contact Op" on a desktop, but on a phone it also carries the
+                logo, the language toggle and the hamburger, and the long form
+                broke onto a second line. */}
+            <a href="#contact" className="ckm-btn ckm-btn-primary ckm-nav-cta">
+              <span className="ckm-nav-cta-long">{t.getQuote}</span>
+              <span className="ckm-nav-cta-short">{t.contact}</span>
             </a>
             <button
               className="ckm-hamburger"

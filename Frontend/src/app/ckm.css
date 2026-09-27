@@ -291,6 +291,12 @@
   font-weight: 500;
 }
 
+/* The nav call-to-action carries two labels; the wide one is the default and
+   the narrow one only appears once the bar gets crowded. */
+.ckm-nav-cta-short {
+  display: none;
+}
+
 /* ─── BUTTONS ─── */
 .ckm-btn {
   display: inline-flex;
@@ -1409,6 +1415,30 @@
     display: flex;
   }
 
+  /* Once the links collapse, the bar still carries the logo, the language
+     toggle, this button and the hamburger. At the desktop padding of
+     13px/30px the label had less room than it needed, so "Get In Touch" broke
+     onto two lines and doubled the height of the bar — and the Dutch default,
+     "Neem Contact Op", is wider still. Swap to the short label and tighten the
+     button rather than letting it wrap. */
+  .ckm-nav-right {
+    gap: 10px;
+  }
+
+  .ckm-nav-cta {
+    padding: 9px 18px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .ckm-nav-cta-long {
+    display: none;
+  }
+
+  .ckm-nav-cta-short {
+    display: inline;
+  }
+
   .ckm-hero-content h1 {
     font-size: 34px;
     letter-spacing: -1px;
@@ -1530,5 +1560,25 @@
 
   .ckm-why-card {
     padding: 32px 24px;
+  }
+}
+/* The narrowest phones still in use (360px, and 320px on an old SE). Both
+   labels read "Contact" by this point, so only the surrounding chrome needs
+   to give up a few more pixels. */
+@media (max-width: 400px) {
+  .ckm-nav-inner {
+    padding: 0 16px;
+  }
+
+  .ckm-nav-right {
+    gap: 8px;
+  }
+
+  .ckm-nav-cta {
+    padding: 8px 14px;
+  }
+
+  .ckm-lang-btn {
+    padding: 5px 10px;
   }
 }
