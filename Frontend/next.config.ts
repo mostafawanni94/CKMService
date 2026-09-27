@@ -15,6 +15,15 @@ const nextConfig: NextConfig = {
 
   devIndicators: false,
 
+  // Type-check the app, not the test suite. `next build` runs tsc over
+  // everything the tsconfig selects, and the tests import vitest — a
+  // devDependency missing from a production install, which failed the build
+  // on a file that is never served. tsconfig.json still includes them, so the
+  // editor and `npx tsc --noEmit` keep checking tests.
+  typescript: {
+    tsconfigPath: 'tsconfig.build.json',
+  },
+
   experimental: {
     scrollRestoration: true,
   },

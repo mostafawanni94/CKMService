@@ -1,0 +1,19 @@
+{
+  // The configuration `next build` type-checks against.
+  //
+  // `next build` runs tsc over the whole project selected by the tsconfig,
+  // test files included. Those import `vitest`, which is a devDependency and
+  // is absent from a production install — so the build died on
+  // src/test/setup.ts while never shipping a line of it to a browser.
+  //
+  // Tests stay in tsconfig.json, so the editor and `npx tsc --noEmit` still
+  // cover them; only the production build looks away.
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "node_modules",
+    "src/test/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "vitest.config.ts"
+  ]
+}
