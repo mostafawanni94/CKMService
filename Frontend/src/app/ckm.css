@@ -274,13 +274,27 @@
   transform: rotate(-45deg) translate(5px, -5px);
 }
 
+/* The nav is a fixed-height flex row and this panel is its second child, so it
+   was laid out *beside* the bar's contents and clipped to the bar's 72px:
+   it appeared shoved against the right edge with the first links cut off
+   above the fold. Take it out of that row and hang it under the bar instead.
+   `top: 100%` follows the bar as it shrinks to 64px on scroll. */
 .ckm-mobile-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
-  padding: 16px 40px;
+  padding: 8px 20px 16px;
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+  /* A short phone in landscape must still be able to reach every link. */
+  max-height: calc(100vh - var(--ckm-nav-height));
+  overflow-y: auto;
 }
 
 .ckm-mobile-menu a {
@@ -289,6 +303,10 @@
   color: var(--ckm-text);
   border-bottom: 1px solid #f3f4f6;
   font-weight: 500;
+}
+
+.ckm-mobile-menu a:last-child {
+  border-bottom: none;
 }
 
 /* The nav call-to-action carries two labels; the wide one is the default and
